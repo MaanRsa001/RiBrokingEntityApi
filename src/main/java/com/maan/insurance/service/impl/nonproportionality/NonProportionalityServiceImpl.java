@@ -745,7 +745,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			args[49]=StringUtils.isEmpty(req.getRetentionYN()) ? ""	:req.getRetentionYN();
 			args[50] = req.getProposalNo();
 			args[51]=req.getEndNo();
-			
+			args[52] = StringUtils.isEmpty(req.getLayerNo())?"0":req.getLayerNo();
 			
 			updateQry = "risk.update.rskDtls";
 			int updateCount = queryImpl.updateQuery(updateQry, args);
@@ -920,7 +920,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		obj[13] = getDesginationCountry(beanObj.getDeduchunPercent(),beanObj.getExchRate());
 		obj[14] = beanObj.getMdPremium();
 		obj[15] = getDesginationCountry(beanObj.getMdPremium(), beanObj.getExchRate());
-		obj[16] = beanObj.getAdjRate();
+		obj[16] = StringUtils.isBlank(beanObj.getAdjRate())?"":beanObj.getAdjRate();
 		obj[17] = StringUtils.isEmpty(beanObj.getSpRetro()) ? "" : beanObj.getSpRetro();
 		obj[18] = StringUtils.isEmpty(beanObj.getNoInsurer()) ? "0" : beanObj.getNoInsurer();
 		obj[19] = StringUtils.isEmpty(beanObj.getLimitOurShare()) ? "0": beanObj.getLimitOurShare();

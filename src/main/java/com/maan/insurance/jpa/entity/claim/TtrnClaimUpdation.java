@@ -15,7 +15,7 @@ package com.maan.insurance.jpa.entity.claim;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.sql.Date;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -68,7 +68,7 @@ private static final long serialVersionUID = 1L;
 
     //--- ENTITY DATA FIELDS 
     @Column(name="LAYER_NO")
-    private Integer layerNo ;
+    private BigDecimal layerNo ;
 
     @Column(name="LOSS_ESTIMATE_REVISED_OC")
     private BigDecimal lossEstimateRevisedOc ;
@@ -88,7 +88,7 @@ private static final long serialVersionUID = 1L;
     @Column(name="REMARKS", length=500)
     private String     remarks ;
 
-    @Column(name="STATUS", length=1)
+    @Column(name="STATUS")
     private String     status ;
 
     @Column(name="BRANCH_CODE", length=20)

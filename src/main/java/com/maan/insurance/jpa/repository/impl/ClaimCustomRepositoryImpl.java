@@ -716,9 +716,9 @@ public class ClaimCustomRepositoryImpl implements ClaimCustomRepository{
 	}
 
 	@Override
-	public Integer selectPaymentReqNo(String claimNo, String paymentRequestNo) {
+	public Long selectPaymentReqNo(String claimNo, String paymentRequestNo) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
-		CriteriaQuery<Integer> cq = cb.createQuery(Integer.class);
+		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
 		Root<TtrnClaimPayment> root = cq.from(TtrnClaimPayment.class);
 		
 		cq.multiselect(cb.count(root)).where(cb.equal(root.get("claimNo"), claimNo),

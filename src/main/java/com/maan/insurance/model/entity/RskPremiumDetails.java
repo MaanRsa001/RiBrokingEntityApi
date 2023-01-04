@@ -15,7 +15,6 @@ package com.maan.insurance.model.entity;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-import javax.persistence.Table;
 
 import lombok.*;
 import javax.persistence.*;
@@ -367,11 +366,20 @@ private static final long serialVersionUID = 1L;
     @Column(name="TDS_DC")
     private BigDecimal tdsDc ;
 
-    @Column(name="ST_OC")
-    private BigDecimal stOc ;
+    @Column(name="VAT_PREMIUM_OC")
+    private BigDecimal vatPremiumOc ;
 
-    @Column(name="ST_DC")
-    private BigDecimal stDc ;
+    @Column(name="VAT_PREMIUM_DC")
+    private BigDecimal vatPremiumDc ;
+    
+    @Column(name="BROKERAGE_VAT_OC")
+    private BigDecimal brokerageVatOc ;
+
+    @Column(name="BROKERAGE_VAT_DC")
+    private BigDecimal brokerageVatDc ;
+    
+    @Column(name = "DOCUMENT_TYPE")
+	private String documentType;
 
     @Column(name="SC_COMM_OC")
     private BigDecimal scCommOc ;
@@ -437,7 +445,15 @@ private static final long serialVersionUID = 1L;
 
     @Column(name="BUSINESS_TYPE", length=100)
     private String     businessType ;
+    
+    @Column(name = "M1_OC")
+	private BigDecimal m1Oc;
 
+	@Column(name = "M2_OC")
+	private BigDecimal m2Oc;
+
+	@Column(name = "M3_OC")
+	private BigDecimal m3Oc;
 
     //--- ENTITY LINKS ( RELATIONSHIP )
 

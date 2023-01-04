@@ -17,15 +17,21 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
+import com.maan.insurance.jpa.entity.claim.TtrnClaimAcc;
 import com.maan.insurance.jpa.entity.claim.TtrnClaimPaymentArchive;
 import com.maan.insurance.jpa.entity.claim.TtrnClaimUpdation;
+import com.maan.insurance.jpa.mapper.TtrnClaimAccMapper;
+import com.maan.insurance.jpa.mapper.TtrnClaimDetailsMapper;
 import com.maan.insurance.jpa.mapper.TtrnClaimPaymentArchiveMapper;
 import com.maan.insurance.jpa.mapper.TtrnClaimPaymentMapper;
 import com.maan.insurance.jpa.mapper.TtrnClaimUpdationMapper;
 import com.maan.insurance.jpa.repository.claim.ClaimCustomRepository;
 import com.maan.insurance.jpa.repository.claim.TtrnClaimPaymentArchiveRepository;
 import com.maan.insurance.jpa.repository.treasury.TtrnClaimUpdationRepository;
+import com.maan.insurance.model.entity.TtrnClaimDetails;
 import com.maan.insurance.model.entity.TtrnClaimPayment;
+import com.maan.insurance.model.repository.TtrnClaimAccRepository;
+import com.maan.insurance.model.repository.TtrnClaimDetailsRepository;
 import com.maan.insurance.model.repository.TtrnClaimPaymentRepository;
 import com.maan.insurance.model.req.claim.AllocListReq;
 import com.maan.insurance.model.req.claim.AllocationListReq;
@@ -46,6 +52,7 @@ import com.maan.insurance.model.req.claim.InsertCliamDetailsMode2Req;
 import com.maan.insurance.model.req.claim.InsertCliamDetailsMode3Req;
 import com.maan.insurance.model.req.claim.InsertCliamDetailsMode8Req;
 import com.maan.insurance.model.req.claim.ProposalNoReq;
+import com.maan.insurance.model.req.claim.claimNoListReq;
 import com.maan.insurance.model.res.ClaimPaymentListRes;
 import com.maan.insurance.model.res.ClaimlistRes;
 import com.maan.insurance.model.res.GetShortnameRes;
@@ -94,16 +101,18 @@ import com.maan.insurance.model.res.claim.InsertCliamDetailsMode8Res;
 import com.maan.insurance.model.res.claim.ProductIdListRes;
 import com.maan.insurance.model.res.claim.ProductIdListRes1;
 import com.maan.insurance.model.res.claim.ProposalNoRes;
+import com.maan.insurance.model.res.claim.claimNoListRes;
+import com.maan.insurance.service.claim.ClaimService;
 import com.maan.insurance.service.impl.QueryImplemention;
 import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
-import com.maan.insurance.service.impl.claim.ClaimServiceImple;
 import com.maan.insurance.validation.Formatters;
+import com.maan.insurance.validation.Claim.Validation;
 import com.maan.insurance.validation.Claim.ValidationImple;
 
 @Component
-public class ClaimJpaServiceImpl {
+public class ClaimJpaServiceImpl implements ClaimService  {
 
-	private Logger log = LogManager.getLogger(ClaimServiceImple.class);
+	private Logger log = LogManager.getLogger(ClaimJpaServiceImpl.class);
 
 	@Autowired
 	private QueryImplemention queryImpl;
@@ -135,10 +144,20 @@ public class ClaimJpaServiceImpl {
 	@Autowired
 	private TtrnClaimPaymentRepository ttrnClaimPaymentRepository;
 	
-	
 	@Autowired
 	private TtrnClaimPaymentArchiveRepository ttrnClaimPaymentArchiveRepository;
-
+	
+	@Autowired
+	private TtrnClaimDetailsMapper ttrnClaimDetailsMapper;
+	
+	@Autowired
+	private TtrnClaimDetailsRepository ttrnClaimDetailsRepository;
+	
+	@Autowired
+	private TtrnClaimAccRepository ttrnClaimAccRepository;
+	
+	@Autowired
+	private TtrnClaimAccMapper ttrnClaimAccMapper;
 	// allocList(AllocListReq req) -- STARTS
 	public AllocListRes1 allocList(AllocListReq req) {
 		List<AllocListRes> allocists = new ArrayList<AllocListRes>();
@@ -1038,7 +1057,7 @@ public class ClaimJpaServiceImpl {
 	
 	private boolean ModeValidation(final String paymentRequestNo, final String claimNo) {
 		boolean modes = false;
-		Integer count = 0;
+		Long count = 0L;
 		// query -- claim.select.paymentReqNo
 		count = claimCustomRepository.selectPaymentReqNo(claimNo, paymentRequestNo);
 
@@ -1663,194 +1682,80 @@ public class ClaimJpaServiceImpl {
 	//contractidetifierlist(ContractidetifierlistReq req) -- ENDS
 
 	public InsertCliamDetailsMode2Res insertCliamDetailsMode2(InsertCliamDetailsMode2Req req) {
-InsertCliamDetailsMode2Res response = new InsertCliamDetailsMode2Res();
-		
-		String query="";
-		String[] arg =null;
-		String[] args =null;
-		try {
-			 arg = new String[56];
-			 arg[0]=req.getStatusofClaim();
-			 arg[1]=req.getDateofLoss();
-			 arg[2]=req.getReportDate();
-			 arg[3]=req.getLossDetails();
-			 arg[4]=req.getCauseofLoss();
-			 arg[5]=req.getCurrecny();
-			 arg[6]=req.getLossEstimateOrigCurr();
-			 arg[7]=req.getLossEstimateOurShareOrigCurr();
-			 arg[8]=req.getExcRate();
-			 arg[9]=GetDesginationCountry(req.getLossEstimateOurShareOrigCurr(), req.getExcRate());
-			 arg[10]=req.getAdviceUW()==null?"":req.getAdviceUW();
-			 arg[11]=req.getAdviceMangement()==null?"":req.getAdviceMangement();
-			 arg[12]=req.getRiRecovery();
-			 arg[13]="0";
-			 arg[14]=req.getRecoveryFrom();
-			 arg[15]=req.getCreatedBy();
-			 arg[16]=req.getCreatedDate();			
-			 arg[17]=req.getLocation();
-			 arg[18]=req.getRemarks();
-			 arg[19]=req.getAdviceUwEmail()==null?"":req.getAdviceUwEmail();
-			 arg[20]=req.getAdviceManagementEmail()==null?"":req.getAdviceManagementEmail();
-			 arg[21]=req.getRiskCode()==null?"":req.getRiskCode();
-			 arg[22]=req.getAccumulationCode()==null?"":req.getAccumulationCode();
-			 arg[23]=req.getEventCode()==null?"":req.getEventCode();
-			
-			
-			 arg[25]=req.getDepartmentId();
-			 arg[24]=req.getInsuredName(); 
-			
-			
-			 arg[26]=req.getBranchCode();
-			 arg[27]=req.getLoginId();
-			 arg[28]=req.getRecordFees()==null?"":req.getRecordFees();
-			 arg[29]=req.getSurveyorAdjesterPerOC()==null?"0":req.getSurveyorAdjesterPerOC();
-			 arg[30]=StringUtils.isEmpty(req.getSurveyorAdjesterPerOC())|| StringUtils.isEmpty(req.getExcRate()) ? "0":GetDesginationCountry(req.getSurveyorAdjesterPerOC(),req.getExcRate());
-			 arg[31]=req.getOtherProfessionalPerOc()==null?"0":req.getOtherProfessionalPerOc();
-			 arg[32]=StringUtils.isEmpty(req.getOtherProfessionalPerOc())|| StringUtils.isEmpty(req.getExcRate()) ? "0":GetDesginationCountry(req.getOtherProfessionalPerOc(),req.getExcRate());
-			 arg[33]=req.getIbnrPerOc()==null?"0":req.getIbnrPerOc();
-			 arg[34]=StringUtils.isEmpty(req.getIbnrPerOc())|| StringUtils.isEmpty(req.getExcRate()) ? "0":GetDesginationCountry(req.getIbnrPerOc(),req.getExcRate());
-			 arg[35]=req.getRecordIbnr();
-			 arg[36]=req.getCedentClaimNo();
-			 arg[37]=req.getSurveyorAdjesterOurShareOC()==null?"0":req.getSurveyorAdjesterOurShareOC();
-			 arg[38]=req.getProfessionalOurShareOc()==null?"0":req.getProfessionalOurShareOc();
-			 arg[39]=req.getIbnrOurShareOc()==null?"0":req.getIbnrOurShareOc();
-			 arg[40]=StringUtils.isEmpty(req.getSurveyorAdjesterOurShareOC())|| StringUtils.isEmpty(req.getExcRate()) ? "0":GetDesginationCountry(req.getSurveyorAdjesterOurShareOC(),req.getExcRate());
-			 arg[41]=StringUtils.isEmpty(req.getProfessionalOurShareOc())|| StringUtils.isEmpty(req.getExcRate()) ? "0":GetDesginationCountry(req.getProfessionalOurShareOc(),req.getExcRate());
-			 arg[42]=StringUtils.isEmpty(req.getIbnrOurShareOc())|| StringUtils.isEmpty(req.getExcRate()) ? "0":GetDesginationCountry(req.getIbnrOurShareOc(),req.getExcRate());
+			InsertCliamDetailsMode2Res response = new InsertCliamDetailsMode2Res();
+				try {
+					
+					if(StringUtils.isEmpty(req.getClaimNo()))
+					{
+					req.setClaimNo(fm.getSequence("ClaimBooking",req.getProductId(),req.getDepartmentId(), req.getBranchCode(),"",req.getCreatedDate()));
+				
+						TtrnClaimDetails ttrnClaimDetails = ttrnClaimDetailsMapper.toEntity(req);
+						
+						req.setClaimNo(fm.getSequence("ClaimBooking",req.getProductId(),req.getDepartmentId(), req.getBranchCode(),"",req.getCreatedDate()));
+						ttrnClaimDetails.setClaimNo(new BigDecimal(req.getClaimNo()));
+						ttrnClaimDetailsRepository.saveAndFlush(ttrnClaimDetails); //queryImpl.updateQuery(query, arg); CliamDetailsArugumentsmode2 arg
+						
+						//claim.insert.getUpdationQuery
+						
+						TtrnClaimUpdation ttrnClaimUpdation = ttrnClaimUpdationMapper.toEntity(req);
+						ttrnClaimUpdation.setSlNo(ttrnClaimUpdationMapper.format(GetSl_no(req.getClaimNo(), req.getPolicyContractNo())));
 
-			 arg[43]=StringUtils.isEmpty(req.getLossEstimateOrigCurr())|| StringUtils.isEmpty(req.getExcRate()) ? "0":GetDesginationCountry(req.getLossEstimateOrigCurr(),req.getExcRate());
-			 arg[44]=req.getReOpenDate()==null?"":req.getReOpenDate();
-			 arg[45]=req.getGrossLossFGU()==null?"":req.getGrossLossFGU();
-			 if("2".equalsIgnoreCase(req.getProductId())){
-				 arg[46]=req.getClaimdepartId();
-			 }else if("1".equalsIgnoreCase(req.getProductId())){
-				 arg[46]=req.getDepartmentId();
-			 }else if("3".equalsIgnoreCase(req.getProductId())){
-				 arg[46]=req.getDepartmentClass(); //
-			 }
-			 arg[47]=req.getSubProfitId()==null?"D":req.getSubProfitId();
-			 arg[48]=req.getReservePositionDate();
-			 arg[49] = req.getDepartmentClass();
-			 arg[50] = req.getProposalNo(); //
-			 arg[51] = req.getProductId();
-			 arg[52]=req.getReOpenDate()==null?"":req.getReOpenDate();
-			 arg[53]=req.getPolicyContractNo().trim();
-			 arg[54]=req.getClaimNo();
-			 arg[55]=StringUtils.isEmpty(req.getLayerNo())?"0":req.getLayerNo();
-			if(StringUtils.isEmpty(req.getClaimNo()))
-			{
-			req.setClaimNo(fm.getSequence("ClaimBooking",req.getProductId(),req.getDepartmentId(), req.getBranchCode(),"",req.getCreatedDate()));
-			arg[54]=req.getClaimNo();
-			
-				query="claim.insert.cliamDetails";
-				
-				queryImpl.updateQuery(query, arg); //CliamDetailsArugumentsmode2 arg
-				
-				//Mode 7 arg
-				  args=new String[31];
-				  args[0] = GetSl_no(req.getClaimNo(),req.getPolicyContractNo());
-				  args[1]=StringUtils.isEmpty(req.getLayerNo())?"0":req.getLayerNo();		
-				  args[2]=req.getLossEstimateOurShareOrigCurr();
-				  args[3]=GetDesginationCountry(req.getLossEstimateOurShareOrigCurr(),req.getExcRate());
-				  args[4]="Inserted at the time of Claim Registration";
-				  args[5]=req.getCreatedDate();
-				  args[6]=req.getClaimNo();           
-				  args[7]=req.getPolicyContractNo();
-				  args[8]="Inserted at the time of Claim Registration";
-				 
-				 args[9]=req.getBranchCode();
-				 args[10]=req.getLoginId();
-				 args[11]=req.getSurveyorAdjesterPerOC()==null?"0":req.getSurveyorAdjesterPerOC();
-				 args[12]=StringUtils.isEmpty(req.getSurveyorAdjesterPerOC())|| StringUtils.isEmpty(req.getExcRate()) ? "0":GetDesginationCountry(req.getSurveyorAdjesterPerOC(),req.getExcRate());
-				 args[13]=req.getOtherProfessionalPerOc()==null?"0":req.getOtherProfessionalPerOc();
-				 args[14]=StringUtils.isEmpty(req.getOtherProfessionalPerOc())|| StringUtils.isEmpty(req.getExcRate()) ? "0":GetDesginationCountry(req.getOtherProfessionalPerOc(),req.getExcRate());
-				 args[15]=req.getIbnrPerOc()==null?"0":req.getIbnrPerOc();
-				 args[16]=StringUtils.isEmpty(req.getIbnrPerOc())|| StringUtils.isEmpty(req.getExcRate()) ? "0":GetDesginationCountry(req.getIbnrPerOc(),req.getExcRate());
-				 args[17]=req.getSurveyorAdjesterOurShareOC()==null?"0":req.getSurveyorAdjesterOurShareOC();
-				 args[18]=req.getProfessionalOurShareOc()==null?"0":req.getProfessionalOurShareOc();
-				 args[19]=req.getIbnrOurShareOc()==null?"0":req.getIbnrOurShareOc();
-				args[20]=StringUtils.isEmpty(req.getSurveyorAdjesterOurShareOC())|| StringUtils.isEmpty(req.getExcRate()) ? "0":GetDesginationCountry(req.getSurveyorAdjesterOurShareOC(),req.getExcRate());
-					args[21]=StringUtils.isEmpty(req.getProfessionalOurShareOc())|| StringUtils.isEmpty(req.getExcRate()) ? "0":GetDesginationCountry(req.getProfessionalOurShareOc(),req.getExcRate());
-					args[22]=StringUtils.isEmpty(req.getIbnrOurShareOc())|| StringUtils.isEmpty(req.getExcRate()) ? "0":GetDesginationCountry(req.getIbnrOurShareOc(),req.getExcRate());
-
-				args[23]=req.getLossEstimateOrigCurr();
-				 args[24]=StringUtils.isEmpty(req.getLossEstimateOrigCurr())|| StringUtils.isEmpty(req.getExcRate()) ? "0":GetDesginationCountry(req.getLossEstimateOrigCurr(),req.getExcRate());
-				 args[25]=req.getRecordFees();
-				 args[26]=req.getRecordIbnr();
-				args[27]=req.getExcRate();
-				if(StringUtils.isBlank(req.getTotalReserveOSOC())){
-					double total = Double.parseDouble(StringUtils.isBlank(req.getSurveyorAdjesterOurShareOC())?"0":req.getSurveyorAdjesterOurShareOC().replaceAll(",", ""))+
-					Double.parseDouble(StringUtils.isBlank(req.getProfessionalOurShareOc())?"0":req.getProfessionalOurShareOc().replaceAll(",", ""))+
-					Double.parseDouble(StringUtils.isBlank(req.getLossEstimateOurShareOrigCurr())?"0":req.getLossEstimateOurShareOrigCurr().replaceAll(",", ""));
-					req.setTotalReserveOSOC(Double.toString(total));
-				}
-				 args[28]=req.getTotalReserveOSOC();
-				 args[29]=StringUtils.isEmpty(req.getTotalReserveOSOC())|| StringUtils.isEmpty(req.getExcRate()) ? "0":GetDesginationCountry(req.getTotalReserveOSOC(),req.getExcRate());
-				 args[30]=req.getReservePositionDate();
-			
-				
-				query = "claim.insert.getUpdationQuery";
-				queryImpl.updateQuery(query, args); 
-				
-				
-				
-				insertAggregate(req);
-				}
-				else 
-				{
+						ttrnClaimUpdationRepository.save(ttrnClaimUpdation);
 					
-					query="claim.update.cliamDetailsUpdate";
+						insertAggregate(req);
+						}
+						else 
+						{
+							//claim.update.cliamDetailsUpdate
+							TtrnClaimDetails ttrnClaimDetails = ttrnClaimDetailsRepository.findByContractNoAndClaimNoAndLayerNo(req.getPolicyContractNo(),new BigDecimal(req.getClaimNo()),new BigDecimal(req.getLayerNo()));
+							ttrnClaimDetails = ttrnClaimDetailsMapper.toEntity(req);
+							req.setClaimNo(fm.getSequence("ClaimBooking",req.getProductId(),req.getDepartmentId(), req.getBranchCode(),"",req.getCreatedDate()));
+							ttrnClaimDetails.setClaimNo(new BigDecimal(req.getClaimNo()));
+							ttrnClaimDetailsRepository.saveAndFlush(ttrnClaimDetails); 
+							
+							insertAggregate(req);
+						}
+					response.setClaimNo(req.getClaimNo());
+					response.setClaimNo(req.getClaimNo());
+					response.setMessage("Success");
+					response.setIsError(false);
+					} catch(Exception e){
+						log.error(e);
+						e.printStackTrace();
+						response.setMessage("Failed");
+						response.setIsError(true);
+					}
+				return response;
+			}
+			public int insertAggregate(final InsertCliamDetailsMode2Req req) {
+				int status = 0;
+				
+				String query="";
+				String[] args =null;
+				int spresult=0;
+				try {
 					
-					
-					queryImpl.updateQuery(query, arg); 
-					
-					insertAggregate(req);
-				}
-			response.setClaimNo(req.getClaimNo());
-				response.setMessage("Success");
-				response.setIsError(false);
-				} catch(Exception e){
-					log.error(e);
+					//INSERT_ACCUMULATION_DATA
+					TtrnClaimAcc ttrnClaimAcc = ttrnClaimAccMapper.toEntity(req);
+				
+					//SELECT NVL(MAX(AMEND_ID)+1,0) FROM TTRN_CLAIM_ACC WHERE CLAIM_NO=? AND CONTRACT_NO=?AND LAYER_NO=? AND SUB_CLASS=?)
+					TtrnClaimAcc list = ttrnClaimAccRepository.findTop1ByClaimNoAndContractNoAndLayerNoAndSubClass(
+							new BigDecimal(req.getClaimNo()),req.getPolicyContractNo(),StringUtils.isEmpty(req.getLayerNo())?BigDecimal.ZERO:new BigDecimal(req.getLayerNo()),new BigDecimal(req.getDepartmentId()));
+					if(list!=null) {
+						ttrnClaimAcc.setAmendId(list.getAmendId()==null?BigDecimal.ZERO:new BigDecimal(list.getAmendId().intValue()+1));
+						}else {
+							ttrnClaimAcc.setAmendId(BigDecimal.ZERO);
+					}
+					ttrnClaimAccRepository.saveAndFlush(ttrnClaimAcc);
+				
+				} catch (DataAccessException e) {
 					e.printStackTrace();
-					response.setMessage("Failed");
-					response.setIsError(true);
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-		return response;
-	}
-	public int insertAggregate(final InsertCliamDetailsMode2Req req) {
-		int status = 0;
-		
-		String query="";
-		String[] args =null;
-		int spresult=0;
-		try {
-			query="INSERT_ACCUMULATION_DATA";
-			
-			args = new String[13];
-			args[0]=req.getClaimNo();
-			args[1]=req.getPolicyContractNo();
-			args[2]=StringUtils.isEmpty(req.getLayerNo())?"0":req.getLayerNo();
-			args[3]=req.getDepartmentId();
-			args[4]=req.getRiskCode();
-			args[5]=req.getAccumulationCode();
-			args[6]=req.getEventCode();
-			args[7]=req.getClaimNo();
-			args[8]=req.getPolicyContractNo();
-			args[9]=StringUtils.isEmpty(req.getLayerNo())?"0":req.getLayerNo();
-			args[10]=req.getDepartmentId();
-			args[11]=req.getBranchCode();
-			args[12]=req.getLoginId();
-			queryImpl.updateQuery(query, args); 
-			
-			
-		} catch (DataAccessException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		return status;
-	}
+				
+				return status;
+			}
 	protected String GetDesginationCountry(final String limitOrigCur,final String ExchangeRate) {
 		String valu="0";
 		if (StringUtils.isNotBlank(limitOrigCur)&& Double.parseDouble(limitOrigCur) != 0) {
@@ -1861,4 +1766,268 @@ InsertCliamDetailsMode2Res response = new InsertCliamDetailsMode2Res();
 		}
 		return valu;
 	}
+	public String getDuplicateCedentClaim(InsertCliamDetailsMode2Req req) {
+		List<Map<String,Object>>list=null;
+		String claimno="";
+		try{
+			String query="GET_DUPLICATE_CEDENT_NO_LIST";
+			String args[] = null;
+			args = new String[] {req.getBranchCode(), req.getProposalNo(),req.getCedentClaimNo() };
+			
+			if(StringUtils.isNotBlank(req.getClaimNo())){
+				query="GET_DUPLICATE_CEDENT_NO_LIST1";
+				args = new String[] {req.getBranchCode(), req.getProposalNo(),req.getCedentClaimNo(),req.getClaimNo()};
+				
+				
+			}
+			list=queryImpl.selectList(query, args);
+			if(list!=null && list.size()>0) {
+				claimno=list.get(0).get("CLAIM_NO")==null?"":list.get(0).get("CLAIM_NO").toString();
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return claimno;
+	}
+	public boolean BusinessValidation(InsertCliamDetailsMode2Req req, int mode){
+		boolean businesFlag=false;
+		InsertCliamDetailsMode8Req req1 = new InsertCliamDetailsMode8Req();
+		req1.setPolicyContractNo(req.getPolicyContractNo());
+		if(mode==3)
+		{
+			
+			if(Validation.ValidateTwo(getClaimDate(req1,3),req.getDateofLoss()).equalsIgnoreCase("Invalid"))
+			{
+				businesFlag=true;
+			}
+			
+		}
+		return businesFlag;
+}
+	public boolean BusinessValidation(InsertCliamDetailsMode3Req formObj, int mode){
+		boolean businesFlag=false;
+		double Amount=0;
+		 if(mode==7)
+			{
+				Amount=businessValidaion(formObj,mode);
+				if(Double.parseDouble(formObj.getPaidClaimOs())>Amount)
+				{
+					businesFlag=true;
+				}
+			}else if(mode==8)
+			{
+				Amount=businessValidaion(formObj,mode);
+				if(Double.parseDouble(formObj.getSurveyorfeeos())>Amount)
+				{
+					businesFlag=true;
+				}
+			}else if(mode==9)
+			{
+				Amount=businessValidaion(formObj,mode);
+				if(Double.parseDouble(formObj.getOtherproffeeos())>Amount)
+				{
+					businesFlag=true;
+				}
+			}
+	
+		return businesFlag;
+}
+	public double businessValidaion(final InsertCliamDetailsMode3Req formObj,final int mode) {
+		double amount=0.0;
+		String query="";
+		List<Map<String,Object>>list=null;
+		try {
+		if(mode==7){
+	
+				if("edit".equalsIgnoreCase(formObj.getPaymentFlag())){
+					query="CLAIM_LOSS_ESTIMATE_PAID_DIFFERENCE_EDIT";
+					list=queryImpl.selectList(query, new String[]{formObj.getPolicyContractNo(),formObj.getClaimNo(),formObj.getClaimPaymentNo(),formObj.getPolicyContractNo(),formObj.getClaimNo(),formObj.getPolicyContractNo(),formObj.getClaimNo()});
+					if (!CollectionUtils.isEmpty(list)) {
+						amount =Double.parseDouble(list.get(0).get("LOSS_ESTIMATE_DIFF") == null ? ""
+								: list.get(0).get("LOSS_ESTIMATE_DIFF").toString());
+					}
+					
+
+				}else{
+					query="claim.loss.estimate.paid.difference";
+					list=queryImpl.selectList(query, new String[]{formObj.getPolicyContractNo(),formObj.getClaimNo(),formObj.getPolicyContractNo(),formObj.getClaimNo(),formObj.getPolicyContractNo(),formObj.getClaimNo()});
+					if (!CollectionUtils.isEmpty(list)) {
+						amount =Double.parseDouble(list.get(0).get("LOSS_ESTIMATE_DIFF") == null ? ""
+								: list.get(0).get("LOSS_ESTIMATE_DIFF").toString());
+					}
+					
+				}
+				
+			} 
+		
+		
+		else if(mode==8){
+				if("edit".equalsIgnoreCase(formObj.getPaymentFlag())){
+					query="CLAIM_SAF_OS_SUM_DIFFERENCE_EDIT";
+					list=queryImpl.selectList(query, new String[]{formObj.getPolicyContractNo(),formObj.getClaimNo(),formObj.getClaimPaymentNo(),formObj.getPolicyContractNo(),formObj.getClaimNo(),formObj.getPolicyContractNo(),formObj.getClaimNo()});
+					if (!CollectionUtils.isEmpty(list)) {
+						amount =Double.parseDouble(list.get(0).get("SAF_OS_DIFF") == null ? ""
+								: list.get(0).get("SAF_OS_DIFF").toString());
+					}
+					
+					
+
+				}else{
+					query="claim.saf.os.sum.difference";
+					list=queryImpl.selectList(query, new String[]{formObj.getPolicyContractNo(),formObj.getClaimNo(),formObj.getPolicyContractNo(),formObj.getClaimNo(),formObj.getPolicyContractNo(),formObj.getClaimNo()});
+					if (!CollectionUtils.isEmpty(list)) {
+						amount =Double.parseDouble(list.get(0).get("OTH_FEE_DIFF") == null ? ""
+								: list.get(0).get("OTH_FEE_DIFF").toString());
+					}
+					
+					}
+				}
+		else if(mode==9){
+		
+				if("edit".equalsIgnoreCase(formObj.getPaymentFlag())){
+					query="CLAIM_OTHER_FEE_OS_SUM_EDIT";
+					list=queryImpl.selectList(query, new String[]{formObj.getPolicyContractNo(),formObj.getClaimNo(),formObj.getClaimPaymentNo(),formObj.getPolicyContractNo(),formObj.getClaimNo(),formObj.getPolicyContractNo(),formObj.getClaimNo()});
+					if (!CollectionUtils.isEmpty(list)) {
+						amount =Double.parseDouble(list.get(0).get("SAF_OS_DIFF") == null ? ""
+								: list.get(0).get("SAF_OS_DIFF").toString());
+					}
+				
+
+				}else{
+					query="claim.other.fee.os.sum.difference";
+					list=queryImpl.selectList(query, new String[]{formObj.getPolicyContractNo(),formObj.getClaimNo(),formObj.getPolicyContractNo(),formObj.getClaimNo(),formObj.getPolicyContractNo(),formObj.getClaimNo()});
+					if (!CollectionUtils.isEmpty(list)) {
+						amount =Double.parseDouble(list.get(0).get("OTH_FEE_DIFF") == null ? ""
+								: list.get(0).get("OTH_FEE_DIFF").toString());
+					}
+					
+					}
+		}} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		return amount;
+	}
+	public String getClaimDate(InsertCliamDetailsMode8Req req,int mode)
+	{
+		List<Map<String,Object>>list=null;
+		String date="";
+		String query = "";
+		try{
+			if(mode==1)
+			{
+				 query="claim.select.getInsDate";
+				list=queryImpl.selectList(query, new String[]{req.getClaimNo(),req.getClaimNo()});
+				if(list!=null && list.size()>0) {
+					date=list.get(0).get("INS_DATE")==null?"":list.get(0).get("INS_DATE").toString();
+				}
+				
+			}else if(mode==2)
+			{
+				 query="claim.select.getLossDate";
+				 list=queryImpl.selectList(query, new String[]{req.getClaimNo()});
+					if(list!=null && list.size()>0) {
+						date=list.get(0).get("LOSS_DATE")==null?"":list.get(0).get("LOSS_DATE").toString();
+					}
+				
+			}else if(mode==3)
+			{
+				 query="claim.select.getContInsDate";
+				list=queryImpl.selectList(query, new String[]{req.getPolicyContractNo(),req.getPolicyContractNo()});
+				if(list!=null && list.size()>0) {
+					date=list.get(0).get("INS_DATE")==null?"":list.get(0).get("INS_DATE").toString();
+				}else if(mode==4)
+				{
+				 query="claim.select.getLastPayDt";
+				 list=queryImpl.selectList(query, new String[]{req.getClaimNo(),req.getPolicyContractNo()});
+					if(list!=null && list.size()>0) {
+						date=list.get(0).get("PAY_DT")==null?"":list.get(0).get("PAY_DT").toString();
+					}
+				
+			}
+			else if(mode==5)
+			{
+				 query="claim.lost.reserve.updateDate";
+				 list=queryImpl.selectList(query, new String[]{req.getPolicyContractNo(),req.getClaimNo(),req.getBranchCode()});
+					if(list!=null && list.size()>0) {
+						date=list.get(0).get("INCEPTION_DATE")==null?"":list.get(0).get("INCEPTION_DATE").toString();
+					}
+			}
+				
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+		return date;
+	}
+	public boolean BusinessValidation(InsertCliamDetailsMode8Req req, int mode){
+		boolean businesFlag=false;
+		String status="";
+		if(mode==6){
+			 status=getClaimStatus(req);		
+			if("Closed".equalsIgnoreCase(status)){
+				businesFlag=true;
+			}
+			
+			}
+		else if(mode==10){
+			 status=getClaimStatus(req);		
+			if("Closed".equalsIgnoreCase(status)){
+				businesFlag=true;
+			}
+			}
+		
+		return businesFlag;
+	}
+	public String getClaimStatus(InsertCliamDetailsMode8Req req) {
+		List<Map<String, Object>> list=new ArrayList<Map<String, Object>>();
+		
+		String status="";
+		try{
+		String query="claim.select.claimstatus";
+		list = queryImpl.selectList(query, new String[] {req.getPolicyContractNo(),req.getClaimNo()});
+		if (!CollectionUtils.isEmpty(list)) {
+			status =(list.get(0).get("STATUS_OF_CLAIM") == null ? ""
+					: list.get(0).get("STATUS_OF_CLAIM").toString());
+		
+		}
+		
+		
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}
+		return  status;
+	}
+
+	public claimNoListRes claimNoList(claimNoListReq req) {
+		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+		claimNoListRes response = new claimNoListRes();
+		
+			try {
+				String query = "GET_CEDENT_NO_LIST";
+				String args[] = new String[4];
+				args[0] = req.getCedentClaimNo();
+				args[1] = req.getDateofLoss();
+				args[2] = req.getCedingCompanyCode();
+				args[3] = req.getBranchCode();
+				if (StringUtils.isNotBlank(req.getClaimNo())) {
+					query += " AND C.CLAIM_NO !=" + req.getClaimNo();
+				}
+				list = queryImpl.selectList(query, args);
+				
+				response.setResponse(list);
+				response.setMessage("Success");
+				response.setIsError(false);
+				}
+				 catch(Exception e){
+					log.error(e);
+					e.printStackTrace();
+					response.setMessage("Failed");
+					response.setIsError(true);
+				}
+					return response;
+
+			}
 }

@@ -68,8 +68,8 @@ public class RskPremiumDetailsMapper extends AbstractEntityMapper<RskPremiumDeta
 			rskPremiumDetails.setSubClass(formatBigDecimal(input.getSubClass().toString()));
 			rskPremiumDetails.setTdsOc(formatBigDecimal(input.getTdsOc().toString()));
 			rskPremiumDetails.setTdsDc(formatBigDecimal(input.getTdsDc().toString()));
-			rskPremiumDetails.setStOc(formatBigDecimal(input.getStOc().toString()));
-			rskPremiumDetails.setStDc(formatBigDecimal(input.getStDc().toString()));
+			rskPremiumDetails.setVatPremiumOc(formatBigDecimal(input.getVatPremiumDc().toString()));
+			rskPremiumDetails.setVatPremiumDc(formatBigDecimal(input.getVatPremiumDc().toString()));
 			rskPremiumDetails.setBonusOc(formatBigDecimal(input.getBonusOc()==null?"":input.getBonusOc().toString()));
 			rskPremiumDetails.setBonusDc(formatBigDecimal(input.getBonusDc()==null?"":input.getBonusDc().toString()));
 			rskPremiumDetails.setGnpiEndtNo(input.getGnpiEndtNo());
@@ -80,6 +80,12 @@ public class RskPremiumDetailsMapper extends AbstractEntityMapper<RskPremiumDeta
 			rskPremiumDetails.setProductId(formatBigDecimal(input.getProductId().toString()));
 			rskPremiumDetails.setReverselStatus(input.getReverselStatus());
 			rskPremiumDetails.setTransType(input.getTransType());
+			rskPremiumDetails.setBrokerageVatOc(formatBigDecimal(input.getBrokerageVatOc().toString()));
+			rskPremiumDetails.setBrokerageVatDc(formatBigDecimal(input.getBrokerageVatDc().toString()));
+			rskPremiumDetails.setDocumentType(input.getDocumentType());
+			rskPremiumDetails.setM1Oc(formatBigDecimal(input.getM1Oc().toString()));
+			rskPremiumDetails.setM2Oc(formatBigDecimal(input.getM2Oc().toString()));
+			rskPremiumDetails.setM3Oc(formatBigDecimal(input.getM3Oc().toString()));
 			rskPremiumDetails.setAmendId(formatBigDecimal(input.getAmendId()==null? "" :input.getAmendId().toString()));
 		}
 		return rskPremiumDetails;
@@ -173,8 +179,8 @@ public class RskPremiumDetailsMapper extends AbstractEntityMapper<RskPremiumDeta
 				rskPremiumDetails.setSubClass(input.getSubClass());
 				rskPremiumDetails.setTdsOc(input.getTdsOc());
 				rskPremiumDetails.setTdsDc(input.getTdsDc());
-				rskPremiumDetails.setStOc(input.getStOc());
-				rskPremiumDetails.setStDc(input.getStDc());
+				rskPremiumDetails.setVatPremiumOc(formatBigDecimal(input.getVatPremiumDc().toString()));
+				rskPremiumDetails.setVatPremiumDc(formatBigDecimal(input.getVatPremiumDc().toString()));
 				rskPremiumDetails.setScCommOc(input.getScCommOc());
 				rskPremiumDetails.setScCommDc(input.getScCommDc());
 				rskPremiumDetails.setPremiumClass(input.getPremiumClass());
@@ -188,6 +194,12 @@ public class RskPremiumDetailsMapper extends AbstractEntityMapper<RskPremiumDeta
 				rskPremiumDetails.setProposalNo(input.getProposalNo());
 				rskPremiumDetails.setProductId(input.getProductId());
 				rskPremiumDetails.setTransType(input.getTransType());
+				rskPremiumDetails.setBrokerageVatOc(formatBigDecimal(input.getBrokerageVatOc().toString()));
+				rskPremiumDetails.setBrokerageVatDc(formatBigDecimal(input.getBrokerageVatDc().toString()));
+				rskPremiumDetails.setDocumentType(input.getDocumentType());
+				rskPremiumDetails.setM1Oc(formatBigDecimal(input.getM1Oc().toString()));
+				rskPremiumDetails.setM2Oc(formatBigDecimal(input.getM2Oc().toString()));
+				rskPremiumDetails.setM3Oc(formatBigDecimal(input.getM3Oc().toString()));
 				rskPremiumDetails.setAmendId(formatBigDecimal(input.getAmendId()==null? "" :input.getAmendId().toString()));
 			}
 		} catch (Exception e) {

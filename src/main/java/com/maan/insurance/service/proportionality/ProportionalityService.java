@@ -41,6 +41,7 @@ import com.maan.insurance.model.res.proportionality.InsertCrestaDetailsRes;
 import com.maan.insurance.model.res.proportionality.RiskDetailsEditModeRes;
 import com.maan.insurance.model.res.proportionality.ShowSecondpageEditItemsRes;
 import com.maan.insurance.model.res.proportionality.ViewRiskDetailsRes;
+import com.maan.insurance.model.res.proportionality.checkAvialabilityRes;
 import com.maan.insurance.model.req.proportionality.ProfitCommissionListReq;
 import com.maan.insurance.model.req.proportionality.ScaleCommissionInsertReq;
 import com.maan.insurance.model.req.proportionality.saveRiskDeatilsSecondFormReq;
@@ -121,4 +122,5 @@ public interface ProportionalityService {
 
 	saveRiskDeatilsSecondFormRes saveRiskDeatilsSecondForm(saveRiskDeatilsSecondFormReq req);
 
+	checkAvialabilityRes checkAvialability(String proposalno, String pid);
 }

@@ -14,19 +14,12 @@ package com.maan.insurance.notification.entity;
 
 
 import java.io.Serializable;
-import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -62,8 +55,8 @@ private static final long serialVersionUID = 1L;
  
     //--- ENTITY PRIMARY KEY 
     @Id
-    @Column(name="INS_COMPANY_ID", nullable=false, length=10)
-    private String     insCompanyId;
+    @Column(name="APP_ID", nullable=false)
+    private String     appId;
 
     //--- ENTITY DATA FIELDS 
     @Column(name="SMTP_HOST", length=50)
@@ -76,26 +69,37 @@ private static final long serialVersionUID = 1L;
     private String     smtpPwd ;
 
 
-    @Column(name="ADDRESS", length=100)
-    private String     address ;
+    @Column(name="EXP_TIME")
+    private String     expTime ;
 
-    @Column(name="STATUS", length=1)
-    private String     status ;
+    @Column(name="HOME_APP")
+    private String     homeApp ;
 
-    @Column(name="REMARKS", length=200)
-    private String     remarks ;
+    @Column(name="LOGO_PATH")
+    private String     logoPath ;
 
     @Column(name="SMTP_PORT")
-    private Integer smtpPort ;
+    private String smtpPort ;
 
-    @Temporal(TemporalType.DATE)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy", locale = "en-IN", timezone = "Asia/Calcutta")
     @Column(name="ENTRYDATE")
-    private Date       entrydate ;
+    private String       entrydate ;
 
 
     //--- ENTITY LINKS ( RELATIONSHIP )
+    @Column(name="MAIL_CC")
+    private String     mailCc ;
 
+    @Column(name="PWD_CNT")
+    private String     pwdCnt ;
+
+    @Column(name="PWD_LEN")
+    private String     pwdLen ;
+
+    @Column(name="SMTP_ADDRESS")
+    private String smtpAddress ;
+    
+    @Column(name="SMTP_SHORT_ADDRESS")
+    private String smtpShortAddress ;
 
 }
 

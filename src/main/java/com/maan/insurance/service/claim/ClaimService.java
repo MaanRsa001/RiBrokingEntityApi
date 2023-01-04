@@ -1,8 +1,6 @@
 package com.maan.insurance.service.claim;
 
 
-import java.util.List;
-
 import org.springframework.stereotype.Service;
 
 import com.maan.insurance.model.req.claim.AllocListReq;
@@ -23,21 +21,15 @@ import com.maan.insurance.model.req.claim.InsertCliamDetailsMode2Req;
 import com.maan.insurance.model.req.claim.InsertCliamDetailsMode3Req;
 import com.maan.insurance.model.req.claim.InsertCliamDetailsMode8Req;
 import com.maan.insurance.model.req.claim.ProposalNoReq;
-import com.maan.insurance.model.res.ClaimPaymentListRes;
+import com.maan.insurance.model.req.claim.claimNoListReq;
 import com.maan.insurance.model.res.GetShortnameRes;
-import com.maan.insurance.model.res.claim.AllocListRes;
 import com.maan.insurance.model.res.claim.AllocListRes1;
 import com.maan.insurance.model.res.claim.AllocationListRes;
-import com.maan.insurance.model.res.claim.ClaimListMode3Res;
 import com.maan.insurance.model.res.claim.ClaimListMode3Response;
-import com.maan.insurance.model.res.claim.ClaimListMode4Res;
 import com.maan.insurance.model.res.claim.ClaimListMode4Response;
-import com.maan.insurance.model.res.claim.ClaimListMode5Res;
 import com.maan.insurance.model.res.claim.ClaimListMode5Response;
-import com.maan.insurance.model.res.claim.ClaimListMode6Res;
 import com.maan.insurance.model.res.claim.ClaimListMode6Response;
 import com.maan.insurance.model.res.claim.ClaimListRes;
-import com.maan.insurance.model.res.claim.ClaimPaymentEditRes;
 import com.maan.insurance.model.res.claim.ClaimPaymentEditRes1;
 import com.maan.insurance.model.res.claim.ClaimPaymentListRes1;
 import com.maan.insurance.model.res.claim.ClaimTableListMode1Res;
@@ -49,17 +41,15 @@ import com.maan.insurance.model.res.claim.ContractDetailsMode4Res;
 import com.maan.insurance.model.res.claim.ContractDetailsMode5Res;
 import com.maan.insurance.model.res.claim.ContractDetailsMode6Res;
 import com.maan.insurance.model.res.claim.ContractDetailsMode7Res;
-import com.maan.insurance.model.res.claim.ContractidetifierlistRes;
 import com.maan.insurance.model.res.claim.ContractidetifierlistRes1;
-import com.maan.insurance.model.res.claim.GetContractNoRes;
 import com.maan.insurance.model.res.claim.GetContractNoRes1;
 import com.maan.insurance.model.res.claim.InsertCliamDetailsMode12Res;
 import com.maan.insurance.model.res.claim.InsertCliamDetailsMode2Res;
 import com.maan.insurance.model.res.claim.InsertCliamDetailsMode3Res;
 import com.maan.insurance.model.res.claim.InsertCliamDetailsMode8Res;
-import com.maan.insurance.model.res.claim.ProductIdListRes;
 import com.maan.insurance.model.res.claim.ProductIdListRes1;
 import com.maan.insurance.model.res.claim.ProposalNoRes;
+import com.maan.insurance.model.res.claim.claimNoListRes;
 @Service
 public interface ClaimService {
 
@@ -149,7 +139,7 @@ public interface ClaimService {
 
 	InsertCliamDetailsMode12Res insertCliamDetailsMode12(InsertCliamDetailsMode12Req req);
 
-	
+	claimNoListRes claimNoList(claimNoListReq req);
 
 
 }

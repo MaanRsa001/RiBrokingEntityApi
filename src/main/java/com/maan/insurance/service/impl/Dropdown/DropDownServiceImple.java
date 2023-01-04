@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -59,6 +60,8 @@ import com.maan.insurance.model.entity.ExchangeMaster;
 import com.maan.insurance.model.entity.PersonalInfo;
 import com.maan.insurance.model.entity.PositionMaster;
 import com.maan.insurance.model.entity.RskPremiumDetails;
+import com.maan.insurance.model.entity.StatusMaster;
+import com.maan.insurance.model.entity.SubStatusMaster;
 import com.maan.insurance.model.entity.TerritoryMaster;
 import com.maan.insurance.model.entity.TmasDepartmentMaster;
 import com.maan.insurance.model.entity.TmasDocTypeMaster;
@@ -67,14 +70,21 @@ import com.maan.insurance.model.entity.TmasPfcMaster;
 import com.maan.insurance.model.entity.TmasPolicyBranch;
 import com.maan.insurance.model.entity.TmasSpfcMaster;
 import com.maan.insurance.model.entity.TmasTerritory;
+import com.maan.insurance.model.entity.TtrnBonus;
 import com.maan.insurance.model.entity.TtrnClaimDetails;
 import com.maan.insurance.model.entity.TtrnClaimPayment;
 import com.maan.insurance.model.entity.TtrnPttySection;
 import com.maan.insurance.model.entity.TtrnRetroClaimDetails;
+import com.maan.insurance.model.entity.TtrnRiPlacement;
+import com.maan.insurance.model.entity.TtrnRip;
 import com.maan.insurance.model.entity.TtrnRiskCommission;
+import com.maan.insurance.model.entity.TtrnRiskDetails;
 import com.maan.insurance.model.entity.TtrnRskClassLimits;
 import com.maan.insurance.model.repository.BankMasterRepository;
 import com.maan.insurance.model.repository.ConstantDetailRepository;
+import com.maan.insurance.model.repository.PositionMasterRepository;
+import com.maan.insurance.model.repository.StatusMasterRepository;
+import com.maan.insurance.model.repository.SubStatusMasterRepository;
 import com.maan.insurance.model.repository.TerritoryMasterRepository;
 import com.maan.insurance.model.repository.TmasDepartmentMasterRepository;
 import com.maan.insurance.model.repository.TmasOpenPeriodRepository;
@@ -87,6 +97,7 @@ import com.maan.insurance.model.repository.TtrnMndInstallmentsRepository;
 import com.maan.insurance.model.repository.TtrnPttySectionRepository;
 import com.maan.insurance.model.repository.TtrnRetroCessionaryRepository;
 import com.maan.insurance.model.repository.TtrnRetroClaimDetailsRepository;
+import com.maan.insurance.model.repository.TtrnRiPlacementRepository;
 import com.maan.insurance.model.repository.TtrnRiskCommissionRepository;
 import com.maan.insurance.model.req.DropDown.DuplicateCountCheckReq;
 import com.maan.insurance.model.req.DropDown.GetClaimDepartmentDropDownReq;
@@ -96,6 +107,7 @@ import com.maan.insurance.model.req.DropDown.GetCurrencyIdReq;
 import com.maan.insurance.model.req.DropDown.GetDepartmentDropDownReq;
 import com.maan.insurance.model.req.DropDown.GetDepartmentieModuleDropDownReq;
 import com.maan.insurance.model.req.DropDown.GetInwardBusinessTypeDropDownReq;
+import com.maan.insurance.model.req.DropDown.GetPlacedProposalListReq;
 import com.maan.insurance.model.req.DropDown.GetPreDepartmentDropDownReq;
 import com.maan.insurance.model.req.DropDown.GetProductModuleDropDownReq;
 import com.maan.insurance.model.req.DropDown.GetProfitCentreieModuleDropDownReq;
@@ -104,16 +116,34 @@ import com.maan.insurance.model.req.DropDown.GetSectionListReq;
 import com.maan.insurance.model.req.DropDown.GetSubProfitCentreMultiDropDownReq;
 import com.maan.insurance.model.req.DropDown.GetSubProfitCentreMultiReq;
 import com.maan.insurance.model.req.DropDown.GetTreatyTypeDropDownReq;
+import com.maan.insurance.model.req.DropDown.GetYearToListValueReq;
+import com.maan.insurance.model.req.DropDown.updateSubEditModeReq;
+import com.maan.insurance.model.req.placement.GetPlacementInfoListReq;
 import com.maan.insurance.model.req.proportionality.ContractReq;
 import com.maan.insurance.model.req.proportionality.GetRetroContractDetailsListReq;
 import com.maan.insurance.model.res.DropDown.CommonResDropDown;
 import com.maan.insurance.model.res.DropDown.CommonResponse;
+import com.maan.insurance.model.res.DropDown.GetBouquetCedentBrokerInfoRes;
+import com.maan.insurance.model.res.DropDown.GetBouquetCedentBrokerInfoRes1;
+import com.maan.insurance.model.res.DropDown.GetBouquetExistingListRes;
+import com.maan.insurance.model.res.DropDown.GetBouquetExistingListRes1;
+import com.maan.insurance.model.res.DropDown.GetBouquetListRes;
+import com.maan.insurance.model.res.DropDown.GetBouquetListRes1;
 import com.maan.insurance.model.res.DropDown.GetCommonDropDownRes;
 import com.maan.insurance.model.res.DropDown.GetCommonValueRes;
 import com.maan.insurance.model.res.DropDown.GetContractValRes;
 import com.maan.insurance.model.res.DropDown.GetContractValidationRes;
+import com.maan.insurance.model.res.DropDown.GetNewContractInfoRes;
+import com.maan.insurance.model.res.DropDown.GetNewContractInfoRes1;
+import com.maan.insurance.model.res.DropDown.GetNotPlacedProposalListRes;
+import com.maan.insurance.model.res.DropDown.GetNotPlacedProposalListRes1;
 import com.maan.insurance.model.res.DropDown.GetOpenPeriodRes;
 import com.maan.insurance.model.res.DropDown.GetOpenPeriodRes1;
+import com.maan.insurance.model.res.DropDown.GetPlacementInfoListRes;
+import com.maan.insurance.model.res.DropDown.GetPlacementInfoListRes1;
+import com.maan.insurance.model.res.DropDown.GetYearToListValueRes;
+import com.maan.insurance.model.res.DropDown.GetYearToListValueRes1;
+import com.maan.insurance.model.res.retro.CommonSaveRes;
 import com.maan.insurance.service.Dropdown.DropDownService;
 import com.maan.insurance.service.impl.QueryImplemention;
 import com.maan.insurance.validation.Formatters;
@@ -168,7 +198,14 @@ public class DropDownServiceImple implements DropDownService{
 	private TmasOpenPeriodRepository tmasOpenRepo;
 	@Autowired
 	private TmasDepartmentMasterRepository deptRepo;
-	
+	@Autowired
+	private StatusMasterRepository smRepo;
+	@Autowired
+	private SubStatusMasterRepository ssmRepo;
+	@Autowired
+	private TtrnRiPlacementRepository riPlaceRepo;
+	@Autowired
+	private PositionMasterRepository pmRepo;
 	@PersistenceContext
 	private EntityManager em;
 
@@ -2212,42 +2249,43 @@ public class DropDownServiceImple implements DropDownService{
 			return response;
 		}
 
-		@Override
-		public GetCommonValueRes getBaseProposal(String proposalNo) {
-			GetCommonValueRes response = new GetCommonValueRes();
-			String result="";
-			try{
-				//GET_BASE_PROPOSAL
-				CriteriaBuilder cb = em.getCriteriaBuilder(); 
-				CriteriaQuery<String> query = cb.createQuery(String.class); 
-				Root<PositionMaster> pm = query.from(PositionMaster.class);
-				query.select(pm.get("baseLayer")); 
-				
-				Predicate n1 = cb.equal(pm.get("proposalNo"), proposalNo);
-				Predicate n2 = cb.equal(pm.get("amendId"), proposalNo);
-				query.where(n1,n2);
-				TypedQuery<String> res1 = em.createQuery(query);
-				List<String> list = res1.getResultList();
-				
-				String args[] = new String[1];
-				args[0] = proposalNo;
-//				list=queryImpl.selectList(query, args);
-//				if (!CollectionUtils.isEmpty(list)) {
-//					result = list.get(0).get("BASE_LAYER") == null ? ""
-//							: list.get(0).get("BASE_LAYER").toString();
-//				}
-				response.setCommonResponse(result);
-				response.setMessage("Success");
-				response.setIsError(false);
-		 }catch(Exception e){
-					log.error(e);
-					e.printStackTrace();
-					response.setMessage("Failed");
-					response.setIsError(true);
-				}
-			return response;
-		
-		}
+	public GetCommonValueRes getBaseProposal(String proposalNo) {
+		GetCommonValueRes response = new GetCommonValueRes();
+		String result="";
+		try{
+			//GET_BASE_PROPOSAL
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<String> query = cb.createQuery(String.class); 
+			Root<PositionMaster> pm = query.from(PositionMaster.class);
+			query.select(pm.get("baseLayer")); 
+			//amend
+			Subquery<Long> amend = query.subquery(Long.class); 
+			Root<PositionMaster> pms = amend.from(PositionMaster.class);
+			amend.select(cb.max(pms.get("amendId")));
+			Predicate a1 = cb.equal(pm.get("proposalNo"), pms.get("proposalNo"));
+			amend.where(a1);
+			
+			Predicate n1 = cb.equal(pm.get("proposalNo"), proposalNo);
+			Predicate n2 = cb.equal(pm.get("amendId"), amend);
+			query.where(n1,n2);
+			TypedQuery<String> res1 = em.createQuery(query);
+			List<String> list = res1.getResultList();
+			
+			if (!CollectionUtils.isEmpty(list)) {
+				result = list.get(0) == null ? "": list.get(0).toString();
+			}
+			response.setCommonResponse(result);
+			response.setMessage("Success");
+			response.setIsError(false);
+	 }catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	
+	}
 		public GetCommonDropDownRes getSubProfitCentreDropDown(String deptid,String branchCode,String productCode){
 			GetCommonDropDownRes response = new GetCommonDropDownRes();
 			List<Map<String,Object>> subProfitCenterList=new ArrayList<Map<String,Object>>();
@@ -3932,41 +3970,1191 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 		}
 		return seqName;
 	}
-
-//	public String selectCeaseStatus(String contNo, String layerNo) {
-//		String s="";
-//		try {
-//			CriteriaBuilder cb = em.getCriteriaBuilder(); 
-//			CriteriaQuery<String> query = cb.createQuery(String.class); 
-//			
-//			Root<PositionMaster> pm = query.from(PositionMaster.class);
-//
-//			query.select(pm.get("ceaseStatus")); 
-//
-//			Subquery<Long> amend = query.subquery(Long.class); 
-//			Root<PositionMaster> pms = amend.from(PositionMaster.class);
-//			amend.select(cb.max(pms.get("amendId")));
-//			Predicate a1 = cb.equal( pm.get("contractNo"), pms.get("contractNo"));
-//			Predicate a2 = cb.equal( pm.get("layerNo"), pms.get("layerNo"));
-//			amend.where(a1,a2);
-//
-//			Predicate n1 = cb.equal(pm.get("contractNo"),contNo);
-//			Predicate n2 = cb.equal(pm.get("layerNo"), layerNo);
-//			Predicate n3 = cb.equal(pm.get("amendId"),amend);
-//			Predicate n4 = cb.equal(pm.get("contractStatus"), "A");
-//			query.where(n1,n2,n3,n4);
-//
-//			TypedQuery<String> res = em.createQuery(query);
-//			List<String> list = res.getResultList();
-//			if(list!=null) {
-//			s =	list.get(0)	;
-//			}
-//			
-//		} catch(Exception e) {
-//			e.printStackTrace();
-//			}
-//
-//		return s;
-//		}
+	public GetCommonDropDownRes getDeptName(String branchCode) {
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		List<CommonResDropDown> relist = new ArrayList<CommonResDropDown>();
+		List<Map<String,Object>> list=new ArrayList<Map<String,Object>>();
+		try{
+			String query="common.select.deptName";
+			String args [] = new String [1];
+			args[0] = branchCode;
+			list =queryImpl.selectList(query, args);
+			
+			for(int i=0 ; i<list.size() ; i++) {
+			
+				 CommonResDropDown res = new CommonResDropDown();
+					Map<String,Object> tempMap = (Map<String,Object>) list.get(i);
+					res.setCode(tempMap.get("TMAS_DEPARTMENT_ID")==null?"":tempMap.get("TMAS_DEPARTMENT_ID").toString());
+					res.setCodeDescription(tempMap.get("TMAS_DEPARTMENT_NAME")==null?"":tempMap.get("TMAS_DEPARTMENT_NAME").toString());
+					relist.add(res);
+				}
+			response.setCommonResponse(relist);
+			response.setMessage("Success");
+			response.setIsError(false);
+			}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
 	
+	}
+
+	public GetYearToListValueRes getYearToListValue(GetYearToListValueReq req) {
+		GetYearToListValueRes response = new GetYearToListValueRes();
+		List<GetYearToListValueRes1> resList = new ArrayList<GetYearToListValueRes1>();
+		try {
+		if(StringUtils.isNotBlank(req.getInceptionDate())){
+			 String format = "dd/MM/yyyy" ;
+		     SimpleDateFormat sdf = new SimpleDateFormat(format) ;
+		      Date dateAsObj = null;
+		      Date dateAsObj1 = null;
+			try {
+					dateAsObj = sdf.parse(req.getInceptionDate());
+					dateAsObj1 = sdf.parse(req.getExpiryDate());
+			} catch (ParseException e) {
+					e.printStackTrace();
+			}
+		    Calendar cal = Calendar.getInstance();
+		    cal.setTime(dateAsObj);
+		    int year =cal.get(Calendar.YEAR);
+		    Calendar cal1 = Calendar.getInstance();
+		    cal1.setTime(dateAsObj1);
+		    int year1 =cal1.get(Calendar.YEAR);
+        
+		   for(int j=year;j<=year1;j++){
+				GetYearToListValueRes1 res = new GetYearToListValueRes1();
+				res.setYear(String.valueOf(j));;
+				resList.add(res);
+			}
+	 }
+		 response.setCommonResponse(resList);
+			response.setMessage("Success");
+			response.setIsError(false);
+		}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	}
+
+	public CommonResponse updateBaseLayer(String baseLayer, String proposalNo) {
+		CommonResponse response = new CommonResponse();
+		try{
+			//UPDATE_BASE_LAYER
+			PositionMaster list = pmRepo.findByProposalNo(new BigDecimal(proposalNo));
+			if(list != null) {
+				list.setBaseLayer(baseLayer);
+			}
+			pmRepo.saveAndFlush(list);
+			response.setMessage("Success");
+			response.setIsError(false);
+		}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	}
+
+	public GetCommonDropDownRes getPaymentPartnerlist(String branchCode, String cedingId, String brokerId) {
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		List<CommonResDropDown> resList = new ArrayList<CommonResDropDown>();
+		try{
+			if(StringUtils.isNotBlank(cedingId) && StringUtils.isNotBlank(brokerId)) {
+			//GET_PAYMENT_PARTNER_LIST
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+      		CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+      		
+      		Root<PersonalInfo> tc = query.from(PersonalInfo.class); 
+
+      		// Select
+      		query.multiselect(tc.get("customerId").alias("customerId"),
+      				cb.selectCase().when(cb.equal(tc.get("customerType"), "C"), tc.get("companyName")).otherwise(cb.concat(tc.get("firstName"), tc.get("lastName"))).alias("name"))
+      				.distinct(true) ;  
+
+      		// MAXAmend ID
+      		Subquery<Long> maxAmend = query.subquery(Long.class); 
+      		Root<PersonalInfo> pms = maxAmend.from(PersonalInfo.class);
+      		maxAmend.select(cb.max(pms.get("amendId")));
+      		Predicate a1 = cb.equal(tc.get("branchCode"), pms.get("branchCode"));
+      		Predicate a2 = cb.equal(tc.get("customerType"), pms.get("customerType"));
+      		Predicate a3 = cb.equal(tc.get("status"), pms.get("status"));
+      		Predicate a4 = cb.equal(tc.get("customerId"), pms.get("customerId"));
+      		maxAmend.where(a1,a2,a3,a4);
+      		
+      		//Order By
+//			List<Order> orderList = new ArrayList<Order>();
+//			orderList.add(cb.asc(cb.selectCase().when(cb.equal(tc.get("customerType"), "C"), tc.get("companyName")).otherwise(cb.concat(tc.get("firstName"), tc.get("lastName")))));
+      		
+      		// Where
+      		Predicate n1 = cb.equal(tc.get("branchCode"), branchCode);
+      		Predicate n2 = cb.equal(tc.get("customerType"), "C");
+      		Predicate n3 = cb.equal(tc.get("status"), "Y");
+      		Predicate n4 = cb.equal(tc.get("customerId"), cedingId);
+      		Predicate n5 = cb.equal(tc.get("amendId"), maxAmend);
+      		//Order By name (alias name need to check and update)
+      		if(!"63".equals(brokerId)){
+				//GET_PAYMENT_PARTNER_BR_LIST
+      			Predicate n7 = cb.equal(tc.get("customerId"), brokerId);
+				Predicate n6 = cb.equal(tc.get("customerType"), "B");
+				query.where(n1,n2,n3,n4,n5,n6,n7);
+			}else {
+      		query.where(n1,n2,n3,n4,n5);
+			}
+      		
+      		// Get Result
+      		TypedQuery<Tuple> list = em.createQuery(query);
+      		List<Tuple> result = list.getResultList();
+			
+			//query+="ORDER BY NAME";
+      		if(result.size()>0) {
+      			for(Tuple data: result) {
+      				CommonResDropDown res = new CommonResDropDown();
+      				res.setCode(data.get("customerId")==null?"":data.get("customerId").toString());
+      				res.setCodeDescription(data.get("name")==null?"": data.get("name").toString());;
+      				resList.add(res);
+      			}
+      			resList.sort(Comparator.comparing(CommonResDropDown :: getCodeDescription));
+      		}
+			}
+			response.setCommonResponse(resList);
+			response.setMessage("Success");
+			response.setIsError(false);
+		}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	}
+	@Transactional	
+	public CommonResponse updateProposalno(String referenceNo, String proposalNo) {
+		CommonResponse response = new CommonResponse();
+		try{
+		//UPDATE_PROPOSAL_SCALE
+			CriteriaBuilder cb = this.em.getCriteriaBuilder();
+			// create update
+			CriteriaUpdate<TtrnBonus> update = cb.createCriteriaUpdate(TtrnBonus.class);
+			// set the root class
+			Root<TtrnBonus> m = update.from(TtrnBonus.class);
+			// set update and where clause
+			update.set("proposalNo", new BigDecimal(proposalNo));
+			Predicate n1 = cb.equal(m.get("referenceNo"), referenceNo);
+			update.where(n1 );
+			// perform update
+			em.createQuery(update).executeUpdate();
+			
+			//UPDATE_PROPOSAL_REINS
+			CriteriaUpdate<TtrnRip> update1 = cb.createCriteriaUpdate(TtrnRip.class);
+			// set the root class
+			Root<TtrnRip> tr = update1.from(TtrnRip.class);
+			// set update and where clause
+			update1.set("proposalNo",  new BigDecimal(proposalNo));
+			Predicate m1 = cb.equal(tr.get("referenceNo"), referenceNo);
+			update1.where(m1);
+			// perform update
+			em.createQuery(update1).executeUpdate();
+			
+			response.setMessage("Success");
+			response.setIsError(false);
+		}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	}
+
+	public GetBouquetListRes getBouquetList(String branchCode) {
+		GetBouquetListRes response = new GetBouquetListRes();
+		List<GetBouquetListRes1> resList = new ArrayList<GetBouquetListRes1>();
+		try{
+			//GET_BOUQUET_LIST
+			List<PositionMaster> list = pmRepo.findDistinctByBranchCodeAndBouquetNoNotNull(branchCode);
+			if(list.size()>0) {
+				for(PositionMaster data: list) {
+					GetBouquetListRes1 res = new GetBouquetListRes1();
+					res.setBouquetNo(data.getBouquetNo()==null?"":data.getBouquetNo().toString());
+					resList.add(res);
+					}
+			}
+			response.setCommonResponse(resList);
+			response.setMessage("Success");
+			response.setIsError(false);
+		}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	}
+
+	public String getSysDate()
+	{
+	String sysDate="";
+	try{
+	List<Map<String, Object>> list  = queryImpl.selectSingle("SELECT TO_CHAR(SYSDATE,'DD/MM/YYYY') SYSDT FROM DUAL",new String[]{});
+	if (!CollectionUtils.isEmpty(list)) {
+	sysDate = list.get(0).get("SYSDT") == null ? ""
+	: list.get(0).get("SYSDT").toString();
+	}
+	}catch(Exception e){
+	e.printStackTrace();
+	}
+
+	return sysDate;
+	}
+
+	@Override
+	public GetBouquetExistingListRes getBouquetExistingList(String branchCode, String bouquetNo, String bouquetYN) {
+		GetBouquetExistingListRes response = new GetBouquetExistingListRes();
+		List<GetBouquetExistingListRes1> resList = new ArrayList<GetBouquetExistingListRes1>();
+		List<Map<String,Object>> list=new ArrayList<Map<String,Object>>();
+		try{
+			if(StringUtils.isNotBlank(bouquetNo) && "Y".equals(bouquetYN)) {
+			list= queryImpl.selectList("GET_EXISTING_BOUQUET",new String[]{branchCode,bouquetNo});
+			if(list.size()>0) {
+				for(Map<String,Object> data: list) {
+					GetBouquetExistingListRes1 res = new GetBouquetExistingListRes1();
+					res.setInsDate(data.get("INS_DATE")==null?"":data.get("INS_DATE").toString()); 
+					res.setExpDate(data.get("EXP_DATE")==null?"":data.get("EXP_DATE").toString()); 
+					res.setCompanyName(data.get("COMPANY_NAME")==null?"":data.get("COMPANY_NAME").toString()); 
+					res.setUwYear(data.get("UW_YEAR")==null?"":data.get("UW_YEAR").toString()); 
+					res.setUwYearTo(data.get("UW_YEAR_TO")==null?"":data.get("UW_YEAR_TO").toString()); 
+					res.setTreatytype(data.get("TREATYTYPE")==null?"":data.get("TREATYTYPE").toString()); 
+					res.setProductId(data.get("PRODUCT_ID")==null?"":data.get("PRODUCT_ID").toString()); 
+					res.setBusinessType(data.get("BUSINESS_TYPE")==null?"":data.get("BUSINESS_TYPE").toString()); 
+					res.setProposalNo(data.get("PROPOSAL_NO")==null?"":data.get("PROPOSAL_NO").toString()); 
+					res.setTreatytype(data.get("TREATY_TYPE")==null?"":data.get("TREATY_TYPE").toString()); 
+					res.setRskTreatyid(data.get("RSK_TREATYID")==null?"":data.get("RSK_TREATYID").toString()); 
+					res.setPolicyStatus(data.get("POLICY_STATUS")==null?"":data.get("POLICY_STATUS").toString()); 
+					res.setExistingShare(data.get("EXISTING_SHARE")==null?"":data.get("EXISTING_SHARE").toString()); 
+					res.setBaseLayer(data.get("BASE_LAYER")==null?"":data.get("BASE_LAYER").toString()); 
+					res.setSectionNo(data.get("SECTION_NO")==null?"":data.get("SECTION_NO").toString()); 
+					res.setLayerNo(data.get("LAYER_NO")==null?"":data.get("LAYER_NO").toString());
+					res.setTmasDepartmentName(data.get("TMAS_DEPARTMENT_NAME")==null?"":data.get("TMAS_DEPARTMENT_NAME").toString()); 
+					res.setSubClass(data.get("SUB_CLASS")==null?"":data.get("SUB_CLASS").toString());
+					res.setOfferNo(data.get("OFFER_NO")==null?"":data.get("OFFER_NO").toString());
+					resList.add(res);
+					}
+			}
+			}
+			response.setCommonResponse(resList);
+			response.setMessage("Success");
+			response.setIsError(false);
+		}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	}
+
+	@Override
+	public GetCommonDropDownRes getStatusDropDown(String branchCode) {
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		List<CommonResDropDown> resList = new ArrayList<CommonResDropDown>();
+		try{
+			//GET_STATUS_DROP_DOWN
+			List<StatusMaster> list = smRepo.findByBranchCodeAndStatus(branchCode,"Y");
+			
+			if(list.size()>0) {
+      			for(StatusMaster data: list) {
+      				CommonResDropDown res = new CommonResDropDown();
+      				res.setCode(data.getStatusCode()==null?"":data.getStatusCode().toString());
+      				res.setCodeDescription(data.getStatusName()==null?"": data.getStatusName().toString());;
+      				resList.add(res);
+      			}
+      		}
+			response.setCommonResponse(resList);
+			response.setMessage("Success");
+			response.setIsError(false);
+		}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	}
+
+	@Override
+	public GetCommonDropDownRes getSubStatusDropDown(String branchCode, String statusCode) {
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		List<CommonResDropDown> resList = new ArrayList<CommonResDropDown>();
+		try{
+			//GET_SUBSTATUS_DROP_DOWN
+			List<SubStatusMaster> list = ssmRepo.findByBranchCodeAndStatusAndStatusCode(branchCode,"Y",statusCode);
+			
+			if(list.size()>0) {
+      			for(SubStatusMaster data: list) {
+      				CommonResDropDown res = new CommonResDropDown();
+      				res.setCode(data.getSubStatusCode()==null?"":data.getSubStatusCode().toString());
+      				res.setCodeDescription(data.getSubStatusName()==null?"": data.getSubStatusName().toString());;
+      				resList.add(res);
+      			}
+      		}
+			response.setCommonResponse(resList);
+			response.setMessage("Success");
+			response.setIsError(false);
+		}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	}
+    @Transactional
+	@Override
+	public CommonResponse updateBqEditMode(String proposalNo, String val, String updateProposalNo) {
+		CommonResponse response = new CommonResponse();
+		try{
+			//POS_MAS_BQ_MODE_UPDT
+			CriteriaBuilder cb = this.em.getCriteriaBuilder();
+			// create update
+			CriteriaUpdate<PositionMaster> update = cb.createCriteriaUpdate(PositionMaster.class);
+			Root<PositionMaster> m = update.from(PositionMaster.class);
+			
+			if(!"N".equalsIgnoreCase(val)){
+				update.set("editMode", val +"-"+ updateProposalNo);
+				}
+				else{
+					update.set("editMode", val);
+				}
+			// MAXAmend ID
+      		Subquery<Long> maxAmend = update.subquery(Long.class); 
+      		Root<PositionMaster> pms = maxAmend.from(PositionMaster.class);
+      		maxAmend.select(cb.max(pms.get("amendId")));
+      		Predicate a1 = cb.equal(m.get("proposalNo"), pms.get("proposalNo"));
+      		maxAmend.where(a1);
+			
+			Predicate n1 = cb.equal(m.get("bouquetNo"), proposalNo);
+			Predicate n2 = cb.equal(m.get("amendId"), maxAmend);
+			update.where(n1,n2);
+			// perform update
+			em.createQuery(update).executeUpdate();
+			
+			response.setMessage("Success");
+			response.setIsError(false);
+		}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	}
+
+	@Override
+	public GetCommonDropDownRes getPlacedProposalList(GetPlacedProposalListReq bean) {
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		List<CommonResDropDown> resList = new ArrayList<CommonResDropDown>();
+		try{
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 	
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+      		
+      		Root<TtrnRiPlacement> pm = query.from(TtrnRiPlacement.class); 
+      		Root<TtrnRiskDetails> rd = query.from(TtrnRiskDetails.class); 
+      		
+			if(StringUtils.isNotBlank(bean.getBouquetNo())) {
+				if("C".equalsIgnoreCase(bean.getPlacementMode())) {
+					//GET_PLACED_PROPOSAL_BOUQUET
+				
+		      		// Select
+		      		query.multiselect(pm.get("bouquetNo").alias("CODE")).distinct(true) ;  
+		      	//Order By
+					List<Order> orderList = new ArrayList<Order>();
+					orderList.add(cb.asc(pm.get("bouquetNo")));
+
+		      		// Where
+					Predicate n1 = cb.isNotNull(pm.get("bouquetNo"));
+		      		Predicate n2 = cb.equal(pm.get("branchCode"), bean.getBranchCode());
+		      		Predicate n3 = cb.equal(pm.get("proposalNo"), rd.get("rskProposalNumber"));
+		      		Predicate n4 = cb.equal(pm.get("bouquetNo"), bean.getBouquetNo());
+					query.where(n1,n2,n3,n4).orderBy(orderList);
+					// Get Result
+		      		TypedQuery<Tuple> list = em.createQuery(query);
+		      		List<Tuple> result = list.getResultList();
+		      		if(result.size()>0) {
+		      			for(Tuple data: result) {
+		      				CommonResDropDown res = new CommonResDropDown();
+		      				res.setCode(data.get("CODE")==null?"":data.get("CODE").toString());
+		      				res.setCodeDescription(data.get("CODE")==null?"": data.get("CODE").toString());;
+		      				resList.add(res);
+		      			}
+		      			resList.sort(Comparator.comparing(CommonResDropDown :: getCode));
+		      		}
+					
+				}else {
+					//GET_PLACED_PROPOSAL_BOUQUET_SINGLE
+					Expression<String> e1 = cb.concat(pm.get("proposalNo"), "(");
+					Expression<String> e2 = cb.concat(e1, rd.get("rskTreatyid"));
+					Expression<String> e3 = cb.concat(e2, ")");
+		      		// Select
+		      		query.multiselect(pm.get("proposalNo").alias("CODE"),e3.alias("CODEDESC")).distinct(true) ; 
+		      	//Order By
+					List<Order> orderList = new ArrayList<Order>();
+					orderList.add(cb.asc(pm.get("bouquetNo")));
+
+		      		// Where
+					Predicate n1 = cb.isNotNull(pm.get("bouquetNo"));
+		      		Predicate n2 = cb.equal(pm.get("branchCode"), bean.getBranchCode());
+		      		Predicate n3 = cb.equal(pm.get("proposalNo"), rd.get("rskProposalNumber"));
+		      		Predicate n4 = cb.equal(pm.get("bouquetNo"), bean.getBouquetNo());
+					query.where(n1,n2,n3,n4).orderBy(orderList);
+					// Get Result
+		      		TypedQuery<Tuple> list = em.createQuery(query);
+		      		List<Tuple> result = list.getResultList();
+		      		if(result.size()>0) {
+		      			for(Tuple data: result) {
+		      				CommonResDropDown res = new CommonResDropDown();
+		      				res.setCode(data.get("CODE")==null?"":data.get("CODE").toString());
+		      				res.setCodeDescription(data.get("CODEDESC")==null?"": data.get("CODEDESC").toString());;
+		      				resList.add(res);
+		      			}
+		      			resList.sort(Comparator.comparing(CommonResDropDown :: getCode));
+		      		}
+				}
+				
+			
+			}else {
+				if("C".equalsIgnoreCase(bean.getPlacementMode())) {
+					//GET_PLACED_PROPOSAL_BASELAYER
+		      		query.multiselect(pm.get("baseProposalNo").alias("CODE")).distinct(true) ; 
+		      		//Order By
+					List<Order> orderList = new ArrayList<Order>();
+					orderList.add(cb.asc(pm.get("baseProposalNo")));
+					Predicate n2 = cb.equal(pm.get("branchCode"), bean.getBranchCode());
+		      		Predicate n3 = cb.equal(pm.get("proposalNo"), rd.get("rskProposalNumber"));
+		      		Predicate n4 = cb.equal(pm.get("baseProposalNo"), bean.getBaseProposalNo());
+		      		Predicate n5 = cb.equal(pm.get("proposalNo"), bean.getBaseProposalNo());
+		      		Predicate n6 = cb.or(n4,n5);
+		      		query.where(n2,n3,n6).orderBy(orderList);
+		      	// Get Result
+		      		TypedQuery<Tuple> list = em.createQuery(query);
+		      		List<Tuple> result = list.getResultList();
+		      		if(result.size()>0) {
+		      			for(Tuple data: result) {
+		      				CommonResDropDown res = new CommonResDropDown();
+		      				res.setCode(data.get("CODE")==null?"":data.get("CODE").toString());
+		      				res.setCodeDescription(data.get("CODE")==null?"": data.get("CODE").toString());;
+		      				resList.add(res);
+		      			}
+		      			resList.sort(Comparator.comparing(CommonResDropDown :: getCode));
+		      		}
+					
+				}else {
+					//GET_PLACED_PROPOSAL_BASELAYER_SINGLE
+					Expression<String> e1 = cb.concat(pm.get("proposalNo"), "(");
+					Expression<String> e2 = cb.concat(e1, rd.get("rskTreatyid"));
+					Expression<String> e3 = cb.concat(e2, ")");
+		      		query.multiselect(pm.get("proposalNo").alias("CODE"),e3.alias("CODEDESC"),
+		      				cb.selectCase().when(cb.isNull(pm.get("baseProposalNo")), pm.get("proposalNo")).otherwise(pm.get("baseProposalNo")).alias("baseLayer"))
+		      				.distinct(true) ; 
+					//Order By
+//					List<Order> orderList = new ArrayList<Order>();
+//					orderList.add(cb.asc(pm.get("bouquetNo")));
+					Predicate n2 = cb.equal(pm.get("branchCode"), bean.getBranchCode());
+		      		Predicate n3 = cb.equal(pm.get("proposalNo"), rd.get("rskProposalNumber"));
+		      		Predicate n4 = cb.equal(pm.get("baseProposalNo"), bean.getBaseProposalNo());
+		      		Predicate n5 = cb.equal(pm.get("proposalNo"), bean.getBaseProposalNo());
+		      		Predicate n6 = cb.or(n4,n5);
+		      		query.where(n2,n3,n6);
+		      	// Get Result
+		      		TypedQuery<Tuple> list = em.createQuery(query);
+		      		List<Tuple> result = list.getResultList();
+		      		if(result.size()>0) {
+		      			for(Tuple data: result) {
+		      				CommonResDropDown res = new CommonResDropDown();
+		      				res.setCode(data.get("CODE")==null?"":data.get("CODE").toString());
+		      				res.setCodeDescription(data.get("CODEDESC")==null?"": data.get("CODEDESC").toString());;
+		      				resList.add(res);
+		      			}
+		      			resList.sort(Comparator.comparing(CommonResDropDown :: getCode));
+		      		}
+				}
+				
+			}
+			
+			response.setCommonResponse(resList);
+			response.setMessage("Success");
+			response.setIsError(false);
+		}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	}
+
+	@Override
+	public GetNotPlacedProposalListRes getNotPlacedProposalList(GetPlacedProposalListReq bean) {
+		GetNotPlacedProposalListRes response = new GetNotPlacedProposalListRes();
+		List<GetNotPlacedProposalListRes1> resList = new ArrayList<GetNotPlacedProposalListRes1>();
+		try{
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 	
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+      		
+      		Root<PositionMaster> pm = query.from(PositionMaster.class); 
+      		Root<TtrnRiskDetails> rd = query.from(TtrnRiskDetails.class); 
+      		
+				if(StringUtils.isNotBlank(bean.getBouquetNo())) {
+					if("C".equalsIgnoreCase(bean.getPlacementMode())) {
+						//GET_NOTPLACED_PROPOSAL_BOUQUET
+						
+			      		query.multiselect(pm.get("bouquetNo").alias("CODE")).distinct(true) ;  
+						
+						Subquery<Long> prop = query.subquery(Long.class); 
+			      		Root<TtrnRiPlacement> pms = prop.from(TtrnRiPlacement.class);
+			      		prop.select((pms.get("proposalNo")));
+			      		Predicate a1 = cb.equal(pms.get("bouquetNo"), pm.get("bouquetNo"));
+			      		prop.where(a1);
+			      	
+						Predicate n1 = cb.isNotNull(pm.get("bouquetNo"));
+			      		Predicate n2 = cb.equal(pm.get("branchCode"), bean.getBranchCode());
+			      		Predicate n3 = cb.equal(pm.get("proposalNo"), rd.get("rskProposalNumber"));
+			      		Predicate n4 = cb.equal(pm.get("bouquetNo"), bean.getBouquetNo());
+			      		Predicate n5 = cb.equal(pm.get("contractStatus"), "P");
+			    		Expression<String> e0 = pm.get("proposalNo");
+			      		Predicate n6 = e0.in(prop).not();
+			      		
+						query.where(n1,n2,n3,n4,n5,n6);
+						
+			      		TypedQuery<Tuple> list = em.createQuery(query);
+			      		List<Tuple> result = list.getResultList();
+			      		if(result.size()>0) {
+			      			for(Tuple data: result) {
+			      				GetNotPlacedProposalListRes1 res = new GetNotPlacedProposalListRes1();
+			      				res.setCode(data.get("CODE")==null?"":data.get("CODE").toString());
+			      				res.setCodeDescription(data.get("CODE")==null?"": data.get("CODE").toString());;
+			      				resList.add(res);
+			      			}
+			      			resList.sort(Comparator.comparing(GetNotPlacedProposalListRes1 :: getCode));
+			      		}
+					}else {
+						//GET_NOTPLACED_PROPOSAL_BOUQUET_SINGLE
+						Expression<String> e1 = cb.concat(pm.get("proposalNo"), "(");
+						Expression<String> e2 = cb.concat(e1, rd.get("rskTreatyid"));
+						Expression<String> e3 = cb.concat(e2, ")");
+			      		
+			      		query.multiselect(pm.get("proposalNo").alias("CODE"),e3.alias("CODEDESC")) ; 
+			      	
+						List<Order> orderList = new ArrayList<Order>();
+						orderList.add(cb.asc(pm.get("productId")));
+						orderList.add(cb.asc(pm.get("bouquetNo")));
+						orderList.add(cb.asc(pm.get("proposalNo")));
+	
+						Subquery<Long> prop = query.subquery(Long.class); 
+			      		Root<TtrnRiPlacement> pms = prop.from(TtrnRiPlacement.class);
+			      		prop.select((pms.get("proposalNo")));
+			      		Predicate a1 = cb.equal(pms.get("bouquetNo"), pm.get("bouquetNo"));
+			      		prop.where(a1);
+			      		
+						Predicate n1 = cb.isNotNull(pm.get("bouquetNo"));
+			      		Predicate n2 = cb.equal(pm.get("branchCode"), bean.getBranchCode());
+			      		Predicate n3 = cb.equal(pm.get("proposalNo"), rd.get("rskProposalNumber"));
+			      		Predicate n4 = cb.equal(pm.get("bouquetNo"), bean.getBouquetNo());
+			      		Predicate n5 = cb.equal(pm.get("contractStatus"), "P");
+			    		Expression<String> e0 = pm.get("proposalNo");
+			      		Predicate n6 = e0.in(prop).not();
+						query.where(n1,n2,n3,n4,n5,n6).orderBy(orderList);
+					
+			      		TypedQuery<Tuple> list = em.createQuery(query);
+			      		List<Tuple> result = list.getResultList();
+			      		if(result.size()>0) {
+			      			for(Tuple data: result) {
+			      				GetNotPlacedProposalListRes1 res = new GetNotPlacedProposalListRes1();
+			      				res.setCode(data.get("CODE")==null?"":data.get("CODE").toString());
+			      				res.setCodeDescription(data.get("CODEDESC")==null?"": data.get("CODEDESC").toString());;
+			      				resList.add(res);
+			      			}
+			      		}
+					}
+				}else {
+					if("C".equalsIgnoreCase(bean.getPlacementMode())) {
+						//GET_NOTPLACED_PROPOSAL_BASELAYER
+						query.multiselect(pm.get("baseLayer").alias("CODE")).distinct(true) ; 
+						
+						Subquery<Long> prop = query.subquery(Long.class); 
+			      		Root<TtrnRiPlacement> pms = prop.from(TtrnRiPlacement.class);
+			      		prop.select((pms.get("proposalNo")));
+			      		Predicate a1 = cb.equal(pms.get("baseProposalNo"), pm.get("baseLayer"));
+			      		prop.where(a1);
+			      		
+						Predicate n1 = cb.isNotNull(pm.get("baseLayer"));
+						Predicate n2 = cb.equal(pm.get("branchCode"), bean.getBranchCode());
+			      		Predicate n3 = cb.equal(pm.get("proposalNo"), rd.get("rskProposalNumber"));
+			      		Predicate n4 = cb.equal(pm.get("baseLayer"), bean.getBaseProposalNo());
+			      		Predicate n5 = cb.equal(pm.get("proposalNo"), bean.getBaseProposalNo());
+			      		Predicate n6 = cb.or(n4,n5);
+			      		Predicate n7 = cb.equal(pm.get("contractStatus"), "P");
+			    		Expression<String> e0 = pm.get("proposalNo");
+			      		Predicate n8 = e0.in(prop).not();
+			      		
+			      		query.where(n1,n2,n3,n6,n7,n8);
+			    
+			      		TypedQuery<Tuple> list = em.createQuery(query);
+			      		List<Tuple> result = list.getResultList();
+			      		if(result.size()>0) {
+			      			for(Tuple data: result) {
+			      				GetNotPlacedProposalListRes1 res = new GetNotPlacedProposalListRes1();
+			      				res.setCode(data.get("CODE")==null?"":data.get("CODE").toString());
+			      				res.setCodeDescription(data.get("CODE")==null?"": data.get("CODE").toString());;
+			      				resList.add(res);
+			      			}
+			      			resList.sort(Comparator.comparing(GetNotPlacedProposalListRes1 :: getCode));
+			      		}
+					}else {
+						//GET_NOTPLACED_PROPOSAL_BASELAYER_SINGLE
+						Expression<String> e1 = cb.concat(pm.get("proposalNo"), "(");
+						Expression<String> e2 = cb.concat(e1, rd.get("rskTreatyid"));
+						Expression<String> e3 = cb.concat(e2, ")");
+			      		
+			      		query.multiselect(pm.get("proposalNo").alias("CODE"),e3.alias("CODEDESC"),
+			      			cb.selectCase().when(cb.isNull(pm.get("baseLayer")), pm.get("proposalNo")).otherwise(pm.get("baseLayer").as(BigDecimal.class)).alias("baseLayer")) ; 
+			      	
+						List<Order> orderList = new ArrayList<Order>();
+						orderList.add(cb.asc(pm.get("productId")));
+						orderList.add(cb.asc(pm.get("baseLayer")));
+						orderList.add(cb.asc(pm.get("proposalNo")));
+	
+						Subquery<Long> prop = query.subquery(Long.class); 
+			      		Root<TtrnRiPlacement> pms = prop.from(TtrnRiPlacement.class);
+			      		prop.select((pms.get("proposalNo")));
+			      		Predicate a1 = cb.equal(pms.get("proposalNo"), pm.get("proposalNo"));
+			      		prop.where(a1);
+			      		
+						
+			      		Predicate n2 = cb.equal(pm.get("branchCode"), bean.getBranchCode());
+			      		Predicate n3 = cb.equal(pm.get("proposalNo"), rd.get("rskProposalNumber"));
+			      		Predicate n4 = cb.equal(pm.get("baseLayer"), bean.getBaseProposalNo());
+			      		Predicate n5 = cb.equal(pm.get("proposalNo"), bean.getBaseProposalNo());
+			      		Predicate n6 = cb.or(n4,n5);
+			      		Predicate n7 = cb.equal(pm.get("contractStatus"), "P");
+			    		Expression<String> e0 = pm.get("proposalNo");
+			      		Predicate n8 = e0.in(prop).not();
+			      		
+			      		query.where(n2,n3,n6,n7,n8);
+					
+			      		TypedQuery<Tuple> list = em.createQuery(query);
+			      		List<Tuple> result = list.getResultList();
+			      		if(result.size()>0) {
+			      			for(Tuple data: result) {
+			      				GetNotPlacedProposalListRes1 res = new GetNotPlacedProposalListRes1();
+			      				res.setCode(data.get("CODE")==null?"":data.get("CODE").toString());
+			      				res.setCodeDescription(data.get("CODEDESC")==null?"": data.get("CODEDESC").toString());
+			      				res.setBaseLayer(data.get("baseLayer")==null?"": data.get("baseLayer").toString());
+			      				resList.add(res);
+			      			}
+			      		}
+					}
+					}
+				response.setCommonResponse(resList);
+				response.setMessage("Success");
+				response.setIsError(false);
+			}catch(Exception e){
+					log.error(e);
+					e.printStackTrace();
+					response.setMessage("Failed");
+					response.setIsError(true);
+				}
+			return response;
+	}
+
+	public GetBouquetExistingListRes getBaseLayerExistingList(String branchCode, String baseProposalNo) {
+		GetBouquetExistingListRes response = new GetBouquetExistingListRes();
+		List<GetBouquetExistingListRes1> resList = new ArrayList<GetBouquetExistingListRes1>();
+		List<Map<String,Object>> list=new ArrayList<Map<String,Object>>();
+		try{
+			list= queryImpl.selectList("GET_EXISTING_BASELAYER",new String[]{branchCode,baseProposalNo});
+			if(list.size()>0) {
+				for(Map<String,Object> data: list) {
+					GetBouquetExistingListRes1 res = new GetBouquetExistingListRes1();
+					res.setInsDate(data.get("INS_DATE")==null?"":data.get("INS_DATE").toString());  
+					res.setExpDate(data.get("EXP_DATE")==null?"":data.get("EXP_DATE").toString());  
+					res.setCompanyName(data.get("COMPANY_NAME")==null?"":data.get("COMPANY_NAME").toString());  
+					res.setUwYear(data.get("UW_YEAR")==null?"":data.get("UW_YEAR").toString());  
+					res.setUwYearTo(data.get("UW_YEAR_TO")==null?"":data.get("UW_YEAR_TO").toString());  
+					res.setTreatytype(data.get("TREATYTYPE")==null?"":data.get("TREATYTYPE").toString());  
+					res.setProductId(data.get("PRODUCT_ID")==null?"":data.get("PRODUCT_ID").toString());  
+					res.setBusinessType(data.get("BUSINESS_TYPE")==null?"":data.get("BUSINESS_TYPE").toString());  
+					res.setProposalNo(data.get("PROPOSAL_NO")==null?"":data.get("PROPOSAL_NO").toString());  
+					res.setTreatyType1(data.get("TREATY_TYPE")==null?"":data.get("TREATY_TYPE").toString());  
+					res.setRskTreatyid(data.get("RSK_TREATYID")==null?"":data.get("RSK_TREATYID").toString());  
+					res.setPolicyStatus(data.get("POLICY_STATUS")==null?"":data.get("POLICY_STATUS").toString());  
+					res.setExistingShare(data.get("EXISTING_SHARE")==null?"":data.get("EXISTING_SHARE").toString());  
+					res.setBaseLayer(data.get("BASE_LAYER")==null?"":data.get("BASE_LAYER").toString());  
+					res.setSectionNo(data.get("SECTION_NO")==null?"":data.get("SECTION_NO").toString());  
+					res.setLayerNo(data.get("LAYER_NO")==null?"":data.get("LAYER_NO").toString());  
+					res.setTmasDepartmentName(data.get("TMAS_DEPARTMENT_NAME")==null?"":data.get("TMAS_DEPARTMENT_NAME").toString());  
+					res.setSubClass(data.get("SUB_CLASS")==null?"":data.get("SUB_CLASS").toString());  
+					res.setOfferNo(data.get("OFFER_NO")==null?"":data.get("OFFER_NO").toString());  
+					resList.add(res);
+				}
+		}
+		response.setCommonResponse(resList);
+		response.setMessage("Success");
+		response.setIsError(false);
+	}catch(Exception e){
+			log.error(e);
+			e.printStackTrace();
+			response.setMessage("Failed");
+			response.setIsError(true);
+		}
+	return response;
+	}
+
+	public GetBouquetCedentBrokerInfoRes getBouquetCedentBrokerInfo(String bouquetNo) {
+		GetBouquetCedentBrokerInfoRes response = new GetBouquetCedentBrokerInfoRes();
+		//doubt, output empty here  , sql dev value 
+		try {
+			//GET_BOUQUET_CEDENT_BROKER
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			
+			Root<PositionMaster> pm = query.from(PositionMaster.class);
+			
+			//cedingCompanyName
+			Subquery<String> cedingCompanyName = query.subquery(String.class); 
+			Root<PersonalInfo> pms = cedingCompanyName.from(PersonalInfo.class);
+			cedingCompanyName.select(pms.get("companyName"));
+			Predicate a1 = cb.equal( pm.get("cedingCompanyId"), pms.get("customerId"));
+			Predicate a2 = cb.equal( pm.get("branchCode"), pms.get("branchCode"));
+			Predicate a3 = cb.equal( pms.get("customerType"), "C");
+			cedingCompanyName.where(a1,a2,a3);
+			
+			//brokerName
+			Subquery<String> brokerName = query.subquery(String.class); 
+			Root<PersonalInfo> pi1 = brokerName.from(PersonalInfo.class);
+			
+			//select CASE WHEN PI.CUSTOMER_TYPE = 'C' THEN PI.COMPANY_NAME 
+			Expression<String> firstName = cb.concat(pi1.get("firstName"), " ");
+			brokerName.select(cb.concat(firstName, pi1.get("lastName")));
+			
+			//maxAmend
+			Subquery<Long> maxAmend1 = query.subquery(Long.class); 
+			Root<PersonalInfo> pis1 = maxAmend1.from(PersonalInfo.class);
+			maxAmend1.select(cb.max(pis1.get("amendId")));
+			Predicate c1 = cb.equal( pis1.get("customerId"), pi1.get("customerId"));
+			maxAmend1.where(c1);
+			
+			Predicate d1 = cb.equal( pi1.get("customerType"), "B");
+			Predicate d2 = cb.equal( pi1.get("customerId"), pm.get("brokerId"));
+			Predicate d3 = cb.equal( pi1.get("branchCode"), pm.get("branchCode"));
+			Predicate d4 = cb.equal( pi1.get("amendId"), maxAmend1);
+			brokerName.where(d1,d2,d3,d4);
+
+			query.multiselect(pm.get("cedingCompanyId").alias("CEDING_COMPANY_ID"),
+					pm.get("brokerId").alias("BROKER_ID"),
+					cedingCompanyName.alias("CEDING_COMPANY_NAME"),
+					brokerName.alias("BROKER_NAME"),
+					pm.get("uwYear").alias("UW_YEAR"),
+					pm.get("uwYearTo").alias("UW_YEAR_TO"),
+					pm.get("inceptionDate").alias("INCEPTION_DATE"),
+					pm.get("expiryDate").alias("EXPIRY_DATE")).distinct(true); 
+
+			//maxamend
+			Subquery<Long> amend = query.subquery(Long.class); 
+			Root<PositionMaster> s = amend.from(PositionMaster.class);
+			amend.select(cb.max(s.get("amendId")));
+			Predicate r1 = cb.equal( pm.get("proposalNo"), s.get("proposalNo"));
+			Predicate r2 = cb.equal( s.get("contractStatus"), "P");
+			amend.where(r1,r2);
+
+			Predicate n1 = cb.equal(pm.get("bouquetNo"), bouquetNo);
+			Predicate n2 = cb.equal(pm.get("contractStatus"), "P");
+			Predicate n3 = cb.equal(pm.get("amendId"), amend);
+			query.where(n1,n2,n3);
+			
+			TypedQuery<Tuple> res = em.createQuery(query);
+			List<Tuple> list = res.getResultList();
+			if(list!=null && list.size()>0){
+				Tuple data = list.get(0);
+				GetBouquetCedentBrokerInfoRes1 bean =new GetBouquetCedentBrokerInfoRes1();
+				bean.setCedingCo(data.get("CEDING_COMPANY_ID")==null?"":data.get("CEDING_COMPANY_ID").toString());
+				bean.setBroker(data.get("BROKER_ID")==null?"":data.get("BROKER_ID").toString());
+				bean.setCedingCompanyName(data.get("CEDING_COMPANY_NAME")==null?"":data.get("CEDING_COMPANY_NAME").toString());
+				bean.setBrokerName(data.get("BROKER_NAME")==null?"":data.get("BROKER_NAME").toString());
+				bean.setUwYear(data.get("UW_YEAR")==null?"":data.get("UW_YEAR").toString());
+				bean.setUwYearTo(data.get("UW_YEAR_TO")==null?"":data.get("UW_YEAR_TO").toString());
+				bean.setIncepDate(data.get("INCEPTION_DATE")==null?"":data.get("INCEPTION_DATE").toString());
+				bean.setExpDate(data.get("EXPIRY_DATE")==null?"":data.get("EXPIRY_DATE").toString());
+				response.setCommonResponse(bean);
+			}
+			response.setMessage("Success");
+			response.setIsError(false);
+		}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	}
+
+	public CommonSaveRes getBouquetCedentBrokercheck(String bouquetNo, String cedingCo, String broker) {
+		CommonSaveRes response =new CommonSaveRes();
+		boolean result=false;
+		//doubt, output empty here  , sql dev value 
+		try{
+			//GET_BOUQUET_CEDENT_BROKER
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			
+			Root<PositionMaster> pm = query.from(PositionMaster.class);
+			
+			//cedingCompanyName
+			Subquery<String> cedingCompanyName = query.subquery(String.class); 
+			Root<PersonalInfo> pms = cedingCompanyName.from(PersonalInfo.class);
+			cedingCompanyName.select(pms.get("companyName"));
+			Predicate a1 = cb.equal( pm.get("cedingCompanyId"), pms.get("customerId"));
+			Predicate a2 = cb.equal( pm.get("branchCode"), pms.get("branchCode"));
+			Predicate a3 = cb.equal( pms.get("customerType"), "C");
+			cedingCompanyName.where(a1,a2,a3);
+			
+			//brokerName
+			Subquery<String> brokerName = query.subquery(String.class); 
+			Root<PersonalInfo> pi1 = brokerName.from(PersonalInfo.class);
+			
+			//select CASE WHEN PI.CUSTOMER_TYPE = 'C' THEN PI.COMPANY_NAME 
+			Expression<String> firstName = cb.concat(pi1.get("firstName"), " ");
+			brokerName.select(cb.concat(firstName, pi1.get("lastName")));
+			
+			//maxAmend
+			Subquery<Long> maxAmend1 = query.subquery(Long.class); 
+			Root<PersonalInfo> pis1 = maxAmend1.from(PersonalInfo.class);
+			maxAmend1.select(cb.max(pis1.get("amendId")));
+			Predicate c1 = cb.equal( pis1.get("customerId"), pi1.get("customerId"));
+			maxAmend1.where(c1);
+			
+			Predicate d1 = cb.equal( pi1.get("customerType"), "B");
+			Predicate d2 = cb.equal( pi1.get("customerId"), pm.get("brokerId"));
+			Predicate d3 = cb.equal( pi1.get("branchCode"), pm.get("branchCode"));
+			Predicate d4 = cb.equal( pi1.get("amendId"), maxAmend1);
+			brokerName.where(d1,d2,d3,d4);
+
+			query.multiselect(pm.get("cedingCompanyId").alias("CEDING_COMPANY_ID"),
+					pm.get("brokerId").alias("BROKER_ID"),
+					cedingCompanyName.alias("CEDING_COMPANY_NAME"),
+					brokerName.alias("BROKER_NAME"),
+					pm.get("uwYear").alias("UW_YEAR"),
+					pm.get("uwYearTo").alias("UW_YEAR_TO"),
+					pm.get("inceptionDate").alias("INCEPTION_DATE"),
+					pm.get("expiryDate").alias("EXPIRY_DATE")).distinct(true); 
+
+			//maxamend
+			Subquery<Long> amend = query.subquery(Long.class); 
+			Root<PositionMaster> s = amend.from(PositionMaster.class);
+			amend.select(cb.max(s.get("amendId")));
+			Predicate r1 = cb.equal( pm.get("proposalNo"), s.get("proposalNo"));
+			Predicate r2 = cb.equal( s.get("contractStatus"), "P");
+			amend.where(r1,r2);
+
+			Predicate n1 = cb.equal(pm.get("bouquetNo"), bouquetNo);
+			Predicate n2 = cb.equal(pm.get("contractStatus"), "P");
+			Predicate n3 = cb.equal(pm.get("amendId"), amend);
+			query.where(n1,n2,n3);
+			
+			TypedQuery<Tuple> result1 = em.createQuery(query);
+			List<Tuple> list = result1.getResultList();
+			
+				if(list!=null && list.size()>0){
+					for(int i=0;i<list.size();i++){
+						Tuple map= list.get(i);
+						String res=map.get("CEDING_COMPANY_ID")==null?"":map.get("CEDING_COMPANY_ID").toString();
+						String res1=map.get("BROKER_ID")==null?"":map.get("BROKER_ID").toString();
+						if(!res.equalsIgnoreCase(cedingCo)){
+							result=true;
+						}else if(!res1.equalsIgnoreCase(broker)){
+							result=true;
+						}
+					}
+				}
+				response.setResponse(String.valueOf(result));
+				response.setMessage("Success");
+				response.setIsError(false);
+			}catch(Exception e){
+					log.error(e);
+					e.printStackTrace();
+					response.setMessage("Failed");
+					response.setIsError(true);
+				}
+			return response;
+	}
+
+	public CommonSaveRes gePltDisableStatus(String proposalNo) {
+		CommonSaveRes response = new CommonSaveRes();
+		String status="N";
+		try {
+			//GET_PLDISABLE_STATUS
+			int count = riPlaceRepo.countByProposalNo(new BigDecimal(proposalNo));
+			if(count>0) {
+				 status="Y";
+			}
+			response.setResponse(status);
+			response.setMessage("Success");
+			response.setIsError(false);
+		}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	}
+
+	public CommonSaveRes getUWFromTocheck(String bouquetNo, String uwYear, String uwYearTo) {
+		CommonSaveRes response = new CommonSaveRes();
+		boolean result=false;
+		//doubt, output empty here  , sql dev value 
+		try{
+			//GET_BOUQUET_CEDENT_BROKER
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			
+			Root<PositionMaster> pm = query.from(PositionMaster.class);
+			
+			//cedingCompanyName
+			Subquery<String> cedingCompanyName = query.subquery(String.class); 
+			Root<PersonalInfo> pms = cedingCompanyName.from(PersonalInfo.class);
+			cedingCompanyName.select(pms.get("companyName"));
+			Predicate a1 = cb.equal( pm.get("cedingCompanyId"), pms.get("customerId"));
+			Predicate a2 = cb.equal( pm.get("branchCode"), pms.get("branchCode"));
+			Predicate a3 = cb.equal( pms.get("customerType"), "C");
+			cedingCompanyName.where(a1,a2,a3);
+			
+			//brokerName
+			Subquery<String> brokerName = query.subquery(String.class); 
+			Root<PersonalInfo> pi1 = brokerName.from(PersonalInfo.class);
+			
+			//select CASE WHEN PI.CUSTOMER_TYPE = 'C' THEN PI.COMPANY_NAME 
+			Expression<String> firstName = cb.concat(pi1.get("firstName"), " ");
+			brokerName.select(cb.concat(firstName, pi1.get("lastName")));
+			
+			//maxAmend
+			Subquery<Long> maxAmend1 = query.subquery(Long.class); 
+			Root<PersonalInfo> pis1 = maxAmend1.from(PersonalInfo.class);
+			maxAmend1.select(cb.max(pis1.get("amendId")));
+			Predicate c1 = cb.equal( pis1.get("customerId"), pi1.get("customerId"));
+			maxAmend1.where(c1);
+			
+			Predicate d1 = cb.equal( pi1.get("customerType"), "B");
+			Predicate d2 = cb.equal( pi1.get("customerId"), pm.get("brokerId"));
+			Predicate d3 = cb.equal( pi1.get("branchCode"), pm.get("branchCode"));
+			Predicate d4 = cb.equal( pi1.get("amendId"), maxAmend1);
+			brokerName.where(d1,d2,d3,d4);
+
+			query.multiselect(pm.get("cedingCompanyId").alias("CEDING_COMPANY_ID"),
+					pm.get("brokerId").alias("BROKER_ID"),
+					cedingCompanyName.alias("CEDING_COMPANY_NAME"),
+					brokerName.alias("BROKER_NAME"),
+					pm.get("uwYear").alias("UW_YEAR"),
+					pm.get("uwYearTo").alias("UW_YEAR_TO"),
+					pm.get("inceptionDate").alias("INCEPTION_DATE"),
+					pm.get("expiryDate").alias("EXPIRY_DATE")).distinct(true); 
+
+			//maxamend
+			Subquery<Long> amend = query.subquery(Long.class); 
+			Root<PositionMaster> s = amend.from(PositionMaster.class);
+			amend.select(cb.max(s.get("amendId")));
+			Predicate r1 = cb.equal( pm.get("proposalNo"), s.get("proposalNo"));
+			Predicate r2 = cb.equal( s.get("contractStatus"), "P");
+			amend.where(r1,r2);
+
+			Predicate n1 = cb.equal(pm.get("bouquetNo"), bouquetNo);
+			Predicate n2 = cb.equal(pm.get("contractStatus"), "P");
+			Predicate n3 = cb.equal(pm.get("amendId"), amend);
+			query.where(n1,n2,n3);
+			
+			TypedQuery<Tuple> result1 = em.createQuery(query);
+			List<Tuple> list = result1.getResultList();
+			
+				if(list!=null && list.size()>0){
+					for(int i=0;i<list.size();i++){
+						Tuple map=list.get(i);
+						String res=map.get("UW_YEAR")==null?"":map.get("UW_YEAR").toString();
+						String res1=map.get("UW_YEAR_TO")==null?"":map.get("UW_YEAR_TO").toString();
+						if(!res.equalsIgnoreCase(uwYear)){
+							result=true;
+						}else if(!res1.equalsIgnoreCase(uwYearTo)){
+							result=true;
+						}
+					}
+				}
+				response.setResponse(String.valueOf(result));
+				response.setMessage("Success");
+				response.setIsError(false);
+			}catch(Exception e){
+					log.error(e);
+					e.printStackTrace();
+					response.setMessage("Failed");
+					response.setIsError(true);
+				}
+			return response;
+	}
+	@Transactional
+	public GetNewContractInfoRes getNewContractInfo(String branchCode, String proposalNo) {
+		List<Map<String,Object>> list=new ArrayList<Map<String,Object>>();
+		GetNewContractInfoRes response = new GetNewContractInfoRes();
+		List<GetNewContractInfoRes1> resList = new ArrayList<GetNewContractInfoRes1>();
+		try{
+			list= queryImpl.selectList("NEW_CONTRACT_SUMMARY", new String[]{branchCode,proposalNo});
+			if(list != null && list.size()>0) {
+				for(Map<String,Object> data: list) {
+					GetNewContractInfoRes1 res = new GetNewContractInfoRes1();
+					 res.setOfferNo(data.get("OFFER_NO")==null?"":data.get("OFFER_NO").toString()); 
+					 res.setBaseProposal(data.get("BASE_PROPOSAL")==null?"":data.get("BASE_PROPOSAL").toString()); 
+					 res.setProposalNo(data.get("PROPOSAL_NO")==null?"":data.get("PROPOSAL_NO").toString()); 
+					 res.setTreatyName(data.get("TREATY_NAME")==null?"":data.get("TREATY_NAME").toString()); 
+					 res.setLayerSection(data.get("LAYER_SECTION")==null?"":data.get("LAYER_SECTION").toString()); 
+					 res.setSno(data.get("SNO")==null?"":data.get("SNO").toString()); 
+					 res.setReinsurerName(data.get("REINSURER_NAME")==null?"":data.get("REINSURER_NAME").toString()); 
+					  res.setBrokerName(data.get("BROKER_NAME")==null?"":data.get("BROKER_NAME").toString()); 
+					  res.setCurrency(data.get("CURRENCY")==null?"":data.get("CURRENCY").toString()); 
+					  res.setEpi100Oc(data.get("EPI_100_OC")==null?"":data.get("EPI_100_OC").toString()); 
+					  res.setEpi100Dc(data.get("EPI_100_DC")==null?"":data.get("EPI_100_DC").toString()); 
+					  res.setPlacingStatus(data.get("PLACING_STATUS")==null?"":data.get("PLACING_STATUS").toString()); 
+					  res.setShareSigned(data.get("SHARE_SIGNED")==null?"":data.get("SHARE_SIGNED").toString()); 
+					  res.setBrokerage(data.get("BROKERAGE")==null?"":data.get("BROKERAGE").toString()); 
+					  res.setBrokerageAmt(data.get("BROKERAGE_AMT")==null?"":data.get("BROKERAGE_AMT").toString()); 
+					 resList.add(res);
+					 }
+			}
+			response.setCommonResponse(resList);
+			response.setMessage("Success");
+		response.setIsError(false);
+	}catch(Exception e){
+			log.error(e);
+			e.printStackTrace();
+			response.setMessage("Failed");
+			response.setIsError(true);
+		}
+	return response;
+	}
+
+	public GetPlacementInfoListRes getPlacementInfoList(String branchCode, String layerProposalNo) {
+		GetPlacementInfoListRes  response = new GetPlacementInfoListRes();
+		List<Map<String,Object>>list=null;
+		List<GetPlacementInfoListRes1> resList = new ArrayList<GetPlacementInfoListRes1>();
+		try {
+			list= queryImpl.selectList("GET_REINSURER_INFO", new String[]{branchCode,layerProposalNo});
+			if(!CollectionUtils.isEmpty(list)) {
+				for(int i=0;i<list.size();i++) {
+					Map<String,Object>map=list.get(i);
+					GetPlacementInfoListRes1 res = new GetPlacementInfoListRes1();
+					res.setBaseproposalNos(map.get("BASE_PROPOSAL_NO")==null?"":map.get("BASE_PROPOSAL_NO").toString());
+					res.setBouquetNos(map.get("BOUQUET_NO")==null?"":map.get("BOUQUET_NO").toString());
+					res.setBrokerages(map.get("BROKERAGE_PER")==null?"":map.get("BROKERAGE_PER").toString());
+					res.setBrokerIds(map.get("BROKER_ID")==null?"":map.get("BROKER_ID").toString());
+					res.setCurrentStatus(map.get("CURRENT_STATUS")==null?"":map.get("CURRENT_STATUS").toString());
+					res.setNewStatus(map.get("NEW_STATUS")==null?"":map.get("NEW_STATUS").toString());
+					res.setProposedSL(map.get("SHARE_PROPOSED_SIGNED")==null?"":formattereight(map.get("SHARE_PROPOSED_SIGNED").toString()));
+					res.setProposedWL(map.get("SHARE_PROPOSAL_WRITTEN")==null?"":formattereight(map.get("SHARE_PROPOSAL_WRITTEN").toString()));
+					res.setReinsurerIds(map.get("REINSURER_ID")==null?"":map.get("REINSURER_ID").toString());
+					res.setShareOffered(map.get("SHARE_OFFERED")==null?"":formattereight(map.get("SHARE_OFFERED").toString()));
+					res.setSignedLine(map.get("SHARE_SIGNED")==null?"":formattereight(map.get("SHARE_SIGNED").toString()));
+					res.setSnos(map.get("SNO")==null?"":map.get("SNO").toString());
+					res.setWrittenLine(map.get("SHARE_WRITTEN")==null?"":formattereight(map.get("SHARE_WRITTEN").toString()));
+					res.setStatusNo(map.get("STATUS_NO")==null?"":map.get("STATUS_NO").toString());				
+					resList.add(res);
+					} }
+				response.setCommonResponse(resList);
+				response.setMessage("Success");
+			response.setIsError(false);
+		}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	}
+
+	@Override
+	public CommonResponse updateRenewalEditMode(updateSubEditModeReq req) {
+		CommonResponse response = new CommonResponse();
+		List<Map<String,Object>> list=new ArrayList<Map<String,Object>>();
+		String proposal  = "";
+		try{
+			String query="GET_BASE_PROPOSAL_NO";
+			String args[] = new String[1];
+			args[0] = req.getProposalNo();
+			list=queryImpl.selectList(query, args);
+			if (!CollectionUtils.isEmpty(list)) {
+				proposal = list.get(0).get("PROPOSAL_NO") == null ? ""
+						: list.get(0).get("PROPOSAL_NO").toString();
+			}
+			
+			if(!"0".equalsIgnoreCase(proposal)){
+			updateSubEditMode(req);
+			updateEditMode(req);
+			}
+			response.setMessage("Success");
+			response.setIsError(false);
+	 }	catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	}
+	public CommonResponse updateSubEditMode(updateSubEditModeReq req) {
+		CommonResponse response = new CommonResponse();
+		try{
+			String query="UPDATE_SUB_ENDT_STATUS";
+			String args[] = new String[2];
+			if(!"N".equalsIgnoreCase(req.getStatus())){
+			args[0] = req.getStatus() +"-"+ req.getUpdateProposalNo();
+			}
+			else{
+				args[0] = req.getStatus();	
+			}
+			args[1] = req.getProposalNo();
+			queryImpl.updateQuery(query, args);
+			response.setMessage("Success");
+			response.setIsError(false);
+	 }	catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	}
+		public CommonResponse updateEditMode(updateSubEditModeReq req) {
+			CommonResponse response = new CommonResponse();
+			try{
+				String query="POS_MAS_ED_MODE_UPDT";
+				String args[] = new String[2];
+				if(!"N".equalsIgnoreCase(req.getStatus())){
+					args[0] = req.getStatus() +"-"+ req.getUpdateProposalNo();
+					}
+					else{
+						args[0] = req.getStatus();	
+					}
+				args[1] = req.getProposalNo();
+				queryImpl.updateQuery(query, args);
+				response.setMessage("Success");
+				response.setIsError(false);
+		 }	catch(Exception e){
+					log.error(e);
+					e.printStackTrace();
+					response.setMessage("Failed");
+					response.setIsError(true);
+				}
+			return response;
+		}
+
 }

@@ -22,4 +22,6 @@ public interface RskPremiumDetailsTempRepository
 
 	RskPremiumDetailsTemp findByRequestNoAndBranchCode(String requestNo, String branchCode);
 
+	RskPremiumDetailsTemp findByContractNoAndRequestNo(BigDecimal bigDecimal, BigDecimal bigDecimal2);
+
 }

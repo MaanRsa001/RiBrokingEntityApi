@@ -71,6 +71,7 @@ import com.maan.insurance.model.res.proportionality.InsertCrestaDetailsRes;
 import com.maan.insurance.model.res.proportionality.RiskDetailsEditModeRes;
 import com.maan.insurance.model.res.proportionality.ShowSecondpageEditItemsRes;
 import com.maan.insurance.model.res.proportionality.ViewRiskDetailsRes;
+import com.maan.insurance.model.res.proportionality.checkAvialabilityRes;
 import com.maan.insurance.service.claim.ClaimService;
 import com.maan.insurance.service.proportionality.ProportionalityService;
 import com.maan.insurance.validation.Claim.ClaimValidation;
@@ -327,6 +328,10 @@ public class ProportionalityController {
 					throw new CommonValidationException("error",error);
 				}
 				return propService.saveRiskDeatilsSecondForm(req);
+			}
+			@GetMapping("/checkAvialability/{proposalno}/{pid}")
+			public checkAvialabilityRes checkAvialability (@PathVariable ("proposalno")String proposalno,@PathVariable ("pid") String pid) throws CommonValidationException {
+				return propService.checkAvialability(proposalno,pid);
 			}
 }
 

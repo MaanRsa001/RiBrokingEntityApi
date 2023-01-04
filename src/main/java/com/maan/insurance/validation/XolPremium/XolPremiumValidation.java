@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.maan.insurance.error.ErrorCheck;
+import com.maan.insurance.jpa.service.impl.XolPremiumJpaServiceImpl;
+import com.maan.insurance.model.req.premium.GetRIPremiumListReq;
 import com.maan.insurance.model.req.xolPremium.ContractDetailsReq;
 import com.maan.insurance.model.req.xolPremium.GetAdjPremiumReq;
 import com.maan.insurance.model.req.xolPremium.GetPremiumDetailsReq;
@@ -23,7 +25,6 @@ import com.maan.insurance.model.req.xolPremium.PremiumEditReq;
 import com.maan.insurance.model.req.xolPremium.PremiumInsertMethodReq;
 import com.maan.insurance.model.res.DropDown.GetOpenPeriodRes;
 import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
-import com.maan.insurance.service.impl.XolPremium.XolPremiumServiceImple;
 import com.maan.insurance.validation.CommonCalculation;
 import com.maan.insurance.validation.Formatters;
 
@@ -33,7 +34,7 @@ public class XolPremiumValidation {
 	private Logger log = LogManager.getLogger(XolPremiumValidation.class);
 	private Properties prop = new Properties();
 	@Autowired
-	private XolPremiumServiceImple xolPreImpl;
+	private XolPremiumJpaServiceImpl xolPreImpl;
 	
 	@Autowired
 	private DropDownServiceImple dropDowmImpl;
@@ -142,20 +143,26 @@ public class XolPremiumValidation {
 			list.add(new ErrorCheck("Please Enter OpendDate", "OpendDate", "3"));
 		}
 		if (StringUtils.isBlank(req.getMode())) {
-			list.add(new ErrorCheck("Please Enter BranchCode", "BranchCode", "5"));
+			list.add(new ErrorCheck("Please Enter Mode", "BranchCode", "5"));
 		}
 		if (StringUtils.isBlank(req.getProductId())) {
-			list.add(new ErrorCheck("Please Enter OpendDate", "OpendDate", "7"));
+			list.add(new ErrorCheck("Please Enter Product Id", "OpendDate", "7"));
 		}
 		if (StringUtils.isBlank(req.getTableType())) {
-			list.add(new ErrorCheck("Please Enter ContractNo", "ContractNo", "9"));
+			list.add(new ErrorCheck("Please Enter Table Type", "ContractNo", "9"));
 		}
-		if (StringUtils.isBlank(req.getRequestNo())) {
-			list.add(new ErrorCheck("Please Enter OpendDate", "OpendDate", "10"));
+		if (StringUtils.isBlank(req.getTransDropDownVal())) {
+		if("Main".equals(req.getTableType())) {
+			if (StringUtils.isBlank(req.getTransactionNo())) {
+				list.add(new ErrorCheck("Please Enter Transaction No", "OpstartDate", "12"));
+			}
+		}else {
+			if (StringUtils.isBlank(req.getRequestNo())) {
+				list.add(new ErrorCheck("Please Enter Request No", "OpendDate", "10"));
+			}
 		}
-//		if (StringUtils.isBlank(req.getTransactionNo())) {
-//			list.add(new ErrorCheck("Please Enter OpstartDate", "OpstartDate", "12"));
-//		}
+		}
+//		
 //		if (StringUtils.isBlank(req.getTransDropDownVal())) {
 //			list.add(new ErrorCheck("Please Enter OpstartDate", "OpstartDate", "13"));
 //		}
@@ -258,7 +265,7 @@ public class XolPremiumValidation {
 						list.add(new ErrorCheck(prop.getProperty("errors.amendmentDate.invalid"),"amendmentDate","01")); 
 							dateflag=false;
 							statDate=false;
-					}else if(Validation.ValidateTwo(bean.getMaxDate(),bean.getAmendmentDate()).equalsIgnoreCase("invalid"))
+					}else if(StringUtils.isNotBlank(bean.getMaxDate()) && Validation.ValidateTwo(bean.getMaxDate(),bean.getAmendmentDate()).equalsIgnoreCase("invalid"))
 					{
 						list.add(new ErrorCheck(prop.getProperty("errors.premium.amendDate"),"premium","01")); 
 						
@@ -394,16 +401,29 @@ public class XolPremiumValidation {
 						 }
 				        
 					 if("RI02".equalsIgnoreCase(bean.getSourceId())){
-				        if(StringUtils.isBlank(bean.getServiceTax())){
-							list.add(new ErrorCheck(prop.getProperty("servicetax.empty"),"servicetax","01"));  
+						 if(StringUtils.isBlank(bean.getVatPremium())){
+							 list.add(new ErrorCheck(prop.getProperty("vatpremium.empty"),"servicetax","01")); 
 						 }
 						 else{
-							 bean.setServiceTax(bean.getServiceTax().replaceAll(",", ""));
-							 if(val.numbervalid(bean.getServiceTax()).equalsIgnoreCase("INVALID"))
+							 bean.setVatPremium(bean.getVatPremium().replaceAll(",", ""));
+							 if(val.numbervalid(bean.getVatPremium()).equalsIgnoreCase("INVALID"))
 							 {
-								list.add(new ErrorCheck(prop.getProperty("error.servicetax.number"),"servicetax","01")); 
-							 }	
+								  list.add(new ErrorCheck(prop.getProperty("error.vatpremium.number"),"servicetax","01"));
+							 }
 						 }
+						 
+					
+						 if(StringUtils.isBlank(bean.getBrokerageVat())){
+							 list.add(new ErrorCheck(prop.getProperty("brokeragevat.empty"),"servicetax","01")); 
+						 }
+						 else{
+							 bean.setBrokerageVat(bean.getBrokerageVat().replaceAll(",", ""));
+							 if(val.numbervalid(bean.getBrokerageVat()).equalsIgnoreCase("INVALID"))
+							 {
+								  list.add(new ErrorCheck(prop.getProperty("error.brokeragevat.number"),"servicetax","01"));
+							 }
+						 }
+						}
 				        if(StringUtils.isBlank(bean.getTaxDedectSource())){
 							list.add(new ErrorCheck(prop.getProperty("taxdedct.source.invalid"),"TaxDedectSource","01")); 
 						 }
@@ -415,7 +435,7 @@ public class XolPremiumValidation {
 							 }
 						 }
 					 }
-					 }
+					 
 				        if (!val.isNull(bean.getMdpremium()).equalsIgnoreCase("")) {
 				            flag = true;
 						 bean.setMdpremium((bean.getMdpremium()).replaceAll(",",""));
@@ -457,7 +477,10 @@ public class XolPremiumValidation {
 					if(flag==false)
 					{
 						list.add(new ErrorCheck(prop.getProperty("errors.currency.select"),"currency","01"));  
-					}	
+					}
+					if(StringUtils.isBlank(bean.getDocumentType())) {
+						list.add(new ErrorCheck(prop.getProperty("errors.documenttype.select"),"documenttype","01"));
+					}
 					if("transEdit".equalsIgnoreCase(bean.getMode())){
 						if(StringUtils.isBlank(bean.getTransDropDownVal()) && "Yes".equalsIgnoreCase(bean.getChooseTransaction())){
 							list.add(new ErrorCheck(prop.getProperty("resersel.trans"),"TransDropDownVal","01")); 
@@ -491,8 +514,40 @@ public class XolPremiumValidation {
 	}
 
 	public List<ErrorCheck> getAdjPremiumVali(GetAdjPremiumReq req) {
-		// TODO Auto-generated method stub
-		return null;
+		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
+		if (StringUtils.isBlank(req.getBranchCode())) {
+			list.add(new ErrorCheck("Please Enter BranchCode", "BranchCode", "1"));
+		}
+		if (StringUtils.isBlank(req.getContNo())) {
+			list.add(new ErrorCheck("Please Enter ContractNo", "ContractNo", "2"));
+		}
+		if (StringUtils.isBlank(req.getCurrency())) {
+			list.add(new ErrorCheck("Please Enter Currency", "Currency", "3"));
+		}
+		if (StringUtils.isBlank(req.getGnpiDate())) {
+			list.add(new ErrorCheck("Please Enter GnpiDate", "GnpiDate", "4"));
+		}
+		if (StringUtils.isBlank(req.getLayerno())) {
+			list.add(new ErrorCheck("Please Enter Layerno", "Layerno", "5"));
+		}
+		if (StringUtils.isBlank(req.getPredepartment())) {
+			list.add(new ErrorCheck("Please Enter Predepartment", "Predepartment", "6"));
+		}
+		return list;
+	}
+
+	public List<ErrorCheck> getRIPremiumListVali(GetRIPremiumListReq req) {
+		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
+		if (StringUtils.isBlank(req.getBranchCode())) {
+			list.add(new ErrorCheck("Please Enter BranchCode", "BranchCode", "1"));
+		}
+		if (StringUtils.isBlank(req.getContractNo())) {
+			list.add(new ErrorCheck("Please Enter ContractNo", "ContractNo", "2"));
+		}
+		if (StringUtils.isBlank(req.getTransactionNo())) {
+			list.add(new ErrorCheck("Please Enter TransactionNo", "TransactionNo", "3"));
+		}
+		return list;
 	}
 
 }

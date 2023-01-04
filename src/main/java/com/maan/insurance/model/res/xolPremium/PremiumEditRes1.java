@@ -40,8 +40,16 @@ public class PremiumEditRes1 {
 	private String withHoldingTaxOC;
 	@JsonProperty("TaxDedectSource")
 	private String taxDedectSource;
-	@JsonProperty("ServiceTax")
-	private String serviceTax;
+	@JsonProperty("VatPremium")
+	private String vatPremium;
+	@JsonProperty("VatPremiumDc")
+	private String vatPremiumDc;
+	@JsonProperty("BrokerageVat")
+	private String brokerageVat;
+	@JsonProperty("BrokerageVatDc")
+	private String brokerageVatDc;
+	@JsonProperty("DocumentType")
+	private String documentType;
 	@JsonProperty("Bonus")
 	private String bonus;
 	@JsonProperty("TotalCredit")
@@ -130,8 +138,6 @@ public class PremiumEditRes1 {
 	private String withHoldingTaxDC;
 	@JsonProperty("TaxDedectSourceDc")
 	private String taxDedectSourceDc;
-	@JsonProperty("ServiceTaxDc")
-	private String serviceTaxDc;
 	@JsonProperty("BonusDc")
 	private String bonusDc;
 	@JsonProperty("GnpiDate")

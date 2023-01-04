@@ -64,7 +64,7 @@ public interface ClaimCustomRepository {
 
 	public Integer updateCloseClaim(String status, Date date, String claimNo, String contractNo);
 
-	public Integer selectPaymentReqNo(String claimNo, String paymentRequestNo);
+	public Long selectPaymentReqNo(String claimNo, String paymentRequestNo);
 
 	public void getPremiumSpRetroSplit(InsertCliamDetailsMode3Req req);
 

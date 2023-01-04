@@ -1,7 +1,8 @@
 package com.maan.insurance.jpa.entity.claim;
 
 import java.io.Serializable;
-import java.sql.Date;
+import java.math.BigDecimal;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -34,16 +35,16 @@ private static final long serialVersionUID = 1L;
  
     @Id
     @Column(name="CLAIM_NO")
-    private Long claimNo;
+    private BigDecimal claimNo;
     
     @Column(name="CONTRACT_NO")
     private String contractNo;
     
     @Column(name="LAYER_NO")
-    private Integer layerNo;
+    private BigDecimal layerNo;
     
     @Column(name="SUB_CLASS")
-    private Integer subClass;
+    private BigDecimal subClass;
     
     @Column(name="RISK_CODE")
     private String riskCode;
@@ -55,7 +56,7 @@ private static final long serialVersionUID = 1L;
     private String eventCode;
     
     @Column(name="AMEND_ID")
-    private Integer amendId;
+    private BigDecimal amendId;
     
     @Column(name="AMEND_DATE")
     private Date amendDate;
@@ -67,6 +68,8 @@ private static final long serialVersionUID = 1L;
     private String  branchCode;
     
     @Column(name="LOGIN_ID")
-    private Integer loginId;
-    
+    private String loginId;
+
+
+
 }

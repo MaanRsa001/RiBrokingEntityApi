@@ -17,6 +17,13 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.Tuple;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.query.internal.NativeQueryImpl;
@@ -31,10 +38,13 @@ import com.maan.insurance.jpa.mapper.RskPremiumDetailsTempMapper;
 import com.maan.insurance.jpa.mapper.RskXLPremiumDetailsMapper;
 import com.maan.insurance.jpa.repository.xolpremium.RskXLPremiumDetailsRepository;
 import com.maan.insurance.jpa.repository.xolpremium.XolPremiumCustomRepository;
+import com.maan.insurance.model.entity.PersonalInfo;
 import com.maan.insurance.model.entity.RskPremiumDetails;
+import com.maan.insurance.model.entity.RskPremiumDetailsRi;
 import com.maan.insurance.model.entity.RskPremiumDetailsTemp;
 import com.maan.insurance.model.repository.RskPremiumDetailsRepository;
 import com.maan.insurance.model.repository.RskPremiumDetailsTempRepository;
+import com.maan.insurance.model.req.premium.GetRIPremiumListReq;
 import com.maan.insurance.model.req.xolPremium.ContractDetailsReq;
 import com.maan.insurance.model.req.xolPremium.GetAdjPremiumReq;
 import com.maan.insurance.model.req.xolPremium.GetPremiumDetailsReq;
@@ -51,6 +61,8 @@ import com.maan.insurance.model.res.facPremium.GetDepartmentIdRes1;
 import com.maan.insurance.model.res.facPremium.SettlementstatusRes;
 import com.maan.insurance.model.res.premium.CurrencyListRes;
 import com.maan.insurance.model.res.premium.CurrencyListRes1;
+import com.maan.insurance.model.res.premium.GetRIPremiumListRes;
+import com.maan.insurance.model.res.premium.GetRIPremiumListRes1;
 import com.maan.insurance.model.res.xolPremium.CommonResponse;
 import com.maan.insurance.model.res.xolPremium.ContractDetailsRes;
 import com.maan.insurance.model.res.xolPremium.ContractDetailsRes1;
@@ -69,13 +81,16 @@ import com.maan.insurance.model.res.xolPremium.PremiumEditRes1;
 import com.maan.insurance.model.res.xolPremium.PremiumEditResponse;
 import com.maan.insurance.model.res.xolPremium.PremiumInsertRes;
 import com.maan.insurance.model.res.xolPremium.premiumInsertMethodRes;
-import com.maan.insurance.res.XolPremium.CommonSaveRes;
+import com.maan.insurance.model.res.xolPremium.CommonSaveRes;
+import com.maan.insurance.service.XolPremium.XolPremiumService;
+import com.maan.insurance.service.impl.QueryImplemention;
 import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
 import com.maan.insurance.validation.Formatters;
 
 @Component
-public class XolJpaServiceImpl {
-
+public class XolPremiumJpaServiceImpl implements XolPremiumService{
+	@Autowired
+	private QueryImplemention queryImpl;
 	@Autowired
 	private Formatters fm;
 	
@@ -408,8 +423,8 @@ public class XolJpaServiceImpl {
 				tempMap3.put("KEY1", "RTP");
 				tempMap3.put("VALUE", "Return Premium");
 				list.add(tempMap3);
-				tempMap4.put("KEY1", "RVP");
-				tempMap4.put("VALUE", "Reversal Premium");
+				//tempMap4.put("KEY1", "RVP");
+				//tempMap4.put("VALUE", "Reversal Premium");
 				list.add(tempMap4);
 			} else {
 				tempMap1.put("KEY1", "RP");
@@ -418,8 +433,8 @@ public class XolJpaServiceImpl {
 				tempMap3.put("KEY1", "RTP");
 				tempMap3.put("VALUE", "Return Premium");
 				list.add(tempMap3);
-				tempMap4.put("KEY1", "RVP");
-				tempMap4.put("VALUE", "Reversal Premium");
+				//tempMap4.put("KEY1", "RVP");
+				//tempMap4.put("VALUE", "Reversal Premium");
 				list.add(tempMap4);
 			}
 			if (list.size() > 0)
@@ -610,8 +625,6 @@ public class XolJpaServiceImpl {
 					input = req.getRequestNo();
 					if( "transEdit".equalsIgnoreCase(req.getMode()))
 						input = req.getTransDropDownVal();
-					
-					//query= "XOL_PREMIUM_EDIT_TEMP";
 					transList = xolPremiumCustomRepository.getXolPremiumEditRTemp(req.getContNo(), input);
 				}else{
 					input = req.getTransactionNo();
@@ -619,11 +632,9 @@ public class XolJpaServiceImpl {
 						input = req.getTransDropDownVal();
 					
 					if("3".equalsIgnoreCase(req.getProductId())){
-					//query -- premium.select.treetyXOLPremiumEdit
 						transList = xolPremiumCustomRepository.selectTreetyXOLPremiumEdit(req.getContNo(),input);
 					}
 					else{
-						//query -- premium.select.retrotreetyXOLPremiumEdit
 						transList = xolPremiumCustomRepository.selectRetrotreetyXOLPremiumEdit(req.getContNo(),input);
 					}
 				}
@@ -633,8 +644,16 @@ public class XolJpaServiceImpl {
 						 for(int i=0;i<transList.size();i++){
 							 PremiumEditRes1 bean = new PremiumEditRes1();
 							 Tuple	editPremium=transList.get(i);
-							 bean.setCurrencyId(editPremium.get("CURRENCY_ID")==null?"":editPremium.get("CURRENCY_ID").toString());
+							 	bean.setCurrencyId(editPremium.get("CURRENCY_ID")==null?"":editPremium.get("CURRENCY_ID").toString());
 								bean.setCurrency(editPremium.get("CURRENCY_ID")==null?"":editPremium.get("CURRENCY_ID").toString());
+								bean.setAccountPeriod(editPremium.get("ACCOUNT_PERIOD_QTR")==null?"":editPremium.get("ACCOUNT_PERIOD_QTR").toString());
+								if("RP".equalsIgnoreCase(editPremium.get("INSTALMENT_NUMBER")==null?"":editPremium.get("INSTALMENT_NUMBER").toString())||"AP".equalsIgnoreCase(editPremium.get("INSTALMENT_NUMBER")==null?"":editPremium.get("INSTALMENT_NUMBER").toString()) ||"RTP".equalsIgnoreCase(editPremium.get("INSTALMENT_NUMBER")==null?"":editPremium.get("INSTALMENT_NUMBER").toString()) ||"RVP".equalsIgnoreCase(editPremium.get("INSTALMENT_NUMBER")==null?"":editPremium.get("INSTALMENT_NUMBER").toString()))
+						    	{
+						    		bean.setAccountPeriod(editPremium.get("INSTALMENT_NUMBER")==null?"":editPremium.get("INSTALMENT_NUMBER").toString());
+						    	}else
+						    	{
+						    		bean.setAccountPeriod(editPremium.get("INSTALMENT_NUMBER")+"_"+editPremium.get("ACCOUNT_PERIOD_QTR"));
+						    	}
 								if(null==editPremium.get("EXCHANGE_RATE")){
 									GetCommonValueRes common = dropDowmImpl.GetExchangeRate(bean.getCurrencyId(),bean.getTransaction(),req.getCountryId(),req.getBranchCode());
 									bean.setExchRate(common.getCommonResponse());
@@ -708,8 +727,10 @@ public class XolJpaServiceImpl {
 		                        bean.setDepartmentId(editPremium.get("SUB_CLASS")==null?"":editPremium.get("SUB_CLASS").toString());
 		                        bean.setTaxDedectSource((editPremium.get("TDS_OC")==null?"":editPremium.get("TDS_OC").toString()));
 		                        bean.setTaxDedectSource((getMultipleVal(bean.getTaxDedectSource())));
-		                        bean.setServiceTax(fm.formatter(editPremium.get("ST_OC")==null?"":editPremium.get("ST_OC").toString()));
-		                        bean.setServiceTax((getMultipleVal(bean.getCommissionSurplus())));
+		                        bean.setVatPremium(editPremium.get("VAT_PREMIUM_OC")==null?"":fm.formatter(editPremium.get("VAT_PREMIUM_OC").toString()));
+		                        bean.setVatPremium((getMultipleVal(bean.getVatPremium())));
+	                            bean.setBrokerageVat(editPremium.get("BROKERAGE_VAT_OC")==null?"":fm.formatter(editPremium.get("BROKERAGE_VAT_OC").toString()));
+	                            bean.setBrokerageVat((getMultipleVal(bean.getBrokerageVat())));
 		                        bean.setBonus(fm.formatter(editPremium.get("BONUS_OC")==null?"":editPremium.get("BONUS_OC").toString()));
 		                        bean.setBonus((getMultipleVal(bean.getBonus())));
 		                        bean.setTotalCredit((editPremium.get("TOTAL_CR_OC")==null?"":editPremium.get("TOTAL_CR_OC").toString()));
@@ -723,158 +744,162 @@ public class XolJpaServiceImpl {
 				}
 				else{
 				if("3".equalsIgnoreCase(req.getProductId())){
-					 if(transList.size()>0)
-					 {
-						 for(int i=0;i<transList.size();i++){
-						 PremiumEditRes1 bean = new PremiumEditRes1();
-						 Tuple	 editPremium=transList.get(i);
-						bean.setTransaction(editPremium.get("TRANS_DATE")==null?"":formatDate(editPremium.get("TRANS_DATE")).toString()); 
-						bean.setAccountPeriod(editPremium.get("ACCOUNT_PERIOD_QTR")==null?"":editPremium.get("ACCOUNT_PERIOD_QTR").toString());
-						bean.setAccountPeriodyear(editPremium.get("ACCOUNT_PERIOD_YEAR")==null?"":editPremium.get("ACCOUNT_PERIOD_YEAR").toString());
-						bean.setCurrencyId(editPremium.get("CURRENCY_ID")==null?"":editPremium.get("CURRENCY_ID").toString());
-						bean.setCurrency(editPremium.get("CURRENCY_ID").toString()==null?"":editPremium.get("CURRENCY_ID").toString());
-						if(null==editPremium.get("EXCHANGE_RATE")){
-							GetCommonValueRes common = dropDowmImpl.GetExchangeRate(bean.getCurrencyId(),bean.getTransaction(),req.getCountryId(),req.getBranchCode());
-							bean.setExchRate(common.getCommonResponse());
+					 if(!CollectionUtils.isEmpty(transList)){
+						for(int i=0;i<transList.size();i++){
+							PremiumEditRes1 bean = new PremiumEditRes1();
+							Tuple	 editPremium=transList.get(i);
+							bean.setTransaction(editPremium.get("TRANS_DATE")==null?"":formatDate(editPremium.get("TRANS_DATE")).toString()); 
+							bean.setAccountPeriod(editPremium.get("ACCOUNT_PERIOD_QTR")==null?"":editPremium.get("ACCOUNT_PERIOD_QTR").toString());
+							bean.setAccountPeriodyear(editPremium.get("ACCOUNT_PERIOD_YEAR")==null?"":editPremium.get("ACCOUNT_PERIOD_YEAR").toString());
+							bean.setCurrencyId(editPremium.get("CURRENCY_ID")==null?"":editPremium.get("CURRENCY_ID").toString());
+							bean.setCurrency(editPremium.get("CURRENCY_ID").toString()==null?"":editPremium.get("CURRENCY_ID").toString());
+							if(null==editPremium.get("EXCHANGE_RATE")){
+								GetCommonValueRes common = dropDowmImpl.GetExchangeRate(bean.getCurrencyId(),bean.getTransaction(),req.getCountryId(),req.getBranchCode());
+								bean.setExchRate(common.getCommonResponse());
+							}
+							else{
+							bean.setExchRate(dropDowmImpl.exchRateFormat(editPremium.get("EXCHANGE_RATE")==null?"0":editPremium.get("EXCHANGE_RATE").toString()));
+							}
+							bean.setBrokerage(fm.formatter(editPremium.get("BROKERAGE_AMT_OC")==null?"0":editPremium.get("BROKERAGE_AMT_OC").toString()));
+							bean.setTax(fm.formatter(editPremium.get("TAX_AMT_OC")==null?"0":editPremium.get("TAX_AMT_OC").toString()));
+							bean.setPremiumQuotaShare(editPremium.get("PREMIUM_QUOTASHARE_OC")==null?"":editPremium.get("PREMIUM_QUOTASHARE_OC").toString());
+							bean.setCommissionQuotaShare(editPremium.get("COMMISSION_QUOTASHARE_OC")==null?"":editPremium.get("COMMISSION_QUOTASHARE_OC").toString());
+							bean.setPremiumSurplus(editPremium.get("PREMIUM_SURPLUS_OC")==null?"":editPremium.get("PREMIUM_SURPLUS_OC").toString());
+							bean.setCommissionSurplus(editPremium.get("COMMISSION_SURPLUS_OC")==null?"":editPremium.get("COMMISSION_SURPLUS_OC").toString());
+							bean.setPremiumportifolioIn(editPremium.get("PREMIUM_PORTFOLIOIN_OC")==null?"":editPremium.get("PREMIUM_PORTFOLIOIN_OC").toString());
+							bean.setCliamPortfolioin(editPremium.get("CLAIM_PORTFOLIOIN_OC")==null?"":editPremium.get("CLAIM_PORTFOLIOIN_OC").toString());
+							bean.setPremiumportifolioout(editPremium.get("PREMIUM_PORTFOLIOOUT_OC")==null?"":editPremium.get("PREMIUM_PORTFOLIOOUT_OC").toString());
+							bean.setLossReserveReleased(editPremium.get("LOSS_RESERVE_RELEASED_OC")==null?"":editPremium.get("LOSS_RESERVE_RELEASED_OC").toString());
+							bean.setPremiumReserveQuotaShare(editPremium.get("PREMIUMRESERVE_QUOTASHARE_OC")==null?"":editPremium.get("PREMIUMRESERVE_QUOTASHARE_OC").toString());
+							bean.setCashLossCredit(editPremium.get("CASH_LOSS_CREDIT_OC")==null?"":editPremium.get("CASH_LOSS_CREDIT_OC").toString());
+							bean.setLossReserveRetained(editPremium.get("LOSS_RESERVERETAINED_OC")==null?"":editPremium.get("LOSS_RESERVERETAINED_OC").toString());
+							bean.setProfitCommission(editPremium.get("PROFIT_COMMISSION_OC")==null?"":editPremium.get("PROFIT_COMMISSION_OC").toString());
+							bean.setCashLossPaid(editPremium.get("CASH_LOSSPAID_OC")==null?"":editPremium.get("CASH_LOSSPAID_OC").toString());
+							bean.setStatus(editPremium.get("STATUS")==null?"":editPremium.get("STATUS").toString());
+							bean.setNetDue(editPremium.get("NETDUE_OC")==null?"":editPremium.get("NETDUE_OC").toString());
+							bean.setEnteringMode(editPremium.get("ENTERING_MODE")==null?"":editPremium.get("ENTERING_MODE").toString().trim());
+							bean.setReceiptno(editPremium.get("RECEIPT_NO")==null?"":editPremium.get("RECEIPT_NO").toString());
+							bean.setClaimspaid(editPremium.get("CLAIMS_PAID_OC")==null?"":editPremium.get("CLAIMS_PAID_OC").toString());				 
+						    bean.setMdpremium(fm.formatter(editPremium.get("M_DPREMIUM_OC")==null?"":editPremium.get("M_DPREMIUM_OC").toString()));
+						    bean.setAdjustmentpremium(editPremium.get("ADJUSTMENT_PREMIUM_OC")==null?"":editPremium.get("ADJUSTMENT_PREMIUM_OC").toString());
+						    bean.setRecuirementpremium(editPremium.get("REC_PREMIUM_OC")==null?"":editPremium.get("REC_PREMIUM_OC").toString());
+						    bean.setCommission(editPremium.get("COMMISSION")==null?"":editPremium.get("COMMISSION").toString());
+						    bean.setInstlmentNo(editPremium.get("INSTALMENT_NUMBER")==null?"":editPremium.get("INSTALMENT_NUMBER").toString());
+					    	if("RP".equalsIgnoreCase(editPremium.get("INSTALMENT_NUMBER")==null?"":editPremium.get("INSTALMENT_NUMBER").toString())||"AP".equalsIgnoreCase(editPremium.get("INSTALMENT_NUMBER")==null?"":editPremium.get("INSTALMENT_NUMBER").toString()) ||"RTP".equalsIgnoreCase(editPremium.get("INSTALMENT_NUMBER")==null?"":editPremium.get("INSTALMENT_NUMBER").toString()) ||"RVP".equalsIgnoreCase(editPremium.get("INSTALMENT_NUMBER")==null?"":editPremium.get("INSTALMENT_NUMBER").toString()))
+					    	{
+					    		bean.setAccountPeriod(editPremium.get("INSTALMENT_NUMBER")==null?"":editPremium.get("INSTALMENT_NUMBER").toString());
+					    	}else
+					    	{
+					    		bean.setAccountPeriod(editPremium.get("INSTALMENT_NUMBER")+"_"+editPremium.get("ACCOUNT_PERIOD_QTR"));
+					    	}					
+						    bean.setInceptionDate(editPremium.get("ENTRY_DATE_TIME")==null?"":formatDate(editPremium.get("ENTRY_DATE_TIME")).toString());
+						    bean.setXlCost(editPremium.get("XL_COST_OC")==null?"":editPremium.get("XL_COST_OC").toString());
+						    bean.setCliamportfolioout(editPremium.get("CLAIM_PORTFOLIO_OUT_OC")==null?"":editPremium.get("CLAIM_PORTFOLIO_OUT_OC").toString());
+						    bean.setPremiumReserveReleased(editPremium.get("PREMIUM_RESERVE_REALSED_OC")==null?"":editPremium.get("PREMIUM_RESERVE_REALSED_OC").toString());
+						    bean.setOtherCost(fm.formatter(editPremium.get("OTHER_COST_OC")==null?"":editPremium.get("OTHER_COST_OC").toString()));
+						    bean.setCedentRef(editPremium.get("CEDANT_REFERENCE")==null?"":editPremium.get("CEDANT_REFERENCE").toString());
+							bean.setRemarks(editPremium.get("REMARKS")==null?"":editPremium.get("REMARKS").toString());
+							bean.setNetDue(editPremium.get("NETDUE_OC")==null?"":editPremium.get("NETDUE_OC").toString());
+							bean.setInterest(fm.formatter(editPremium.get("INTEREST_OC")==null?"0":editPremium.get("INTEREST_OC").toString()));
+							bean.setOsClaimsLossUpdateOC(editPremium.get("OSCLAIM_LOSSUPDATE_OC")==null?"":editPremium.get("OSCLAIM_LOSSUPDATE_OC").toString());
+							bean.setOverrider(editPremium.get("OVERRIDER_AMT_OC")==null?"":editPremium.get("OVERRIDER_AMT_OC").toString());
+							bean.setOverriderUSD(editPremium.get("OVERRIDER_AMT_DC")==null?"":editPremium.get("OVERRIDER_AMT_DC").toString());	
+							bean.setAmendmentDate(editPremium.get("AMENDMENT_DATE")==null?"":editPremium.get("AMENDMENT_DATE").toString());	
+	                        bean.setWithHoldingTaxOC(fm.formatter(editPremium.get("WITH_HOLDING_TAX_OC")==null?"":editPremium.get("WITH_HOLDING_TAX_OC").toString()));
+	                        bean.setWithHoldingTaxDC(fm.formatter(editPremium.get("WITH_HOLDING_TAX_DC")==null?"":editPremium.get("WITH_HOLDING_TAX_DC").toString()));
+	                        bean.setRicession(editPremium.get("RI_CESSION")==null?"":editPremium.get("RI_CESSION").toString());
+	                        bean.setPredepartment(editPremium.get("PREMIUM_CLASS")==null?"":editPremium.get("PREMIUM_CLASS").toString());
+	                        bean.setDepartmentId(editPremium.get("SUB_CLASS")==null?"":editPremium.get("SUB_CLASS").toString());
+	                        bean.setTaxDedectSource(fm.formatter(editPremium.get("TDS_OC")==null?"":editPremium.get("TDS_OC").toString()));
+	                        bean.setTaxDedectSourceDc(fm.formatter(editPremium.get("TDS_DC")==null?"":editPremium.get("TDS_DC").toString()));
+	                        bean.setVatPremium(editPremium.get("VAT_PREMIUM_OC")==null?"":fm.formatter(editPremium.get("VAT_PREMIUM_OC").toString()));
+	                        bean.setVatPremiumDc(editPremium.get("VAT_PREMIUM_DC")==null?"":fm.formatter(editPremium.get("VAT_PREMIUM_DC").toString()));
+	                        bean.setBrokerageVat(editPremium.get("BROKERAGE_VAT_OC")==null?"":fm.formatter(editPremium.get("BROKERAGE_VAT_OC").toString()));
+	                        bean.setBrokerageVatDc(editPremium.get("BROKERAGE_VAT_DC")==null?"":fm.formatter(editPremium.get("BROKERAGE_VAT_DC").toString()));
+	                        bean.setDocumentType(editPremium.get("DOCUMENT_TYPE")==null?"":editPremium.get("DOCUMENT_TYPE").toString());
+	                        bean.setBonus(fm.formatter(editPremium.get("BONUS_OC")==null?"":editPremium.get("BONUS_OC").toString()));
+	                        bean.setBonusDc(fm.formatter(editPremium.get("BONUS_DC")==null?"":editPremium.get("BONUS_DC").toString()));
+	                        bean.setGnpiDate((editPremium.get("GNPI_ENDT_NO")==null?"":editPremium.get("GNPI_ENDT_NO").toString()));
+	                        bean.setStatementDate(editPremium.get("STATEMENT_DATE")==null?"":formatDate(editPremium.get("STATEMENT_DATE")).toString());
+	                        bean.setChooseTransaction(editPremium.get("REVERSEL_STATUS")==null?"":editPremium.get("REVERSEL_STATUS").toString() );
+		       	            bean.setTransDropDownVal(editPremium.get("REVERSE_TRANSACTION_NO")==null?"":editPremium.get("REVERSE_TRANSACTION_NO").toString() );
+							resList.add(bean);
 						}
-						else{
-						bean.setExchRate(dropDowmImpl.exchRateFormat(editPremium.get("EXCHANGE_RATE")==null?"0":editPremium.get("EXCHANGE_RATE").toString()));
-						}
-						bean.setBrokerage(fm.formatter(editPremium.get("BROKERAGE_AMT_OC")==null?"0":editPremium.get("BROKERAGE_AMT_OC").toString()));
-						bean.setTax(fm.formatter(editPremium.get("TAX_AMT_OC")==null?"0":editPremium.get("TAX_AMT_OC").toString()));
-						bean.setPremiumQuotaShare(editPremium.get("PREMIUM_QUOTASHARE_OC")==null?"":editPremium.get("PREMIUM_QUOTASHARE_OC").toString());
-						bean.setCommissionQuotaShare(editPremium.get("COMMISSION_QUOTASHARE_OC")==null?"":editPremium.get("COMMISSION_QUOTASHARE_OC").toString());
-						bean.setPremiumSurplus(editPremium.get("PREMIUM_SURPLUS_OC")==null?"":editPremium.get("PREMIUM_SURPLUS_OC").toString());
-						bean.setCommissionSurplus(editPremium.get("COMMISSION_SURPLUS_OC")==null?"":editPremium.get("COMMISSION_SURPLUS_OC").toString());
-						bean.setPremiumportifolioIn(editPremium.get("PREMIUM_PORTFOLIOIN_OC")==null?"":editPremium.get("PREMIUM_PORTFOLIOIN_OC").toString());
-						bean.setCliamPortfolioin(editPremium.get("CLAIM_PORTFOLIOIN_OC")==null?"":editPremium.get("CLAIM_PORTFOLIOIN_OC").toString());
-						bean.setPremiumportifolioout(editPremium.get("PREMIUM_PORTFOLIOOUT_OC")==null?"":editPremium.get("PREMIUM_PORTFOLIOOUT_OC").toString());
-						bean.setLossReserveReleased(editPremium.get("LOSS_RESERVE_RELEASED_OC")==null?"":editPremium.get("LOSS_RESERVE_RELEASED_OC").toString());
-						bean.setPremiumReserveQuotaShare(editPremium.get("PREMIUMRESERVE_QUOTASHARE_OC")==null?"":editPremium.get("PREMIUMRESERVE_QUOTASHARE_OC").toString());
-						bean.setCashLossCredit(editPremium.get("CASH_LOSS_CREDIT_OC")==null?"":editPremium.get("CASH_LOSS_CREDIT_OC").toString());
-						bean.setLossReserveRetained(editPremium.get("LOSS_RESERVERETAINED_OC")==null?"":editPremium.get("LOSS_RESERVERETAINED_OC").toString());
-						bean.setProfitCommission(editPremium.get("PROFIT_COMMISSION_OC")==null?"":editPremium.get("PROFIT_COMMISSION_OC").toString());
-						bean.setCashLossPaid(editPremium.get("CASH_LOSSPAID_OC")==null?"":editPremium.get("CASH_LOSSPAID_OC").toString());
-						bean.setStatus(editPremium.get("STATUS")==null?"":editPremium.get("STATUS").toString());
-						bean.setNetDue(editPremium.get("NETDUE_OC")==null?"":editPremium.get("NETDUE_OC").toString());
-						bean.setEnteringMode(editPremium.get("ENTERING_MODE")==null?"":editPremium.get("ENTERING_MODE").toString().trim());
-						bean.setReceiptno(editPremium.get("RECEIPT_NO")==null?"":editPremium.get("RECEIPT_NO").toString());
-						bean.setClaimspaid(editPremium.get("CLAIMS_PAID_OC")==null?"":editPremium.get("CLAIMS_PAID_OC").toString());				 
-					    bean.setMdpremium(fm.formatter(editPremium.get("M_DPREMIUM_OC")==null?"":editPremium.get("M_DPREMIUM_OC").toString()));
-					    bean.setAdjustmentpremium(editPremium.get("ADJUSTMENT_PREMIUM_OC")==null?"":editPremium.get("ADJUSTMENT_PREMIUM_OC").toString());
-					    bean.setRecuirementpremium(editPremium.get("REC_PREMIUM_OC")==null?"":editPremium.get("REC_PREMIUM_OC").toString());
-					    bean.setCommission(editPremium.get("COMMISSION")==null?"":editPremium.get("COMMISSION").toString());
-					    bean.setInstlmentNo(editPremium.get("INSTALMENT_NUMBER")==null?"":editPremium.get("INSTALMENT_NUMBER").toString());
-				    	if("RP".equalsIgnoreCase(editPremium.get("INSTALMENT_NUMBER")==null?"":editPremium.get("INSTALMENT_NUMBER").toString())||"AP".equalsIgnoreCase(editPremium.get("INSTALMENT_NUMBER")==null?"":editPremium.get("INSTALMENT_NUMBER").toString()) ||"RTP".equalsIgnoreCase(editPremium.get("INSTALMENT_NUMBER")==null?"":editPremium.get("INSTALMENT_NUMBER").toString()) ||"RVP".equalsIgnoreCase(editPremium.get("INSTALMENT_NUMBER")==null?"":editPremium.get("INSTALMENT_NUMBER").toString()))
-				    	{
-				    		bean.setAccountPeriod(editPremium.get("INSTALMENT_NUMBER")==null?"":editPremium.get("INSTALMENT_NUMBER").toString());
-				    	}else
-				    	{
-				    		bean.setAccountPeriod(editPremium.get("INSTALMENT_NUMBER")+"_"+editPremium.get("ACCOUNT_PERIOD_QTR"));
-				    	}					
-					    bean.setInceptionDate(editPremium.get("ENTRY_DATE_TIME")==null?"":formatDate(editPremium.get("ENTRY_DATE_TIME")).toString());
-					    bean.setXlCost(editPremium.get("XL_COST_OC")==null?"":editPremium.get("XL_COST_OC").toString());
-					    bean.setCliamportfolioout(editPremium.get("CLAIM_PORTFOLIO_OUT_OC")==null?"":editPremium.get("CLAIM_PORTFOLIO_OUT_OC").toString());
-					    bean.setPremiumReserveReleased(editPremium.get("PREMIUM_RESERVE_REALSED_OC")==null?"":editPremium.get("PREMIUM_RESERVE_REALSED_OC").toString());
-					    bean.setOtherCost(fm.formatter(editPremium.get("OTHER_COST_OC")==null?"":editPremium.get("OTHER_COST_OC").toString()));
-					    bean.setCedentRef(editPremium.get("CEDANT_REFERENCE")==null?"":editPremium.get("CEDANT_REFERENCE").toString());
-						bean.setRemarks(editPremium.get("REMARKS")==null?"":editPremium.get("REMARKS").toString());
-						bean.setNetDue(editPremium.get("NETDUE_OC")==null?"":editPremium.get("NETDUE_OC").toString());
-						bean.setInterest(fm.formatter(editPremium.get("INTEREST_OC")==null?"0":editPremium.get("INTEREST_OC").toString()));
-						bean.setOsClaimsLossUpdateOC(editPremium.get("OSCLAIM_LOSSUPDATE_OC")==null?"":editPremium.get("OSCLAIM_LOSSUPDATE_OC").toString());
-						bean.setOverrider(editPremium.get("OVERRIDER_AMT_OC")==null?"":editPremium.get("OVERRIDER_AMT_OC").toString());
-						bean.setOverriderUSD(editPremium.get("OVERRIDER_AMT_DC")==null?"":editPremium.get("OVERRIDER_AMT_DC").toString());	
-						bean.setAmendmentDate(editPremium.get("AMENDMENT_DATE")==null?"":editPremium.get("AMENDMENT_DATE").toString());	
-                       bean.setWithHoldingTaxOC(fm.formatter(editPremium.get("WITH_HOLDING_TAX_OC")==null?"":editPremium.get("WITH_HOLDING_TAX_OC").toString()));
-                       bean.setWithHoldingTaxDC(fm.formatter(editPremium.get("WITH_HOLDING_TAX_DC")==null?"":editPremium.get("WITH_HOLDING_TAX_DC").toString()));
-                       bean.setRicession(editPremium.get("RI_CESSION")==null?"":editPremium.get("RI_CESSION").toString());
-                       bean.setPredepartment(editPremium.get("PREMIUM_CLASS")==null?"":editPremium.get("PREMIUM_CLASS").toString());
-                       bean.setDepartmentId(editPremium.get("SUB_CLASS")==null?"":editPremium.get("SUB_CLASS").toString());
-                       bean.setTaxDedectSource(fm.formatter(editPremium.get("TDS_OC")==null?"":editPremium.get("TDS_OC").toString()));
-                       bean.setTaxDedectSourceDc(fm.formatter(editPremium.get("TDS_DC")==null?"":editPremium.get("TDS_DC").toString()));
-                       bean.setServiceTax(fm.formatter(editPremium.get("ST_OC")==null?"":editPremium.get("ST_OC").toString()));
-                       bean.setServiceTaxDc(fm.formatter(editPremium.get("ST_DC")==null?"":editPremium.get("ST_DC").toString()));
-                       bean.setBonus(fm.formatter(editPremium.get("BONUS_OC")==null?"":editPremium.get("BONUS_OC").toString()));
-                       bean.setBonusDc(fm.formatter(editPremium.get("BONUS_DC")==null?"":editPremium.get("BONUS_DC").toString()));
-                       bean.setGnpiDate((editPremium.get("GNPI_ENDT_NO")==null?"":editPremium.get("GNPI_ENDT_NO").toString()));
-                       bean.setStatementDate(editPremium.get("STATEMENT_DATE")==null?"":formatDate(editPremium.get("STATEMENT_DATE")).toString());
-                       bean.setChooseTransaction(editPremium.get("REVERSEL_STATUS")==null?"":editPremium.get("REVERSEL_STATUS").toString() );
-       	            bean.setTransDropDownVal(editPremium.get("REVERSE_TRANSACTION_NO")==null?"":editPremium.get("REVERSE_TRANSACTION_NO").toString() );
-					resList.add(bean);
-						 }
-						 res1.setPremiumEditRes1(resList);
+						res1.setPremiumEditRes1(resList);
 					 }
 				}
 				else{
-					 if(transList.size()>0)
-					 {
+					 if(!CollectionUtils.isEmpty(transList)){
 						 for(int i=0;i<transList.size();i++){
 							 PremiumEditRes1 bean = new PremiumEditRes1();
 							 Tuple	 xolView=transList.get(i);
-					bean.setContNo(xolView.get("CONTRACT_NO")==null?"":xolView.get("CONTRACT_NO").toString());
-					bean.setTransactionNo(xolView.get("TRANSACTION_NO")==null?"":xolView.get("TRANSACTION_NO").toString());
-					bean.setTransaction(xolView.get("TRANS_DATE")==null?"":formatDate(xolView.get("TRANS_DATE")).toString()); 
-					bean.setBrokerage(fm.formatter(xolView.get("BROKERAGE_AMT_OC")==null?"0":xolView.get("BROKERAGE_AMT_OC").toString()));
-					bean.setTax(fm.formatter(xolView.get("TAX_AMT_OC")==null?"0":xolView.get("TAX_AMT_OC").toString()));
-					bean.setMdpremium(fm.formatter(xolView.get("M_DPREMIUM_OC")==null?"0":xolView.get("M_DPREMIUM_OC").toString()));
-					bean.setAdjustmentpremium(fm.formatter(xolView.get("ADJUSTMENT_PREMIUM_OC")==null?"0":xolView.get("ADJUSTMENT_PREMIUM_OC").toString()));							
-					bean.setRecuirementpremium(fm.formatter(xolView.get("REC_PREMIUM_OC")==null?"0":xolView.get("REC_PREMIUM_OC").toString()));
-					bean.setNetDue(fm.formatter(xolView.get("NETDUE_OC")==null?"0":xolView.get("NETDUE_OC").toString()));
-					bean.setLayerno(xolView.get("LAYER_NO")==null?"":xolView.get("LAYER_NO").toString());
-					bean.setEnteringMode(xolView.get("ENTERING_MODE")==null?"":xolView.get("ENTERING_MODE").toString());
-					bean.setAccountPeriod(xolView.get("INSTALMENT_NUMBER")+(xolView.get("ACCOUNT_PERIOD_QTR")==null?"":("_"+xolView.get("ACCOUNT_PERIOD_QTR"))));
-					bean.setCurrency(xolView.get("CURRENCY_ID")==null?"":xolView.get("CURRENCY_ID").toString());
-					bean.setOtherCost(fm.formatter(xolView.get("OTHER_COST_OC")==null?"0":xolView.get("OTHER_COST_OC").toString()));
-					bean.setBrokerageusd(fm.formatter(xolView.get("BROKERAGE_AMT_DC")==null?"0":xolView.get("BROKERAGE_AMT_DC").toString()));
-					bean.setTaxusd(fm.formatter(xolView.get("TAX_AMT_DC")==null?"0":xolView.get("TAX_AMT_DC").toString()));
-					bean.setMdpremiumusd(fm.formatter(xolView.get("M_DPREMIUM_DC")==null?"0":xolView.get("M_DPREMIUM_DC").toString()));
-					bean.setAdjustmentpremiumusd(fm.formatter(xolView.get("ADJUSTMENT_PREMIUM_DC")==null?"0":xolView.get("ADJUSTMENT_PREMIUM_DC").toString()));
-					bean.setRecuirementpremiumusd(fm.formatter(xolView.get("REC_PREMIUM_DC")==null?"0":xolView.get("REC_PREMIUM_DC").toString()));
-					bean.setNetdueusd(fm.formatter(xolView.get("NETDUE_DC")==null?"0":xolView.get("NETDUE_DC").toString()));
-					bean.setOtherCostUSD(fm.formatter(xolView.get("OTHER_COST_DC")==null?"0":xolView.get("OTHER_COST_DC").toString()));
-					bean.setInceptionDate(xolView.get("ENTRY_DATE")==null?"":formatDate(xolView.get("ENTRY_DATE")).toString());
-					bean.setCedentRef(xolView.get("CEDANT_REFERENCE")==null?"":xolView.get("CEDANT_REFERENCE").toString());
-					bean.setRemarks(xolView.get("REMARKS")==null?"":xolView.get("REMARKS").toString());
-					bean.setTotalCredit(fm.formatter(xolView.get("TOTAL_CR_OC")==null?"":xolView.get("TOTAL_CR_OC").toString()));
-					bean.setTotalCreditDC(fm.formatter(xolView.get("TOTAL_CR_DC")==null?"":xolView.get("TOTAL_CR_DC").toString()));
-					bean.setTotalDebit(fm.formatter(xolView.get("TOTAL_DR_OC")==null?"":xolView.get("TOTAL_DR_OC").toString()));
-					bean.setTotalDebitDC(fm.formatter(xolView.get("TOTAL_DR_DC")==null?"":xolView.get("TOTAL_DR_DC").toString()));
-					bean.setAmendmentDate(xolView.get("AMENDMENT_DATE")==null?"":xolView.get("AMENDMENT_DATE").toString());
-                   bean.setWithHoldingTaxOC(fm.formatter(xolView.get("WITH_HOLDING_TAX_OC")==null?"":xolView.get("WITH_HOLDING_TAX_OC").toString()));
-                   bean.setWithHoldingTaxDC(fm.formatter(xolView.get("WITH_HOLDING_TAX_DC")==null?"":xolView.get("WITH_HOLDING_TAX_DC").toString()));
-                   bean.setDueDate(xolView.get("DUE_DATE")==null?"":xolView.get("DUE_DATE").toString());
-                   bean.setCreditsign(xolView.get("NETDUE_OC")==null?"":xolView.get("NETDUE_OC").toString());
-                   bean.setRicession(xolView.get("RI_CESSION")==null?"":xolView.get("RI_CESSION").toString());
-                   bean.setPredepartment(xolView.get("PREMIUM_CLASS")==null?"":xolView.get("PREMIUM_CLASS").toString());
-                   bean.setDepartmentId(xolView.get("SUB_CLASS")==null?"":xolView.get("SUB_CLASS").toString());
-                   bean.setTaxDedectSource(fm.formatter(xolView.get("TDS_OC")==null?"0":xolView.get("TDS_OC").toString()));
-                   bean.setTaxDedectSourceDc(fm.formatter(xolView.get("TDS_DC")==null?"0":xolView.get("TDS_DC").toString()));
-                   bean.setServiceTax(fm.formatter(xolView.get("ST_OC")==null?"0":xolView.get("ST_OC").toString()));
-                   bean.setServiceTaxDc(fm.formatter(xolView.get("ST_DC")==null?"0":xolView.get("ST_DC").toString()));
-                   bean.setBonus(fm.formatter(xolView.get("BONUS_OC")==null?"0":xolView.get("BONUS_OC").toString()));
-                   bean.setBonusDc(fm.formatter(xolView.get("BONUS_DC")==null?"0":xolView.get("BONUS_DC").toString()));
-                   bean.setExchRate(dropDowmImpl.exchRateFormat(xolView.get("EXCHANGE_RATE")==null?"0":xolView.get("EXCHANGE_RATE").toString()));
-                   bean.setGnpiDate(xolView.get("GNPI_ENDT_NO")==null?"":xolView.get("GNPI_ENDT_NO").toString());
-                   bean.setStatementDate(xolView.get("STATEMENT_DATE")==null?"":formatDate(xolView.get("STATEMENT_DATE")).toString());
-                   bean.setChooseTransaction(xolView.get("REVERSEL_STATUS")==null?"":xolView.get("REVERSEL_STATUS").toString() );
-                   bean.setTransDropDownVal(xolView.get("REVERSE_TRANSACTION_NO")==null?"":xolView.get("REVERSE_TRANSACTION_NO").toString() );
-                   resList.add(bean);
+								bean.setContNo(xolView.get("CONTRACT_NO")==null?"":xolView.get("CONTRACT_NO").toString());
+								bean.setTransactionNo(xolView.get("TRANSACTION_NO")==null?"":xolView.get("TRANSACTION_NO").toString());
+								bean.setTransaction(xolView.get("TRANS_DATE")==null?"":formatDate(xolView.get("TRANS_DATE")).toString()); 
+								bean.setBrokerage(fm.formatter(xolView.get("BROKERAGE_AMT_OC")==null?"0":xolView.get("BROKERAGE_AMT_OC").toString()));
+								bean.setTax(fm.formatter(xolView.get("TAX_AMT_OC")==null?"0":xolView.get("TAX_AMT_OC").toString()));
+								bean.setMdpremium(fm.formatter(xolView.get("M_DPREMIUM_OC")==null?"0":xolView.get("M_DPREMIUM_OC").toString()));
+								bean.setAdjustmentpremium(fm.formatter(xolView.get("ADJUSTMENT_PREMIUM_OC")==null?"0":xolView.get("ADJUSTMENT_PREMIUM_OC").toString()));							
+								bean.setRecuirementpremium(fm.formatter(xolView.get("REC_PREMIUM_OC")==null?"0":xolView.get("REC_PREMIUM_OC").toString()));
+								bean.setNetDue(fm.formatter(xolView.get("NETDUE_OC")==null?"0":xolView.get("NETDUE_OC").toString()));
+								bean.setLayerno(xolView.get("LAYER_NO")==null?"":xolView.get("LAYER_NO").toString());
+								bean.setEnteringMode(xolView.get("ENTERING_MODE")==null?"":xolView.get("ENTERING_MODE").toString());
+								bean.setAccountPeriod(xolView.get("INSTALMENT_NUMBER")+(xolView.get("ACCOUNT_PERIOD_QTR")==null?"":("_"+xolView.get("ACCOUNT_PERIOD_QTR"))));
+								bean.setCurrency(xolView.get("CURRENCY_ID")==null?"":xolView.get("CURRENCY_ID").toString());
+								bean.setOtherCost(fm.formatter(xolView.get("OTHER_COST_OC")==null?"0":xolView.get("OTHER_COST_OC").toString()));
+								bean.setBrokerageusd(fm.formatter(xolView.get("BROKERAGE_AMT_DC")==null?"0":xolView.get("BROKERAGE_AMT_DC").toString()));
+								bean.setTaxusd(fm.formatter(xolView.get("TAX_AMT_DC")==null?"0":xolView.get("TAX_AMT_DC").toString()));
+								bean.setMdpremiumusd(fm.formatter(xolView.get("M_DPREMIUM_DC")==null?"0":xolView.get("M_DPREMIUM_DC").toString()));
+								bean.setAdjustmentpremiumusd(fm.formatter(xolView.get("ADJUSTMENT_PREMIUM_DC")==null?"0":xolView.get("ADJUSTMENT_PREMIUM_DC").toString()));
+								bean.setRecuirementpremiumusd(fm.formatter(xolView.get("REC_PREMIUM_DC")==null?"0":xolView.get("REC_PREMIUM_DC").toString()));
+								bean.setNetdueusd(fm.formatter(xolView.get("NETDUE_DC")==null?"0":xolView.get("NETDUE_DC").toString()));
+								bean.setOtherCostUSD(fm.formatter(xolView.get("OTHER_COST_DC")==null?"0":xolView.get("OTHER_COST_DC").toString()));
+								bean.setInceptionDate(xolView.get("ENTRY_DATE")==null?"":formatDate(xolView.get("ENTRY_DATE")).toString());
+								bean.setCedentRef(xolView.get("CEDANT_REFERENCE")==null?"":xolView.get("CEDANT_REFERENCE").toString());
+								bean.setRemarks(xolView.get("REMARKS")==null?"":xolView.get("REMARKS").toString());
+								bean.setTotalCredit(fm.formatter(xolView.get("TOTAL_CR_OC")==null?"":xolView.get("TOTAL_CR_OC").toString()));
+								bean.setTotalCreditDC(fm.formatter(xolView.get("TOTAL_CR_DC")==null?"":xolView.get("TOTAL_CR_DC").toString()));
+								bean.setTotalDebit(fm.formatter(xolView.get("TOTAL_DR_OC")==null?"":xolView.get("TOTAL_DR_OC").toString()));
+								bean.setTotalDebitDC(fm.formatter(xolView.get("TOTAL_DR_DC")==null?"":xolView.get("TOTAL_DR_DC").toString()));
+								bean.setAmendmentDate(xolView.get("AMENDMENT_DATE")==null?"":xolView.get("AMENDMENT_DATE").toString());
+								bean.setWithHoldingTaxOC(fm.formatter(xolView.get("WITH_HOLDING_TAX_OC")==null?"":xolView.get("WITH_HOLDING_TAX_OC").toString()));
+								bean.setWithHoldingTaxDC(fm.formatter(xolView.get("WITH_HOLDING_TAX_DC")==null?"":xolView.get("WITH_HOLDING_TAX_DC").toString()));
+								bean.setDueDate(xolView.get("DUE_DATE")==null?"":xolView.get("DUE_DATE").toString());
+								bean.setCreditsign(xolView.get("NETDUE_OC")==null?"":xolView.get("NETDUE_OC").toString());
+								bean.setRicession(xolView.get("RI_CESSION")==null?"":xolView.get("RI_CESSION").toString());
+								bean.setPredepartment(xolView.get("PREMIUM_CLASS")==null?"":xolView.get("PREMIUM_CLASS").toString());
+								bean.setDepartmentId(xolView.get("SUB_CLASS")==null?"":xolView.get("SUB_CLASS").toString());
+								bean.setTaxDedectSource(fm.formatter(xolView.get("TDS_OC")==null?"0":xolView.get("TDS_OC").toString()));
+								bean.setTaxDedectSourceDc(fm.formatter(xolView.get("TDS_DC")==null?"0":xolView.get("TDS_DC").toString()));
+								bean.setVatPremium(xolView.get("VAT_PREMIUM_OC")==null?"":fm.formatter(xolView.get("VAT_PREMIUM_OC").toString()));
+								bean.setVatPremiumDc(xolView.get("VAT_PREMIUM_DC")==null?"":fm.formatter(xolView.get("VAT_PREMIUM_DC").toString()));
+								bean.setBrokerageVat(xolView.get("BROKERAGE_VAT_OC")==null?"":fm.formatter(xolView.get("BROKERAGE_VAT_OC").toString()));
+								bean.setBrokerageVatDc(xolView.get("BROKERAGE_VAT_DC")==null?"":fm.formatter(xolView.get("BROKERAGE_VAT_DC").toString()));
+								bean.setDocumentType(xolView.get("DOCUMENT_TYPE")==null?"":xolView.get("DOCUMENT_TYPE").toString());
+								bean.setBonus(fm.formatter(xolView.get("BONUS_OC")==null?"0":xolView.get("BONUS_OC").toString()));
+								bean.setBonusDc(fm.formatter(xolView.get("BONUS_DC")==null?"0":xolView.get("BONUS_DC").toString()));
+								bean.setExchRate(dropDowmImpl.exchRateFormat(xolView.get("EXCHANGE_RATE")==null?"0":xolView.get("EXCHANGE_RATE").toString()));
+								bean.setGnpiDate(xolView.get("GNPI_ENDT_NO")==null?"":xolView.get("GNPI_ENDT_NO").toString());
+								bean.setStatementDate(xolView.get("STATEMENT_DATE")==null?"":formatDate(xolView.get("STATEMENT_DATE")).toString());
+								bean.setChooseTransaction(xolView.get("REVERSEL_STATUS")==null?"":xolView.get("REVERSEL_STATUS").toString() );
+								bean.setTransDropDownVal(xolView.get("REVERSE_TRANSACTION_NO")==null?"":xolView.get("REVERSE_TRANSACTION_NO").toString() );
+								resList.add(bean);
 						 }	
 						 res1.setPremiumEditRes1(resList);
-				 }
+					 }
 				}
 				
 				if(transList!=null && transList.size()>0)
-				res1.setSaveFlag("true");
-					}
+					res1.setSaveFlag("true");
+				}
 				response.setCommonResponse(res1);
 				response.setMessage("Success");
 				response.setIsError(false);
 			}catch(Exception e){
-					e.printStackTrace();
-					response.setMessage("Failed");
-					response.setIsError(true);
-				}
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
 			return response;
 	}
 	
@@ -962,16 +987,13 @@ public class XolJpaServiceImpl {
 		try{
 			if ("Temp".equalsIgnoreCase(req.getTableType()) && "3".equalsIgnoreCase(req.getProductId())
 					|| "".equalsIgnoreCase(req.getTransactionNo())) {
-				// query= "XOL_PREMIUM_VIEW_DETAILS_TEMP";
 				list = xolPremiumCustomRepository.xolPremiumViewDetailsTemp(req.getBranchCode(), req.getContNo(),
 						req.getProductId(), req.getRequestNo());
 			} else {
 				if ("3".equalsIgnoreCase(req.getProductId())) {
-					// query -- premium.select.XolPremiumView
 					list = xolPremiumCustomRepository.premiumSelectXolPremiumView(req.getBranchCode(),
 							req.getContNo(), req.getProductId(), req.getTransactionNo());
 				} else {
-					//query  -- premium.select.retroXolPremiumView
 					list = xolPremiumCustomRepository.premiumSelectRetroXolPremiumView(req.getBranchCode(),
 							req.getContNo(), req.getProductId(), req.getTransactionNo());
 				}
@@ -1022,8 +1044,11 @@ public class XolJpaServiceImpl {
                             bean.setDepartmentId(xolView.get("SUB_CLASS")==null?"":xolView.get("SUB_CLASS").toString());
                             bean.setTaxDedectSource(xolView.get("TDS_OC")==null?"":fm.formatter(xolView.get("TDS_OC").toString()));
                             bean.setTaxDedectSourceDc(xolView.get("TDS_DC")==null?"":fm.formatter(xolView.get("TDS_DC").toString()));
-                            bean.setServiceTax(xolView.get("ST_OC")==null?"":fm.formatter(xolView.get("ST_OC").toString()));
-                            bean.setServiceTaxDc(xolView.get("ST_OC")==null?"":fm.formatter(xolView.get("ST_DC").toString()));
+                            bean.setVatPremium(xolView.get("VAT_PREMIUM_OC")==null?"":fm.formatter(xolView.get("VAT_PREMIUM_OC").toString()));
+                            bean.setVatPremiumDc(xolView.get("VAT_PREMIUM_DC")==null?"":fm.formatter(xolView.get("VAT_PREMIUM_DC").toString()));
+                            bean.setBrokerageVat(xolView.get("BROKERAGE_VAT_OC")==null?"":fm.formatter(xolView.get("BROKERAGE_VAT_OC").toString()));
+                            bean.setBrokerageVatDc(xolView.get("BROKERAGE_VAT_DC")==null?"":fm.formatter(xolView.get("BROKERAGE_VAT_DC").toString()));
+                            bean.setDocumentType(xolView.get("DOCUMENT_TYPE")==null?"":xolView.get("DOCUMENT_TYPE").toString());
                             bean.setBonus(xolView.get("BONUS_OC")==null?"":fm.formatter(xolView.get("BONUS_OC").toString()));
                             bean.setBonusDc(xolView.get("BONUS_DC")==null?"":fm.formatter(xolView.get("BONUS_DC").toString()));
             				bean.setExchRate(dropDowmImpl.exchRateFormat(xolView.get("EXCHANGE_RATE")==null?"":xolView.get("EXCHANGE_RATE").toString()));
@@ -1132,7 +1157,7 @@ public class XolJpaServiceImpl {
     	}
 		
 		String[] args=null;				
-		args=new String[45];
+		args=new String[48];
 		args[0]=beanObj.getTransaction();
 		if("3".equalsIgnoreCase(beanObj.getProductId())){
 			args[1]=beanObj.getCurrencyId();
@@ -1243,7 +1268,7 @@ public class XolJpaServiceImpl {
         args[33]=beanObj.getDepartmentId();
         args[34] = getModeOfTransaction(beanObj.getTaxDedectSource()==null?"0":beanObj.getTaxDedectSource(),beanObj.getEnteringMode(), beanObj.getShareSigned());
         args[35] =  dropDowmImpl.GetDesginationCountry(args[34], beanObj.getExchRate());
-        args[36] = getModeOfTransaction(beanObj.getServiceTax()==null?"0":beanObj.getServiceTax(),beanObj.getEnteringMode(), beanObj.getShareSigned());
+        args[36] = getModeOfTransaction(beanObj.getVatPremium()==null?"0":beanObj.getVatPremium(),beanObj.getEnteringMode(), beanObj.getShareSigned());
         args[37] =  dropDowmImpl.GetDesginationCountry(args[36], beanObj.getExchRate());
 		args[38] = getModeOfTransaction(beanObj.getBonus(),beanObj.getEnteringMode(), beanObj.getShareSigned());
 		args[39] =  dropDowmImpl.GetDesginationCountry(args[38], beanObj.getExchRate());
@@ -1253,11 +1278,15 @@ public class XolJpaServiceImpl {
 		}else{
 			args[44]=beanObj.getTransactionNo();
 		}
-		args[12]=getNetDueXolUpdate(args,beanObj.getProductId());
-		args[21]= dropDowmImpl.GetDesginationCountry(args[12], beanObj.getExchRate());
+		
 		args[40]=StringUtils.isEmpty(beanObj.getGnpiDate()) ?"" :beanObj.getGnpiDate();
 		args[41]=beanObj.getPredepartment();
 		args[42]= beanObj.getStatementDate();
+		args[43] = getModeOfTransaction(beanObj.getBrokerageVat(),beanObj.getEnteringMode(), beanObj.getShareSigned());
+		args[44] = dropDowmImpl.GetDesginationCountry(args[43], beanObj.getExchRate());
+		args[45] = beanObj.getDocumentType();
+		args[12]=getNetDueXolUpdate(args,beanObj.getProductId());
+		args[21]= dropDowmImpl.GetDesginationCountry(args[12], beanObj.getExchRate());
 		final String[] copiedArray = new String[args.length];
 		System.arraycopy(args, 0, copiedArray, 0, args.length);
 		return copiedArray;
@@ -1273,9 +1302,10 @@ public class XolJpaServiceImpl {
 		double Gnt=StringUtils.isEmpty(args[30]) ? 0 :Double.parseDouble(args[30]) ;
 		double Int=StringUtils.isEmpty(args[34]) ? 0 :Double.parseDouble(args[34]) ;
 		double Jnt=StringUtils.isEmpty(args[36]) ? 0 :Double.parseDouble(args[36]) ;
-		double Knt =0.00;
-			Knt =StringUtils.isEmpty(args[38]) ? 0 :Double.parseDouble(args[38]) ;
-		double c=(Ant+Bnt+Cnt+Int+Jnt)-(Dnt+Ent+Fnt+Gnt+Knt);
+		double Knt =StringUtils.isEmpty(args[38]) ? 0 :Double.parseDouble(args[38]) ;
+		double Lnt =StringUtils.isEmpty(args[43]) ? 0 :Double.parseDouble(args[43]) ;
+			
+		double c=(Ant+Bnt+Cnt+Int+Jnt)-(Dnt+Ent+Fnt+Gnt+Knt+Lnt);
 		return String.valueOf(c);
 	}
 	
@@ -1359,8 +1389,8 @@ public class XolJpaServiceImpl {
 		return response;
 	}
 	
-	private String[] insertArguments(final PremiumInsertMethodReq beanObj)
-	{
+	private String[] insertArguments(final PremiumInsertMethodReq beanObj){
+		
 		if("RP".equalsIgnoreCase(beanObj.getAccountPeriod()) || "AP".equalsIgnoreCase(beanObj.getAccountPeriod()) || "RTP".equalsIgnoreCase(beanObj.getAccountPeriod()) || "RVP".equalsIgnoreCase(beanObj.getAccountPeriod()))
     	{
 			beanObj.setInstlmentNo(beanObj.getAccountPeriod());	        		
@@ -1370,10 +1400,9 @@ public class XolJpaServiceImpl {
         	beanObj.setInstlmentNo(InstalmentNo[0]);
         	beanObj.setInstalmentdate(InstalmentNo[1]);
     	}
-		
 		String[] args=null;	
 		if("3".equalsIgnoreCase(beanObj.getProductId())){
-			args=new String[58];
+			args=new String[61];
 		}else{
 			args=new String[56];
 		}
@@ -1386,7 +1415,7 @@ public class XolJpaServiceImpl {
 			beanObj.setTransactionNo(args[1]);
 		}
 		args[2]=beanObj.getTransaction();
-		args[3]=StringUtils.isBlank(beanObj.getInstalmentdate())?"":beanObj.getInstalmentdate();
+		args[3]=beanObj.getInstalmentdate();
 		args[4]=StringUtils.isBlank(beanObj.getAccountPeriodyear())?"":beanObj.getAccountPeriodyear();
 		if("3".equalsIgnoreCase(beanObj.getProductId())){
 		args[5]=beanObj.getCurrencyId();
@@ -1405,9 +1434,9 @@ public class XolJpaServiceImpl {
 		args[12]=getModeOfTransaction(beanObj.getCommission().replaceAll(",", ""),beanObj.getEnteringMode(), beanObj.getShareSigned());
 		args[13]=getModeOfTransaction(beanObj.getMdpremium().replaceAll(",", ""),beanObj.getEnteringMode(), beanObj.getShareSigned());
 		args[26]=dropDowmImpl.GetDesginationCountry(args[13],beanObj.getExchRate());
-		args[14]=getModeOfTransaction(StringUtils.isBlank(beanObj.getAdjustmentpremium())?"":beanObj.getAdjustmentpremium().replaceAll(",", ""),beanObj.getEnteringMode(), beanObj.getShareSigned());
+		args[14]=getModeOfTransaction(StringUtils.isBlank(beanObj.getAdjustmentpremium())?"0":beanObj.getAdjustmentpremium().replaceAll(",", ""),beanObj.getEnteringMode(), beanObj.getShareSigned());
 		args[27]=dropDowmImpl.GetDesginationCountry(args[14],beanObj.getExchRate());
-		args[15]=getModeOfTransaction(StringUtils.isBlank(beanObj.getRecuirementpremium())?"":beanObj.getRecuirementpremium().replaceAll(",", ""),beanObj.getEnteringMode(), beanObj.getShareSigned());
+		args[15]=getModeOfTransaction(StringUtils.isBlank(beanObj.getRecuirementpremium())?"0":beanObj.getRecuirementpremium().replaceAll(",", ""),beanObj.getEnteringMode(), beanObj.getShareSigned());
 		args[28]=dropDowmImpl.GetDesginationCountry(args[15],beanObj.getExchRate());
 		if("RP".equalsIgnoreCase(beanObj.getInstlmentNo()))
 		{
@@ -1481,8 +1510,8 @@ public class XolJpaServiceImpl {
 		args[16]="Y";
 		args[18]=beanObj.getLayerno();
 		args[19]="2";
-		args[20]=StringUtils.isEmpty(beanObj.getReceiptno())?"":beanObj.getReceiptno();
-		args[21]=StringUtils.isEmpty(beanObj.getInstlmentNo())?"":beanObj.getInstlmentNo();
+		args[20]=StringUtils.isBlank(beanObj.getReceiptno())?"":beanObj.getReceiptno();
+		args[21]=StringUtils.isBlank(beanObj.getInstlmentNo())?"":beanObj.getInstlmentNo();
 		args[22]=StringUtils.isBlank(beanObj.getSettlementstatus())?"":beanObj.getSettlementstatus();
 		args[23]=getModeOfTransaction(beanObj.getOtherCost().replaceAll(",", ""),beanObj.getEnteringMode(), beanObj.getShareSigned());
 		args[30]=dropDowmImpl.GetDesginationCountry(args[23],beanObj.getExchRate());
@@ -1500,16 +1529,15 @@ public class XolJpaServiceImpl {
 		args[42]=beanObj.getDepartmentId();
 		args[43] = getModeOfTransaction(beanObj.getTaxDedectSource()==null?"0":beanObj.getTaxDedectSource().replaceAll(",", ""),beanObj.getEnteringMode(), beanObj.getShareSigned());
 		args[44] = dropDowmImpl.GetDesginationCountry(args[43], beanObj.getExchRate());
-		args[45] = getModeOfTransaction(beanObj.getServiceTax()==null?"0":beanObj.getServiceTax().replaceAll(",", ""),beanObj.getEnteringMode(), beanObj.getShareSigned());
+		args[45] = getModeOfTransaction(beanObj.getVatPremium()==null?"0":beanObj.getVatPremium().replaceAll(",", ""),beanObj.getEnteringMode(), beanObj.getShareSigned());
 		args[46] = dropDowmImpl.GetDesginationCountry(args[45], beanObj.getExchRate());
 		args[47] = getModeOfTransaction(beanObj.getBonus()==null?"0":beanObj.getBonus().replaceAll(",", ""),beanObj.getEnteringMode(), beanObj.getShareSigned());
 		args[48] = dropDowmImpl.GetDesginationCountry(args[47], beanObj.getExchRate());
-		args[17] = getNetDueXol(args,beanObj.getProductId());
-		args[29]=dropDowmImpl.GetDesginationCountry(args[17],beanObj.getExchRate());
+		
 		beanObj.setTransactionNo(args[1]);
 		args[49] = StringUtils.isEmpty(beanObj.getGnpiDate()) ?"" :beanObj.getGnpiDate();
 		args[50] ="D";
-		args[51]=StringUtils.isEmpty(beanObj.getPredepartment())?"":beanObj.getPredepartment();
+		args[51]=beanObj.getPredepartment();
 		args[52]=beanObj.getStatementDate();
 		args[53]=beanObj.getProposalNo();
 		args[54]=beanObj.getProductId();
@@ -1522,7 +1550,11 @@ public class XolJpaServiceImpl {
 			}
 			args[57] = beanObj.getMode();
 		}
-		
+		args[58] = getModeOfTransaction(beanObj.getBrokerageVat(),beanObj.getEnteringMode(), beanObj.getShareSigned());
+		args[59] = dropDowmImpl.GetDesginationCountry(args[58], beanObj.getExchRate());
+		args[60] = beanObj.getDocumentType();
+		args[17] = getNetDueXol(args,beanObj.getProductId());
+		args[29]=dropDowmImpl.GetDesginationCountry(args[17],beanObj.getExchRate());
 		final String[] copiedArray = new String[args.length];
 		System.arraycopy(args, 0, copiedArray, 0, args.length);
 		
@@ -1743,5 +1775,225 @@ public class XolJpaServiceImpl {
 			e.printStackTrace();
 		}
 		return dates;
+	}
+	@Override
+	public GetRIPremiumListRes getRIPremiumList(GetRIPremiumListReq req) {
+		GetRIPremiumListRes response = new GetRIPremiumListRes();
+		List<GetRIPremiumListRes1> resList = new ArrayList<GetRIPremiumListRes1>();
+		SimpleDateFormat sdf = new  SimpleDateFormat("dd/MM/yyyy");
+		try {
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			
+			Root<RskPremiumDetailsRi> pm = query.from(RskPremiumDetailsRi.class);
+						
+			//reInsurerName
+			Subquery<String> reInsurerName = query.subquery(String.class); 
+			Root<PersonalInfo> pi = reInsurerName.from(PersonalInfo.class);
+		
+			Expression<String> firstName1 = cb.concat(pi.get("firstName"), " ");
+			reInsurerName.select(cb.concat(firstName1, pi.get("lastName")));
+			
+			//maxAmend
+			Subquery<Long> maxAmend = query.subquery(Long.class); 
+			Root<PersonalInfo> pis = maxAmend.from(PersonalInfo.class);
+			maxAmend.select(cb.max(pis.get("amendId")));
+			Predicate b1 = cb.equal( pis.get("customerId"), pi.get("customerId"));
+			maxAmend.where(b1);
+			
+			Predicate a1 = cb.equal( pi.get("customerType"), "R");
+			Predicate a2 = cb.equal( pi.get("customerId"), pm.get("reinsurerId"));
+			Predicate a3 = cb.equal( pi.get("branchCode"), pm.get("branchCode"));
+			Predicate a4 = cb.equal( pi.get("amendId"), maxAmend);
+			reInsurerName.where(a1,a2,a3,a4);
+			
+			//brokerName
+			Subquery<String> brokerName = query.subquery(String.class); 
+			Root<PersonalInfo> pi1 = brokerName.from(PersonalInfo.class);
+			
+			Expression<String> firstName = cb.concat(pi1.get("firstName"), " ");
+			brokerName.select(cb.concat(firstName, pi1.get("lastName")));
+			
+			//maxAmend
+			Subquery<Long> maxAmend1 = query.subquery(Long.class); 
+			Root<PersonalInfo> pis1 = maxAmend1.from(PersonalInfo.class);
+			maxAmend1.select(cb.max(pis1.get("amendId")));
+			Predicate c1 = cb.equal( pis1.get("customerId"), pi1.get("customerId"));
+			maxAmend1.where(c1);
+			
+			Predicate d1 = cb.equal( pi1.get("customerType"), "B");
+			Predicate d2 = cb.equal( pi1.get("customerId"), pm.get("brokerId"));
+			Predicate d3 = cb.equal( pi1.get("branchCode"), pm.get("branchCode"));
+			Predicate d4 = cb.equal( pi1.get("amendId"), maxAmend1);
+			brokerName.where(d1,d2,d3,d4);
+
+			query.multiselect(reInsurerName.alias("REINSURER_NAME"),brokerName.alias("BROKER_NAME"),
+					pm.get("brokerId").alias("BROKER_ID"),pm.get("brokerage").alias("BROKERAGE"),
+					pm.get("signShared").alias("SIGN_SHARED"),pm.get("reinsurerId").alias("REINSURER_ID"),pm.alias("table")); 
+			
+			Predicate n1 = cb.equal(pm.get("contractNo"), req.getContractNo());
+			Predicate n2 = cb.equal(pm.get("transactionNo"), req.getTransactionNo());
+			Predicate n3 = cb.equal(pm.get("branchCode"), req.getBranchCode());
+			query.where(n1,n2,n3);
+			
+			TypedQuery<Tuple> result = em.createQuery(query);
+			List<Tuple> list = result.getResultList();
+			if(list.size()>0) {
+				for(Tuple data1: list) {
+					GetRIPremiumListRes1 res = new GetRIPremiumListRes1();
+					RskPremiumDetailsRi data = (RskPremiumDetailsRi) data1.get("table");	
+					
+					res.setBrokerage(data1.get("BROKERAGE")==null?"":data1.get("BROKERAGE").toString());
+					res.setBrokerId(data1.get("BROKER_ID")==null?"":data1.get("BROKER_ID").toString());
+					res.setBrokerName(data1.get("BROKER_NAME")==null?"":data1.get("BROKER_NAME").toString());
+					res.setReinsurerId(data1.get("REINSURER_ID")==null?"":data1.get("REINSURER_ID").toString());
+					res.setReInsurerName(data1.get("REINSURER_NAME")==null?"":data1.get("REINSURER_NAME").toString());
+					res.setSignShared(data1.get("SIGN_SHARED")==null?"":data1.get("SIGN_SHARED").toString());	
+					
+					res.setContNo(data.getContractNo()==null?"":data.getContractNo().toString());
+					res.setTransactionNo(data.getTransactionNo()==null?"":data.getTransactionNo().toString());
+					res.setTransaction(data.getTransactionMonthYear()==null?"":sdf.format(data.getTransactionMonthYear()));
+					res.setBrokerage(data.getBrokerageAmtOc()==null?"":data.getBrokerageAmtOc().toString());
+					res.setTax(data.getTax()==null?"":data.getTax().toString());
+					res.setMdpremium(data.getMDpremiumOc()==null?"":data.getMDpremiumOc().toString());
+					res.setAdjustmentpremium(data.getAdjustmentPremiumOc()	==null?"":data.getAdjustmentPremiumOc().toString());					
+					res.setRecuirementpremium(data.getRecPremiumOc()==null?"":data.getRecPremiumOc().toString());
+					res.setNetDue(data.getNetdueOc()==null?"":data.getNetdueOc().toString());
+					res.setLayerno(data.getLayerNo()==null?"":data.getLayerNo().toString());
+					res.setEnteringMode(data.getEnteringMode()==null?"":data.getEnteringMode().toString());
+					res.setAccountPeriod(data.getInstalmentNumber()+(data.getAccountPeriodQtr()==null?"":("_"+data.getAccountPeriodQtr())));
+					res.setCurrencyId(data.getCurrencyId()==null?"":data.getCurrencyId().toString());
+					res.setOtherCost(data.getOtherCostOc()==null?"":data.getOtherCostOc().toString());
+					res.setBrokerageusd(data.getBrokerageAmtDc()==null?"":data.getBrokerageAmtDc().toString());
+					res.setTaxusd(data.getTaxAmtDc()==null?"":data.getTaxAmtDc().toString());
+					res.setTaxOc(data.getTaxAmtOc()==null?"":data.getTaxAmtOc().toString());
+					res.setMdpremiumusd(data.getMDpremiumDc()==null?"":data.getMDpremiumDc().toString());
+					res.setAdjustmentpremiumusd(data.getAdjustmentPremiumDc()==null?"":data.getAdjustmentPremiumDc().toString());
+					res.setRecuirementpremiumusd(data.getRecPremiumDc()==null?"":data.getRecPremiumDc().toString());
+					res.setNetdueusd(data.getNetdueDc()==null?"":data.getNetdueDc().toString());
+					res.setOtherCostUSD(data.getOtherCostDc()==null?"":data.getOtherCostDc().toString());
+					res.setInceptionDate(data.getEntryDate()==null?"":sdf.format(data.getEntryDate()));
+					res.setCedentRef(data.getCedantReference()==null?"":data.getCedantReference().toString());
+					res.setRemarks(data.getRemarks()==null?"":data.getRemarks().toString());
+					res.setTotalCredit(data.getTotalCrOc()==null?"":data.getTotalCrOc().toString());
+					res.setTotalCreditDC(data.getTotalCrDc()==null?"":data.getTotalCrDc().toString());
+					res.setTotalDebit(data.getTotalDrOc()==null?"":data.getTotalDrOc().toString());
+					res.setTotalDebitDC(data.getTotalDrDc()==null?"":data.getTotalDrDc().toString());
+					res.setAmendmentDate(data.getAmendmentDate()==null?"":sdf.format(data.getAmendmentDate()));
+                    res.setWithHoldingTaxOC(data.getWithHoldingTaxOc()==null?"":data.getWithHoldingTaxOc().toString());
+                    res.setWithHoldingTaxDC(data.getWithHoldingTaxDc()==null?"":data.getWithHoldingTaxDc().toString());
+                 //   res.setDueDate(xolView.get("DUE_DATE")==null?"":xolView.get("DUE_DATE").toString());
+                    res.setCreditsign(data.getNetdueOc()==null?"":data.getNetdueOc().toString());
+                    res.setRicession(data.getRiCession()==null?"":data.getRiCession().toString());
+                    res.setPredepartment(data.getPremiumClass()==null?"":data.getPremiumClass().toString());
+                    res.setDepartmentId(data.getSubClass()==null?"":data.getSubClass().toString());
+                    res.setTaxDedectSource(data.getTdsOc()==null?"":data.getTdsOc().toString());
+                    res.setTaxDedectSourceDc(data.getTdsDc()==null?"":data.getTdsDc().toString());
+                    res.setVatPremiumOc(data.getVatPremiumOc()==null?"":data.getVatPremiumOc().toString());
+                    res.setDocumentType(data.getDocumentType()==null?"":data.getDocumentType().toString());
+                    res.setVatPremiumDc(data.getVatPremiumDc()==null?"":data.getVatPremiumDc().toString());
+                    res.setBonus(data.getBonusOc()==null?"":data.getBonusOc().toString());
+                    res.setBonusDc(data.getBonusDc()==null?"":data.getBonusDc().toString());
+    				res.setExchRate(dropDowmImpl.exchRateFormat(data.getExchangeRate()==null?"":data.getExchangeRate().toString()));
+                    res.setGnpiDate(data.getGnpiEndtNo()==null?"":sdf.format(data.getGnpiEndtNo()));
+                    res.setStatementDate(data.getStatementDate()==null?"":sdf.format(data.getStatementDate()));
+                    res.setChooseTransaction(data.getReverselStatus()==null?"":data.getReverselStatus().toString());
+                    res.setTransDropDownVal(data.getReverseTransactionNo()==null?"":data.getReverseTransactionNo().toString());
+                    res.setBrokerageVatOc(data.getBrokerageVatOc()==null?"":fm.formatter(data.getBrokerageVatOc().toString()));
+					res.setBrokerageVatDc(data.getBrokerageVatDc()==null?"":fm.formatter(data.getBrokerageVatDc().toString()));
+					resList.add(res);
+				}
+			}		
+			response.setCommonResponse(resList);	
+			response.setMessage("Success");
+			response.setIsError(false);
+		    }catch (Exception e) {
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		    return response;
+	}
+
+	public List<Map<String, Object>> getSPRetroList(String contNo){
+     	List<Map<String, Object>> list= new ArrayList<Map<String,Object>>();
+     	try{
+					String query="premium.select.getTreatySPRetro";
+					list=queryImpl.selectList(query,new String[] {contNo});	
+				}catch(Exception e){
+					e.printStackTrace();
+				}
+				return list;
+	}
+
+	public List<Map<String, Object>> getRetroContracts(String proposalNo, String noOfRetro) {
+		List<Map<String, Object>> list= new ArrayList<Map<String,Object>>();
+		
+		try{
+			String query="premium.select.insDetails";
+			String[] args = new String [2];
+			args[0] = proposalNo;
+			args[1] = noOfRetro;
+			list=queryImpl.selectList(query,args);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return list;
+	}
+
+
+	public String getSumOfShareSign(String contractNo){
+		List<Map<String,Object>>list=new ArrayList<Map<String,Object>>();
+		int shareSign = 0;
+		String sumOfShareSign = "";
+		try {
+			String query ="premium.select.getNoRetroCess";
+			 list = queryImpl.selectList(query, new String [] {contractNo});
+			 if (!CollectionUtils.isEmpty(list)) {
+				 shareSign = Integer.valueOf(list.get(0).get("RETRO_CESSIONARIES") == null ? "": list.get(0).get("RETRO_CESSIONARIES").toString())-1;
+				} 
+			 query="premium.select.getSumOfShareSign";
+			list = queryImpl.selectList(query, new String [] {contractNo,String.valueOf(shareSign)});
+			 if (!CollectionUtils.isEmpty(list)) {
+				 sumOfShareSign = list.get(0).get("SHARE_SIGNED") == null ? "": list.get(0).get("SHARE_SIGNED").toString();
+				}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		 return sumOfShareSign;
+	}
+
+	public String getMovementReportMaxDate(String branchCode) {
+		String maxDate = "";
+		String query = "premium.mov.rep.max.date";
+		try {
+			List<Map<String,Object>> list = queryImpl.selectList(query, new String[] {branchCode});
+			if (!CollectionUtils.isEmpty(list)) {
+				maxDate = list.get(0).get("MAX_DATE") == null ? "" : list.get(0).get("MAX_DATE").toString();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return maxDate;
+	}
+
+	public String getRPPremiumOC(String contractNo, String layerNo,String productId){
+		List<Map<String,Object>>list=new ArrayList<Map<String,Object>>();
+		String premiumOC ="";
+		try {
+			String query="";
+			if("3".equalsIgnoreCase(productId)){
+				query="premium.select.RPPremiumOC";
+			}else{
+			 query="XOL_PREMIUM_SELECT_RPPREMIUMOC";
+			}
+			 list = queryImpl.selectList(query, new String [] {contractNo,layerNo});
+			 if (!CollectionUtils.isEmpty(list)) {
+					premiumOC = list.get(0).get("REC_PREMIUM_OC") == null ? "": list.get(0).get("REC_PREMIUM_OC").toString();
+				} 
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		 return premiumOC;
 	}
 }

@@ -66,8 +66,8 @@ public class RskPremiumDetailsTempMapper extends AbstractEntityMapper<RskPremium
 			rskPremiumDetailsTemp.setSubClass(formatBigDecimal(input[42]));
 			rskPremiumDetailsTemp.setTdsOc(formatBigDecimal(input[43]));
 			rskPremiumDetailsTemp.setTdsDc(formatBigDecimal(input[44]));
-			rskPremiumDetailsTemp.setStOc(formatBigDecimal(input[45]));
-			rskPremiumDetailsTemp.setStDc(formatBigDecimal(input[46]));
+			rskPremiumDetailsTemp.setVatPremiumOc(formatBigDecimal(input[45]));
+			rskPremiumDetailsTemp.setVatPremiumDc(formatBigDecimal(input[46]));
 			rskPremiumDetailsTemp.setBonusOc(formatBigDecimal(input[47]));
 			rskPremiumDetailsTemp.setBonusDc(formatBigDecimal(input[48]));
 			rskPremiumDetailsTemp.setGnpiEndtNo(input[49]);
@@ -79,6 +79,9 @@ public class RskPremiumDetailsTempMapper extends AbstractEntityMapper<RskPremium
 			rskPremiumDetailsTemp.setReverselStatus(input[55]);
 			rskPremiumDetailsTemp.setTransStatus(input[56]);
 			rskPremiumDetailsTemp.setTransType(input[57]);
+			rskPremiumDetailsTemp.setBrokerageVatOc(formatBigDecimal(input[58]));
+			rskPremiumDetailsTemp.setBrokerageVatDc(formatBigDecimal(input[59]));
+			rskPremiumDetailsTemp.setDocumentType(input[60]);
 		}
 		return rskPremiumDetailsTemp;
 	}
@@ -171,8 +174,8 @@ public class RskPremiumDetailsTempMapper extends AbstractEntityMapper<RskPremium
 			rskPremiumDetailsTemp.setSubClass(formatBigDecimal(input[75]));
 			rskPremiumDetailsTemp.setTdsOc(formatBigDecimal(input[76]));
 			rskPremiumDetailsTemp.setTdsDc(formatBigDecimal(input[77]));
-			rskPremiumDetailsTemp.setStOc(formatBigDecimal(input[78]));
-			rskPremiumDetailsTemp.setStDc(formatBigDecimal(input[79]));
+			rskPremiumDetailsTemp.setVatPremiumOc(formatBigDecimal(input[78]));
+			rskPremiumDetailsTemp.setVatPremiumDc(formatBigDecimal(input[79]));
 			rskPremiumDetailsTemp.setScCommOc(formatBigDecimal(input[80]));
 			rskPremiumDetailsTemp.setScCommDc(formatBigDecimal(input[81]));
 			rskPremiumDetailsTemp.setPremiumClass(input[82]);
@@ -187,6 +190,9 @@ public class RskPremiumDetailsTempMapper extends AbstractEntityMapper<RskPremium
 			rskPremiumDetailsTemp.setProductId(formatBigDecimal(input[91]));
 			rskPremiumDetailsTemp.setTransStatus(input[92]);
 			rskPremiumDetailsTemp.setTransType(input[93]);
+			rskPremiumDetailsTemp.setBrokerageVatOc(formatBigDecimal(input[58]));
+			rskPremiumDetailsTemp.setBrokerageVatDc(formatBigDecimal(input[59]));
+			rskPremiumDetailsTemp.setDocumentType(input[60]);
 		}
 		return rskPremiumDetailsTemp;
 	}

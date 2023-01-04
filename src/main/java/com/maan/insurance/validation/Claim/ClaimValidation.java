@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.maan.insurance.error.ErrorCheck;
+import com.maan.insurance.jpa.service.impl.ClaimJpaServiceImpl;
 import com.maan.insurance.model.req.claim.AllocListReq;
 import com.maan.insurance.model.req.claim.AllocationListReq;
 import com.maan.insurance.model.req.claim.ClaimListMode4Req;
@@ -31,10 +32,10 @@ import com.maan.insurance.model.req.claim.InsertCliamDetailsMode2Req;
 import com.maan.insurance.model.req.claim.InsertCliamDetailsMode3Req;
 import com.maan.insurance.model.req.claim.InsertCliamDetailsMode8Req;
 import com.maan.insurance.model.req.claim.ProposalNoReq;
+import com.maan.insurance.model.req.claim.claimNoListReq;
 import com.maan.insurance.model.res.DropDown.GetOpenPeriodRes;
 import com.maan.insurance.service.impl.QueryImplemention;
 import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
-import com.maan.insurance.service.impl.claim.ClaimServiceImple;
 import com.maan.insurance.validation.CommonCalculation;
 import com.maan.insurance.validation.Formatters;
 
@@ -46,7 +47,7 @@ public class ClaimValidation {
 	private Logger log = LogManager.getLogger(QueryImplemention.class);
 	private Properties prop = new Properties();
 	@Autowired
-	private ClaimServiceImple claimImpl;
+	private ClaimJpaServiceImpl claimImpl;
 	
 	@Autowired
 	private DropDownServiceImple dropDowmImpl;
@@ -1314,6 +1315,21 @@ public ClaimValidation() {
 			
 	return list;
 	}
-	
+	public List<ErrorCheck> claimNoListVali(claimNoListReq req) {
+		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
+		if(StringUtils.isBlank(req.getBranchCode())) {
+			list.add(new ErrorCheck(prop.getProperty("errors.payment.BranchCode"),"BranchCode", "01"));
+			}
+		if(StringUtils.isBlank(req.getCedentClaimNo())) {
+			list.add(new ErrorCheck(prop.getProperty("errors.payment.CedentClaimNo"),"CedentClaimNo", "02"));
+			}
+		if(StringUtils.isBlank(req.getCedingCompanyCode())) {
+			list.add(new ErrorCheck(prop.getProperty("errors.payment.CedingCompanyCode"),"CedingCompanyCode", "03"));
+			}
+		if(StringUtils.isBlank(req.getDateofLoss())) {
+			list.add(new ErrorCheck(prop.getProperty("errors.payment.DateofLoss"),"DateofLoss", "04"));
+			}
+		return list;
+	}
 	}
 

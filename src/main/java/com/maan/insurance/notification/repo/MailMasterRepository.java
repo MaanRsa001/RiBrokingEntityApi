@@ -12,6 +12,8 @@
 
 package com.maan.insurance.notification.repo;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
@@ -27,6 +29,6 @@ import com.maan.insurance.notification.entity.MailMaster;
 
 
 public interface MailMasterRepository extends JpaRepository<MailMaster, String>, JpaSpecificationExecutor<MailMaster> {
-
-	MailMaster findByInsCompanyId(String insCompanyId);
+	
+	List<MailMaster> findByAppId(String appId);
 }

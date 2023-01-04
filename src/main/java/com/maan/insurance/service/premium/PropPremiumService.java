@@ -11,11 +11,15 @@ import com.maan.insurance.model.req.premium.GetPreListReq;
 import com.maan.insurance.model.req.premium.GetPremiumDetailsReq;
 import com.maan.insurance.model.req.premium.GetPremiumReservedReq;
 import com.maan.insurance.model.req.premium.GetPremiumedListReq;
+import com.maan.insurance.model.req.premium.GetRIPremiumListReq;
 import com.maan.insurance.model.req.premium.GetSPRetroListReq;
+import com.maan.insurance.model.req.premium.GetVatInfoReq;
 import com.maan.insurance.model.req.premium.InsertPremiumReq;
 import com.maan.insurance.model.req.premium.PremiumEditReq;
 import com.maan.insurance.model.req.premium.PremiumUpdateMethodReq;
 import com.maan.insurance.model.req.premium.SubmitPremiumReservedReq;
+import com.maan.insurance.model.req.premium.CashLossmailTriggerReq;
+import com.maan.insurance.model.req.premium.InsertReverseCashLossCreditReq;
 import com.maan.insurance.model.res.premium.ClaimTableListMode1Res;
 import com.maan.insurance.model.res.premium.ContractDetailsRes;
 import com.maan.insurance.model.res.premium.CurrencyListRes;
@@ -36,13 +40,22 @@ import com.maan.insurance.model.res.premium.GetPremiumDetailsRes;
 import com.maan.insurance.model.res.premium.GetPremiumReservedRes1;
 import com.maan.insurance.model.res.premium.GetPremiumedListRes;
 import com.maan.insurance.model.res.premium.GetPreviousPremiumRes;
+import com.maan.insurance.model.res.premium.GetRIPremiumListRes;
 import com.maan.insurance.model.res.premium.GetRetroContractsRes;
 import com.maan.insurance.model.res.premium.GetSPRetroListRes;
 import com.maan.insurance.model.res.premium.GetSumOfShareSignRes;
+import com.maan.insurance.model.res.premium.GetVatInfoRes;
 import com.maan.insurance.model.res.premium.InsertPremiumRes;
 import com.maan.insurance.model.res.premium.PremiumEditRes;
 import com.maan.insurance.model.res.premium.SubmitPremiumReservedRes;
+import com.maan.insurance.model.res.premium.ViewPremiumDetailsRIReq;
+import com.maan.insurance.model.res.premium.ViewPremiumDetailsRIRes;
+import com.maan.insurance.model.res.premium.ViewRIPremiumListRes;
+import com.maan.insurance.model.res.premium.getCurrencyShortNameRes;
+import com.maan.insurance.model.res.premium.getReverseCassLossCreditRes;
+import com.maan.insurance.model.res.premium.premiumUpdateMethodRes;
 import com.maan.insurance.model.res.proportionality.CommonSaveRes;
+import com.maan.insurance.model.res.retro.CommonResponse;
 
 @Service
 public interface PropPremiumService {
@@ -101,6 +114,25 @@ public interface PropPremiumService {
 
 	GetDepositReleaseCountRes getDepositReleaseCount(String dropDown, String contractNo, String branchCode, String type);
 
-	CommonSaveRes premiumUpdateMethod(InsertPremiumReq req);
+	premiumUpdateMethodRes premiumUpdateMethod(InsertPremiumReq req);
+
+	ViewPremiumDetailsRIRes viewPremiumDetailsRI(ViewPremiumDetailsRIReq req);
+
+	GetVatInfoRes getVatInfo(GetVatInfoReq req);
+
+	ViewRIPremiumListRes viewRIPremiumList(GetRIPremiumListReq req);
+
+	CommonResponse updateRIStatus(GetRIPremiumListReq req);
+
+	CommonResponse InsertCashLossCredit(InsertPremiumReq req);
+
+	CommonResponse InsertReverseCashLossCredit(InsertReverseCashLossCreditReq req);
+
+	CommonResponse CashLossmailTrigger(CashLossmailTriggerReq req);
+
+	getReverseCassLossCreditRes getReverseCassLossCredit(String proposalNo, String cashlosstranId);
+
+	getCurrencyShortNameRes getCurrencyShortName(String currencyId, String branchCode);
+
 
 }

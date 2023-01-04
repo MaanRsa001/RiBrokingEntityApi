@@ -3,7 +3,6 @@ package com.maan.insurance.model.res.xolPremium;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.maan.insurance.model.res.DropDown.GetCommonValueRes;
 import com.maan.insurance.model.res.facPremium.SettlementstatusRes;
 
 import lombok.Data;
@@ -79,10 +78,16 @@ public class GetPremiumDetailsRes1 {
 	private String taxDedectSource;
 	@JsonProperty("TaxDedectSourceDc")
 	private String taxDedectSourceDc;
-	@JsonProperty("ServiceTax")
-	private String serviceTax;
-	@JsonProperty("ServiceTaxDc")
-	private String serviceTaxDc;
+	@JsonProperty("VatPremium")
+	private String vatPremium;
+	@JsonProperty("VatPremiumDc")
+	private String vatPremiumDc;
+	@JsonProperty("BrokerageVat")
+	private String brokerageVat;
+	@JsonProperty("BrokerageVatDc")
+	private String brokerageVatDc;
+	@JsonProperty("DocumentType")
+	private String documentType;
 	@JsonProperty("InceptionDate")
 	private String inceptionDate;
 	@JsonProperty("Bonus")

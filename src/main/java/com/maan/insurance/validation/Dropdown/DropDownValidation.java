@@ -20,6 +20,7 @@ import com.maan.insurance.model.req.DropDown.GetCurrencyIdReq;
 import com.maan.insurance.model.req.DropDown.GetDepartmentDropDownReq;
 import com.maan.insurance.model.req.DropDown.GetDepartmentieModuleDropDownReq;
 import com.maan.insurance.model.req.DropDown.GetInwardBusinessTypeDropDownReq;
+import com.maan.insurance.model.req.DropDown.GetPlacedProposalListReq;
 import com.maan.insurance.model.req.DropDown.GetPreDepartmentDropDownReq;
 import com.maan.insurance.model.req.DropDown.GetProductModuleDropDownReq;
 import com.maan.insurance.model.req.DropDown.GetProfitCentreieModuleDropDownReq;
@@ -28,6 +29,7 @@ import com.maan.insurance.model.req.DropDown.GetSectionListReq;
 import com.maan.insurance.model.req.DropDown.GetSubProfitCentreMultiDropDownReq;
 import com.maan.insurance.model.req.DropDown.GetSubProfitCentreMultiReq;
 import com.maan.insurance.model.req.DropDown.GetTreatyTypeDropDownReq;
+import com.maan.insurance.model.req.DropDown.GetYearToListValueReq;
 import com.maan.insurance.service.impl.QueryImplemention;
 import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
 import com.maan.insurance.validation.Validation;
@@ -469,5 +471,31 @@ public class DropDownValidation {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	public List<ErrorCheck> getPlacedProposalListVali(GetPlacedProposalListReq req) {
+		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
+		if (StringUtils.isBlank(req.getBranchCode())) {
+			list.add(new ErrorCheck("Please Enter BranchCode", "BranchCode", "1"));
+		}
+//		if (StringUtils.isBlank(req.getBouquetNo())) {
+//			list.add(new ErrorCheck("Please Enter BouquetNo", "BouquetNo", "2"));
+//		}
+		if (StringUtils.isBlank(req.getBaseProposalNo())) {
+			list.add(new ErrorCheck("Please Enter BaseProposalNo", "BaseProposalNo", "3"));
+		}
+		if (StringUtils.isBlank(req.getPlacementMode())) {
+			list.add(new ErrorCheck("Please Enter PlacementMode", "PlacementMode", "4"));
+		}
+		return list;
+	}
 
+	public List<ErrorCheck> getYearToListValueVali(GetYearToListValueReq req) {
+		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
+		if (StringUtils.isBlank(req.getExpiryDate())) {
+			list.add(new ErrorCheck("Please Enter ExpiryDate", "ExpiryDate", "1"));
+		}
+		if (StringUtils.isBlank(req.getInceptionDate())) {
+			list.add(new ErrorCheck("Please Enter InceptionDate", "InceptionDate", "2"));
+		}
+		return list;
+	}
 }

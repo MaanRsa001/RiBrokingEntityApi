@@ -754,10 +754,11 @@ public class PortFolioServiceImple implements PortFolioService{
                 }
                 tempBean.setCeaseStatus(tempMap.get("CEASE_STATUS") == null ? "" : tempMap.get("CEASE_STATUS").toString());
                
-                long  count  = cdRepo.countByContractNoAndLayerNo(tempBean.getProposalNo(),new BigDecimal(tempBean.getLayerNo()));
+                BigDecimal layerno = StringUtils.isBlank(tempBean.getLayerNo())? null: new BigDecimal(tempBean.getLayerNo());
+                long  count  = cdRepo.countByContractNoAndLayerNo(tempBean.getProposalNo(),layerno);
                 tempBean.setClaimCount(String.valueOf(count));
                 
-                count  = pdRepo.countByContractNoAndLayerNo(new BigDecimal(tempBean.getProposalNo()),new BigDecimal(tempBean.getLayerNo()));
+                count  = pdRepo.countByContractNoAndLayerNo(new BigDecimal(tempBean.getProposalNo()),layerno);
                 tempBean.setPremiumcount(String.valueOf(count));
                 
                 count  = dmRepo.countByBranchCodeAndTmasProductIdAndTmasStatusAndCoreCompanyCodeIsNotNullAndTmasDepartmentIdIn(beanObj.getBranchCode(),new BigDecimal(beanObj.getProductId()),"Y",beanObj.getDepartmentId());

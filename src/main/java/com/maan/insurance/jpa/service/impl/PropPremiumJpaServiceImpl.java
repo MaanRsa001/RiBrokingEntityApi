@@ -9,12 +9,27 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
+import javax.mail.Authenticator;
+import javax.mail.Message;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.Tuple;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -35,15 +50,23 @@ import com.maan.insurance.jpa.repository.propPremium.PropPremiumCustomRepository
 import com.maan.insurance.jpa.repository.propPremium.TtrnDepositReleaseRepository;
 import com.maan.insurance.jpa.repository.treasury.TtrnAllocatedTransactionRepository;
 import com.maan.insurance.jpa.repository.xolpremium.XolPremiumCustomRepository;
+import com.maan.insurance.model.entity.ConstantDetail;
+import com.maan.insurance.model.entity.CurrencyMaster;
+import com.maan.insurance.model.entity.PersonalInfo;
 import com.maan.insurance.model.entity.RskPremiumDetails;
+import com.maan.insurance.model.entity.RskPremiumDetailsRi;
 import com.maan.insurance.model.entity.RskPremiumDetailsTemp;
+import com.maan.insurance.model.entity.TmasBranchMaster;
 import com.maan.insurance.model.entity.TmasDepartmentMaster;
 import com.maan.insurance.model.entity.TtrnClaimDetails;
+import com.maan.insurance.model.repository.RskPremiumDetailsRIRepository;
 import com.maan.insurance.model.repository.RskPremiumDetailsRepository;
 import com.maan.insurance.model.repository.RskPremiumDetailsTempRepository;
+import com.maan.insurance.model.repository.TmasBranchMasterRepository;
 import com.maan.insurance.model.repository.TmasDepartmentMasterRepository;
 import com.maan.insurance.model.repository.TtrnClaimDetailsRepository;
 import com.maan.insurance.model.repository.TtrnClaimPaymentRepository;
+import com.maan.insurance.model.req.premium.CashLossmailTriggerReq;
 import com.maan.insurance.model.req.premium.ClaimTableListReq;
 import com.maan.insurance.model.req.premium.ContractDetailsReq;
 import com.maan.insurance.model.req.premium.GetCashLossCreditReq;
@@ -54,9 +77,12 @@ import com.maan.insurance.model.req.premium.GetPreListReq;
 import com.maan.insurance.model.req.premium.GetPremiumDetailsReq;
 import com.maan.insurance.model.req.premium.GetPremiumReservedReq;
 import com.maan.insurance.model.req.premium.GetPremiumedListReq;
+import com.maan.insurance.model.req.premium.GetRIPremiumListReq;
 import com.maan.insurance.model.req.premium.GetSPRetroListReq;
+import com.maan.insurance.model.req.premium.GetVatInfoReq;
 import com.maan.insurance.model.req.premium.InsertLossReserved;
 import com.maan.insurance.model.req.premium.InsertPremiumReq;
+import com.maan.insurance.model.req.premium.InsertReverseCashLossCreditReq;
 import com.maan.insurance.model.req.premium.PremiumEditReq;
 import com.maan.insurance.model.req.premium.SubmitPremiumReservedReq;
 import com.maan.insurance.model.req.premium.SubmitPremiumReservedReq1;
@@ -98,11 +124,14 @@ import com.maan.insurance.model.res.premium.GetPremiumReservedRes1;
 import com.maan.insurance.model.res.premium.GetPremiumedListRes;
 import com.maan.insurance.model.res.premium.GetPremiumedListRes1;
 import com.maan.insurance.model.res.premium.GetPreviousPremiumRes;
+import com.maan.insurance.model.res.premium.GetRIPremiumListRes;
 import com.maan.insurance.model.res.premium.GetRetroContractsRes;
 import com.maan.insurance.model.res.premium.GetRetroContractsRes1;
 import com.maan.insurance.model.res.premium.GetSPRetroListRes;
 import com.maan.insurance.model.res.premium.GetSPRetroListRes1;
 import com.maan.insurance.model.res.premium.GetSumOfShareSignRes;
+import com.maan.insurance.model.res.premium.GetVatInfoRes;
+import com.maan.insurance.model.res.premium.GetVatInfoRes1;
 import com.maan.insurance.model.res.premium.InsertPremiumRes;
 import com.maan.insurance.model.res.premium.InsertPremiumRes1;
 import com.maan.insurance.model.res.premium.PremiumEditRes;
@@ -110,13 +139,25 @@ import com.maan.insurance.model.res.premium.PremiumEditRes1;
 import com.maan.insurance.model.res.premium.SubmitPremiumReservedRes;
 import com.maan.insurance.model.res.premium.SubmitPremiumReservedRes1;
 import com.maan.insurance.model.res.premium.SubmitPremiumReservedResponse;
+import com.maan.insurance.model.res.premium.ViewPremiumDetailsRIReq;
+import com.maan.insurance.model.res.premium.ViewPremiumDetailsRIRes;
+import com.maan.insurance.model.res.premium.ViewPremiumDetailsRIRes1;
+import com.maan.insurance.model.res.premium.ViewRIPremiumListRes;
+import com.maan.insurance.model.res.premium.ViewRIPremiumListRes1;
+import com.maan.insurance.model.res.premium.getCurrencyShortNameRes;
+import com.maan.insurance.model.res.premium.getReverseCassLossCreditRes;
+import com.maan.insurance.model.res.premium.premiumUpdateMethodRes;
+import com.maan.insurance.model.res.premium.premiumUpdateMethodRes1;
 import com.maan.insurance.model.res.proportionality.CommonSaveRes;
+import com.maan.insurance.model.res.retro.CommonResponse;
 import com.maan.insurance.model.res.premium.GetPremiumDetailsRes1;
+import com.maan.insurance.service.impl.QueryImplemention;
 import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
+import com.maan.insurance.service.premium.PropPremiumService;
 import com.maan.insurance.validation.Formatters;
 
 @Component
-public class PropPremiumJpaServiceImpl {
+public class PropPremiumJpaServiceImpl implements PropPremiumService{
 	private Logger log = LogManager.getLogger(PropPremiumJpaServiceImpl.class);
 
 	@Autowired
@@ -155,12 +196,20 @@ public class PropPremiumJpaServiceImpl {
 	@Autowired
 	private TmasDepartmentMasterRepository dmRepo;
 	@Autowired
+	private RskPremiumDetailsTempRepository pdTempRepo;
+	@Autowired
 	
 	private XolPremiumCustomRepository xolPremiumCustomRepository;
 	@Autowired
 	private  TtrnAllocatedTransactionRepository ttrnallocateRepo;
 	@Autowired
 	private RskPremiumDetailsRepository pdRepo;
+	@Autowired
+	private QueryImplemention queryImpl;
+	@Autowired
+	private RskPremiumDetailsRIRepository pdRIRepo;
+	@Autowired
+	private TmasBranchMasterRepository bmRepo;
 	
 	@PersistenceContext
 	private EntityManager em;
@@ -168,19 +217,16 @@ public class PropPremiumJpaServiceImpl {
 	private String formatDate(Object input) {
 		return new SimpleDateFormat("dd/MM/yyyy").format(input).toString();
 	}
-	
+	@Override
 	public GetPremiumedListRes getPremiumedList(GetPremiumedListReq req) {
 		GetPremiumedListRes response = new GetPremiumedListRes();
 		List<GetPremiumedListRes1> finalList = new ArrayList<GetPremiumedListRes1>();
 		List<Tuple> list = new ArrayList<>();
 		try {
 			if ("Main".equalsIgnoreCase(req.getType())) {
-
-				// query -- premium.select.PremiumedList
 				list = propPremiumCustomRepository.premiumSelectPremiumedList(req);
 
 			} else {
-				// query -- PTTY_PREMIUM_LIST_TEMP
 				list = propPremiumCustomRepository.pityPremiumListTemp(req);
 			}
 
@@ -207,12 +253,13 @@ public class PropPremiumJpaServiceImpl {
 					{
 						tempreq.setTransOpenperiodStatus("Y");
 					}
-					}
+				}
 				if(StringUtils.isNotBlank(tempreq.getTransactionNo())) {
 					int count=ttrnallocateRepo.countByContractNoAndTransactionNoAndLayerNoAndTypeAndStatus(tempreq.getContNo(),new BigDecimal(tempreq.getTransactionNo()),"0","P","Y");
 					tempreq.setAllocatedYN(count==0?"Y":"N");
 				}
 				tempreq.setTransDropDownVal(tempMap.get("REVERSE_TRANSACTION_NO")==null?"":tempMap.get("REVERSE_TRANSACTION_NO").toString());
+				tempreq.setSectionNo(tempMap.get("SECTION_NO")==null?"":tempMap.get("SECTION_NO").toString());
 				finalList.add(tempreq);
 
 			}
@@ -228,7 +275,7 @@ public class PropPremiumJpaServiceImpl {
 		return response;
 
 	}
-
+	@Override
 	public GetPreListRes getPreList(GetPreListReq req) {
 		GetPreListRes response = new GetPreListRes();
 		List<Tuple> list = new ArrayList<>();
@@ -259,9 +306,7 @@ public class PropPremiumJpaServiceImpl {
 		}
 		return response;
 	}
-	
-	
-	
+	@Override
 	public GetConstantPeriodDropDownRes getConstantPeriodDropDown(GetConstantPeriodDropDownReq req) {
 		GetConstantPeriodDropDownRes response = new GetConstantPeriodDropDownRes();
 		
@@ -296,7 +341,7 @@ public class PropPremiumJpaServiceImpl {
 			constantList = propPremiumCustomRepository.commonSelectGetconstdetPity(req.getCategoryId(), "Y", accPeriod);
 			
 			//query -- GET_BASE_LAYER
-			result = propPremiumCustomRepository.getBaseLayer(req.getContractNo(), req.getDepartmentId());
+			result = propPremiumCustomRepository.getBaseLayer(req.getContractNo(), req.getSectionNo());
 			
             for(int i=0;i<result.size();i++) {
                 Tuple map = result.get(i);
@@ -451,8 +496,7 @@ public class PropPremiumJpaServiceImpl {
 		return response;
 	
 	}
-	
-	
+	@Override
 	public GetPreviousPremiumRes getPreviousPremium(String contractNo) {
 		GetPreviousPremiumRes response = new GetPreviousPremiumRes();
 		String premium = "";
@@ -474,8 +518,7 @@ public class PropPremiumJpaServiceImpl {
 		}
 		return response;
 	}
-	
-	
+	@Override
 	public GetContractPremiumRes getContractPremium(String contractNo, String departmentId, String branchCode) {
 		GetContractPremiumRes response = new GetContractPremiumRes();
 		try {
@@ -495,7 +538,7 @@ public class PropPremiumJpaServiceImpl {
 		}
 		return response;
 	}
-	
+	@Override
 	public GetClaimNosDropDownRes getClaimNosDropDown(String contractNo) {
 		GetClaimNosDropDownRes response = new GetClaimNosDropDownRes();
 		DozerBeanMapper dozerMapper = new DozerBeanMapper();
@@ -521,8 +564,7 @@ public class PropPremiumJpaServiceImpl {
 		return response;
 
 	}
-	
-	
+	@Override
 	public ClaimTableListMode1Res claimTableListMode1(ClaimTableListReq req) {
 		log.info("CliamBusinessImpl cliamTableList || Enter");
 		List<ClaimlistRes> cliamlists = new ArrayList<ClaimlistRes>();
@@ -565,7 +607,6 @@ public class PropPremiumJpaServiceImpl {
 		return res;
 	
 	}
-	
 	public String getCliampaymnetCount(String claimNo, String contNo) {
 		String result = "";
 		try {
@@ -577,7 +618,7 @@ public class PropPremiumJpaServiceImpl {
 		}
 		return result;
 	}
-	
+	@Override
 	public GetRetroContractsRes getRetroContracts(String proposalNo, String noOfRetro) {
 		GetRetroContractsRes response = new GetRetroContractsRes();
 		List<GetRetroContractsRes1> resList = new ArrayList<GetRetroContractsRes1>();
@@ -609,7 +650,7 @@ public class PropPremiumJpaServiceImpl {
 		}
 		return response;
 	}
-	
+	@Override
 	public GetSumOfShareSignRes getSumOfShareSign(String retroContractNo) {
 		GetSumOfShareSignRes response = new GetSumOfShareSignRes();
 		String sumShareSigned = "0";
@@ -627,7 +668,7 @@ public class PropPremiumJpaServiceImpl {
 		}
 		return response;
 	}
-	
+	@Override
 	public GetDepartmentNoRes getDepartmentNo(String contractNo) {
 		GetDepartmentNoRes response = new GetDepartmentNoRes();
 		String deptNo = "";
@@ -645,7 +686,7 @@ public class PropPremiumJpaServiceImpl {
 		}
 		return response;
 	}
-	
+	@Override
 	public GetBrokerAndCedingNameRes getBrokerAndCedingName(String contNo, String branchCode) {
 		GetBrokerAndCedingNameRes response = new GetBrokerAndCedingNameRes();
 		List<GetBrokerAndCedingNameRes1> resList = new ArrayList<GetBrokerAndCedingNameRes1>();
@@ -672,7 +713,7 @@ public class PropPremiumJpaServiceImpl {
 		}
 		return response;
 	}
-	
+	@Override
 	public GetAllocatedListRes getAllocatedList(String contNo, String transactionNo) {
 		GetAllocatedListRes response = new GetAllocatedListRes();
 		List<GetAllocatedListRes1> resList = new ArrayList<GetAllocatedListRes1>();
@@ -727,7 +768,7 @@ public class PropPremiumJpaServiceImpl {
 		    return response;
 
 	}
-	
+	@Override
 	public CurrencyListRes currencyList(String branchCode) {
 		CurrencyListRes response = new CurrencyListRes();
 		List<CurrencyListRes1> resList = new ArrayList<CurrencyListRes1>();
@@ -756,7 +797,7 @@ public class PropPremiumJpaServiceImpl {
 		return response;
 
 	}
-	
+	@Override
 	public GetCashLossCreditRes getCassLossCredit(GetCassLossCreditReq req) {
 		GetCashLossCreditRes response = new GetCashLossCreditRes();
 		List<GetCashLossCreditRes1> cashLossList = new ArrayList<GetCashLossCreditRes1>();
@@ -878,7 +919,7 @@ public class PropPremiumJpaServiceImpl {
 		}
 		return response;
 	}
-	
+	@Override
 	public GetAllocatedTransListRes getAllocatedTransList(String proposalNo) {
 		GetAllocatedTransListRes response = new GetAllocatedTransListRes();
 		List<GetAllocatedTransListRes1> result = new ArrayList<GetAllocatedTransListRes1>();
@@ -910,7 +951,7 @@ public class PropPremiumJpaServiceImpl {
 		}
 		return response;
 	}
-	
+	@Override
 	public GetAllocatedCassLossCreditRes getAllocatedCassLossCredit(String proposalNo, String branchCode) {
 		GetAllocatedCassLossCreditRes response = new GetAllocatedCassLossCreditRes();
 		List<GetAllocatedCassLossCreditRes1> result = new ArrayList<GetAllocatedCassLossCreditRes1>();
@@ -969,7 +1010,7 @@ public class PropPremiumJpaServiceImpl {
 		}
 		return response;
 	}
-	
+	@Override
 	public SubmitPremiumReservedRes submitPremiumReserved(SubmitPremiumReservedReq req) {
 		SubmitPremiumReservedRes response = new SubmitPremiumReservedRes();
 		List<SubmitPremiumReservedRes1> resList = new ArrayList<SubmitPremiumReservedRes1>();
@@ -1061,8 +1102,7 @@ public class PropPremiumJpaServiceImpl {
 		}
 		return response;
 	}
-	
-	
+	@Override
 	public GetPremiumReservedRes1 getPremiumReserved(GetPremiumReservedReq req) {
 		GetPremiumReservedRes1 response = new GetPremiumReservedRes1();
 		List<GetPremiumReservedRes> cashLossList = new ArrayList<GetPremiumReservedRes>();
@@ -1126,7 +1166,7 @@ public class PropPremiumJpaServiceImpl {
 		}
 		return response;
 	}
-	
+	@Override
 	public GetDepositReleaseCountRes getDepositReleaseCount(String dropDown, String contractNo, String branchCode,
 			String type) {
 		GetDepositReleaseCountRes response = new GetDepositReleaseCountRes();
@@ -1152,7 +1192,7 @@ public class PropPremiumJpaServiceImpl {
 		}
 		return response;
 	}
-	
+	@Override
 	public GetCountCleanCUTRes getCountCleanCUT(String contractNo) {
 		GetCountCleanCUTRes response = new GetCountCleanCUTRes();
 		int count = 0;
@@ -1196,7 +1236,7 @@ public class PropPremiumJpaServiceImpl {
 		}
 		return response;
 	}
-	
+	@Override
 	public GetSPRetroListRes getSPRetroList(GetSPRetroListReq req) {
 		GetSPRetroListRes response = new GetSPRetroListRes();
 		DozerBeanMapper dozerMapper = new DozerBeanMapper();
@@ -1230,7 +1270,7 @@ public class PropPremiumJpaServiceImpl {
 		}
 		return response;
 	}
-	
+	@Override
 	@Transactional
 	public InsertPremiumRes insertPremium(InsertPremiumReq req) {
 		InsertPremiumRes response = new InsertPremiumRes();
@@ -1263,164 +1303,178 @@ public class PropPremiumJpaServiceImpl {
 		}
 		return response;
 	}
-	
 	private String[] insertArguments(InsertPremiumReq req) {
 
-		String[] args = null;
-		args = new String[94];
-		double premiumsurpInsert = 0.0;
-		double premiumInsert = 0.0;
-		args[0] = req.getContNo();
-		args[1] = getRequestNo(req);
-
-		args[2] = req.getTransaction();
-		args[3] = req.getAccountPeriod();
-		args[4] = req.getAccountPeriodyear();
-		args[5] = req.getCurrencyId();
-		args[6] = req.getExchRate();
-		args[7] = req.getBrokerageview();
-		args[8] = getModeOfTransaction(req.getBrokerage(), req);
-		args[35] = dropDownImple.GetDesginationCountry(args[8], req.getExchRate());
-		args[9] = req.getTaxview();
-		args[10] = getModeOfTransaction(req.getTax(), req);
-		args[36] = dropDownImple.GetDesginationCountry(args[10], req.getExchRate());
-		args[67] = getModeOfTransaction(req.getOverrider(), req);
-		args[68] = dropDownImple.GetDesginationCountry(args[67], req.getExchRate());
-		args[69] = req.getOverRiderview();
-		args[70] = getModeOfTransaction(req.getWithHoldingTaxOC(), req);
-		args[71] = dropDownImple.GetDesginationCountry(args[70], req.getExchRate());
-		args[11] = StringUtils.isEmpty(req.getInceptionDate()) ? "" : req.getInceptionDate();
-		args[12] = getModeOfTransaction(req.getPremiumQuotaShare(), req);
-		args[37] = dropDownImple.GetDesginationCountry(args[12], req.getExchRate());
-		args[13] = getModeOfTransaction(req.getCommissionQuotaShare(), req);
-		args[38] = dropDownImple.GetDesginationCountry(args[13], req.getExchRate());
-		args[14] = getModeOfTransaction(req.getPremiumSurplus(), req);
-		args[39] = dropDownImple.GetDesginationCountry(args[14], req.getExchRate());
-		args[15] = getModeOfTransaction(req.getCommissionSurplus(), req);
-		args[40] = dropDownImple.GetDesginationCountry(args[15], req.getExchRate());
-		args[16] = getModeOfTransaction(req.getPremiumportifolioIn(), req);
-		args[41] = dropDownImple.GetDesginationCountry(args[16], req.getExchRate());
-		args[72] = req.getRiCession();
-
-		args[73] = req.getLoginId();
-		args[74] = req.getBranchCode();
-		args[75] = req.getDepartmentId();
-		args[76] = getModeOfTransaction(req.getTaxDedectSource(), req);
+		String[] args=null;
+		args=new String[100];
+		double premiumsurpInsert=0.0;
+		double premiumInsert=0.0;
+	    args[0]=req.getContNo();
+	    args[1] = getRequestNo(req);
+		
+		args[2]=req.getTransaction();
+		args[3]=req.getAccountPeriod();
+		args[4]=req.getAccountPeriodyear();
+		args[5]=req.getCurrencyId();
+		args[6]=req.getExchRate();
+		args[7]=req.getBrokerageview();
+		args[8]=getModeOfTransaction(req.getBrokerage(),req);
+		args[35]=dropDownImple.GetDesginationCountry(args[8], req.getExchRate());
+		args[9]=req.getTaxview();
+		args[10]=getModeOfTransaction(req.getTax(),req);
+		args[36]=dropDownImple.GetDesginationCountry(args[10], req.getExchRate());
+		args[67]=getModeOfTransaction(req.getOverrider(),req);
+		args[68]=dropDownImple.GetDesginationCountry(args[67],req.getExchRate());
+		args[69]=req.getOverRiderview();
+        args[70]=getModeOfTransaction(req.getWithHoldingTaxOC(),req);
+        args[71]=dropDownImple.GetDesginationCountry(args[70], req.getExchRate());
+		args[11]=StringUtils.isEmpty(req.getInceptionDate()) ?"" :req.getInceptionDate();
+		args[12]=getModeOfTransaction(req.getPremiumQuotaShare(),req);
+		args[37]=dropDownImple.GetDesginationCountry(args[12], req.getExchRate());
+		args[13]=getModeOfTransaction(req.getCommissionQuotaShare(),req);
+		args[38]=dropDownImple.GetDesginationCountry(args[13], req.getExchRate());
+		args[14]=getModeOfTransaction(req.getPremiumSurplus(),req);
+		args[39]=dropDownImple.GetDesginationCountry(args[14], req.getExchRate());
+		args[15]=getModeOfTransaction(req.getCommissionSurplus(),req);
+		args[40]=dropDownImple.GetDesginationCountry(args[15], req.getExchRate());
+		args[16]=getModeOfTransaction(req.getPremiumportifolioIn(),req);
+		args[41]=dropDownImple.GetDesginationCountry(args[16], req.getExchRate());
+		args[72]=req.getRiCession();
+	
+		args[73]= req.getLoginId();
+		args[74]=req.getBranchCode();
+		args[75]=req.getDepartmentId();
+		args[76] = getModeOfTransaction(req.getTaxDedectSource(),req);
 		args[77] = dropDownImple.GetDesginationCountry(args[76], req.getExchRate());
-		args[78] = getModeOfTransaction(req.getServiceTax(), req);
+		args[78] = getModeOfTransaction(req.getVatPremium(),req);
 		args[79] = dropDownImple.GetDesginationCountry(args[78], req.getExchRate());
-		args[80] = getModeOfTransaction(req.getSlideScaleCom(), req);
+		args[80] = getModeOfTransaction(req.getSlideScaleCom(),req);
 		args[81] = dropDownImple.GetDesginationCountry(args[80], req.getExchRate());
 		args[82] = req.getPredepartment();
 		args[83] = req.getSubProfitId().replace(" ", "");
 		args[84] = req.getAccountPeriodDate();
 		args[85] = req.getStatementDate();
 		args[86] = req.getOsbYN();
-		args[87] = getModeOfTransaction(req.getLossParticipation(), req);
+		args[87] = getModeOfTransaction(req.getLossParticipation(),req);
 		args[88] = dropDownImple.GetDesginationCountry(args[87], req.getExchRate());
 		args[89] = req.getSectionName();
 		args[90] = req.getProposalNo();
 		args[91] = req.getProductId();
-		if ("submit".equalsIgnoreCase(req.getButtonStatus())) {
+		if("submit".equalsIgnoreCase(req.getButtonStatus())){
 			args[92] = "A";
-		} else {
+		}else{
 			args[92] = "P";
 		}
 		args[93] = req.getMode();
+		
 
-		if (!StringUtils.isEmpty(req.getPremiumQuotaShare()) || !StringUtils.isEmpty(req.getPremiumSurplus())) {
+		if(!StringUtils.isEmpty(req.getPremiumQuotaShare())||!StringUtils.isEmpty(req.getPremiumSurplus()))
+		{
+			
 
-			if (!StringUtils.isEmpty(req.getPremiumQuotaShare())) {
-				premiumInsert = Double.parseDouble(req.getPremiumQuotaShare());
+			if(!StringUtils.isEmpty(req.getPremiumQuotaShare()))
+			{
+				premiumInsert=Double.parseDouble(req.getPremiumQuotaShare());
 			}
-			if (StringUtils.isEmpty(req.getCommissionQuotaShare())) {
-				final double commission = premiumInsert * (Double.parseDouble(req.getCommissionview()) / 100);
-
-				args[13] = getModeOfTransaction(commission + " ", req);
-				args[38] = dropDownImple.GetDesginationCountry(args[13], req.getExchRate());
+			if(StringUtils.isEmpty(req.getCommissionQuotaShare()))
+			{
+				final double commission=premiumInsert*(Double.parseDouble(req.getCommissionview())/100);
+				
+				args[13]=getModeOfTransaction(commission+" ",req);
+				args[38]=dropDownImple.GetDesginationCountry(args[13], req.getExchRate());
 			}
-			if (!StringUtils.isEmpty(req.getPremiumSurplus())) {
-				premiumsurpInsert = (Double.parseDouble(req.getPremiumSurplus()));
+			if(!StringUtils.isEmpty(req.getPremiumSurplus()))
+			{
+				premiumsurpInsert=(Double.parseDouble(req.getPremiumSurplus()));
 			}
-			if (StringUtils.isEmpty(req.getCommissionSurplus())) {
-
-				final double comsurp = premiumsurpInsert * (Double.parseDouble(req.getCommssionSurp()) / 100);
-
-				args[15] = getModeOfTransaction(comsurp + " ", req);
-				args[40] = dropDownImple.GetDesginationCountry(args[15], req.getExchRate());
+			if(StringUtils.isEmpty(req.getCommissionSurplus()))
+			{
+				
+				final double comsurp=premiumsurpInsert*(Double.parseDouble(req.getCommssionSurp())/100);
+				
+				args[15]=getModeOfTransaction(comsurp+" ",req);
+				args[40]=dropDownImple.GetDesginationCountry(args[15], req.getExchRate());
 			}
-			if (StringUtils.isEmpty(req.getBrokerage())) {
-				final double brokerage = (premiumInsert + premiumsurpInsert)
-						* (Double.parseDouble(req.getBrokerageview()) / 100);
-				args[8] = getModeOfTransaction(brokerage + " ", req);
-				args[35] = dropDownImple.GetDesginationCountry(args[8], req.getExchRate());
-
+			if(StringUtils.isEmpty(req.getBrokerage()))
+			{
+				final double brokerage=(premiumInsert+premiumsurpInsert)*(Double.parseDouble(req.getBrokerageview())/100);
+				args[8]=getModeOfTransaction(brokerage+" ",req);
+				args[35]=dropDownImple.GetDesginationCountry(args[8], req.getExchRate());
+				
 			}
-			if (StringUtils.isEmpty(req.getTax())) {
-				final double tax = (premiumInsert + premiumsurpInsert) * (Double.parseDouble(req.getTaxview()) / 100);
-				args[10] = getModeOfTransaction(tax + " ", req);
-				args[36] = dropDownImple.GetDesginationCountry(args[10], req.getExchRate());
-
+			if(StringUtils.isEmpty(req.getTax()))
+			{
+				final double tax=(premiumInsert+premiumsurpInsert)*(Double.parseDouble(req.getTaxview())/100);
+				args[10]=getModeOfTransaction(tax+" ",req);
+				args[36]=dropDownImple.GetDesginationCountry(args[10], req.getExchRate());
+				
 			}
-			if (StringUtils.isEmpty(req.getOverrider())) {
-				double overrider = (premiumInsert + premiumsurpInsert)
-						* (Double.parseDouble(req.getOverRiderview()) / 100);
-				args[67] = getModeOfTransaction(overrider + " ", req);
-				args[68] = dropDownImple.GetDesginationCountry(args[67], req.getExchRate());
-
+			if(StringUtils.isEmpty(req.getOverrider()))
+			{
+				double overrider=(premiumInsert+premiumsurpInsert)*(Double.parseDouble(req.getOverRiderview())/100);
+				args[67]=getModeOfTransaction(overrider+" ",req);
+				args[68]=dropDownImple.GetDesginationCountry(args[67], req.getExchRate());
+				
 			}
 
 		}
-
-		args[17] = getModeOfTransaction(req.getCliamPortfolioin(), req);
-		args[42] = dropDownImple.GetDesginationCountry(args[17], req.getExchRate());
-		args[18] = getModeOfTransaction(req.getPremiumportifolioout(), req);
-		args[43] = dropDownImple.GetDesginationCountry(args[18], req.getExchRate());
-		args[19] = getModeOfTransaction(req.getLossReserveReleased(), req);
-		args[44] = dropDownImple.GetDesginationCountry(args[19], req.getExchRate());
-		args[20] = getModeOfTransaction(req.getPremiumReserveQuotaShare(), req);
-		args[45] = dropDownImple.GetDesginationCountry(args[20], req.getExchRate());
-		args[21] = getModeOfTransaction(req.getCashLossCredit(), req);
-		args[46] = dropDownImple.GetDesginationCountry(args[21], req.getExchRate());
-		args[22] = getModeOfTransaction(req.getLossReserveRetained(), req);
-		args[47] = dropDownImple.GetDesginationCountry(args[22], req.getExchRate());
-		args[23] = getModeOfTransaction(
-				StringUtils.isBlank(req.getProfitCommission()) ? "0" : req.getProfitCommission(), req);
-		args[48] = dropDownImple.GetDesginationCountry(args[23], req.getExchRate());
-		args[24] = getModeOfTransaction(req.getCashLossPaid(), req);
-		args[49] = dropDownImple.GetDesginationCountry(args[24], req.getExchRate());
-		args[25] = "Y";
-		args[26] = "2";
-		args[27] = StringUtils.isEmpty(req.getReceiptno())?"":req.getReceiptno();
-		args[28] = getModeOfTransaction(req.getClaimspaid(), req);
-		args[50] = dropDownImple.GetDesginationCountry(args[28], req.getExchRate());
-		args[29] = req.getSettlementstatus();
-		args[30] = getModeOfTransaction(req.getXlCost(), req);
-		args[51] = dropDownImple.GetDesginationCountry(args[30], req.getExchRate());
-		args[31] = getModeOfTransaction(req.getCliamportfolioout(), req);
-		args[52] = dropDownImple.GetDesginationCountry(args[31], req.getExchRate());
-		args[32] = getModeOfTransaction(req.getPremiumReserveReleased(), req);
-		args[53] = dropDownImple.GetDesginationCountry(args[32], req.getExchRate());
-		args[34] = getModeOfTransaction(req.getOtherCost(), req);
-		args[55] = dropDownImple.GetDesginationCountry(args[34], req.getExchRate());
-		args[56] = req.getCommissionview();
-		args[57] = req.getCedentRef();
-		args[58] = req.getRemarks();
-		args[59] = getModeOfTransaction(req.getTotalCredit(), req);
-		args[60] = dropDownImple.GetDesginationCountry(args[59], req.getExchRate());
-		args[61] = getModeOfTransaction(req.getTotalDebit(), req);
-		args[62] = dropDownImple.GetDesginationCountry(args[61], req.getExchRate());
-		args[63] = getModeOfTransaction(req.getInterest(), req);
-		args[64] = dropDownImple.GetDesginationCountry(args[63], req.getExchRate());
-		args[33] = getNetDueAmount(args, getModeOfTransaction(req.getClaimspaid(), req));
-		args[54] = dropDownImple.GetDesginationCountry(args[33], req.getExchRate());
-		args[65] = StringUtils.isEmpty(req.getOsClaimsLossUpdateOC()) ? "0"
-				: getModeOfTransaction(req.getOsClaimsLossUpdateOC(), req);
-		args[66] = dropDownImple.GetDesginationCountry(args[65], req.getExchRate());
+		
+		args[17]=getModeOfTransaction(req.getCliamPortfolioin(),req);
+		args[42]=dropDownImple.GetDesginationCountry(args[17], req.getExchRate());
+		args[18]=getModeOfTransaction(req.getPremiumportifolioout(),req);
+		args[43]=dropDownImple.GetDesginationCountry(args[18], req.getExchRate());
+		args[19]=getModeOfTransaction(req.getLossReserveReleased(),req);
+		args[44]=dropDownImple.GetDesginationCountry(args[19], req.getExchRate());
+		args[20]=getModeOfTransaction(req.getPremiumReserveQuotaShare(),req);
+		args[45]=dropDownImple.GetDesginationCountry(args[20], req.getExchRate());
+		args[21]=getModeOfTransaction(req.getCashLossCredit(),req);
+		args[46]=dropDownImple.GetDesginationCountry(args[21], req.getExchRate());
+		args[22]=getModeOfTransaction(req.getLossReserveRetained(),req);
+		args[47]=dropDownImple.GetDesginationCountry(args[22], req.getExchRate());
+		args[23]=getModeOfTransaction(StringUtils.isBlank(req.getProfitCommission()) ? "0" : req.getProfitCommission(),req);
+		args[48]=dropDownImple.GetDesginationCountry(args[23], req.getExchRate());
+		args[24]=getModeOfTransaction(req.getCashLossPaid(),req);
+		args[49]=dropDownImple.GetDesginationCountry(args[24], req.getExchRate());
+		args[25]="Y";
+		args[26]=req.getEnteringMode();
+		args[27]=StringUtils.isBlank(req.getReceiptno())?"":req.getReceiptno();
+		args[28]=getModeOfTransaction(req.getClaimspaid(),req);
+		args[50]=dropDownImple.GetDesginationCountry(args[28], req.getExchRate());
+		args[29]=StringUtils.isBlank(req.getSettlementstatus())?"":req.getSettlementstatus();
+		args[30]=getModeOfTransaction(req.getXlCost(),req);
+		args[51]=dropDownImple.GetDesginationCountry(args[30], req.getExchRate());
+		args[31]=getModeOfTransaction(req.getCliamportfolioout(),req);
+		args[52]=dropDownImple.GetDesginationCountry(args[31], req.getExchRate());
+		args[32]=getModeOfTransaction(req.getPremiumReserveReleased(),req);
+		args[53]=dropDownImple.GetDesginationCountry(args[32], req.getExchRate());
+		args[34]=getModeOfTransaction(req.getOtherCost(),req);
+		args[55]=dropDownImple.GetDesginationCountry(args[34], req.getExchRate());
+		
+		args[56]=req.getCommissionview();
+		args[57]=StringUtils.isBlank(req.getCedentRef())?"":req.getCedentRef();
+		args[58]=req.getRemarks();
+		args[59]=getModeOfTransaction(req.getTotalCredit(),req);
+		args[60]=dropDownImple.GetDesginationCountry(args[59],req.getExchRate());
+		args[61]=getModeOfTransaction(req.getTotalDebit(),req);
+		args[62]=dropDownImple.GetDesginationCountry(args[61],req.getExchRate());
+		args[63]=getModeOfTransaction(req.getInterest(),req);
+		args[64]=dropDownImple.GetDesginationCountry(args[63],req.getExchRate());
+		
+		args[65]=StringUtils.isEmpty(req.getOsClaimsLossUpdateOC())?"0":getModeOfTransaction(req.getOsClaimsLossUpdateOC(),req);
+		args[66]=dropDownImple.GetDesginationCountry(args[65], req.getExchRate());
+		args[97] = StringUtils.isBlank(req.getM1oc())?"0":req.getM1oc();
+		args[98] = StringUtils.isBlank(req.getM2oc())?"0":req.getM2oc();
+		args[99] = StringUtils.isBlank(req.getM3oc())?"0":req.getM3oc();			
+		args[94] = getModeOfTransaction(req.getBrokerageVat(),req);
+		args[95] = dropDownImple.GetDesginationCountry(args[94], req.getExchRate());
+		args[96] = req.getDocumentType();
+		args[33]=getNetDueAmount(args,getModeOfTransaction(req.getClaimspaid(),req));
+		args[54]=dropDownImple.GetDesginationCountry(args[33], req.getExchRate());
 		req.setRequestNo(args[1]);
-		final String[] copiedArray = new String[args.length];
-		System.arraycopy(args, 0, copiedArray, 0, args.length);
-		return copiedArray;
+	
+	final String[] copiedArray = new String[args.length];
+	System.arraycopy(args, 0, copiedArray, 0, args.length);
+	return copiedArray;
 	}
 	
 	private String getRequestNo(InsertPremiumReq req) {
@@ -1463,13 +1517,13 @@ public class PropPremiumJpaServiceImpl {
 
 				// query -- premium.sp.retroSplit
 				propPremiumCustomRepository.premiumSpRetroSplit(req);
+				propPremiumCustomRepository.premiumRiSplit(req);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 	}
-
 	private void InsertPremiumReserved(InsertPremiumReq req) {
 		String rLNo = "";
 		try {
@@ -1534,7 +1588,6 @@ public class PropPremiumJpaServiceImpl {
 			e.printStackTrace();
 		}
 	}
-
 	private void InsertLossReserved(InsertPremiumReq req) {
 		String rLNo = "";
 		try {
@@ -1757,7 +1810,7 @@ public class PropPremiumJpaServiceImpl {
 				res.setDepartmentId(tempMap.get("RSK_DEPTID") == null ? "" : tempMap.get("RSK_DEPTID").toString());
 				String count = "";
 				if ("2".equals(req.getProductId())) {
-					count = getCombinedClass(req.getBranchCode(), req.getProductId(), req.getDepartmentId());
+					//count = getCombinedClass(req.getBranchCode(), req.getProductId(), req.getSectionNo());
 				}
 				if (StringUtils.isBlank(count)) {
 					res.setPreDepartment(tempMap.get("RSK_DEPTID") == null ? "" : tempMap.get("RSK_DEPTID").toString());
@@ -2137,9 +2190,9 @@ public class PropPremiumJpaServiceImpl {
 		return response;
 	}
 
-	public InsertPremiumRes premiumUpdateMethod(InsertPremiumReq beanObj) {
-		InsertPremiumRes response = new InsertPremiumRes();
-		InsertPremiumRes1 res = new InsertPremiumRes1();
+	public premiumUpdateMethodRes premiumUpdateMethod(InsertPremiumReq beanObj) {
+		premiumUpdateMethodRes response = new premiumUpdateMethodRes();
+		premiumUpdateMethodRes1 res = new premiumUpdateMethodRes1();
 		String query="";
 		boolean saveFlag = false;
 		try {
@@ -2206,186 +2259,476 @@ public class PropPremiumJpaServiceImpl {
 			saveFlag=true;
 			}
 		 res.setTransactionNo(beanObj.getTransactionNo());
-		 response.setCommonResponse(res);
+		 response.setResponse(res);
 		 response.setMessage("Success");
 		 response.setIsError(false);
 		 }catch (Exception e) {
 			log.error(e);
 			saveFlag=false;
 			e.printStackTrace();
-			response.setCommonResponse(res);
+			response.setResponse(res);
 			response.setMessage("Failed");
 			response.setIsError(true);
 		}
 		return response;
 	}
+	@Transactional
 	public void updateAruguments(InsertPremiumReq beanObj) throws ParseException {
-		RskPremiumDetails entity=null;
+		
 		SimpleDateFormat sdf = new  SimpleDateFormat("dd/MM/yyyy");
 		if("Temp".equalsIgnoreCase(beanObj.getTableType())){
 			//PREMIUM_UPDATE_TREATYUPDATEPRE_TEMP
-			 entity = pdRepo.findByContractNoAndRequestNo(new BigDecimal(beanObj.getContNo()),new BigDecimal(beanObj.getRequestNo()));	
-		}else{
+			RskPremiumDetailsTemp entity = pdTempRepo.findByContractNoAndRequestNo(new BigDecimal(beanObj.getContNo()),new BigDecimal(beanObj.getRequestNo()));	
+			if(entity != null) {
+				double premiumsurp=0.0;
+				double premium=0.0; 
+				entity.setTransactionMonthYear(sdf.parse(beanObj.getTransaction()));		
+				entity.setAccountPeriodQtr(beanObj.getAccountPeriod());	
+				entity.setAccountPeriodYear(new BigDecimal(beanObj.getAccountPeriodyear()));;
+				entity.setCurrencyId(new BigDecimal(beanObj.getCurrencyId()));;
+				entity.setExchangeRate(new BigDecimal(beanObj.getExchRate()));;
+				entity.setBrokerage(new BigDecimal(beanObj.getBrokerageview()));;
+				entity.setBrokerageAmtOc(new BigDecimal(getModeOfTransaction(beanObj.getBrokerage(),beanObj)));;
+				entity.setTax(new BigDecimal(beanObj.getTaxview()));;
+				entity.setBrokerageAmtDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getBrokerageAmtOc().toString(), beanObj.getExchRate())));	
+			
+				entity.setTaxAmtOc(new BigDecimal(getModeOfTransaction(beanObj.getTax(),beanObj)));	
+				entity.setEntryDateTime(StringUtils.isEmpty(beanObj.getInceptionDate()) ?null :sdf.parse(beanObj.getInceptionDate()));	
+				entity.setPremiumQuotashareOc(new BigDecimal(getModeOfTransaction(beanObj.getPremiumQuotaShare(),beanObj)));	
+				entity.setCommissionQuotashareOc(new BigDecimal(getModeOfTransaction(beanObj.getCommissionQuotaShare(),beanObj)));;
+				entity.setPremiumSurplusOc(new BigDecimal(getModeOfTransaction(beanObj.getPremiumSurplus(),beanObj)));	
+				entity.setCommissionSurplusOc(new BigDecimal(getModeOfTransaction(beanObj.getCommissionSurplus(),beanObj)));;
+				entity.setPremiumPortfolioinOc(new BigDecimal(getModeOfTransaction(beanObj.getPremiumportifolioIn(),beanObj)));;
+				entity.setClaimPortfolioinOc(new BigDecimal(getModeOfTransaction(beanObj.getCliamPortfolioin(),beanObj)));;
+				entity.setPremiumPortfoliooutOc(new BigDecimal(getModeOfTransaction(beanObj.getPremiumportifolioout(),beanObj)));;
+			
+				entity.setLossReserveReleasedOc(new BigDecimal(getModeOfTransaction(beanObj.getLossReserveReleased(),beanObj)));;
+				entity.setPremiumreserveQuotashareOc(new BigDecimal(getModeOfTransaction(beanObj.getPremiumReserveQuotaShare(),beanObj)));	
+				entity.setCashLossCreditOc(new BigDecimal(getModeOfTransaction(beanObj.getCashLossCredit(),beanObj)));			
+				entity.setLossReserveretainedOc(new BigDecimal(getModeOfTransaction(beanObj.getLossReserveRetained(),beanObj)));;
+				entity.setProfitCommissionOc(new BigDecimal(getModeOfTransaction((StringUtils.isEmpty(beanObj.getProfitCommission()) ? "0" : beanObj.getProfitCommission()),beanObj)));;
+				entity.setCashLosspaidOc(new BigDecimal(getModeOfTransaction(beanObj.getCashLossPaid(),beanObj)));;
+				entity.setEnteringMode(beanObj.getEnteringMode());
+				BigDecimal receiptno = StringUtils.isBlank(beanObj.getReceiptno())? null: new BigDecimal(beanObj.getReceiptno());
+				entity.setReceiptNo(receiptno);
+				entity.setClaimsPaidOc(new BigDecimal(getModeOfTransaction(beanObj.getClaimspaid(),beanObj)));		
+				entity.setPremiumPortfolioinDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getPremiumPortfolioinOc().toString(),beanObj.getExchRate())));;
+				entity.setClaimPortfolioinDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getClaimPortfolioinOc().toString(), beanObj.getExchRate())));;
+				entity.setPremiumPortfoliooutDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getPremiumPortfoliooutOc().toString(), beanObj.getExchRate())));
+				entity.setLossReserveReleasedDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getLossReserveReleasedOc().toString(), beanObj.getExchRate())));	
+				entity.setPremiumreserveQuotashareDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getPremiumreserveQuotashareOc().toString(), beanObj.getExchRate())));	
+				entity.setCashLossCreditDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getCashLossCreditOc().toString(), beanObj.getExchRate())));	
+				if(!StringUtils.isEmpty(beanObj.getPremiumQuotaShare())||!StringUtils.isEmpty(beanObj.getPremiumSurplus()))
+				{
+					
+
+					if(!StringUtils.isEmpty(beanObj.getPremiumQuotaShare()))
+					{
+						premium=Double.parseDouble(beanObj.getPremiumQuotaShare());
+					}
+					if(StringUtils.isEmpty(beanObj.getCommissionQuotaShare()))
+					{
+						final double commission=premium*(Double.parseDouble(beanObj.getCommissionview())/100);
+						entity.setCommissionQuotashareOc(new BigDecimal(getModeOfTransaction(commission+" ",beanObj)));
+						entity.setCommissionQuotashareDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getCommissionQuotashareOc().toString(),beanObj.getExchRate())));
+						
+					}
+					if(!StringUtils.isEmpty(beanObj.getPremiumSurplus()))
+					{
+						premiumsurp=(Double.parseDouble(beanObj.getPremiumSurplus()));
+					}
+					if(StringUtils.isEmpty(beanObj.getCommissionSurplus()))
+					{
+					
+						double comsurp=premiumsurp*(Double.parseDouble(beanObj.getCommssionSurp())/100);
+						entity.setCommissionSurplusOc(new BigDecimal(getModeOfTransaction(comsurp+" ",beanObj)));
+						entity.setCommissionSurplusDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getCommissionSurplusOc().toString(), beanObj.getExchRate())));
+						
+
+					}
+					if(StringUtils.isEmpty(beanObj.getBrokerage()))
+					{
+						double brokerage=(premium+premiumsurp)*(Double.parseDouble(beanObj.getBrokerageview())/100);
+						entity.setBrokerageAmtOc(new BigDecimal(getModeOfTransaction(brokerage+" ",beanObj)));
+						entity.setBrokerageAmtDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getBrokerageAmtOc().toString(), beanObj.getExchRate())));
+					
+					}
+					if(StringUtils.isEmpty(beanObj.getTax()))
+					{
+						double tax=(premium+premiumsurp)*(Double.parseDouble(beanObj.getTaxview())/100);
+						entity.setTaxAmtOc(new BigDecimal(getModeOfTransaction(tax+" ",beanObj)));	
+						entity.setTaxAmtDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getTaxAmtOc().toString(), beanObj.getExchRate())))	;
+					
+					
+					}
+					if(StringUtils.isEmpty(beanObj.getOverrider()))
+					{
+						double overrider=(premium+premiumsurp)*(Double.parseDouble(beanObj.getOverRiderview())/100);
+						entity.setOverriderAmtOc(new BigDecimal(getModeOfTransaction(overrider+" ",beanObj)));
+						entity.setOverriderAmtDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getTaxAmtOc().toString(), beanObj.getExchRate())));
+						
+						
+					}
+				}
+				
+				entity.setLossReserveretainedDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getLossReserveretainedOc().toString(), beanObj.getExchRate())));
+				entity.setProfitCommissionDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getProfitCommissionOc().toString(), beanObj.getExchRate())));			
+				entity.setCashLosspaidDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getCashLosspaidOc().toString(), beanObj.getExchRate())));
+				entity.setCashLosspaidDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getClaimsPaidOc().toString(), beanObj.getExchRate())));	
+			
+				
+				entity.setSettlementStatus(beanObj.getSettlementstatus());;
+				entity.setXlCostOc(new BigDecimal(getModeOfTransaction(beanObj.getXlCost(),beanObj)));	
+				entity.setClaimPortfolioOutOc(new BigDecimal(getModeOfTransaction(beanObj.getCliamportfolioout(),beanObj)));
+				entity.setPremiumReserveRealsedOc(new BigDecimal(getModeOfTransaction(beanObj.getPremiumReserveReleased(),beanObj)));;
+			
+				entity.setOtherCostOc(new BigDecimal(getModeOfTransaction(beanObj.getOtherCost().toString(),beanObj)));;
+				entity.setXlCostDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getXlCostOc().toString(), beanObj.getExchRate())));
+				entity.setClaimPortfolioOutDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getClaimPortfolioOutOc().toString(), beanObj.getExchRate())));	
+				entity.setPremiumReserveReleaseDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getPremiumReserveRealsedOc().toString(), beanObj.getExchRate())));	
+				;
+				entity.setOtherCostDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getOtherCostOc().toString(), beanObj.getExchRate())));;
+				entity.setCedantReference(beanObj.getCedentRef());
+				entity.setRemarks(beanObj.getRemarks());	
+				entity.setTotalCrOc(new BigDecimal(getModeOfTransaction(beanObj.getTotalCredit(),beanObj)));
+				entity.setTotalCrDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getTotalCrOc().toString(),beanObj.getExchRate())));;
+				entity.setTotalDrOc(new BigDecimal(getModeOfTransaction(beanObj.getTotalDebit(),beanObj)));	
+				entity.setTotalDrDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getTotalDrOc().toString(),beanObj.getExchRate())));;
+				entity.setInterestOc(new BigDecimal(getModeOfTransaction(beanObj.getInterest(),beanObj)));
+				entity.setInterestDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getInterestOc().toString(),beanObj.getExchRate())));
+				entity.setOsclaimLossupdateOc(StringUtils.isEmpty(beanObj.getOsClaimsLossUpdateOC())?BigDecimal.ZERO:new BigDecimal(getModeOfTransaction(beanObj.getOsClaimsLossUpdateOC().toString(),beanObj)));
+				entity.setOsclaimLossupdateDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getOsclaimLossupdateOc().toString(),beanObj.getExchRate())));;
+				Date amendmentdate = StringUtils.isBlank(beanObj.getAmendmentDate())? null: (sdf.parse(beanObj.getAmendmentDate()));
+				entity.setAmendmentDate(amendmentdate);	
+				entity.setWithHoldingTaxOc(StringUtils.isEmpty(beanObj.getWithHoldingTaxOC()) ? BigDecimal.ZERO : new BigDecimal(beanObj.getWithHoldingTaxOC()));
+				entity.setWithHoldingTaxDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getWithHoldingTaxOc().toString(), beanObj.getExchRate())));	
+				entity.setRiCession(beanObj.getRiCession());		
+				entity.setSubClass(new BigDecimal(beanObj.getDepartmentId()));
+				entity.setTdsOc(new BigDecimal(getModeOfTransaction(beanObj.getTaxDedectSource(),beanObj)));
+				entity.setTdsDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getTdsOc().toString(), beanObj.getExchRate())));
+				entity.setVatPremiumOc(new BigDecimal(getModeOfTransaction(beanObj.getVatPremium(),beanObj)));
+				entity.setVatPremiumDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getVatPremiumOc().toString(), beanObj.getExchRate())));
+				entity.setScCommOc(new BigDecimal(getModeOfTransaction(beanObj.getSlideScaleCom(),beanObj)));;
+				entity.setScCommDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getScCommOc().toString(), beanObj.getExchRate())));			
+				entity.setPremiumClass(beanObj.getPredepartment());	
+				entity.setPremiumSubclass(beanObj.getSubProfitId().replace(" ", ""));
+				entity.setAccountingPeriodDate(sdf.parse(beanObj.getAccountPeriodDate()));
+				entity.setStatementDate(sdf.parse(beanObj.getStatementDate()));
+				entity.setOsbyn(beanObj.getOsbYN());	
+				entity.setLpcOc(new BigDecimal(getModeOfTransaction(beanObj.getLossParticipation().toString(),beanObj)));
+				entity.setLpcDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getLpcOc().toString(), beanObj.getExchRate())));
+				entity.setSectionName(beanObj.getSectionName());		
+				
+		
+				
+				entity.setTaxAmtDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getTaxAmtOc().toString(), beanObj.getExchRate())))	;	
+				entity.setOverriderAmtOc(new BigDecimal(getModeOfTransaction(beanObj.getOverrider(),beanObj)));
+				entity.setOverriderAmtDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getOverriderAmtOc().toString(),beanObj.getExchRate())));;
+				entity.setOverrider(new BigDecimal(beanObj.getOverRiderview()));;
+				
+				entity.setPremiumQuotashareDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getPremiumQuotashareOc().toString(), beanObj.getExchRate())));;
+				entity.setCommissionQuotashareDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getCommissionQuotashareOc().toString(), beanObj.getExchRate())));	
+				entity.setPremiumSurplusDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getPremiumSurplusOc().toString(), beanObj.getExchRate())));;
+				entity.setCommissionSurplusDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getCommissionSurplusOc().toString(), beanObj.getExchRate())));;
+				entity.setBrokerageVatOc(new BigDecimal(getModeOfTransaction(beanObj.getBrokerageVat(),beanObj)));
+				entity.setBrokerageVatDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getBrokerageVatOc().toString(), beanObj.getExchRate())));
+				entity.setDocumentType(beanObj.getDocumentType());
+				entity.setNetdueOc(new BigDecimal(updateNetDue(entity,getModeOfTransaction(beanObj.getClaimspaid(),beanObj))));
+				entity.setNetdueDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getNetdueOc().toString(), beanObj.getExchRate())));
+				 entity.setMovementYn(null);
+				 entity.setEntryDate(new Date());
+				 entity.setM1Oc(new BigDecimal(StringUtils.isBlank(beanObj.getM1oc())?"0":beanObj.getM1oc()));	
+				 entity.setM2Oc(new BigDecimal(StringUtils.isBlank(beanObj.getM2oc())?"0":beanObj.getM2oc()));	
+				 entity.setM3Oc(new BigDecimal(StringUtils.isBlank(beanObj.getM3oc())?"0":beanObj.getM3oc()));	
+				 pdTempRepo.save(entity);
+
+			} 
+			}else{
 			//PREMIUM_UPDATE_TREATYUPDATEPRE
-			 entity = pdRepo.findByContractNoAndTransactionNo(new BigDecimal(beanObj.getContNo()),new BigDecimal(beanObj.getTransactionNo()));
-		}
-		if(entity != null) {
-			double premiumsurp=0.0;
-			double premium=0.0; 
-			entity.setTransactionMonthYear(sdf.parse(beanObj.getTransaction()));		
-			entity.setAccountPeriodQtr(beanObj.getAccountPeriod());	
-			entity.setAccountPeriodYear(new BigDecimal(beanObj.getAccountPeriodyear()));;
-			entity.setCurrencyId(new BigDecimal(beanObj.getCurrencyId()));;
-			entity.setExchangeRate(new BigDecimal(beanObj.getExchRate()));;
-			entity.setBrokerage(new BigDecimal(beanObj.getBrokerageview()));;
-			entity.setBrokerageAmtOc(new BigDecimal(getModeOfTransaction(beanObj.getBrokerage(),beanObj)));;
-			entity.setTax(new BigDecimal(beanObj.getTaxview()));;
-			entity.setBrokerageAmtDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getBrokerageAmtOc().toString(), beanObj.getExchRate())));	
-		
-			entity.setTaxAmtOc(new BigDecimal(getModeOfTransaction(beanObj.getTax(),beanObj)));	
-			entity.setEntryDateTime(StringUtils.isEmpty(beanObj.getInceptionDate()) ?null :sdf.parse(beanObj.getInceptionDate()));	
-			entity.setPremiumQuotashareOc(new BigDecimal(getModeOfTransaction(beanObj.getPremiumQuotaShare(),beanObj)));	
-			entity.setCommissionQuotashareOc(new BigDecimal(getModeOfTransaction(beanObj.getCommissionQuotaShare(),beanObj)));;
-			entity.setPremiumSurplusOc(new BigDecimal(getModeOfTransaction(beanObj.getPremiumSurplus(),beanObj)));	
-			entity.setCommissionSurplusOc(new BigDecimal(getModeOfTransaction(beanObj.getCommissionSurplus(),beanObj)));;
-			entity.setPremiumPortfolioinOc(new BigDecimal(getModeOfTransaction(beanObj.getPremiumportifolioIn(),beanObj)));;
-			entity.setClaimPortfolioinOc(new BigDecimal(getModeOfTransaction(beanObj.getCliamPortfolioin(),beanObj)));;
-			entity.setPremiumPortfoliooutOc(new BigDecimal(getModeOfTransaction(beanObj.getPremiumportifolioout(),beanObj)));;
-		
-			entity.setLossReserveReleasedOc(new BigDecimal(getModeOfTransaction(beanObj.getLossReserveReleased(),beanObj)));;
-			entity.setPremiumreserveQuotashareOc(new BigDecimal(getModeOfTransaction(beanObj.getPremiumReserveQuotaShare(),beanObj)));	
-			entity.setCashLossCreditOc(new BigDecimal(getModeOfTransaction(beanObj.getCashLossCredit(),beanObj)));			
-			entity.setLossReserveretainedOc(new BigDecimal(getModeOfTransaction(beanObj.getLossReserveRetained(),beanObj)));;
-			entity.setProfitCommissionOc(new BigDecimal(getModeOfTransaction((StringUtils.isEmpty(beanObj.getProfitCommission()) ? "0" : beanObj.getProfitCommission()),beanObj)));;
-			entity.setCashLosspaidOc(new BigDecimal(getModeOfTransaction(beanObj.getCashLossPaid(),beanObj)));;
-			entity.setEnteringMode(beanObj.getEnteringMode());
-			entity.setReceiptNo(new BigDecimal(beanObj.getReceiptno()));	
-			entity.setClaimsPaidOc(new BigDecimal(getModeOfTransaction(beanObj.getClaimspaid(),beanObj)));		
-			entity.setPremiumPortfolioinDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getPremiumPortfolioinOc().toString(),beanObj.getExchRate())));;
-			entity.setClaimPortfolioinDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getClaimPortfolioinOc().toString(), beanObj.getExchRate())));;
-			entity.setPremiumPortfoliooutDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getPremiumPortfoliooutOc().toString(), beanObj.getExchRate())));
-			entity.setLossReserveReleasedDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getLossReserveReleasedOc().toString(), beanObj.getExchRate())));	
-			entity.setPremiumreserveQuotashareDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getPremiumreserveQuotashareOc().toString(), beanObj.getExchRate())));	
-			entity.setCashLossCreditDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getCashLossCreditOc().toString(), beanObj.getExchRate())));	
-			if(!StringUtils.isEmpty(beanObj.getPremiumQuotaShare())||!StringUtils.isEmpty(beanObj.getPremiumSurplus()))
-			{
+			RskPremiumDetails	 entity = pdRepo.findByContractNoAndTransactionNo(new BigDecimal(beanObj.getContNo()),new BigDecimal(beanObj.getTransactionNo()));
+			 if(entity != null) {
+					double premiumsurp=0.0;
+					double premium=0.0; 
+					entity.setTransactionMonthYear(sdf.parse(beanObj.getTransaction()));		
+					entity.setAccountPeriodQtr(beanObj.getAccountPeriod());	
+					entity.setAccountPeriodYear(new BigDecimal(beanObj.getAccountPeriodyear()));;
+					entity.setCurrencyId(new BigDecimal(beanObj.getCurrencyId()));;
+					entity.setExchangeRate(new BigDecimal(beanObj.getExchRate()));;
+					entity.setBrokerage(new BigDecimal(beanObj.getBrokerageview()));;
+					entity.setBrokerageAmtOc(new BigDecimal(getModeOfTransaction(beanObj.getBrokerage(),beanObj)));;
+					entity.setTax(new BigDecimal(beanObj.getTaxview()));;
+					entity.setBrokerageAmtDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getBrokerageAmtOc().toString(), beanObj.getExchRate())));	
 				
+					entity.setTaxAmtOc(new BigDecimal(getModeOfTransaction(beanObj.getTax(),beanObj)));	
+					entity.setEntryDateTime(StringUtils.isEmpty(beanObj.getInceptionDate()) ?null :sdf.parse(beanObj.getInceptionDate()));	
+					entity.setPremiumQuotashareOc(new BigDecimal(getModeOfTransaction(beanObj.getPremiumQuotaShare(),beanObj)));	
+					entity.setCommissionQuotashareOc(new BigDecimal(getModeOfTransaction(beanObj.getCommissionQuotaShare(),beanObj)));;
+					entity.setPremiumSurplusOc(new BigDecimal(getModeOfTransaction(beanObj.getPremiumSurplus(),beanObj)));	
+					entity.setCommissionSurplusOc(new BigDecimal(getModeOfTransaction(beanObj.getCommissionSurplus(),beanObj)));;
+					entity.setPremiumPortfolioinOc(new BigDecimal(getModeOfTransaction(beanObj.getPremiumportifolioIn(),beanObj)));;
+					entity.setClaimPortfolioinOc(new BigDecimal(getModeOfTransaction(beanObj.getCliamPortfolioin(),beanObj)));;
+					entity.setPremiumPortfoliooutOc(new BigDecimal(getModeOfTransaction(beanObj.getPremiumportifolioout(),beanObj)));;
+				
+					entity.setLossReserveReleasedOc(new BigDecimal(getModeOfTransaction(beanObj.getLossReserveReleased(),beanObj)));;
+					entity.setPremiumreserveQuotashareOc(new BigDecimal(getModeOfTransaction(beanObj.getPremiumReserveQuotaShare(),beanObj)));	
+					entity.setCashLossCreditOc(new BigDecimal(getModeOfTransaction(beanObj.getCashLossCredit(),beanObj)));			
+					entity.setLossReserveretainedOc(new BigDecimal(getModeOfTransaction(beanObj.getLossReserveRetained(),beanObj)));;
+					entity.setProfitCommissionOc(new BigDecimal(getModeOfTransaction((StringUtils.isEmpty(beanObj.getProfitCommission()) ? "0" : beanObj.getProfitCommission()),beanObj)));;
+					entity.setCashLosspaidOc(new BigDecimal(getModeOfTransaction(beanObj.getCashLossPaid(),beanObj)));;
+					entity.setEnteringMode(beanObj.getEnteringMode());
+					entity.setReceiptNo(StringUtils.isBlank(beanObj.getReceiptno())?null:new BigDecimal(beanObj.getReceiptno()));	
+					entity.setClaimsPaidOc(new BigDecimal(getModeOfTransaction(beanObj.getClaimspaid(),beanObj)));		
+					entity.setPremiumPortfolioinDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getPremiumPortfolioinOc().toString(),beanObj.getExchRate())));;
+					entity.setClaimPortfolioinDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getClaimPortfolioinOc().toString(), beanObj.getExchRate())));;
+					entity.setPremiumPortfoliooutDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getPremiumPortfoliooutOc().toString(), beanObj.getExchRate())));
+					entity.setLossReserveReleasedDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getLossReserveReleasedOc().toString(), beanObj.getExchRate())));	
+					entity.setPremiumreserveQuotashareDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getPremiumreserveQuotashareOc().toString(), beanObj.getExchRate())));	
+					entity.setCashLossCreditDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getCashLossCreditOc().toString(), beanObj.getExchRate())));	
+					if(!StringUtils.isEmpty(beanObj.getPremiumQuotaShare())||!StringUtils.isEmpty(beanObj.getPremiumSurplus()))
+					{
+						
 
-				if(!StringUtils.isEmpty(beanObj.getPremiumQuotaShare()))
-				{
-					premium=Double.parseDouble(beanObj.getPremiumQuotaShare());
-				}
-				if(StringUtils.isEmpty(beanObj.getCommissionQuotaShare()))
-				{
-					final double commission=premium*(Double.parseDouble(beanObj.getCommissionview())/100);
-					entity.setCommissionQuotashareOc(new BigDecimal(getModeOfTransaction(commission+" ",beanObj)));
-					entity.setCommissionQuotashareDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getCommissionQuotashareOc().toString(),beanObj.getExchRate())));
-					
-				}
-				if(!StringUtils.isEmpty(beanObj.getPremiumSurplus()))
-				{
-					premiumsurp=(Double.parseDouble(beanObj.getPremiumSurplus()));
-				}
-				if(StringUtils.isEmpty(beanObj.getCommissionSurplus()))
-				{
-				
-					double comsurp=premiumsurp*(Double.parseDouble(beanObj.getCommssionSurp())/100);
-					entity.setCommissionSurplusOc(new BigDecimal(getModeOfTransaction(comsurp+" ",beanObj)));
-					entity.setCommissionSurplusDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getCommissionSurplusOc().toString(), beanObj.getExchRate())));
-					
+						if(!StringUtils.isEmpty(beanObj.getPremiumQuotaShare()))
+						{
+							premium=Double.parseDouble(beanObj.getPremiumQuotaShare());
+						}
+						if(StringUtils.isEmpty(beanObj.getCommissionQuotaShare()))
+						{
+							final double commission=premium*(Double.parseDouble(beanObj.getCommissionview())/100);
+							entity.setCommissionQuotashareOc(new BigDecimal(getModeOfTransaction(commission+" ",beanObj)));
+							entity.setCommissionQuotashareDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getCommissionQuotashareOc().toString(),beanObj.getExchRate())));
+							
+						}
+						if(!StringUtils.isEmpty(beanObj.getPremiumSurplus()))
+						{
+							premiumsurp=(Double.parseDouble(beanObj.getPremiumSurplus()));
+						}
+						if(StringUtils.isEmpty(beanObj.getCommissionSurplus()))
+						{
+						
+							double comsurp=premiumsurp*(Double.parseDouble(beanObj.getCommssionSurp())/100);
+							entity.setCommissionSurplusOc(new BigDecimal(getModeOfTransaction(comsurp+" ",beanObj)));
+							entity.setCommissionSurplusDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getCommissionSurplusOc().toString(), beanObj.getExchRate())));
+							
 
-				}
-				if(StringUtils.isEmpty(beanObj.getBrokerage()))
-				{
-					double brokerage=(premium+premiumsurp)*(Double.parseDouble(beanObj.getBrokerageview())/100);
-					entity.setBrokerageAmtOc(new BigDecimal(getModeOfTransaction(brokerage+" ",beanObj)));
-					entity.setBrokerageAmtDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getBrokerageAmtOc().toString(), beanObj.getExchRate())));
-				
-				}
-				if(StringUtils.isEmpty(beanObj.getTax()))
-				{
-					double tax=(premium+premiumsurp)*(Double.parseDouble(beanObj.getTaxview())/100);
-					entity.setTaxAmtOc(new BigDecimal(getModeOfTransaction(tax+" ",beanObj)));	
-					entity.setTaxAmtDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getTaxAmtOc().toString(), beanObj.getExchRate())))	;
-				
-				
-				}
-				if(StringUtils.isEmpty(beanObj.getOverrider()))
-				{
-					double overrider=(premium+premiumsurp)*(Double.parseDouble(beanObj.getOverRiderview())/100);
-					entity.setOverriderAmtOc(new BigDecimal(getModeOfTransaction(overrider+" ",beanObj)));
-					entity.setOverriderAmtDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getTaxAmtOc().toString(), beanObj.getExchRate())));
+						}
+						if(StringUtils.isEmpty(beanObj.getBrokerage()))
+						{
+							double brokerage=(premium+premiumsurp)*(Double.parseDouble(beanObj.getBrokerageview())/100);
+							entity.setBrokerageAmtOc(new BigDecimal(getModeOfTransaction(brokerage+" ",beanObj)));
+							entity.setBrokerageAmtDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getBrokerageAmtOc().toString(), beanObj.getExchRate())));
+						
+						}
+						if(StringUtils.isEmpty(beanObj.getTax()))
+						{
+							double tax=(premium+premiumsurp)*(Double.parseDouble(beanObj.getTaxview())/100);
+							entity.setTaxAmtOc(new BigDecimal(getModeOfTransaction(tax+" ",beanObj)));	
+							entity.setTaxAmtDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getTaxAmtOc().toString(), beanObj.getExchRate())))	;
+						
+						
+						}
+						if(StringUtils.isEmpty(beanObj.getOverrider()))
+						{
+							double overrider=(premium+premiumsurp)*(Double.parseDouble(beanObj.getOverRiderview())/100);
+							entity.setOverriderAmtOc(new BigDecimal(getModeOfTransaction(overrider+" ",beanObj)));
+							entity.setOverriderAmtDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getTaxAmtOc().toString(), beanObj.getExchRate())));
+							
+							
+						}
+					}
 					
+					entity.setLossReserveretainedDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getLossReserveretainedOc().toString(), beanObj.getExchRate())));
+					entity.setProfitCommissionDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getProfitCommissionOc().toString(), beanObj.getExchRate())));			
+					entity.setCashLosspaidDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getCashLosspaidOc().toString(), beanObj.getExchRate())));
+					entity.setCashLosspaidDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getClaimsPaidOc().toString(), beanObj.getExchRate())));	
+				
 					
-				}
-			}
+					entity.setSettlementStatus(beanObj.getSettlementstatus());;
+					entity.setXlCostOc(new BigDecimal(getModeOfTransaction(beanObj.getXlCost(),beanObj)));	
+					entity.setClaimPortfolioOutOc(new BigDecimal(getModeOfTransaction(beanObj.getCliamportfolioout(),beanObj)));
+					entity.setPremiumReserveRealsedOc(new BigDecimal(getModeOfTransaction(beanObj.getPremiumReserveReleased(),beanObj)));;
+				
+					entity.setOtherCostOc(new BigDecimal(getModeOfTransaction(beanObj.getOtherCost().toString(),beanObj)));;
+					entity.setXlCostDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getXlCostOc().toString(), beanObj.getExchRate())));
+					entity.setClaimPortfolioOutDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getClaimPortfolioOutOc().toString(), beanObj.getExchRate())));	
+					entity.setPremiumReserveReleaseDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getPremiumReserveRealsedOc().toString(), beanObj.getExchRate())));	
+					;
+					entity.setOtherCostDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getOtherCostOc().toString(), beanObj.getExchRate())));;
+					entity.setCedantReference(beanObj.getCedentRef());
+					entity.setRemarks(beanObj.getRemarks());	
+					entity.setTotalCrOc(new BigDecimal(getModeOfTransaction(beanObj.getTotalCredit(),beanObj)));
+					entity.setTotalCrDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getTotalCrOc().toString(),beanObj.getExchRate())));;
+					entity.setTotalDrOc(new BigDecimal(getModeOfTransaction(beanObj.getTotalDebit(),beanObj)));	
+					entity.setTotalDrDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getTotalDrOc().toString(),beanObj.getExchRate())));;
+					entity.setInterestOc(new BigDecimal(getModeOfTransaction(beanObj.getInterest(),beanObj)));
+					entity.setInterestDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getInterestOc().toString(),beanObj.getExchRate())));
+					entity.setOsclaimLossupdateOc(StringUtils.isEmpty(beanObj.getOsClaimsLossUpdateOC())?BigDecimal.ZERO:new BigDecimal(getModeOfTransaction(beanObj.getOsClaimsLossUpdateOC().toString(),beanObj)));
+					entity.setOsclaimLossupdateDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getOsclaimLossupdateOc().toString(),beanObj.getExchRate())));;
+					entity.setAmendmentDate(sdf.parse(beanObj.getAmendmentDate()));	
+					entity.setWithHoldingTaxOc(StringUtils.isEmpty(beanObj.getWithHoldingTaxOC()) ? BigDecimal.ZERO : new BigDecimal(beanObj.getWithHoldingTaxOC()));
+					entity.setWithHoldingTaxDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getWithHoldingTaxOc().toString(), beanObj.getExchRate())));	
+					entity.setRiCession(beanObj.getRiCession());		
+					entity.setSubClass(new BigDecimal(beanObj.getDepartmentId()));
+					entity.setTdsOc(new BigDecimal(getModeOfTransaction(beanObj.getTaxDedectSource(),beanObj)));
+					entity.setTdsDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getTdsOc().toString(), beanObj.getExchRate())));
+					entity.setVatPremiumOc(new BigDecimal(getModeOfTransaction(beanObj.getVatPremium(),beanObj)));
+					entity.setVatPremiumDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getVatPremiumOc().toString(), beanObj.getExchRate())));
+					entity.setScCommOc(new BigDecimal(getModeOfTransaction(beanObj.getSlideScaleCom(),beanObj)));;
+					entity.setScCommDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getScCommOc().toString(), beanObj.getExchRate())));			
+					entity.setPremiumClass(beanObj.getPredepartment());	
+					entity.setPremiumSubclass(beanObj.getSubProfitId().replace(" ", ""));
+					entity.setAccountingPeriodDate(sdf.parse(beanObj.getAccountPeriodDate()));
+					entity.setStatementDate(sdf.parse(beanObj.getStatementDate()));
+					entity.setOsbyn(beanObj.getOsbYN());	
+					entity.setLpcOc(new BigDecimal(getModeOfTransaction(beanObj.getLossParticipation().toString(),beanObj)));
+					entity.setLpcDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getLpcOc().toString(), beanObj.getExchRate())));
+					entity.setSectionName(beanObj.getSectionName());		
 			
-			entity.setLossReserveretainedDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getLossReserveretainedOc().toString(), beanObj.getExchRate())));
-			entity.setProfitCommissionDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getProfitCommissionOc().toString(), beanObj.getExchRate())));			
-			entity.setCashLosspaidDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getCashLosspaidOc().toString(), beanObj.getExchRate())));
-			entity.setCashLosspaidDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getClaimsPaidOc().toString(), beanObj.getExchRate())));	
-		
 			
-			entity.setSettlementStatus(beanObj.getSettlementstatus());;
-			entity.setXlCostOc(new BigDecimal(getModeOfTransaction(beanObj.getXlCost(),beanObj)));	
-			entity.setClaimPortfolioOutOc(new BigDecimal(getModeOfTransaction(beanObj.getCliamportfolioout(),beanObj)));
-			entity.setPremiumReserveRealsedOc(new BigDecimal(getModeOfTransaction(beanObj.getPremiumReserveReleased(),beanObj)));;
-		
-			entity.setOtherCostOc(new BigDecimal(getModeOfTransaction(beanObj.getOtherCost().toString(),beanObj)));;
-			entity.setXlCostDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getXlCostOc().toString(), beanObj.getExchRate())));
-			entity.setClaimPortfolioOutDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getClaimPortfolioOutOc().toString(), beanObj.getExchRate())));	
-			entity.setPremiumReserveReleaseDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getPremiumReserveRealsedOc().toString(), beanObj.getExchRate())));	
-			;
-			entity.setOtherCostDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getOtherCostOc().toString(), beanObj.getExchRate())));;
-			entity.setCedantReference(beanObj.getCedentRef());
-			entity.setRemarks(beanObj.getRemarks());	
-			entity.setTotalCrOc(new BigDecimal(getModeOfTransaction(beanObj.getTotalCredit(),beanObj)));
-			entity.setTotalCrDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getTotalCrOc().toString(),beanObj.getExchRate())));;
-			entity.setTotalDrOc(new BigDecimal(getModeOfTransaction(beanObj.getTotalDebit(),beanObj)));	
-			entity.setTotalDrDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getTotalDrOc().toString(),beanObj.getExchRate())));;
-			entity.setInterestOc(new BigDecimal(getModeOfTransaction(beanObj.getInterest(),beanObj)));
-			entity.setInterestDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getInterestOc().toString(),beanObj.getExchRate())));
-			entity.setOsclaimLossupdateOc(StringUtils.isEmpty(beanObj.getOsClaimsLossUpdateOC())?BigDecimal.ZERO:new BigDecimal(getModeOfTransaction(beanObj.getOsClaimsLossUpdateOC().toString(),beanObj)));
-			entity.setOsclaimLossupdateDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getOsclaimLossupdateOc().toString(),beanObj.getExchRate())));;
-			entity.setAmendmentDate(sdf.parse(beanObj.getAmendmentDate()));	
-			entity.setWithHoldingTaxOc(StringUtils.isEmpty(beanObj.getWithHoldingTaxOC()) ? BigDecimal.ZERO : new BigDecimal(beanObj.getWithHoldingTaxOC()));
-			entity.setWithHoldingTaxDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getWithHoldingTaxOc().toString(), beanObj.getExchRate())));	
-			entity.setRiCession(beanObj.getRiCession());		
-			entity.setSubClass(new BigDecimal(beanObj.getDepartmentId()));
-			entity.setTdsOc(new BigDecimal(getModeOfTransaction(beanObj.getTaxDedectSource(),beanObj)));
-			entity.setTdsDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getTdsOc().toString(), beanObj.getExchRate())));
-			entity.setStOc(new BigDecimal(getModeOfTransaction(beanObj.getServiceTax(),beanObj)));
-			entity.setStDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getStOc().toString(), beanObj.getExchRate())));
-			entity.setScCommOc(new BigDecimal(getModeOfTransaction(beanObj.getSlideScaleCom(),beanObj)));;
-			entity.setScCommDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getScCommOc().toString(), beanObj.getExchRate())));			
-			entity.setPremiumClass(beanObj.getPredepartment());	
-			entity.setPremiumSubclass(beanObj.getSubProfitId().replace(" ", ""));
-			entity.setAccountingPeriodDate(sdf.parse(beanObj.getAccountPeriodDate()));
-			entity.setStatementDate(sdf.parse(beanObj.getStatementDate()));
-			entity.setOsbyn(beanObj.getOsbYN());	
-			entity.setLpcOc(new BigDecimal(getModeOfTransaction(beanObj.getLossParticipation().toString(),beanObj)));
-			entity.setLpcDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getLpcOc().toString(), beanObj.getExchRate())));
-			entity.setSectionName(beanObj.getSectionName());		
-	
-	
-			
-			entity.setTaxAmtDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getTaxAmtOc().toString(), beanObj.getExchRate())))	;	
-			entity.setOverriderAmtOc(new BigDecimal(getModeOfTransaction(beanObj.getOverrider(),beanObj)));
-			entity.setOverriderAmtDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getOverriderAmtOc().toString(),beanObj.getExchRate())));;
-			entity.setOverrider(new BigDecimal(beanObj.getOverRiderview()));;
-			
-			entity.setPremiumQuotashareDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getPremiumQuotashareOc().toString(), beanObj.getExchRate())));;
-			entity.setCommissionQuotashareDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getCommissionQuotashareOc().toString(), beanObj.getExchRate())));	
-			entity.setPremiumSurplusDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getPremiumSurplusOc().toString(), beanObj.getExchRate())));;
-			entity.setCommissionSurplusDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getCommissionSurplusOc().toString(), beanObj.getExchRate())));;
-	
-			entity.setNetdueOc(new BigDecimal(updateNetDue(entity,getModeOfTransaction(beanObj.getClaimspaid(),beanObj))));
-			entity.setNetdueDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getNetdueOc().toString(), beanObj.getExchRate())));
-			entity.setMovementYn(null);
-			entity.setEntryDate(new Date());
-			pdRepo.save(entity);
+					
+					entity.setTaxAmtDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getTaxAmtOc().toString(), beanObj.getExchRate())))	;	
+					entity.setOverriderAmtOc(new BigDecimal(getModeOfTransaction(beanObj.getOverrider(),beanObj)));
+					entity.setOverriderAmtDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getOverriderAmtOc().toString(),beanObj.getExchRate())));;
+					entity.setOverrider(new BigDecimal(beanObj.getOverRiderview()));;
+					
+					entity.setPremiumQuotashareDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getPremiumQuotashareOc().toString(), beanObj.getExchRate())));;
+					entity.setCommissionQuotashareDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getCommissionQuotashareOc().toString(), beanObj.getExchRate())));	
+					entity.setPremiumSurplusDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getPremiumSurplusOc().toString(), beanObj.getExchRate())));;
+					entity.setCommissionSurplusDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getCommissionSurplusOc().toString(), beanObj.getExchRate())));;
+					entity.setBrokerageVatOc(new BigDecimal(getModeOfTransaction(beanObj.getBrokerageVat(),beanObj)));
+					entity.setBrokerageVatDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getBrokerageVatOc().toString(), beanObj.getExchRate())));
+					entity.setDocumentType(beanObj.getDocumentType());
+					entity.setNetdueOc(new BigDecimal(updateNetDue(entity,getModeOfTransaction(beanObj.getClaimspaid(),beanObj))));
+					entity.setNetdueDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getNetdueOc().toString(), beanObj.getExchRate())));
+					 entity.setMovementYn(null);
+					 entity.setEntryDate(new Date());
+					 entity.setM1Oc(new BigDecimal(beanObj.getM1oc()));	
+					 entity.setM2Oc(new BigDecimal(beanObj.getM2oc()));	
+					 entity.setM3Oc(new BigDecimal(beanObj.getM3oc()));	
+					 pdRepo.save(entity);
+
+		}
 		}
 		
+	}
+	private static String updateNetDue(RskPremiumDetailsTemp entity, String modeOfTransaction) {
+		double Aut=0;
+		double But=0;
+		if(StringUtils.isNotEmpty(entity.getPremiumQuotashareOc().toString()));
+		{
+		Aut+=Double.parseDouble(entity.getPremiumQuotashareOc().toString());
+		}
+		if(StringUtils.isNotEmpty(entity.getPremiumSurplusOc().toString()));
+		{
+		Aut+=Double.parseDouble(entity.getPremiumSurplusOc().toString());
+		}
+		if(StringUtils.isNotEmpty(entity.getPremiumPortfolioinOc().toString()));
+		{
+		Aut+=Double.parseDouble(entity.getPremiumPortfolioinOc().toString());
+		}
+		if(StringUtils.isNotEmpty(entity.getClaimPortfolioinOc().toString()));
+		{
+		Aut+=Double.parseDouble(entity.getClaimPortfolioinOc().toString());
+		}
+		if(StringUtils.isNotEmpty(entity.getLossReserveReleasedOc().toString()));
+		{
+		Aut+=Double.parseDouble(entity.getLossReserveReleasedOc().toString());
+		}
+		if(StringUtils.isNotEmpty(entity.getCashLossCreditOc().toString()));
+		{
+		Aut+=Double.parseDouble(entity.getCashLossCreditOc().toString());
+		}
+		if(StringUtils.isNotEmpty(entity.getPremiumReserveRealsedOc().toString()));
+		{
+			Aut+=Double.parseDouble(entity.getPremiumReserveRealsedOc().toString());
+		}
+		if(StringUtils.isNotEmpty(entity.getInterestOc().toString()));
+		{
+			Aut+=Double.parseDouble(entity.getInterestOc().toString());
+		}
+		if(StringUtils.isNotEmpty(entity.getTdsOc().toString()));
+		{
+			Aut+=Double.parseDouble(entity.getTdsOc().toString());
+		}
+		if(StringUtils.isNotEmpty(entity.getVatPremiumOc().toString()));
+		{
+			Aut+=Double.parseDouble(entity.getVatPremiumOc().toString());
+		}
+		if(StringUtils.isNotEmpty(entity.getLpcOc().toString()));
+		{
+			Aut+=Double.parseDouble(entity.getLpcOc().toString());
+		}
+		if(StringUtils.isNotEmpty(entity.getCommissionQuotashareOc().toString()));
+		{
+			But+=Double.parseDouble(entity.getCommissionQuotashareOc().toString());
+		}
+		if(StringUtils.isNotEmpty(entity.getCommissionSurplusOc().toString()));
+		{
+			But+=Double.parseDouble(entity.getCommissionSurplusOc().toString());
+		}
+		if(StringUtils.isNotEmpty(entity.getBrokerageAmtOc().toString()))
+		{
+			But+=Double.parseDouble(entity.getBrokerageAmtOc().toString());
+		}
+		if(StringUtils.isNotEmpty(entity.getTaxAmtOc().toString()));
+		{
+			But+=Double.parseDouble(entity.getTaxAmtOc().toString());
+		}
+		if(StringUtils.isNotEmpty(entity.getPremiumPortfoliooutOc().toString()));
+		{
+			But+=Double.parseDouble(entity.getPremiumPortfoliooutOc().toString());
+		}
+		if(StringUtils.isNotEmpty(entity.getPremiumreserveQuotashareOc().toString()));
+		{
+			But+=Double.parseDouble(entity.getPremiumreserveQuotashareOc().toString());
+		}
+		if(StringUtils.isNotEmpty(entity.getLossReserveretainedOc().toString()));
+		{
+			But+=Double.parseDouble(entity.getLossReserveretainedOc().toString());
+		}
+		if(StringUtils.isNotEmpty(entity.getProfitCommissionOc().toString()))
+		{
+			But+=Double.parseDouble(entity.getProfitCommissionOc().toString());
+		}
+		if(StringUtils.isNotEmpty(entity.getCashLosspaidOc().toString()));
+		{
+			But+=Double.parseDouble(entity.getCashLosspaidOc().toString());
+		}
+		if(StringUtils.isNotEmpty(modeOfTransaction))
+		{
+			But+=Double.parseDouble(modeOfTransaction);
+		}
+		if(StringUtils.isNotEmpty(entity.getOtherCostOc().toString()));
+		{
+			But+=Double.parseDouble(entity.getOtherCostOc().toString());
+		}
+		if(StringUtils.isNotEmpty(entity.getXlCostOc().toString()));
+		{
+			But+=Double.parseDouble(entity.getXlCostOc().toString());
+		}
+		if(StringUtils.isNotEmpty(entity.getClaimPortfolioOutOc().toString()));
+		{
+			But+=Double.parseDouble(entity.getClaimPortfolioOutOc().toString());
+		}
+		if(StringUtils.isNotEmpty(entity.getOverriderAmtOc().toString()));
+		{
+			But+=Double.parseDouble(entity.getOverriderAmtOc().toString());
+		}
+		if(StringUtils.isNotEmpty(entity.getWithHoldingTaxOc().toString()));
+		{
+			But+=Double.parseDouble(entity.getWithHoldingTaxOc().toString());
+		}
+		if(StringUtils.isNotEmpty(entity.getScCommOc().toString()));
+		{
+			But+=Double.parseDouble(entity.getScCommOc().toString());
+		}if(StringUtils.isNotEmpty(entity.getBrokerageVatOc().toString()));
+		{
+			But+=Double.parseDouble(entity.getBrokerageVatOc().toString());
+		}
+		
+	    double cut=Aut-But;
+	 
+		return String.valueOf(cut);
 	}
 	private static String updateNetDue(RskPremiumDetails entity,final String claimpaid) {
 		double Aut=0;
@@ -2426,9 +2769,9 @@ public class PropPremiumJpaServiceImpl {
 		{
 			Aut+=Double.parseDouble(entity.getTdsOc().toString());
 		}
-		if(StringUtils.isNotEmpty(entity.getStOc().toString()));
+		if(StringUtils.isNotEmpty(entity.getVatPremiumOc().toString()));
 		{
-			Aut+=Double.parseDouble(entity.getStOc().toString());
+			Aut+=Double.parseDouble(entity.getVatPremiumOc().toString());
 		}
 		if(StringUtils.isNotEmpty(entity.getLpcOc().toString()));
 		{
@@ -2498,9 +2841,847 @@ public class PropPremiumJpaServiceImpl {
 		{
 			But+=Double.parseDouble(entity.getScCommOc().toString());
 		}
+		if(StringUtils.isNotEmpty(entity.getBrokerageVatOc().toString()));
+		{
+			But+=Double.parseDouble(entity.getBrokerageVatOc().toString());
+		}
 		
 	    double cut=Aut-But;
 	 
 		return String.valueOf(cut);
 	}
+	public GetVatInfoRes getVatInfo(GetVatInfoReq req) {
+		GetVatInfoRes response = new GetVatInfoRes();
+		GetVatInfoRes1 res = new GetVatInfoRes1();
+		try {
+			List<Map<String,Object>> list = queryImpl.selectList("Select.premium.vatInfo",new String[] {req.getPremiumAmount(),req.getProposalNo(),req.getBranchCode()});			
+			if(list.size()>0){
+				Map<String,Object> tempMap = (Map<String,Object>) list.get(0);
+				res.setBrokerageAmt(tempMap.get("BROKERAGE_AMT")==null?"":tempMap.get("BROKERAGE_AMT").toString());
+				res.setBrokerageVat(tempMap.get("BROKERAGE_VAT")==null?"":tempMap.get("BROKERAGE_VAT").toString());		
+				res.setPremiumVat(tempMap.get("PREMIUM_VAT")==null?"":tempMap.get("PREMIUM_VAT").toString());
+				res.setProposalNo(tempMap.get("PROPOSAL_NO")==null?"":tempMap.get("PROPOSAL_NO").toString());
+				response.setCommonResponse(res);	
+			}			
+			response.setMessage("Success");
+			response.setIsError(false);
+		    }catch (Exception e) {
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		    return response;
+	}
+
+	 
+	public ViewRIPremiumListRes viewRIPremiumList(GetRIPremiumListReq req) { //getPremiumDetails response
+		ViewRIPremiumListRes response = new ViewRIPremiumListRes();
+		List<ViewRIPremiumListRes1> resList = new ArrayList<ViewRIPremiumListRes1>();
+		SimpleDateFormat sdf = new  SimpleDateFormat("dd/MM/yyyy");
+		try {
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			
+			Root<RskPremiumDetailsRi> pm = query.from(RskPremiumDetailsRi.class);
+						
+			//reInsurerName
+			Subquery<String> reInsurerName = query.subquery(String.class); 
+			Root<PersonalInfo> pi = reInsurerName.from(PersonalInfo.class);
+		
+			Expression<String> firstName1 = cb.concat(pi.get("firstName"), " ");
+			reInsurerName.select(cb.concat(firstName1, pi.get("lastName")));
+			
+			//maxAmend
+			Subquery<Long> maxAmend = query.subquery(Long.class); 
+			Root<PersonalInfo> pis = maxAmend.from(PersonalInfo.class);
+			maxAmend.select(cb.max(pis.get("amendId")));
+			Predicate b1 = cb.equal( pis.get("customerId"), pi.get("customerId"));
+			maxAmend.where(b1);
+			
+			Predicate a1 = cb.equal( pi.get("customerType"), "R");
+			Predicate a2 = cb.equal( pi.get("customerId"), pm.get("reinsurerId"));
+			Predicate a3 = cb.equal( pi.get("branchCode"), pm.get("branchCode"));
+			Predicate a4 = cb.equal( pi.get("amendId"), maxAmend);
+			reInsurerName.where(a1,a2,a3,a4);
+			
+			//brokerName
+			Subquery<String> brokerName = query.subquery(String.class); 
+			Root<PersonalInfo> pi1 = brokerName.from(PersonalInfo.class);
+			
+			Expression<String> firstName = cb.concat(pi1.get("firstName"), " ");
+			brokerName.select(cb.concat(firstName, pi1.get("lastName")));
+			
+			//maxAmend
+			Subquery<Long> maxAmend1 = query.subquery(Long.class); 
+			Root<PersonalInfo> pis1 = maxAmend1.from(PersonalInfo.class);
+			maxAmend1.select(cb.max(pis1.get("amendId")));
+			Predicate c1 = cb.equal( pis1.get("customerId"), pi1.get("customerId"));
+			maxAmend1.where(c1);
+			
+			Predicate d1 = cb.equal( pi1.get("customerType"), "B");
+			Predicate d2 = cb.equal( pi1.get("customerId"), pm.get("brokerId"));
+			Predicate d3 = cb.equal( pi1.get("branchCode"), pm.get("branchCode"));
+			Predicate d4 = cb.equal( pi1.get("amendId"), maxAmend1);
+			brokerName.where(d1,d2,d3,d4);
+			
+			//ACCOUNT_PERIOD_QTR
+			Subquery<String> act = query.subquery(String.class); 
+			Root<ConstantDetail> name = act.from(ConstantDetail.class);
+			act.select(name.get("detailName"));
+			Predicate j1 = cb.equal( name.get("categoryId"), "49");
+			Predicate j2 = cb.equal( name.get("type"), pm.get("accountPeriodQtr")); //
+			act.where(j1,j2);
+			
+			//TMAS_DEPARTMENT_NAME
+			Subquery<String> dept = query.subquery(String.class); 
+			Root<TmasDepartmentMaster> dname = dept.from(TmasDepartmentMaster.class);
+			dept.select(dname.get("tmasDepartmentName"));
+			Predicate k1 = cb.equal( dname.get("tmasDepartmentId"), pm.get("premiumClass"));
+			Predicate k2 = cb.equal( dname.get("branchCode"), pm.get("branchCode"));
+			Predicate k3 = cb.equal( dname.get("tmasProductId"), req.getProductId());
+			Predicate k4 = cb.equal( dname.get("tmasStatus"), "Y");
+			dept.where(k1,k2,k3,k4);
+
+			query.multiselect(reInsurerName.alias("REINSURER_NAME"),brokerName.alias("BROKER_NAME"),
+					pm.get("brokerId").alias("BROKER_ID"),pm.get("brokerage").alias("BROKERAGE"),
+					pm.get("signShared").alias("SIGN_SHARED"),pm.get("reinsurerId").alias("REINSURER_ID"),
+					act.alias("ACCOUNT_PERIOD_QTR"),dept.alias("TMAS_DEPARTMENT_NAME"),pm.alias("table")
+					); 
+			
+			Predicate n1 = cb.equal(pm.get("contractNo"), req.getContractNo());
+			Predicate n2 = cb.equal(pm.get("transactionNo"), req.getTransactionNo());
+			Predicate n3 = cb.equal(pm.get("branchCode"), req.getBranchCode());
+			query.where(n1,n2,n3);
+			
+			TypedQuery<Tuple> result = em.createQuery(query);
+			List<Tuple> list = result.getResultList();
+			if(list.size()>0) {
+				for(Tuple data1: list) {
+					ViewRIPremiumListRes1 res = new ViewRIPremiumListRes1();
+					RskPremiumDetailsRi data = (RskPremiumDetailsRi) data1.get("table");	
+					
+					res.setBrokerage(data1.get("BROKERAGE")==null?"":data1.get("BROKERAGE").toString());
+					res.setBrokerId(data1.get("BROKER_ID")==null?"":data1.get("BROKER_ID").toString());
+					res.setBrokerName(data1.get("BROKER_NAME")==null?"":data1.get("BROKER_NAME").toString());
+					res.setReinsurerId(data1.get("REINSURER_ID")==null?"":data1.get("REINSURER_ID").toString());
+					res.setReInsurerName(data1.get("REINSURER_NAME")==null?"":data1.get("REINSURER_NAME").toString());
+					res.setSignShared(data1.get("SIGN_SHARED")==null?"":data1.get("SIGN_SHARED").toString());	
+					res.setAccountPeriod(data1.get("ACCOUNT_PERIOD_QTR")==null?"":data1.get("ACCOUNT_PERIOD_QTR").toString());
+					res.setPremiumClass(data1.get("TMAS_DEPARTMENT_NAME")==null?"":data1.get("TMAS_DEPARTMENT_NAME").toString());
+					
+					res.setContNo(data.getContractNo()==null?"":data.getContractNo().toString());
+					res.setTransactionNo(data.getTransactionNo()==null?"":data.getTransactionNo().toString());
+					res.setTransaction(data.getTransactionMonthYear()==null?"":sdf.format(data.getTransactionMonthYear()));
+					res.setBrokerage(data.getBrokerageAmtOc()==null?"":fm.formatter(data.getBrokerageAmtOc().toString()));
+					res.setTax(data.getTaxAmtOc()==null?"":fm.formatter(data.getTaxAmtOc().toString()));
+					res.setPremiumQuotaShare(data.getPremiumQuotashareOc()==null?"":fm.formatter(data.getPremiumQuotashareOc().toString()));
+					res.setCommissionQuotaShare(data.getCommissionQuotashareOc()==null?"":fm.formatter(data.getCommissionQuotashareOc().toString()));
+					res.setPremiumSurplus(data.getPremiumSurplusOc()==null?"":fm.formatter(data.getPremiumSurplusOc().toString()));
+					res.setCommissionSurplus(data.getCommissionSurplusOc()==null?"":fm.formatter(data.getCommissionSurplusOc().toString()));
+					res.setPremiumportifolioIn(data.getPremiumPortfolioinOc()==null?"":fm.formatter(data.getPremiumPortfolioinOc().toString()));
+					res.setCliamPortfolioin(data.getClaimPortfolioinOc()==null?"":fm.formatter(data.getClaimPortfolioinOc().toString()));
+					res.setPremiumportifolioout(data.getPremiumPortfoliooutOc()==null?"":fm.formatter(data.getPremiumPortfoliooutOc().toString()));
+						
+			
+						res.setLossReserveReleased(data.getLossReserveReleasedOc()==null?"":fm.formatter(data.getLossReserveReleasedOc().toString()));
+						res.setPremiumReserveQuotaShare(data.getPremiumreserveQuotashareOc()==null?"":fm.formatter(data.getPremiumreserveQuotashareOc().toString()));
+						res.setCashLossCredit(data.getCashLossCreditOc()==null?"":fm.formatter(data.getCashLossCreditOc().toString()));
+						res.setLossReserveRetained(data.getLossReserveReleasedOc()==null?"":fm.formatter(data.getLossReserveReleasedOc().toString()));
+						
+						res.setProfitCommission(data.getProfitCommissionOc()==null?"":fm.formatter(data.getProfitCommissionOc().toString()));
+						res.setCashLossPaid(data.getCashLosspaidOc()==null?"":fm.formatter(data.getCashLosspaidOc().toString()));
+						res.setNetDue(data.getNetdueOc()==null?"":fm.formatter(data.getNetdueOc().toString()));
+						res.setReceiptno(data.getReceiptNo()==null?"":data.getReceiptNo().toString());
+					
+						res.setClaimsPaid(data.getClaimsPaidOc()==null?"":fm.formatter(data.getClaimsPaidOc().toString()));
+						res.setInceptionDate(data.getEntryDate()==null?"":sdf.format(data.getEntryDate()));
+
+						res.setXlCost(data.getXlCostOc()==null?"":fm.formatter(fm.formatter(data.getXlCostOc().toString())));
+						res.setCliamPortfolioOut(data.getClaimPortfolioOutOc()==null?"":fm.formatter(data.getClaimPortfolioOutOc().toString()));
+						res.setPremiumReserveReleased(data.getPremiumReserveRealsedOc()==null?"":fm.formatter(data.getPremiumReserveRealsedOc().toString()));
+						res.setAccountPeriod(data.getAccountPeriodQtr()==null?"":data.getAccountPeriodQtr().toString());
+
+						res.setXlCost(data.getXlCostOc()==null?"":dropDownImple.formatter(dropDownImple.formatter(data.getXlCostOc().toString())));
+						res.setCliamPortfolioOut(data.getClaimPortfolioOutOc()==null?"":dropDownImple.formatter(data.getClaimPortfolioOutOc().toString()));
+						res.setPremiumReserveReleased(data.getPremiumReserveRealsedOc()==null?"":dropDownImple.formatter(data.getPremiumReserveRealsedOc().toString()));
+
+						res.setAccountPeriodYear(data.getAccountPeriodYear()==null?"":data.getAccountPeriodYear().toString());
+						res.setCurrencyId(data.getCurrencyId()==null?"":data.getCurrencyId().toString());
+						res.setOtherCost(data.getOtherCostOc()==null?"":fm.formatter(data.getOtherCostOc().toString()));
+						res.setBrokerageUsd(data.getBrokerageAmtDc()==null?"":fm.formatter(data.getBrokerageAmtDc().toString()));
+						res.setTaxUsd(data.getTaxAmtDc()==null?"":fm.formatter(data.getTaxAmtDc().toString()));
+						res.setPremiumQuotaShareUsd(data.getPremiumreserveQuotashareDc()==null?"":fm.formatter(data.getPremiumreserveQuotashareDc().toString()));
+						res.setCommsissionQuotaShareUsd(data.getCommissionQuotashareDc()==null?"":fm.formatter(data.getCommissionQuotashareDc().toString()));
+						res.setPremiumSurplusUsd(data.getPremiumSurplusDc()==null?"":fm.formatter(data.getPremiumSurplusDc().toString()));
+						res.setComissionSurplusUsd(data.getCommissionSurplusDc()==null?"":fm.formatter(data.getCommissionSurplusDc().toString()));
+						res.setPremiumPortfolioInUsd(data.getPremiumPortfolioinDc()==null?"":fm.formatter(data.getPremiumPortfolioinDc().toString()));
+						res.setCliamPortfolioUsd(data.getClaimPortfolioinDc()==null?"":fm.formatter(data.getClaimPortfolioinDc().toString()));
+						res.setPremiumPortfolioOutUsd(data.getPremiumPortfoliooutDc()==null?"":fm.formatter(data.getPremiumPortfoliooutDc().toString()));
+						res.setLossReserveReleasedUsd(data.getLossReserveReleasedDc()==null?"":fm.formatter(data.getLossReserveReleasedDc().toString()));
+						res.setPremiumReserveQuotaShareUsd(data.getPremiumreserveQuotashareDc()==null?"":fm.formatter(data.getPremiumreserveQuotashareDc().toString()));
+						res.setCashLossCreditUsd(data.getCashLossCreditDc()==null?"":fm.formatter(data.getCashLossCreditDc().toString()));
+						res.setLossReserveRetainedUsd(data.getLossReserveretainedDc()==null?"":fm.formatter(data.getLossReserveretainedDc().toString()));
+						res.setProfitCommissionUsd(data.getProfitCommissionDc()==null?"":fm.formatter(data.getProfitCommissionDc().toString()));
+						res.setCashLossPaidUsd(data.getCashLosspaidDc()==null?"":fm.formatter(data.getCashLosspaidDc().toString()));
+						res.setClamsPaidUsd(data.getClaimsPaidDc()==null?"":fm.formatter(data.getClaimsPaidDc().toString()));
+						res.setXlCostUsd(data.getXlCostDc()==null?"":fm.formatter(data.getXlCostDc().toString()));
+						res.setCliamPortfolioOutUsd(data.getClaimPortfolioOutDc()==null?"":fm.formatter(data.getClaimPortfolioOutDc().toString()));
+						res.setPremiumReserveReleasedUsd(data.getPremiumReserveRealsedDc()==null?"":fm.formatter(data.getPremiumReserveRealsedDc().toString()));
+						res.setNetDueUsd(data.getNetdueDc()==null?"":fm.formatter(data.getNetdueDc().toString()));
+						res.setOtherCostUSD(data.getOtherCostDc()==null?"":fm.formatter(data.getOtherCostDc().toString()));
+						res.setCedentRef(data.getCedantReference()==null?"":data.getCedantReference().toString());
+						res.setRemarks(data.getRemarks()==null?"":data.getRemarks().toString());
+						res.setTotalCredit(data.getTotalCrOc()==null?"":fm.formatter(data.getTotalCrOc().toString()));
+						res.setTotalCreditDC(data.getTotalCrDc()==null?"":fm.formatter(data.getTotalCrDc().toString()));
+						res.setTotalDebit(data.getTotalDrOc()==null?"":fm.formatter(data.getTotalDrOc().toString()));
+						res.setTotalDebitDC(data.getTotalDrDc()==null?"":fm.formatter(data.getTotalDrDc().toString()));
+						res.setInterest(data.getInterestOc()==null?"":fm.formatter(data.getInterestOc().toString()));
+						res.setInterestDC(data.getInterestDc()==null?"":fm.formatter(data.getInterestDc().toString()));
+						res.setOsClaimsLossUpdateOC(data.getOsclaimLossupdateOc()==null?"":fm.formatter(data.getOsclaimLossupdateOc().toString()));
+						res.setOsClaimsLossUpdateDC(data.getOsclaimLossupdateDc()==null?"":fm.formatter(data.getOsclaimLossupdateDc().toString()));
+						res.setOverrider(data.getOverriderAmtOc()==null?"":fm.formatter(data.getOverriderAmtOc().toString()));
+						res.setOverriderUSD(data.getOverriderAmtDc()==null?"":fm.formatter(data.getOverriderAmtDc().toString()));
+						res.setAmendmentDate(data.getAmendmentDate()==null?"":sdf.format(data.getAmendmentDate()));
+		                res.setWithHoldingTaxOC(data.getWithHoldingTaxOc()==null?"":fm.formatter(data.getWithHoldingTaxOc().toString()));
+		                res.setWithHoldingTaxDC(data.getWithHoldingTaxDc()==null?"":fm.formatter(data.getWithHoldingTaxDc().toString()));
+		               // res.setDueDate(data.getdutempMap.get("DUE_DATE")==null?"":tempMap.get("DUE_DATE").toString());
+		                res.setCreditsign(data.getNetdueOc()==null?"":data.getNetdueOc().toString());
+		                res.setRiCession(data.getRiCession()==null?"":data.getRiCession().toString());
+		                res.setTaxDedectSource(data.getTdsOc()==null?"":fm.formatter(data.getTdsOc().toString()));
+						res.setTaxDedectSourceDc(data.getTdsDc()==null?"":fm.formatter(data.getTdsDc().toString()));
+						res.setVatPremiumOc(data.getVatPremiumOc()==null?"":fm.formatter(data.getVatPremiumOc().toString()));
+						res.setVatPremiumDc(data.getVatPremiumDc()==null?"":fm.formatter(data.getVatPremiumDc().toString()));
+						res.setBrokerageVatOc(data.getBrokerageVatOc()==null?"":fm.formatter(data.getBrokerageVatOc().toString()));
+						res.setBrokerageVatDc(data.getBrokerageVatDc()==null?"":fm.formatter(data.getBrokerageVatDc().toString()));
+						res.setDocumentType(data.getDocumentType()==null?"":data.getDocumentType().toString());
+						res.setLossParticipation(data.getLpcOc()==null?"":fm.formatter(data.getLpcOc().toString()));
+						res.setLossParticipationDC(data.getLpcDc()==null?"":fm.formatter(data.getLpcDc().toString()));
+						res.setSlideScaleCom(data.getScCommOc()==null?"":fm.formatter(data.getScCommOc().toString()));
+						res.setSlideScaleComDC(data.getScCommDc()==null?"":fm.formatter(data.getScCommDc().toString()));
+					//	res.setSubProfitId(data.gettempMap.get("SUB")==null?"":tempMap.get("SUB").toString());
+//						if(!"ALL".equalsIgnoreCase(res.getSubProfitId())){
+//						res.setSubProfitId(data.getPremiumSubclass()==null?"":data.getPremiumSubclass().toString());
+//						}
+
+						res.setExchRate(dropDownImple.exchRateFormat(data.getExchangeRate()==null?"":fm.formatter(data.getExchangeRate().toString())));
+						res.setStatementDate(data.getStatementDate()==null?"":data.getStatementDate().toString());
+						// res.setPremiumClass(data.getdeptempMap.get("TMAS_DEPARTMENT_NAME")==null?"":tempMap.get("TMAS_DEPARTMENT_NAME").toString());
+
+						res.setExchRate(dropDownImple.exchRateFormat(data.getExchangeRate()==null?"":dropDownImple.formatter(data.getExchangeRate().toString())));
+						res.setStatementDate(data.getStatementDate()==null?"":sdf.format(data.getStatementDate()));
+						
+
+//			                res.setPremiumSubClass(tempMap.get("SUB")==null?"":tempMap.get("SUB").toString());
+//			                if(!"ALL".equalsIgnoreCase(res.getPremiumSubClass())){
+//			                	res.setPremiumSubClass(tempMap.get("PREMIUM_SUBCLASS")==null?"":tempMap.get("PREMIUM_SUBCLASS").toString());
+//			                }
+			                res.setOsbYN(data.getOsbyn()==null?"":data.getOsbyn().toString());
+			                res.setSectionName(data.getSectionName()==null?"":data.getSectionName().toString());
+			                res.setAccDate(data.getAccountingPeriodDate()==null?"":sdf.format(data.getAccountingPeriodDate())) ;
+				
+				 	//premium.select.sumOfPaidPremium
+				 	List<RskPremiumDetailsRi> list1 =	pdRIRepo.findByContractNo(new BigDecimal(req.getContractNo()));
+				 	int sum =0;
+				 	if(list1.size()>0) {
+				 		for(RskPremiumDetailsRi data2: list1) {
+				 		int	temp = data2.getPremiumQuotashareOc()==null?0:data2.getPremiumQuotashareOc().intValue();
+				 		sum = sum+temp;
+				 		}
+				 		res.setSumOfPaidPremium(String.valueOf(sum));
+				 	}				 	
+				 	
+
+
+			   	if(StringUtils.isNotBlank(res.getCurrencyId())){
+			   		//premium.select.currency
+					CriteriaQuery<String> query1 = cb.createQuery(String.class); 
+					Root<CurrencyMaster> cm = query1.from(CurrencyMaster.class);
+					query1.select(cm.get("shortName")); 
+
+					// MAXAmend ID
+					Subquery<Long> amend = query1.subquery(Long.class); 
+					Root<CurrencyMaster> pms = amend.from(CurrencyMaster.class);
+					amend.select(cb.max(pms.get("amendId")));
+					Predicate p1 = cb.equal( cm.get("branchCode"), pms.get("branchCode"));
+					Predicate p2 = cb.equal( cm.get("countryId"), pms.get("countryId"));
+					Predicate p3 = cb.equal( cm.get("currencyId"), pms.get("currencyId"));
+					Predicate p4 = cb.equal( cm.get("status"), pms.get("status"));
+					amend.where(p1,p2,p3,p4);
+
+					Predicate m1 = cb.equal(cm.get("currencyId"), res.getCurrencyId());
+					Predicate m2 = cb.equal(cm.get("branchCode"), req.getBranchCode());
+					Predicate m3 = cb.equal(cm.get("amendId"), amend);
+					Predicate m4 = cb.equal(cm.get("status"), "Y");
+					query1.where(m1,m2,m3,m4);
+					TypedQuery<String> res1 = em.createQuery(query1);
+					List<String> list12 = res1.getResultList();
+					if (!CollectionUtils.isEmpty(list12)) {
+						res.setCurrency(list12.get(0) == null ? ""
+								: list12.get(0).toString());
+					}
+			   	}
+			   //premium.select.currecy.name
+			   	TmasBranchMaster bm = bmRepo.findByBranchCode(req.getBranchCode());				
+			   	if (bm != null) {
+					res.setCurrencyName(bm.getCountryShortName() == null ? ""
+							: bm.getCountryShortName().toString());
+				}
+					
+					resList.add(res);
+				}
+			}		
+			response.setCommonResponse(resList);	
+			response.setMessage("Success");
+			response.setIsError(false);
+		    }catch (Exception e) {
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		    return response;
+	}
+
+	@Override
+	public CommonResponse updateRIStatus(GetRIPremiumListReq req) {
+		CommonResponse response = new CommonResponse();
+		try {
+			List<RskPremiumDetailsRi> list =	pdRIRepo.findByContractNoAndTransactionNoAndBranchCode
+					(new BigDecimal(req.getContractNo()),new BigDecimal(req.getTransactionNo()),req.getBranchCode());
+			if(list.size()>0) {
+				for(RskPremiumDetailsRi data: list) {
+					data.setTransStatus("Approved");
+					pdRIRepo.saveAndFlush(data);
+				}
+			}			
+			response.setMessage("Success");
+			response.setIsError(false);
+		    }catch (Exception e) {
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		    return response;
+	}
+
+
+	private String getMultipleVal(String premiumQuotaShare) {
+		String res="";double val =0;
+		try{
+			if(premiumQuotaShare==""){
+				premiumQuotaShare="0";
+			}
+				 val = Double.parseDouble(premiumQuotaShare.replaceAll(",", ""))*-1;
+			 if(val==-0){
+				 val = 0; 
+			 }
+			res = fm.formatter(Double.toString(val));
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return res;
+
+	}
+	
+	public CommonResponse InsertCashLossCredit(InsertPremiumReq req) {
+		CommonResponse response = new CommonResponse();
+			try {
+				/*String query = "";
+				if(StringUtils.isNotBlank(req.getClaimPaymentNo())){
+				String[] ClaimPayNo=req.getClaimPaymentNo().split(",");
+				String[] creditAmountCLC=req.getCreditAmountCLC().split(",");
+				String[] creditAmountCLD=req.getCreditAmountCLD().split(",");
+				String[] CLCsettlementRate=req.getCLCsettlementRate().split(",");
+				String[] cldAmount=req.getCLDAmount().split(",");
+				for(int i=0;i<ClaimPayNo.length;i++) {
+				if(StringUtils.isNotBlank(ClaimPayNo[i])){
+				GetCashLossCreditRes cashLossList=getCassLossCredit(req);
+				GetCashLossCreditRes1 form= cashLossList.getCommonResponse().get(0);
+				if(ClaimPayNo[i].contains(form.getClaimPaymentNo())) {
+				String[] args=new String[17];
+				args[0]=req.getBranchCode();
+				args[1]=form.getContNo();
+				args[2]=form.getClaimNumber();
+				args[3]=form.getClaimPaymentNo();
+				args[4]=form.getCurrencyId();
+				args[5]=creditAmountCLC[i];
+				args[6]=form.getCurrencyValue();
+				args[7]=CLCsettlementRate[i];
+				args[8]=creditAmountCLD[i];
+				args[9]=req.getTransactionNo();
+				args[10]=req.getTransaction();
+				args[11]=req.getBranchCode();
+				args[12] = req.getRequestNo();
+				if("submit".equalsIgnoreCase(req.getButtonStatus())){
+					args[13] = "A";
+				}else{
+					args[13] = "P";
+				}
+				args[14] = req.getProposalNo();
+				args[15] = cldAmount[i];
+				args[16] = req.getCashlossType();
+				query = "insert.cash.loss.credit";
+				queryImpl.selectList(query, args);
+				if("submit".equalsIgnoreCase(req.getButtonStatus())){
+					query = "update.claim.payment";
+				 	String[] arg=new String[]{form.getContNo(),req.getBranchCode(),req.getRequestNo(),"A",form.getClaimNumber(),form.getClaimPaymentNo(),form.getContNo(),form.getClaimNumber(),form.getClaimPaymentNo()};
+				 	queryImpl.selectList(query, arg);
+					}
+				}
+			}
+		}
+	}
+			response.setMessage("Success");
+			response.setIsError(false);*/
+		    }catch (Exception e) {
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+			return response;
+	}
+	
+	public CommonResponse InsertReverseCashLossCredit(InsertReverseCashLossCreditReq req) {
+		CommonResponse response = new CommonResponse();
+		 try {
+			String query="";
+			 List<Map<String, Object>>result=new ArrayList<>();
+			 String clc="",cld="",paymentNo="",claimNo="";
+			if(StringUtils.isNotBlank(req.getCashlosstranId())){
+				query="GET_REVERSE_TRANS_LIST";
+				String [] obj = new String[2];
+				obj[0]= req.getProposalNo();
+				obj[1]= req.getCashlosstranId();
+				result = queryImpl.selectList(query, obj);
+				for(int i=0;i<result.size();i++) {
+					Map<String,Object>map=result.get(i);
+					clc=map.get("CREDITAMOUNTCLC")==null?"0":map.get("CREDITAMOUNTCLC").toString();
+					cld=map.get("CREDITAMOUNTCLD")==null?"0":map.get("CREDITAMOUNTCLD").toString();
+					paymentNo=map.get("CLAIMPAYMENT_NO")==null?"0":map.get("CLAIMPAYMENT_NO").toString();
+					claimNo=map.get("CLAIM_NO")==null?"0":map.get("CLAIM_NO").toString();
+					String[] args=new String[7];
+					args[0]=req.getCashlossType();
+					args[1]=clc;
+					args[2]=cld;
+					args[3]="0";
+					args[4]="0";
+					args[5]=map.get("CREDITTRXNNO")==null?"0.0":map.get("CREDITTRXNNO").toString();
+					args[6]=map.get("CLC_NO")==null?"0.0":map.get("CLC_NO").toString();
+					query="UPDATE_REVERSE_CASH_LOSS";
+					queryImpl.selectList(query, args);
+					query = "UPDATE_CASH_LOSS_PAYMENT";
+				 	String[] arg=new String[]{clc,req.getContNo(),claimNo,paymentNo};
+				 	queryImpl.selectList(query, arg);
+				}
+			}
+			response.setMessage("Success");
+			response.setIsError(false);
+		    }catch (Exception e) {
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+			return response;
+	}
+	
+	public CommonResponse CashLossmailTrigger(CashLossmailTriggerReq req) {
+		CommonResponse response = new CommonResponse();
+		try {
+			String result="";
+			String[] args = new String[3];
+			args[0] = req.getContNo();
+			args[1] = req.getContNo();
+			args[2] = req.getDepartmentId();
+			String selectQry = "GET_CASH_LOSS_CREADIT_MAIL";
+			List<Map<String,Object>> list = queryImpl.selectList(selectQry, args);
+			if(list!=null && list.size()>0) {
+				String query = "GET_CASSLOSS_ALLOCATE_COUNT";
+				int count = queryImpl.updateQuery(query, new String[] {req.getProposalNo()});
+				if(count==0) {
+					result = sendCashLossMail(list,req);
+				}else {
+					String query1="GET_CASSLOSS_ALLOCATE_AMOUNT_COUNT";
+					int count1 = queryImpl.updateQuery(query1,new String[] {req.getProposalNo(),req.getTransactionNo()});
+					if(count1>0) {
+						selectQry = "GET_REVERSE_TRANS_LIST";
+						list = queryImpl.selectList(selectQry,new String[] {req.getProposalNo(),req.getTransactionNo()});
+						result = sendCashLossMail(list,req);
+					}
+				} 
+			}
+			response.setMessage("Success");
+			response.setIsError(false);
+		    }catch (Exception e) {
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+			return response;
+	}
+	
+	public String sendCashLossMail(List<Map<String, Object>> list, CashLossmailTriggerReq req) {
+		try {
+			List<Map<String, Object>>listinfo=null;
+			Map<String, String> mapt=getMailDetails("51");
+			listinfo=getMailCCInfo("CASH_LOSS",req.getBranchCode());
+			Map<String, String> details=new HashMap<String, String>();
+			if(mapt != null && listinfo!=null && listinfo.size()>0){
+				Map<String,Object>map=listinfo.get(0);
+				String hostName=(String)mapt.get("SMTP_HOST");
+				String user = mapt.get("SMTP_USER");
+				String pwd = mapt.get("SMTP_PWD");
+				String port=mapt.get("SMTP_PORT");
+				String mailform = mapt.get("SMTP_ADDRESS");
+				String shortAddress = mapt.get("SMTP_SHORT_ADDRESS");
+				String subject = "Cash Loss Credit Mail";
+				String toAddress = (String) map.get("EMAIL_TO");
+				String ccAddress = (String) map.get("EMAIL_CC");
+				
+				details.put("TRANSACTION_NO", req.getTransactionNo());
+				details.put("LOGIN_ID", req.getLoginId());
+				details.put("CONTRACT_NO", req.getContNo());
+				details.put("TRANSACTION_DATE", req.getTransaction());
+				details.put("BRANCH_CODE", req.getBranchCode());
+				details.put("CLC_CURRENCY", req.getCurrencyId());
+				if(toAddress!=null && !"".equals(toAddress)){
+					String[] toAddresses = (toAddress.indexOf(",")!=-1)?toAddress.split(","):new String[]{toAddress};
+					String[] ccAddresses = new String[0];
+					if(ccAddress!=null && !"".equals(ccAddress)){
+						ccAddresses = (ccAddress.indexOf(",")!=-1)?ccAddress.split(","):new String[]{ccAddress};
+					}
+				
+				String msg=frameTemplate(details,list);
+				sendResponseMail(hostName, user, pwd, mailform, subject, msg, toAddresses, ccAddresses, shortAddress,port);
+				}
+}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public Map<String, String> getMailDetails(String appId){
+    	Map<String, String> details = new HashMap<String, String>();
+    	try {
+    		String  query= "GET_MAIL_DETAILS";
+        	List<Map<String, Object>> list = queryImpl.selectList(query, new String[]{appId});
+        	if(list != null && list.size()>0){
+	        	details = (Map)list.get(0);
+        	}
+        }catch(Exception e){
+        }
+    	return details;
+  }
+	
+	private String frameTemplate(Map<String, String> details, List<Map<String, Object>> list) {
+		DecimalFormat d = new DecimalFormat("#,###");
+		String messageContent="";
+		try {
+			String query = "GET_CURRENCY_NAME";
+			String branchcode=details.get("BRANCH_CODE")==null?"":details.get("BRANCH_CODE").toString();
+			messageContent="Dear Management,<br/><br/><br/>\r\n" + 
+			"\r\n" + 
+			"A transaction "+details.get("TRANSACTION_NO")+" has been processed by "+details.get("LOGIN_ID")+" on "+details.get("TRANSACTION_DATE")+" under contract number "+details.get("CONTRACT_NO")+".<br/>\r\n" + 
+			"Below were the list of pending allocations in Cash Loss Credit module on the transaction date for contract "+details.get("CONTRACT_NO")+" (including previous risk's pending credits).<br/>\r\n" + 
+			"<!DOCTYPE html>\r\n" + 
+					"<html lang=\"en\">\r\n" + 
+					"<body>\r\n" + 
+					"    <div style=\"width: 80%;\">\r\n" + 
+					"        <p style=\"color: #003286;font: small/ 1.5 Arial,Helvetica,sans-serif;font-size: 25px;font-weight: bold;text-decoration: underline;\">Below were the list of pending allocations in Cash Loss Credit module on the transaction date for contract "+details.get("CONTRACT_NO")+" (including previous risk's pending credits).</p>\r\n" + 
+					"        <table style=\"width:100%;border: 1px solid #003286; font: small/ 1.5 Arial,Helvetica,sans-serif;\">\r\n" + 
+					"            <tr>\r\n" + 
+					"                <th style=\"border: 1px solid #003286; font: small/ 1.5 Arial,Helvetica,sans-serif;background-color: #003286;color: white;font-weight: bold;\">S No</th>\r\n" + 
+					"                <th style=\"border: 1px solid #003286; font: small/ 1.5 Arial,Helvetica,sans-serif;background-color: #003286;color: white;font-weight: bold;\">Contract No</th>\r\n" + 
+					"                <th style=\"border: 1px solid #003286; font: small/ 1.5 Arial,Helvetica,sans-serif;background-color: #003286;color: white;font-weight: bold;\">Claim No</th>\r\n" + 
+					"                <th style=\"border: 1px solid #003286; font: small/ 1.5 Arial,Helvetica,sans-serif;background-color: #003286;color: white;font-weight: bold;\">Claim Payment No</th>\r\n" + 
+					"                <th style=\"border: 1px solid #003286; font: small/ 1.5 Arial,Helvetica,sans-serif;background-color: #003286;color: white;font-weight: bold;\">Paid Date</th>\r\n" + 
+					"                <th style=\"border: 1px solid #003286; font: small/ 1.5 Arial,Helvetica,sans-serif;background-color: #003286;color: white;font-weight: bold;\">CLD Currency</th>\r\n" + 
+					"                <th style=\"border: 1px solid #003286; font: small/ 1.5 Arial,Helvetica,sans-serif;background-color: #003286;color: white;font-weight: bold;\">CLD Amount</th>\r\n" + 
+					"                <th style=\"border: 1px solid #003286; font: small/ 1.5 Arial,Helvetica,sans-serif;background-color: #003286;color: white;font-weight: bold;\">CLC Currency</th>\r\n" + 
+					"                <th style=\"border: 1px solid #003286; font: small/ 1.5 Arial,Helvetica,sans-serif;background-color: #003286;color: white;font-weight: bold;\">Credit Amount in CLC Currency</th>\r\n" + 
+					"                <th style=\"border: 1px solid #003286; font: small/ 1.5 Arial,Helvetica,sans-serif;background-color: #003286;color: white;font-weight: bold;\">Credit Amount in CLD Currency</th>\r\n" + 
+					"                <th style=\"border: 1px solid #003286; font: small/ 1.5 Arial,Helvetica,sans-serif;background-color: #003286;color: white;font-weight: bold;\">CLC Settlement rate</th>\r\n" + 
+					"                <th style=\"border: 1px solid #003286; font: small/ 1.5 Arial,Helvetica,sans-serif;background-color: #003286;color: white;font-weight: bold;\">Status</th>\r\n" + 
+					"            </tr>\r\n" ;
+			
+			
+			for(int i=0;i<list.size();i++) {
+				Map<String,Object>map=list.get(i);
+				String cldcurrencyName = queryImpl.selectList(query, new String[]{branchcode,map.get("CLDCURRENCY_ID")==null?"":map.get("CLDCURRENCY_ID").toString()}).toString();
+				String clccurrencyName = queryImpl.selectList(query, new String[]{branchcode,details.get("CLC_CURRENCY")==null?"":details.get("CLC_CURRENCY").toString()}).toString();
+				String status="";
+				Double cldamount=map.get("CLD_AMOUNT")==null?0d:Double.parseDouble(map.get("CLD_AMOUNT").toString());
+				Double creditcldamount=map.get("CREDITAMOUNTCLD")==null?0d:Double.parseDouble(map.get("CREDITAMOUNTCLD").toString());
+				if(cldamount==creditcldamount) {
+					status="Fully Credited";
+				}else if(cldamount<creditcldamount) {
+					status="Partially Credit";
+				}else if(creditcldamount<=0) {
+					status="Unallocated";
+				}
+					messageContent+="<tr>\r\n"+
+				"				 <td style=\"border: 1px solid #003286; font: small/ 1.5 Arial,Helvetica,sans-serif;\">"+(i+1)+"</td>\r\n" + 
+				"                <td style=\"border: 1px solid #003286; font: small/ 1.5 Arial,Helvetica,sans-serif;\">"+(map.get("CONTRACT_NO")==null?"":map.get("CONTRACT_NO").toString())+"</td>\r\n" + 
+				"                <td style=\"border: 1px solid #003286; font: small/ 1.5 Arial,Helvetica,sans-serif;\">"+(map.get("CLAIM_NO")==null?"":map.get("CLAIM_NO").toString())+"</td>\r\n" + 
+				"                <td style=\"border: 1px solid #003286; font: small/ 1.5 Arial,Helvetica,sans-serif;\">"+(map.get("CLAIMPAYMENT_NO")==null?"":map.get("CLAIMPAYMENT_NO").toString())+"</td>\r\n" + 
+				"                <td style=\"border: 1px solid #003286; font: small/ 1.5 Arial,Helvetica,sans-serif;\">"+(map.get("CREDITDATE")==null?"":map.get("CREDITDATE").toString())+"</td>\r\n" + 
+				"                <td style=\"border: 1px solid #003286; font: small/ 1.5 Arial,Helvetica,sans-serif;\">"+(cldcurrencyName)+"</td>\r\n" + 
+				"                <td style=\"border: 1px solid #003286; font: small/ 1.5 Arial,Helvetica,sans-serif;\">"+(map.get("CLD_AMOUNT")==null?"":d.format(Double.parseDouble(map.get("CLD_AMOUNT").toString())))+"</td>\r\n" + 
+				"                <td style=\"border: 1px solid #003286; font: small/ 1.5 Arial,Helvetica,sans-serif;\">"+(clccurrencyName)+"</td>\r\n" + 
+				"                <td style=\"border: 1px solid #003286; font: small/ 1.5 Arial,Helvetica,sans-serif;\">"+(map.get("CREDITAMOUNTCLC")==null?"":d.format(Double.parseDouble(map.get("CREDITAMOUNTCLC").toString())))+"</td>\r\n" + 
+				"                <td style=\"border: 1px solid #003286; font: small/ 1.5 Arial,Helvetica,sans-serif;\">"+(map.get("CREDITAMOUNTCLD")==null?"":d.format(Double.parseDouble(map.get("CREDITAMOUNTCLD").toString())))+"</td>\r\n" + 
+				"                <td style=\"border: 1px solid #003286; font: small/ 1.5 Arial,Helvetica,sans-serif;\">"+(map.get("EXCHANGE_RATE")==null?"":map.get("EXCHANGE_RATE").toString())+"</td>\r\n" + 
+				"                <td style=\"border: 1px solid #003286; font: small/ 1.5 Arial,Helvetica,sans-serif;\">"+(status)+"</td>\r\n" + 
+				"</tr>\r\n";
+			}
+			messageContent+="        </table>\r\n" + 
+				"    </div>\r\n" + 
+				"</body>\r\n" + 
+				"\r\n" + 
+				"</html>";
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	
+	return messageContent.toString();
+	}
+	
+	private List<Map<String, Object>> getMailCCInfo(String type, String branchCode) {
+    	List<Map<String, Object>>list=null;
+    	try {
+    		String  query= "GET_MAILCC_INFO";
+        	 list = queryImpl.selectList(query,new String[]{type,branchCode});
+        	
+        }catch(Exception e){
+        }
+    	return list;
+	}
+	
+	 public void sendResponseMail(final String SMTP_HOST_NAME, final String user,  final String pwd, final String SMTP_MAIL_FROM, final String subject,
+	    		final String message, final String[] toAddress, final String[] ccAddress, final String SMTP_SHORT_ADDRESS,final String SMTP_PORT){
+		  	String SMTP_AUTH_USER; 
+			String SMTP_AUTH_PWD;
+	    	SMTP_AUTH_USER = user;
+	    	SMTP_AUTH_PWD = pwd;
+	    	try{
+		    	Properties props = new Properties();
+		    	props.setProperty("mail.transport.protocol", "smtp");
+				props.put("mail.smtp.host", SMTP_HOST_NAME);
+				props.put("mail.smtp.port", SMTP_PORT);
+				props.put("mail.smtp.starttls.enable", "true");
+				 props.put("mail.debug", "true");
+				Session session = null; 
+				if(SMTP_AUTH_PWD != null && !"".equals(SMTP_AUTH_PWD.trim())){
+					props.put("mail.smtp.auth", "true");
+					Authenticator auth = new SMTPAuthenticator();
+					session = Session.getInstance(props, auth);
+				}else{
+					props.put("mail.smtp.auth", "false");
+					session = Session.getInstance(props);
+				}
+				session.setDebug(false);
+				Message msg1 = new MimeMessage(session);
+				InternetAddress addressFrom = new InternetAddress(SMTP_MAIL_FROM, SMTP_SHORT_ADDRESS);
+				msg1.setFrom(addressFrom);
+				if(toAddress != null && toAddress.length>0){
+					InternetAddress[] addressTo = new InternetAddress[toAddress.length];			
+					for (int i = 0; i < toAddress.length; i++){
+						addressTo[i] = new InternetAddress(toAddress[i]);
+						msg1.addRecipient(Message.RecipientType.TO, addressTo[i]);
+					}
+				}
+				if(ccAddress != null && ccAddress.length>0){
+					InternetAddress[] addressToCC = new InternetAddress[ccAddress.length];			
+					for(int i=0;i<ccAddress.length;i++){
+						addressToCC[i] = new InternetAddress(ccAddress[i]);
+						msg1.addRecipient(Message.RecipientType.CC, addressToCC[i]);
+					}
+				}
+				msg1.setSubject(subject);
+				msg1.setContent(message, "text/html");
+				System.out.println(msg1);
+				Transport.send(msg1);
+			}catch(Exception e){
+				System.out.println(e);
+			}
+	    }
+	  
+	  private class SMTPAuthenticator extends javax.mail.Authenticator{
+		  	String SMTP_AUTH_USER = null; 
+			String SMTP_AUTH_PWD = null;
+			public PasswordAuthentication getPasswordAuthentication(){
+				String username = SMTP_AUTH_USER;
+				String password = SMTP_AUTH_PWD;
+				return new PasswordAuthentication(username, password);
+			}
+		}
+	
+	  public getReverseCassLossCreditRes getReverseCassLossCredit(String proposalNo, String cashlosstranId) {
+			getReverseCassLossCreditRes res = new getReverseCassLossCreditRes();
+		     double value1=0.0;
+		     try {
+				List<Map<String, Object>>result=new ArrayList<>();
+					String query = "GET_REVERSE_TRANS_LIST";
+					result = queryImpl.selectList(query,new String[] {proposalNo,cashlosstranId});
+					for(int i=0;i<result.size();i++) {
+						Map<String,Object>map=result.get(i);
+						value1=value1+(map.get("CREDITAMOUNTCLC")==null?0.0:Double.parseDouble(map.get("CREDITAMOUNTCLC").toString()));
+								
+						}
+					res.setResponse(String.valueOf(value1));
+					res.setMessage("Success");
+					res.setIsError(false);
+				    }catch (NumberFormatException e) {
+						log.error(e);
+						e.printStackTrace();
+						res.setMessage("Failed");
+						res.setIsError(true);
+					}
+					return res;
+			}
+
+		public getCurrencyShortNameRes getCurrencyShortName(String currencyId, String branchCode) {
+			getCurrencyShortNameRes response = new getCurrencyShortNameRes();
+			String res = "";
+			try {
+			List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
+					String query = "GET_SHRT_NAME";
+					String args[] = new String[2];
+					args[0] = currencyId;
+					args[1] = branchCode;
+					
+					list = queryImpl.selectList(query, args);
+					if(!CollectionUtils.isEmpty(list)){
+						res = list.get(0).get("SHORT_NAME")==null?"":list.get(0).get("SHORT_NAME").toString();
+						}
+					
+					response.setResponse(String.valueOf(res));
+					response.setMessage("Success");
+					response.setIsError(false);
+				    }catch (Exception e) {
+						log.error(e);
+						e.printStackTrace();
+						response.setMessage("Failed");
+						response.setIsError(true);
+					}
+					return response;
+			}
+		@Override
+		public ViewPremiumDetailsRIRes viewPremiumDetailsRI(ViewPremiumDetailsRIReq req) {
+			ViewPremiumDetailsRIRes response = new ViewPremiumDetailsRIRes();
+			ViewPremiumDetailsRIRes1 res = new ViewPremiumDetailsRIRes1();
+			try {
+				RskPremiumDetailsRi data =	pdRIRepo.findByTransactionNoAndContractNoAndReinsurerIdAndBranchCode
+						(new BigDecimal(req.getTransactionNo()),new BigDecimal(req.getContractNo()),req.getReinsurerId(),req.getBranchCode()); 
+						if(data!=null) { //CON,BRA,REINID
+						res.setAccountPeriod(data.getAccountPeriodQtr()==null?"":data.getAccountPeriodQtr().toString());	
+						res.setAccountPeriodDate(data.getAccountingPeriodDate()==null?"":data.getAccountingPeriodDate().toString());	
+						res.setAccountPeriodyear(data.getAccountPeriodYear()==null?"":data.getAccountPeriodYear().toString());	
+						res.setAdjustmentpremium(data.getAdjustmentPremiumOc()==null?"":data.getAdjustmentPremiumOc().toString());
+						res.setAmendmentDate(data.getAmendmentDate()==null?"":data.getAmendmentDate().toString());
+						res.setBrokerage(data.getBrokerage()==null?"":data.getBrokerage().toString());
+						res.setCashLossCredit(data.getCashLossCreditOc()==null?"":data.getCashLossCreditOc().toString());
+						res.setCashLossPaid(data.getCashLosspaidOc()==null?"":data.getCashLosspaidOc().toString());;
+						res.setCedentRef(data.getCedantReference()==null?"":data.getCedantReference ().toString());
+						res.setClaimspaid(data.getClaimsPaidOc()==null?"":data.getClaimsPaidOc().toString());
+						res.setCliamPortfolioin(data.getClaimPortfolioinOc()==null?"":data.getClaimPortfolioinOc().toString());
+						res.setCliamportfolioout(data.getClaimPortfolioOutOc()==null?"":data.getClaimPortfolioOutOc().toString());					
+						res.setCommission(data.getCommission()==null?"":data.getCommission().toString());	
+						res.setCommissionQuotaShare(data.getCommissionQuotashareOc()==null?"":data.getCommissionQuotashareOc().toString());	
+						res.setCommissionSurplus(data.getCommissionSurplusOc()==null?"":data.getCommissionSurplusOc().toString());	
+						res.setCurrency(data.getCurrencyId()==null?"":data.getCurrencyId().toString());	
+						res.setCurrencyId(data.getCurrencyId()==null?"":data.getCurrencyId().toString());	
+						res.setEnteringMode(data.getEnteringMode()==null?"":data.getEnteringMode().toString());
+						res.setExchRate(data.getExchangeRate()==null?"":data.getExchangeRate().toString());
+						res.setInceptionDate(data.getEntryDate()==null?"":data.getEntryDate().toString());
+						res.setInstlmentNo(data.getInstalmentNumber()==null?"":data.getInstalmentNumber().toString());
+						res.setInterest(data.getInterestOc()==null?"":data.getInterestOc().toString());
+						res.setLossParticipation(data.getLpcOc()==null?"":data.getLpcOc().toString());
+						res.setLossParticipationDC(data.getLpcDc()==null?"":data.getLpcDc().toString());
+						res.setLossReserveReleased(data.getLossReserveReleasedOc()==null?"":data.getLossReserveReleasedOc().toString());
+						res.setLossReserveRetained(data.getLossReserveretainedOc()==null?"":data.getLossReserveretainedOc().toString());
+						res.setLrAllocatedAmount(data.getLrdAllocatedTillDate()==null?"":data.getLrdAllocatedTillDate().toString());
+						res.setMdpremium(data.getMDpremiumOc()==null?"":data.getMDpremiumOc().toString());
+						res.setNetDue(data.getNetdueOc()==null?"":data.getNetdueOc().toString());	
+						res.setOsbYN(data.getOsbyn()==null?"":data.getOsbyn().toString());
+						res.setOsClaimsLossUpdateOC(data.getOsclaimLossupdateOc()==null?"":data.getOsclaimLossupdateOc().toString());
+						res.setOtherCost(data.getOtherCostOc()==null?"":data.getOtherCostOc().toString());
+						res.setOverriderUSD(data.getOverriderAmtDc()==null?"":data.getOverriderAmtDc().toString());
+						res.setOverrider(data.getOverrider()==null?"":data.getOverrider().toString());
+						res.setPrAllocatedAmount(data.getPrdAllocatedTillDate()==null?"":data.getPrdAllocatedTillDate().toString());
+						res.setPredepartment(data.getPremiumClass()==null?"":data.getPremiumClass().toString());
+						res.setPremiumportifolioIn(data.getPremiumPortfolioinOc()==null?"":data.getPremiumPortfolioinOc().toString());
+						res.setPremiumportifolioout(data.getPremiumPortfoliooutOc()==null?"":data.getPremiumPortfoliooutOc().toString());
+						res.setPremiumQuotaShare(data.getPremiumQuotashareOc()==null?"":data.getPremiumQuotashareOc().toString());
+						res.setPremiumReserveQuotaShare(data.getPremiumreserveQuotashareOc()==null?"":data.getPremiumreserveQuotashareOc().toString());
+						res.setPremiumReserveReleased(data.getPremiumReserveRealsedOc()==null?"":data.getPremiumReserveRealsedOc().toString());
+						res.setPremiumSurplus(data.getPremiumSubclass()==null?"":data.getPremiumSubclass().toString());
+						res.setProfitCommission(data.getProfitCommissionOc()==null?"":data.getProfitCommissionOc().toString());
+						res.setReceiptno(data.getReceiptNo()==null?"":data.getReceiptNo().toString());
+						res.setRecuirementpremium(data.getRecPremiumOc()==null?"":data.getRecPremiumOc().toString());
+						res.setRemarks(data.getRemarks()==null?"":data.getRemarks().toString());
+						res.setRicession(data.getRiCession()==null?"":data.getRiCession().toString());
+						res.setSectionName(data.getSectionName()==null?"":data.getSectionName().toString());
+		//				res.setSectionType(data.gets);
+						res.setVatPremium(data.getVatPremiumOc()==null?"":data.getVatPremiumOc().toString());
+						res.setVatPremiumDc(data.getVatPremiumDc()==null?"":data.getVatPremiumDc().toString());
+						res.setSlideScaleCom(data.getScCommOc()==null?"":data.getScCommOc().toString());
+						res.setSlideScaleComDC(data.getScCommDc()==null?"":data.getScCommDc().toString());
+						res.setStatementDate(data.getStatementDate()==null?"":data.getStatementDate().toString());
+						res.setStatus(data.getStatus()==null?"":data.getStatus().toString());
+						res.setSubProfitId(data.getPremiumSubclass()==null?"":data.getPremiumSubclass().toString());
+						res.setTax(data.getTax()==null?"":data.getTax().toString());
+						res.setTaxDedectSource(data.getTdsOc()==null?"":data.getTdsOc().toString());
+						res.setTaxDedectSourceDc(data.getTdsDc()==null?"":data.getTdsDc().toString());
+						res.setTransaction(data.getTransactionNo()==null?"":data.getTransactionNo().toString());
+						res.setWithHoldingTaxDC(data.getWithHoldingTaxDc()==null?"":data.getWithHoldingTaxDc().toString());
+						res.setWithHoldingTaxOC(data.getWithHoldingTaxOc()==null?"":data.getWithHoldingTaxOc().toString());
+						res.setXlCost(data.getXlCostOc()==null?"":data.getXlCostOc().toString());
+						response.setCommonResponse(res);		
+						}
+				response.setMessage("Success");
+				response.setIsError(false);
+			    }catch (Exception e) {
+					e.printStackTrace();
+					response.setMessage("Failed");
+					response.setIsError(true);
+			    }
+			return response;
+		}
+		public int getCountAccountPeriod(InsertPremiumReq req) {
+			List<Map<String,Object>> list = null;
+			int count=0;
+			int count1=1;
+			try {
+				String query="GET_ACCOUNT_PERIOD_COUNT";
+				list = queryImpl.selectList(query,new String[]{req.getBranchCode(),req.getAccountPeriodDate(),req.getContNo(),req.getDepartmentId(),req.getContNo(),req.getDepartmentId()});
+				if (!CollectionUtils.isEmpty(list)) {
+					count= Integer.valueOf(list.get(0).get("COUNT") == null ? ""
+							: list.get(0).get("COUNT").toString());
+				}
+				
+				
+				if(!(count>=1)){
+				query="GET_ACCOUNT_PERIOD_COUNT1";
+				list = queryImpl.selectList(query,new String[]{req.getAccountPeriodDate(),req.getContNo(),req.getDepartmentId()});
+				if (!CollectionUtils.isEmpty(list)) {
+					count1= Integer.valueOf(list.get(0).get("ACCOUNT_PERIOD_COUNT1") == null ? ""
+							: list.get(0).get("ACCOUNT_PERIOD_COUNT1").toString());
+				}
+				
+				
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			return count1;
+		}
+		
+	
 }

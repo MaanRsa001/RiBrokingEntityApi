@@ -1,4 +1,4 @@
-package com.maan.insurance.jpa.entity.claim;
+package com.maan.insurance.model.entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -87,5 +87,8 @@ private static final long serialVersionUID = 1L;
     
     @Column(name="ANNUAL_AGGRE_LAIBLE")
     private BigDecimal annualAggreLaible;
+    
+    @Column(name="REFERENCE_NO")
+    private String     referenceNo ; //for RIBROKING
 
 }

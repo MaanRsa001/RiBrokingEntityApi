@@ -63,7 +63,6 @@ import com.maan.insurance.model.res.reports.ReportsCommonRes;
 import com.maan.insurance.model.res.retro.CommonSaveRes;
 import com.maan.insurance.service.impl.QueryImplemention;
 import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
-import com.maan.insurance.service.impl.claim.ClaimServiceImple;
 import com.maan.insurance.service.impl.jasper.JasperConfiguration;
 import com.maan.insurance.service.reports.ReportsService;
 import com.maan.insurance.validation.Formatters;
@@ -74,7 +73,7 @@ import oracle.jdbc.OracleTypes;
 
 @Service
 public class ReportsServiceImple implements ReportsService {
-	private Logger logger = LogManager.getLogger(ClaimServiceImple.class);
+	private Logger logger = LogManager.getLogger(ReportsServiceImple.class);
 	@Autowired
 	private QueryImplemention queryImpl;
 	

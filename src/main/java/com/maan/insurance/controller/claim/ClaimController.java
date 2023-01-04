@@ -34,6 +34,7 @@ import com.maan.insurance.model.req.claim.InsertCliamDetailsMode2Req;
 import com.maan.insurance.model.req.claim.InsertCliamDetailsMode3Req;
 import com.maan.insurance.model.req.claim.InsertCliamDetailsMode8Req;
 import com.maan.insurance.model.req.claim.ProposalNoReq;
+import com.maan.insurance.model.req.claim.claimNoListReq;
 import com.maan.insurance.model.res.ClaimPaymentListRes;
 import com.maan.insurance.model.res.GetShortnameRes;
 import com.maan.insurance.model.res.claim.AllocListRes;
@@ -71,6 +72,7 @@ import com.maan.insurance.model.res.claim.InsertCliamDetailsMode8Res;
 import com.maan.insurance.model.res.claim.ProductIdListRes;
 import com.maan.insurance.model.res.claim.ProductIdListRes1;
 import com.maan.insurance.model.res.claim.ProposalNoRes;
+import com.maan.insurance.model.res.claim.claimNoListRes;
 import com.maan.insurance.service.claim.ClaimService;
 import com.maan.insurance.validation.Claim.ClaimValidation;
 
@@ -82,7 +84,7 @@ public class ClaimController {
 	private Logger log = LogManager.getLogger(ClaimController.class);
 	
 	@Autowired
-	private ClaimJpaServiceImpl claimService;
+	private ClaimService claimService;
 	@Autowired
 	private ClaimValidation claimValidation;
 	
@@ -339,5 +341,14 @@ public class ClaimController {
 			throw new CommonValidationException("error",error);
 		}
 		return claimService.insertCliamDetailsMode12(req);
-	}	
+	}
+	@PostMapping("/claimNoList")
+	public claimNoListRes claimNoList(@RequestBody claimNoListReq req) throws CommonValidationException {
+		List<ErrorCheck> error = claimValidation.claimNoListVali(req);
+		if(error != null && error.size() > 0) {
+			
+			throw new CommonValidationException("error",error);
+		}
+		return claimService.claimNoList(req);
+	}
 }

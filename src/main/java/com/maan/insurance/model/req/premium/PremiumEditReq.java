@@ -37,6 +37,8 @@ private String productId;
 
 @JsonProperty("TransDropDownVal")
 private String transDropDownVal;
-	
+
+@JsonProperty("Mode")
+private String mode;
 
 }

@@ -84,8 +84,8 @@ public class PremiumInsertMethodReq {
 	private String departmentId;
 	@JsonProperty("TaxDedectSource")
 	private String taxDedectSource;
-	@JsonProperty("ServiceTax")
-	private String serviceTax;
+	//@JsonProperty("ServiceTax")
+	//private String serviceTax;
 	@JsonProperty("Bonus")
 	private String bonus;
 	@JsonProperty("Predepartment")
@@ -147,6 +147,11 @@ public class PremiumInsertMethodReq {
 	private String adjustmentpremiumtemp;
 	@JsonProperty("EPIourshareview")
 	private String ePIourshareview;
-
+	@JsonProperty("VatPremium")
+	private String vatPremium;
+	@JsonProperty("BrokerageVat")
+	private String brokerageVat;
+	@JsonProperty("DocumentType")
+	private String documentType;
 
 }

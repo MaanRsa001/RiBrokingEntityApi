@@ -10,6 +10,7 @@ import com.maan.insurance.model.req.DropDown.GetCurrencyIdReq;
 import com.maan.insurance.model.req.DropDown.GetDepartmentDropDownReq;
 import com.maan.insurance.model.req.DropDown.GetDepartmentieModuleDropDownReq;
 import com.maan.insurance.model.req.DropDown.GetInwardBusinessTypeDropDownReq;
+import com.maan.insurance.model.req.DropDown.GetPlacedProposalListReq;
 import com.maan.insurance.model.req.DropDown.GetPreDepartmentDropDownReq;
 
 import com.maan.insurance.model.req.DropDown.GetProductModuleDropDownReq;
@@ -22,13 +23,23 @@ import com.maan.insurance.model.req.DropDown.GetSubProfitCentreMultiDropDownReq;
 import com.maan.insurance.model.req.DropDown.GetSubProfitCentreMultiReq;
 
 import com.maan.insurance.model.req.DropDown.GetTreatyTypeDropDownReq;
+import com.maan.insurance.model.req.DropDown.GetYearToListValueReq;
+import com.maan.insurance.model.req.DropDown.updateSubEditModeReq;
 import com.maan.insurance.model.req.proportionality.ContractReq;
 
 import com.maan.insurance.model.res.DropDown.CommonResponse;
+import com.maan.insurance.model.res.DropDown.GetBouquetCedentBrokerInfoRes;
+import com.maan.insurance.model.res.DropDown.GetBouquetExistingListRes;
+import com.maan.insurance.model.res.DropDown.GetBouquetListRes;
 import com.maan.insurance.model.res.DropDown.GetCommonDropDownRes;
 import com.maan.insurance.model.res.DropDown.GetCommonValueRes;
 import com.maan.insurance.model.res.DropDown.GetContractValRes;
+import com.maan.insurance.model.res.DropDown.GetNewContractInfoRes;
+import com.maan.insurance.model.res.DropDown.GetNotPlacedProposalListRes;
 import com.maan.insurance.model.res.DropDown.GetOpenPeriodRes;
+import com.maan.insurance.model.res.DropDown.GetPlacementInfoListRes;
+import com.maan.insurance.model.res.DropDown.GetYearToListValueRes;
+import com.maan.insurance.model.res.retro.CommonSaveRes;
 
 @Service
 public interface DropDownService {
@@ -170,5 +181,47 @@ public interface DropDownService {
 
 	GetContractValRes getContractValidation(ContractReq req);
 
+	GetBouquetExistingListRes getBouquetExistingList(String branchCode, String bouquetNo, String bouquetYN);
 
+	GetCommonDropDownRes getStatusDropDown(String branchCode);
+
+	GetCommonDropDownRes getSubStatusDropDown(String branchCode, String statusCode);
+
+	CommonResponse updateBqEditMode(String proposalNo, String val, String updateProposalNo);
+
+	GetCommonDropDownRes getPlacedProposalList(GetPlacedProposalListReq req);
+
+	GetNotPlacedProposalListRes getNotPlacedProposalList(GetPlacedProposalListReq req);
+
+	CommonResponse updateRenewalEditMode(updateSubEditModeReq req);
+
+	CommonResponse updateEditMode(updateSubEditModeReq req);
+
+	CommonResponse updateSubEditMode(updateSubEditModeReq req);
+
+	GetCommonDropDownRes getDeptName(String branchCode);
+
+	GetYearToListValueRes getYearToListValue(GetYearToListValueReq req);
+
+	CommonResponse updateBaseLayer(String baseLayer, String proposalNo);
+
+	GetCommonDropDownRes getPaymentPartnerlist(String branchCode, String cedingId, String brokerId);
+
+	CommonResponse updateProposalno(String referenceNo, String proposalNo);
+
+	GetBouquetListRes getBouquetList(String branchCode);
+
+	GetBouquetExistingListRes getBaseLayerExistingList(String branchCode, String baseProposalNo);
+
+	GetBouquetCedentBrokerInfoRes getBouquetCedentBrokerInfo(String bouquetNo);
+
+	CommonSaveRes getBouquetCedentBrokercheck(String bouquetNo, String cedingCo, String broker);
+
+	CommonSaveRes gePltDisableStatus(String proposalNo);
+
+	CommonSaveRes getUWFromTocheck(String bouquetNo, String uwYear, String uwYearTo);
+
+	GetNewContractInfoRes getNewContractInfo(String branchCode, String proposalNo);
+
+	GetPlacementInfoListRes getPlacementInfoList(String branchCode, String layerProposalNo);
 }

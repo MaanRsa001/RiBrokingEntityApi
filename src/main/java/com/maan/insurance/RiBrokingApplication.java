@@ -8,16 +8,16 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 @ComponentScan(basePackages = {"com.maan.insurance"})
-public class ReinsuranceApplication extends SpringBootServletInitializer{
+public class RiBrokingApplication extends SpringBootServletInitializer{
 
 	
 	public static void main(String[] args) {
-		SpringApplication.run(ReinsuranceApplication.class, args);
+		SpringApplication.run(RiBrokingApplication.class, args);
 	}
 
 	@Override
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-		return application.sources(ReinsuranceApplication.class);
+		return application.sources(RiBrokingApplication.class);
 	}
 	
 }

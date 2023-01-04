@@ -77,7 +77,7 @@ public class NotificationServiceImpl implements NotificationService {
 
 		List<ReadMailRes> reslist = new ArrayList<ReadMailRes>();
 		
-		MailMaster mailCred =  mailRepo.findByInsCompanyId(req.getInsuranceId());
+		MailMaster mailCred =null; // mailRepo.findByInsCompanyId(req.getInsuranceId());
 		
 		Properties props = new Properties();
 		
@@ -170,7 +170,7 @@ public class NotificationServiceImpl implements NotificationService {
 		
 		SuccessRes res = new SuccessRes();
 		
-		MailMaster mailCred =  mailRepo.findByInsCompanyId(req.getInsuranceId());
+		MailMaster mailCred = null; //mailRepo.findByAppId(req.getInsuranceId());
 		
  		Properties prop = new Properties();
 		prop.put("mail.smtp.host", mailCred.getSmtpHost());
@@ -326,7 +326,7 @@ public class NotificationServiceImpl implements NotificationService {
 
 		List<ReadMailRes> reslist = new ArrayList<ReadMailRes>();
 		
-		MailMaster mailCred =  mailRepo.findByInsCompanyId(req.getInsuranceId());
+		MailMaster mailCred =null;  //mailRepo.findByInsCompanyId(req.getInsuranceId());
 		
 		Properties props = new Properties();
 		
@@ -394,7 +394,7 @@ public class NotificationServiceImpl implements NotificationService {
 
 		SuccessRes res = new SuccessRes();
 		
-		MailMaster mailCred =  mailRepo.findByInsCompanyId(req.getInsuranceId());
+		MailMaster mailCred =null;//  mailRepo.findByInsCompanyId(req.getInsuranceId());
 		
 		Properties props = new Properties();
 		props.setProperty("mail.store.protocol", "imaps");

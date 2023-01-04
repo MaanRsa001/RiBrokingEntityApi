@@ -86,6 +86,7 @@ import com.maan.insurance.model.res.proportionality.ShowSecondpageEditItemsRes;
 import com.maan.insurance.model.res.proportionality.ShowSecondpageEditItemsRes1;
 import com.maan.insurance.model.res.proportionality.ViewRiskDetailsRes;
 import com.maan.insurance.model.res.proportionality.ViewRiskDetailsRes1;
+import com.maan.insurance.model.res.proportionality.checkAvialabilityRes;
 import com.maan.insurance.model.res.proportionality.getprofitCommissionDeleteRes;
 import com.maan.insurance.model.res.proportionality.getprofitCommissionEditRes;
 import com.maan.insurance.model.res.proportionality.getprofitCommissionEditRes1;
@@ -4634,7 +4635,32 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 			e.printStackTrace();
 		}
 	}
-	
+	public checkAvialabilityRes checkAvialability(String proposalno,String pid) {
+		checkAvialabilityRes response = new checkAvialabilityRes();
+		boolean saveFlag = false;
+		String result = "";
+		try {
+			List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
+			String query = "risk.select.getRskProIdByProNo";
+			list = queryImpl.selectList(query, new String [] {proposalno});
+			if(!CollectionUtils.isEmpty(list)) {
+				 result = list.get(0).get("RSK_PRODUCTID")==null?"":list.get(0).get("RSK_PRODUCTID").toString();
+				}
+				if (result.equals(pid)) {
+					saveFlag = true;
+				} else {
+					saveFlag = false;
+				}
+			response.setResponse(String.valueOf(saveFlag));
+			response.setMessage("Success");
+			response.setIsError(false);
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.setMessage("Failed");
+			response.setIsError(true);
+		}
+		return response;
+	}
 }
 
 

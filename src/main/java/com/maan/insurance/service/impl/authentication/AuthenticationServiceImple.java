@@ -34,6 +34,7 @@ import com.maan.insurance.jpa.entity.propPremium.TtrnCashLossCredit;
 import com.maan.insurance.jpa.entity.propPremium.TtrnDepositRelease;
 import com.maan.insurance.jpa.entity.xolpremium.TtrnMndInstallments;
 import com.maan.insurance.jpa.repository.propPremium.TtrnDepositReleaseRepository;
+import com.maan.insurance.jpa.service.impl.PropPremiumJpaServiceImpl;
 import com.maan.insurance.model.entity.ConstantDetail;
 import com.maan.insurance.model.entity.RskPremiumDetails;
 import com.maan.insurance.model.entity.RskPremiumDetailsTemp;
@@ -44,6 +45,7 @@ import com.maan.insurance.model.repository.TtrnCashLossCreditRepository;
 import com.maan.insurance.model.req.authentication.AuthenticationChangesReq;
 import com.maan.insurance.model.req.authentication.AuthenticationListReq;
 import com.maan.insurance.model.req.authentication.GetPremiumDetailsReq;
+import com.maan.insurance.model.req.premium.GetCassLossCreditReq;
 import com.maan.insurance.model.req.premium.InsertPremiumReq;
 import com.maan.insurance.model.res.DropDown.GetCommonValueRes;
 import com.maan.insurance.model.res.authentication.AuthenticationListRes;
@@ -55,7 +57,6 @@ import com.maan.insurance.model.res.retro.CommonResponse;
 import com.maan.insurance.service.authentication.AuthenticationService;
 import com.maan.insurance.service.impl.QueryImplemention;
 import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
-import com.maan.insurance.service.impl.premium.PropPremiumServiceImple;
 import com.maan.insurance.validation.Formatters;
 import com.maan.insurance.validation.Claim.ValidationImple;
 @Service
@@ -81,7 +82,7 @@ public class AuthenticationServiceImple implements AuthenticationService{
 	private TtrnCashLossCreditRepository clRepo;
 	
 	@Autowired
-	private PropPremiumServiceImple propPreImple;
+	private PropPremiumJpaServiceImpl propPreImple;
 	@PersistenceContext
 	private EntityManager em;
 	private Properties prop = new Properties();
@@ -372,7 +373,7 @@ public class AuthenticationServiceImple implements AuthenticationService{
 		 		// perform update
 		 		em.createQuery(update1).executeUpdate();
 		 		
-		 		InsertPremiumReq req = new InsertPremiumReq();
+		 		GetCassLossCreditReq req = new GetCassLossCreditReq();
 		 		req.setGetCashLossCreditReq1(beanObj.getGetCashLossCreditReq1());	
 		 		req.setContNo(beanObj.getContractNo());
 		 		req.setDepartmentId(beanObj.getDepartmentId());

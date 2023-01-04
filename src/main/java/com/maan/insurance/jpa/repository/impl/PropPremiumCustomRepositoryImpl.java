@@ -78,6 +78,7 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		Root<PersonalInfo> personalRoot = cq.from(PersonalInfo.class);
 		Root<PersonalInfo> piRoot = cq.from(PersonalInfo.class);
 		Root<RskPremiumDetails> traRoot = cq.from(RskPremiumDetails.class);
+		Root<PositionMaster> pmroot = cq.from(PositionMaster.class);
 		
 		Expression<String> nameExpression = cb.concat(cb.concat(piRoot.get("firstName"), " "),
 				piRoot.get("lastName"));
@@ -101,7 +102,7 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 				nameExpression.alias("BROKER_NAME"),
 				rkRoot.get("rskProposalNumber").alias("RSK_PROPOSAL_NUMBER"),
 				rkRoot.get("rskLayerNo").alias("RSK_LAYER_NO"),
-				rkRoot.get("rskDeptid").alias("RSK_DEPTID"),
+				pmroot.get("sectionNo").alias("SECTION_NO"),
 				traRoot.get("transactionNo").alias("TRANSACTION_NO"),
 				traExpression.alias("INS_DETAIL"),
 				cb.selectCase().when(cb.equal(rkRoot.<Integer>get("rskProductid"), 2), 
@@ -147,7 +148,8 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 				 cb.equal(piRoot.get("amendId"), piAmendSq),
 				 cb.equal(rkRoot.get("rskEndorsementNo"), endoSq),
 				 cb.equal(traRoot.get("contractNo"), rkRoot.get("rskContractNo")),
-				 cb.equal(rkRoot.get("rskDeptid"), req.getDepartmentId()),
+				 cb.equal(rkRoot.get("rskProposalNumber"), pmroot.get("proposalNo")),
+				 cb.equal(pmroot.get("sectionNo"), req.getSectionNo()),
 				 cb.equal(traRoot.get("subClass"), rkRoot.get("rskDeptid")));
 		
 		cq.orderBy(cb.desc(traRoot.get("transactionNo")));
@@ -163,7 +165,7 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		Root<PersonalInfo> personalRoot = cq.from(PersonalInfo.class);
 		Root<PersonalInfo> piRoot = cq.from(PersonalInfo.class);
 		Root<RskPremiumDetailsTemp> traRoot = cq.from(RskPremiumDetailsTemp.class);
-		
+		Root<PositionMaster> pmroot = cq.from(PositionMaster.class);
 		Expression<String> nameExpression = cb.concat(cb.concat(piRoot.get("firstName"), " "),
 				piRoot.get("lastName"));
 		
@@ -187,7 +189,7 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 				nameExpression.alias("BROKER_NAME"),
 				rkRoot.get("rskProposalNumber").alias("RSK_PROPOSAL_NUMBER"),
 				rkRoot.get("rskLayerNo").alias("RSK_LAYER_NO"),
-				rkRoot.get("rskDeptid").alias("RSK_DEPTID"),
+				pmroot.get("sectionNo").alias("SECTION_NO"),
 				traRoot.get("transactionNo").alias("TRANSACTION_NO"),
 				traExpression.alias("INS_DETAIL"),
 				cb.selectCase().when(cb.equal(rkRoot.<Integer>get("rskProductid"), 2), 
@@ -233,7 +235,8 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 				 cb.equal(piRoot.get("amendId"), piAmendSq),
 				 cb.equal(rkRoot.get("rskEndorsementNo"), endoSq),
 				 cb.equal(traRoot.get("contractNo"), rkRoot.get("rskContractNo")),
-				 cb.equal(rkRoot.get("rskDeptid"), req.getDepartmentId()),
+				 cb.equal(rkRoot.get("rskProposalNumber"), pmroot.get("proposalNo")),
+				 cb.equal(pmroot.get("sectionNo"), req.getSectionNo()),
 				 cb.equal(traRoot.get("subClass"), rkRoot.get("rskDeptid")),
 				 cb.equal(traRoot.get("transStatus"), "P"));
 		
@@ -372,7 +375,7 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 				root.get("proposalNo").alias("PROPOSAL_NO"))
 		
 		.where(cb.equal(root.get("contractNo"), contractNo),
-			   cb.equal(root.get("deptId"), deptId),
+			   cb.equal(root.get("sectionNo"), deptId),
 			   cb.equal(root.get("amendId"), amSq));
 		
 		return em.createQuery(cq).getResultList();
@@ -1421,7 +1424,7 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		Root<TmasPolicyBranch> branchRoot = cq.from(TmasPolicyBranch.class);
 		Root<PersonalInfo> piRoot = cq.from(PersonalInfo.class);
 		Root<CurrencyMaster> cmRoot = cq.from(CurrencyMaster.class);
-		
+		Root<PositionMaster> pmroot = cq.from(PositionMaster.class);
 		Expression<String> nameExpression = cb.concat(cb.concat(piRoot.get("firstName"), " "),
 				piRoot.get("lastName"));
 		
@@ -1492,7 +1495,7 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		
 		
 		cq.where(cb.equal(rkRoot.get("rskContractNo"), req.getContNo()),
-			   cb.equal(rkRoot.get("rskDeptid"), req.getDepartmentId()),
+			   //cb.equal(rkRoot.get("rskDeptid"), req.getDepartmentId()),
 			   cb.equal(pfcRoot.get("tmasPfcId"), rkRoot.get("rskPfcid")),
 			   cb.equal(pfcRoot.get("branchCode"), req.getBranchCode()),
 			   cb.equal(rkRoot.get("branchCode"), req.getBranchCode()),
@@ -1510,6 +1513,8 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 			   cb.equal(rkRoot.get("branchCode"), req.getBranchCode()),
 			   cb.equal(cmRoot.get("currencyId"), rkRoot.get("rskOriginalCurr")),
 			   cb.equal(cmRoot.get("branchCode"), piRoot.get("branchCode")),
+			   cb.equal(rkRoot.get("rskProposalNumber"), pmroot.get("proposalNo")),
+			   cb.equal(pmroot.get("sectionNo"), req.getSectionNo()),
 			   cb.equal(cmRoot.get("amendId"), cmAmendSq));
 		
 		return em.createQuery(cq).getResultList();
@@ -2270,5 +2275,27 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 	public java.util.Date parseDateLocal(String input) throws ParseException {
 		SimpleDateFormat sdf1 = new SimpleDateFormat("DD/MM/YYYY");
 		return sdf1.parse(input);
+	}
+
+	@Override
+	public void premiumRiSplit(InsertPremiumReq req) {
+		StoredProcedureQuery storedProcedure = em.createStoredProcedureQuery("RI_SPLIT_INSERT");
+
+		// Assign parameters
+		storedProcedure.registerStoredProcedureParameter("V_CONTRACT_NO", String.class, ParameterMode.IN);
+		storedProcedure.registerStoredProcedureParameter("V_LAYER_NO", Integer.class, ParameterMode.IN);
+		storedProcedure.registerStoredProcedureParameter("V_PRODUCT_ID", Integer.class, ParameterMode.IN);
+		storedProcedure.registerStoredProcedureParameter("V_TRANSACTION_NO", Double.class, ParameterMode.IN);
+		storedProcedure.registerStoredProcedureParameter("V_BRANCH_CODE", String.class, ParameterMode.IN);
+	
+		// Set parameters
+		storedProcedure.setParameter("V_CONTRACT_NO", req.getContNo());
+		storedProcedure.setParameter("V_LAYER_NO", req.getLayerno());
+		storedProcedure.setParameter("V_PRODUCT_ID", req.getProductId());
+		storedProcedure.setParameter("V_TRANSACTION_NO", req.getTransactionNo());
+		storedProcedure.setParameter("V_BRANCH_CODE", req.getBranchCode());
+		
+		// execute SP
+		storedProcedure.execute();
 	}
 }

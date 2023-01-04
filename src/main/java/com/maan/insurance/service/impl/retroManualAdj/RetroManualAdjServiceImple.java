@@ -689,8 +689,8 @@ public class RetroManualAdjServiceImple implements RetroManualAdjService{
 		    entity.setSubClass(new BigDecimal(beanObj.getPredepartment()));		
 		    entity.setTdsOc(new BigDecimal(getModeOfTransaction(beanObj.getTaxDedectSource(),beanObj)));
 		    entity.setTdsDc(new BigDecimal(dropDowmImpl.GetDesginationCountry(entity.getTdsOc().toString(), beanObj.getExchRate())));;
-		    entity.setStOc(new BigDecimal(getModeOfTransaction(beanObj.getServiceTax(),beanObj)));;
-		    entity.setStDc(new BigDecimal(dropDowmImpl.GetDesginationCountry(entity.getStOc().toString(), beanObj.getExchRate())));;
+		    //entity.setStOc(new BigDecimal(getModeOfTransaction(beanObj.getServiceTax(),beanObj)));;
+		   // entity.setStDc(new BigDecimal(dropDowmImpl.GetDesginationCountry(entity.getStOc().toString(), beanObj.getExchRate())));;
 		    entity.setScCommOc(new BigDecimal(getModeOfTransaction(beanObj.getSlideScaleCom(),beanObj)));
 		    entity.setScCommDc(new BigDecimal(dropDowmImpl.GetDesginationCountry(entity.getScCommOc().toString(), beanObj.getExchRate())));
 		    entity.setPremiumClass(beanObj.getPredepartment());	
@@ -822,10 +822,10 @@ public class RetroManualAdjServiceImple implements RetroManualAdjService{
 		{
 		Abt+=Double.parseDouble(entity.getTdsOc().toString());
 		}
-		if(StringUtils.isNotEmpty(entity.getStOc().toString()))
-		{
-		Abt+=Double.parseDouble(entity.getStOc().toString());
-		}
+		//if(StringUtils.isNotEmpty(entity.getStOc().toString()))
+		//{
+		//Abt+=Double.parseDouble(entity.getStOc().toString());
+		//}
 		
 		if(StringUtils.isNotEmpty(entity.getLpcOc().toString()))
 		{

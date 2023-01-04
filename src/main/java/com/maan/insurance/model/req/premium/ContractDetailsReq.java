@@ -1,11 +1,6 @@
 package com.maan.insurance.model.req.premium;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.maan.insurance.model.res.premium.ContractDetailsRes;
-import com.maan.insurance.model.res.premium.ContractDetailsRes1;
-
 import lombok.Data;
 
 @Data
@@ -16,8 +11,8 @@ public class ContractDetailsReq {
 	@JsonProperty("BranchCode")
 	private String branchCode;
 	
-	@JsonProperty("DepartmentId")
-	private String departmentId;
+	@JsonProperty("SectionNo")
+	private String sectionNo;
 	
 	@JsonProperty("ProductId")
 	private String productId; 

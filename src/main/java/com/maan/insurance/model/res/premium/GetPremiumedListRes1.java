@@ -21,8 +21,8 @@ public class GetPremiumedListRes1 {
 //	@JsonProperty("Broker")
 //	private String broker;
 //	
-//	@JsonProperty("Layerno")
-//	private String layerno;
+	@JsonProperty("Layerno")
+	private String layerno;
 	
 	@JsonProperty("TransactionNo")
 	private String transactionNo;
@@ -62,4 +62,6 @@ public class GetPremiumedListRes1 {
 //	@JsonProperty("DeleteStatus")
 //	private String deleteStatus;
 
+	@JsonProperty("SectionNo")
+	private String sectionNo;
 }

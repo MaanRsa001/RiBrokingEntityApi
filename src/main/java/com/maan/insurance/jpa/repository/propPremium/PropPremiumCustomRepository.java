@@ -121,5 +121,7 @@ public interface PropPremiumCustomRepository {
 
 	public void premiumarchive(String contNo, String layerNo, String transactionNo, String currencyId, String exchRate,
 			String netDueOc, String departmentId, String productId);
+
+	public void premiumRiSplit(InsertPremiumReq req);
 	
 }

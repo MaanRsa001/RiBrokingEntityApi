@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.maan.insurance.error.ErrorCheck;
+import com.maan.insurance.jpa.service.impl.PropPremiumJpaServiceImpl;
+import com.maan.insurance.model.req.premium.CashLossmailTriggerReq;
 import com.maan.insurance.model.req.premium.ClaimTableListReq;
 import com.maan.insurance.model.req.premium.ContractDetailsReq;
 import com.maan.insurance.model.req.premium.GetCashLossCreditReq;
@@ -23,8 +25,11 @@ import com.maan.insurance.model.req.premium.GetPreListReq;
 import com.maan.insurance.model.req.premium.GetPremiumDetailsReq;
 import com.maan.insurance.model.req.premium.GetPremiumReservedReq;
 import com.maan.insurance.model.req.premium.GetPremiumedListReq;
+import com.maan.insurance.model.req.premium.GetRIPremiumListReq;
 import com.maan.insurance.model.req.premium.GetSPRetroListReq;
+import com.maan.insurance.model.req.premium.GetVatInfoReq;
 import com.maan.insurance.model.req.premium.InsertPremiumReq;
+import com.maan.insurance.model.req.premium.InsertReverseCashLossCreditReq;
 import com.maan.insurance.model.req.premium.PremiumEditReq;
 import com.maan.insurance.model.req.premium.PremiumUpdateMethodReq;
 import com.maan.insurance.model.req.premium.SubmitPremiumReservedReq;
@@ -37,8 +42,8 @@ import com.maan.insurance.model.res.premium.GetRetroContractsRes;
 import com.maan.insurance.model.res.premium.GetSPRetroListRes;
 import com.maan.insurance.model.res.premium.GetSPRetroListRes1;
 import com.maan.insurance.model.res.premium.GetSumOfShareSignRes;
+import com.maan.insurance.model.res.premium.ViewPremiumDetailsRIReq;
 import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
-import com.maan.insurance.service.impl.premium.PropPremiumServiceImple;
 import com.maan.insurance.validation.CommonCalculation;
 import com.maan.insurance.validation.Formatters;
 import com.maan.insurance.validation.Claim.Validation;
@@ -50,7 +55,7 @@ public class PropPremiumValidation {
 	private Properties prop = new Properties();
 
 	@Autowired
-	private PropPremiumServiceImple premiumImpl;
+	private PropPremiumJpaServiceImpl premiumImpl;
 	
 	@Autowired
 	private Formatters fm;
@@ -78,16 +83,16 @@ public class PropPremiumValidation {
 	public List<ErrorCheck> getPremiumedListVali(GetPremiumedListReq req) {
 		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
 		if(StringUtils.isBlank(req.getBranchCode())) {
-			list.add(new ErrorCheck(prop.getProperty("Please Enter BranchCode"),"BranchCode", "01"));
+			list.add(new ErrorCheck("Please Enter BranchCode","BranchCode", "01"));
 			}
 		if(StringUtils.isBlank(req.getContNo())) {
-			list.add(new ErrorCheck(prop.getProperty("Please Enter ContractNo"),"ContractNo", "02"));
+			list.add(new ErrorCheck("Please Enter ContractNo","ContractNo", "02"));
 			}
-		if(StringUtils.isBlank(req.getDepartmentId())) {
-			list.add(new ErrorCheck(prop.getProperty("Please Enter DepartmentId"),"DepartmentId", "03"));
+		if(StringUtils.isBlank(req.getSectionNo())) {
+			list.add(new ErrorCheck("Please Enter SectionNo","DepartmentId", "03"));
 			}
 		if(StringUtils.isBlank(req.getType())) {
-			list.add(new ErrorCheck(prop.getProperty("Please Enter Type"),"Type", "04"));
+			list.add(new ErrorCheck("Please Enter Type","Type", "04"));
 			}
 		return list;
 	}
@@ -95,10 +100,10 @@ public class PropPremiumValidation {
 	public List<ErrorCheck> getPreListVali(GetPreListReq req) {
 		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
 		if(StringUtils.isBlank(req.getDepartmentId())) {
-			list.add(new ErrorCheck(prop.getProperty("Please Enter DepartmentId"),"DepartmentId", "01"));
+			list.add(new ErrorCheck("Please Enter DepartmentId","DepartmentId", "01"));
 			}
 		if(StringUtils.isBlank(req.getContNo())) {
-			list.add(new ErrorCheck(prop.getProperty("Please Enter ContractNo"),"ContractNo", "02"));
+			list.add(new ErrorCheck("Please Enter ContractNo","ContractNo", "02"));
 			}
 		return list;
 	}
@@ -106,16 +111,20 @@ public class PropPremiumValidation {
 	public List<ErrorCheck> getConstantPeriodDropDownVali(GetConstantPeriodDropDownReq req) {
 		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
 		if(StringUtils.isBlank(req.getCategoryId())) {
-			list.add(new ErrorCheck(prop.getProperty("Please Enter CategoryId"),"CategoryId", "01"));
+			list.add(new ErrorCheck("Please Enter CategoryId","CategoryId", "01"));
 			}
 		if(StringUtils.isBlank(req.getContractNo())) {
-			list.add(new ErrorCheck(prop.getProperty("Please Enter ContractNo"),"ContractNo", "02"));
+			list.add(new ErrorCheck("Please Enter ContractNo","ContractNo", "02"));
 			}
-		if(StringUtils.isBlank(req.getDepartmentId())) {
-			list.add(new ErrorCheck(prop.getProperty("Please Enter DepartmentId"),"DepartmentId", "03"));
+			/*
+			 * if(StringUtils.isBlank(req.getDepartmentId())) { list.add(new
+			 * ErrorCheck("Please Enter DepartmentId","DepartmentId", "03")); }
+			 */
+		if(StringUtils.isBlank(req.getSectionNo())) {
+			list.add(new ErrorCheck(prop.getProperty("Please Enter SectionNo"),"DepartmentId", "03"));
 			}
 		if(StringUtils.isBlank(req.getProposalNo())) {
-			list.add(new ErrorCheck(prop.getProperty("Please Enter ProposalNo"),"ProposalNo", "04"));
+			list.add(new ErrorCheck("Please Enter ProposalNo","ProposalNo", "04"));
 			}
 		return list;
 	}
@@ -125,19 +134,19 @@ public class PropPremiumValidation {
 	public List<ErrorCheck> contractDetailsVali(ContractDetailsReq req) {
 		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
 		if(StringUtils.isBlank(req.getBranchCode())) {
-			list.add(new ErrorCheck(prop.getProperty("Please Enter BranchCode"),"BranchCode", "01"));
+			list.add(new ErrorCheck("Please Enter BranchCode","BranchCode", "01"));
 			}
 		if(StringUtils.isBlank(req.getContNo())) {
-			list.add(new ErrorCheck(prop.getProperty("Please Enter ContractNo"),"ContractNo", "02"));
+			list.add(new ErrorCheck("Please Enter ContractNo","ContractNo", "02"));
 			}
-		if(StringUtils.isBlank(req.getDepartmentId())) {
-			list.add(new ErrorCheck(prop.getProperty("Please Enter DepartmentId"),"DepartmentId", "03"));
+		if(StringUtils.isBlank(req.getSectionNo())) {
+			list.add(new ErrorCheck(prop.getProperty("Please Enter SectionNo"),"DepartmentId", "03"));
 			}
 		if(StringUtils.isBlank(req.getProposalNo())) {
-			//list.add(new ErrorCheck(prop.getProperty("Please Enter ProposalNo"),"ProposalNo", "04"));
+			//list.add(new ErrorCheck("Please Enter ProposalNo","ProposalNo", "04"));
 			}
 		if(StringUtils.isBlank(req.getProductId())) {
-			list.add(new ErrorCheck(prop.getProperty("Please Enter ProductId"),"ProductId", "05"));
+			list.add(new ErrorCheck("Please Enter ProductId","ProductId", "05"));
 			}
 		return list;
 	}
@@ -337,10 +346,10 @@ public class PropPremiumValidation {
 					}else if(dateflag && Validation.ValidateTwo(req.getInceptionDate(),req.getTransaction()).equalsIgnoreCase("invalid"))
 					{
 						 list.add(new ErrorCheck(prop.getProperty("errors.premium.transaction"),"InceptionDate,transaction","01"));
-					}else if(dateflag && Validation.ValidateTwo(req.getAcceptenceDate(),req.getTransaction()).equalsIgnoreCase("invalid"))
+					}/*else if(dateflag && Validation.ValidateTwo(req.getAcceptenceDate(),req.getTransaction()).equalsIgnoreCase("invalid"))
 					{
 						 list.add(new ErrorCheck(prop.getProperty("errors.premium.acDate")+req.getAcceptenceDate(),"AcceptenceDate,transaction","01"));
-					}
+					}*/
 							 
 					if(!val.isNull(openPeriodRes.getOpenPeriodDate()).equalsIgnoreCase("")  && !val.isNull(req.getTransaction()).equalsIgnoreCase("") && !"edit".equalsIgnoreCase(req.getMode())){
 						if(dropDownImple.Validatethree(req.getBranchCode(), req.getTransaction())==0){
@@ -575,19 +584,30 @@ public class PropPremiumValidation {
 					 }
 				 }
 				 
-				if("RI02".equalsIgnoreCase(req.getSourceId())){
-					 if(StringUtils.isBlank(req.getServiceTax())){
-						 list.add(new ErrorCheck(prop.getProperty("servicetax.empty"),"servicetax","01")); 
+				 if("RI02".equalsIgnoreCase(req.getSourceId())){
+					 if(StringUtils.isBlank(req.getVatPremium())){
+						 list.add(new ErrorCheck(prop.getProperty("vatpremium.empty"),"servicetax","01")); 
 					 }
 					 else{
-						 req.setServiceTax(req.getServiceTax().replaceAll(",", ""));
-						 if(val.numbervalid(req.getServiceTax()).equalsIgnoreCase("INVALID"))
+						 req.setVatPremium(req.getVatPremium().replaceAll(",", ""));
+						 if(val.numbervalid(req.getVatPremium()).equalsIgnoreCase("INVALID"))
 						 {
-							  list.add(new ErrorCheck(prop.getProperty("error.servicetax.number"),"servicetax","01"));
+							  list.add(new ErrorCheck(prop.getProperty("error.vatpremium.number"),"servicetax","01"));
 						 }
 					 }
 					 
-				}
+				
+					 if(StringUtils.isBlank(req.getBrokerageVat())){
+						 list.add(new ErrorCheck(prop.getProperty("brokeragevat.empty"),"servicetax","01")); 
+					 }
+					 else{
+						 req.setBrokerageVat(req.getBrokerageVat().replaceAll(",", ""));
+						 if(val.numbervalid(req.getBrokerageVat()).equalsIgnoreCase("INVALID"))
+						 {
+							  list.add(new ErrorCheck(prop.getProperty("error.brokeragevat.number"),"servicetax","01"));
+						 }
+					 }
+					}
 					 if(StringUtils.isBlank(req.getLossParticipation())){
 							 list.add(new ErrorCheck(prop.getProperty("lossParticipation.empty"),"lossParticipation","01"));
 						 }
@@ -703,6 +723,15 @@ public class PropPremiumValidation {
 					{
 						 list.add(new ErrorCheck(prop.getProperty("errors.currency.select"),"",""));	 
 					}
+					if(StringUtils.isBlank(req.getDocumentType())) {
+						list.add(new ErrorCheck(prop.getProperty("errors.documenttype.select"),"documenttype","01"));
+					}
+					if("transEdit".equalsIgnoreCase(req.getMode())){
+						if(StringUtils.isBlank(req.getTransDropDownVal()) && "Yes".equalsIgnoreCase(req.getChooseTransaction())){
+							list.add(new ErrorCheck(prop.getProperty("resersel.trans"),"TransDropDownVal","01")); 
+						}
+					}
+					
 					
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -936,7 +965,87 @@ public class PropPremiumValidation {
 			}
 		return list;
 	}
+	public List<ErrorCheck> viewPremiumDetailsRIVali(ViewPremiumDetailsRIReq req) {
+		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
+		if(StringUtils.isBlank(req.getTransactionNo())) {
+			list.add(new ErrorCheck("Please Enter TransactionNo","TransactionNo", "01"));
+			}
+		return list;
+	}
 
+	public List<ErrorCheck> getVatInfoVali(GetVatInfoReq req) {
+		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
+		if(StringUtils.isBlank(req.getBranchCode())) {
+			list.add(new ErrorCheck("Please Enter BranchCode","BranchCode", "01"));
+			}
+		if(StringUtils.isBlank(req.getPremiumAmount())) {
+			list.add(new ErrorCheck("Please Enter PremiumAmount","PremiumAmount", "03"));
+			}
+		if(StringUtils.isBlank(req.getProposalNo())) {
+			list.add(new ErrorCheck("Please Enter ProposalNo","ProposalNo", "01"));
+			}
+		return list;
+	}
+
+	public List<ErrorCheck> getRIPremiumListVali(GetRIPremiumListReq req) {
+		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
+		if (StringUtils.isBlank(req.getBranchCode())) {
+			list.add(new ErrorCheck("Please Enter BranchCode", "BranchCode", "1"));
+		}
+		if (StringUtils.isBlank(req.getContractNo())) {
+			list.add(new ErrorCheck("Please Enter ContractNo", "ContractNo", "2"));
+		}
+		if (StringUtils.isBlank(req.getTransactionNo())) {
+			list.add(new ErrorCheck("Please Enter TransactionNo", "TransactionNo", "3"));
+		}
+		if (StringUtils.isBlank(req.getProductId())) {
+			list.add(new ErrorCheck("Please Enter ProductId", "ProductId", "4"));
+		}
+		return list;
+	}
+
+	public List<ErrorCheck> InsertCashLossCreditVali(InsertPremiumReq req) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	public List<ErrorCheck> InsertReverseCashLossCreditVali(InsertReverseCashLossCreditReq req) {
+		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
+		if(StringUtils.isBlank(req.getCashlosstranId())) {
+			list.add(new ErrorCheck("Please Enter CashlosstranId","CashlosstranId", "01"));
+			}
+	
+		if(StringUtils.isBlank(req.getContNo())) {
+			list.add(new ErrorCheck("Please Enter ContractNo","ContractNo", "02"));
+			}
+		if(StringUtils.isBlank(req.getProposalNo())) {
+			list.add(new ErrorCheck("Please Enter ProposalNo","ProposalNo", "03"));
+			}
+	
+		if(StringUtils.isBlank(req.getCashlossType())) {
+			list.add(new ErrorCheck("Please Enter CashlossType","CashlossType", "04"));
+			}
+		return list;
+	}
+
+	public List<ErrorCheck> CashLossmailTriggerVali(CashLossmailTriggerReq req) {
+		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
+		if(StringUtils.isBlank(req.getContNo())) {
+			list.add(new ErrorCheck("Please Enter ContNo","ContNo", "01"));
+			}
+	
+		if(StringUtils.isBlank(req.getDepartmentId())) {
+			list.add(new ErrorCheck("Please Enter DepartmentId","DepartmentId", "02"));
+			}
+		if(StringUtils.isBlank(req.getProposalNo())) {
+			list.add(new ErrorCheck("Please Enter ProposalNo","ProposalNo", "03"));
+			}
+	
+		if(StringUtils.isBlank(req.getTransactionNo())) {
+			list.add(new ErrorCheck("Please Enter TransactionNo","TransactionNo", "04"));
+			}
+		return list;
+	}
 	
 
 }

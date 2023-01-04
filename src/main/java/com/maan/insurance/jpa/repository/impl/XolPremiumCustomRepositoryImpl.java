@@ -1044,8 +1044,8 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 				root.get("subClass").alias("SUB_CLASS"),
 				root.get("tdsOc").alias("TDS_OC"),
 				root.get("tdsDc").alias("TDS_DC"),
-				root.get("stOc").alias("ST_OC"),
-				root.get("stDc").alias("ST_DC"),
+				//root.get("stOc").alias("ST_OC"),
+				//root.get("stDc").alias("ST_DC"),
 				root.get("scCommOc").alias("SC_Comm_OC"),
 				root.get("scCommDc").alias("SC_Comm_DC"),
 				root.get("bonusOc").alias("BONUS_OC"),
@@ -1063,7 +1063,13 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 				root.get("osbyn").alias("OSBYN"),
 				root.get("sectionName").alias("SECTION_NAME"),
 				root.get("reverselStatus").alias("REVERSEL_STATUS"),
-				root.get("reverseTransactionNo").alias("REVERSE_TRANSACTION_NO"))
+				root.get("reverseTransactionNo").alias("REVERSE_TRANSACTION_NO"),
+				root.get("vatPremiumOc").alias("VAT_PREMIUM_OC"),
+				root.get("vatPremiumDc").alias("VAT_PREMIUM_DC"),
+				root.get("brokerageVatOc").alias("BROKERAGE_VAT_OC"),
+				root.get("brokerageVatDc").alias("BROKERAGE_VAT_DC"),
+				root.get("documentType").alias("DOCUMENT_TYPE")
+				)
 		
 		.where(cb.equal(root.get("contractNo"), contNo),
 				 cb.equal(root.get("requestNo"), reqNo));
@@ -1131,8 +1137,8 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 				root.get("subClass").alias("SUB_CLASS"),
 				root.get("tdsOc").alias("TDS_OC"),
 				root.get("tdsDc").alias("TDS_DC"),
-				root.get("stOc").alias("ST_OC"),
-				root.get("stDc").alias("ST_DC"),
+				//root.get("stOc").alias("ST_OC"),
+				//root.get("stDc").alias("ST_DC"),
 				root.get("scCommOc").alias("SC_Comm_OC"),
 				root.get("scCommDc").alias("SC_Comm_DC"),
 				root.get("bonusOc").alias("BONUS_OC"),
@@ -1149,7 +1155,12 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 				root.get("osbyn").alias("OSBYN"),
 				root.get("sectionName").alias("SECTION_NAME"),
 				root.get("reverselStatus").alias("REVERSEL_STATUS"),
-				root.get("reverseTransactionNo").alias("REVERSE_TRANSACTION_NO"))
+				root.get("reverseTransactionNo").alias("REVERSE_TRANSACTION_NO"),
+				root.get("vatPremiumOc").alias("VAT_PREMIUM_OC"),
+				root.get("vatPremiumDc").alias("VAT_PREMIUM_DC"),
+				root.get("brokerageVatOc").alias("BROKERAGE_VAT_OC"),
+				root.get("brokerageVatDc").alias("BROKERAGE_VAT_DC"),
+				root.get("documentType").alias("DOCUMENT_TYPE"))
 		
 		  .where(cb.equal(root.get("contractNo"), contNo),
 				 cb.equal(root.get("transactionNo"), transactionNo));
@@ -1206,14 +1217,19 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 				root.get("subClass").alias("SUB_CLASS"),
 				root.get("tdsOc").alias("TDS_OC"),
 				root.get("tdsDc").alias("TDS_DC"),
-				root.get("stOc").alias("ST_OC"),
-				root.get("stDc").alias("ST_DC"),
+				//root.get("stOc").alias("ST_OC"),
+				//root.get("stDc").alias("ST_DC"),
 				root.get("bonusOc").alias("BONUS_OC"),
 				root.get("bonusDc").alias("BONUS_DC"),
 				root.get("gnpiEndtNo").alias("GNPI_ENDT_NO"),
 				root.get("premiumClass").alias("PREMIUM_CLASS"),
 				root.get("reverseTransactionNo").alias("REVERSE_TRANSACTION_NO"),
-				root.get("reverselStatus").alias("REVERSEL_STATUS"))
+				root.get("reverselStatus").alias("REVERSEL_STATUS"),
+				root.get("vatPremiumOc").alias("VAT_PREMIUM_OC"),
+				root.get("vatPremiumDc").alias("VAT_PREMIUM_DC"),
+				root.get("brokerageVatOc").alias("BROKERAGE_VAT_OC"),
+				root.get("brokerageVatDc").alias("BROKERAGE_VAT_DC"),
+				root.get("documentType").alias("DOCUMENT_TYPE"))
 		
 		  .where(cb.equal(root.get("contractNo"), contNo),
 				 cb.equal(root.get("transactionNo"), transactionNo));
@@ -1421,14 +1437,19 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 				deptSq.alias("SUB_CLASS"),//sq
 				root.get("tdsOc").alias("TDS_OC"),
 				root.get("tdsDc").alias("TDS_DC"),
-				root.get("stOc").alias("ST_OC"),
-				root.get("stDc").alias("ST_DC"),
+				//root.get("stOc").alias("ST_OC"),
+				//root.get("stDc").alias("ST_DC"),
 				root.get("bonusOc").alias("BONUS_OC"),
 				root.get("bonusDc").alias("BONUS_DC"),
 				root.get("gnpiEndtNo").alias("GNPI_ENDT_NO"),
 				pDeptSq.alias("PREMIUM_CLASS"),//sq
 				root.get("reverselStatus").alias("REVERSEL_STATUS"),
-				root.get("reverseTransactionNo").alias("REVERSE_TRANSACTION_NO"))
+				root.get("reverseTransactionNo").alias("REVERSE_TRANSACTION_NO"),
+				root.get("vatPremiumOc").alias("VAT_PREMIUM_OC"),
+				root.get("vatPremiumDc").alias("VAT_PREMIUM_DC"),
+				root.get("brokerageVatOc").alias("BROKERAGE_VAT_OC"),
+				root.get("brokerageVatDc").alias("BROKERAGE_VAT_DC"),
+				root.get("documentType").alias("DOCUMENT_TYPE"))
 		
 		.where(cb.equal(root.get("contractNo"), contNo),
 				cb.equal(root.get("requestNo"), requestNo));
@@ -1504,14 +1525,19 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 				deptSq.alias("SUB_CLASS"),//sq
 				root.get("tdsOc").alias("TDS_OC"),
 				root.get("tdsDc").alias("TDS_DC"),
-				root.get("stOc").alias("ST_OC"),
-				root.get("stDc").alias("ST_DC"),
+				//root.get("stOc").alias("ST_OC"),
+				//root.get("stDc").alias("ST_DC"),
 				root.get("bonusOc").alias("BONUS_OC"),
 				root.get("bonusDc").alias("BONUS_DC"),
 				root.get("gnpiEndtNo").alias("GNPI_ENDT_NO"),
 				pDeptSq.alias("PREMIUM_CLASS"),//sq
 				root.get("reverselStatus").alias("REVERSEL_STATUS"),
-				root.get("reverseTransactionNo").alias("REVERSE_TRANSACTION_NO"))
+				root.get("reverseTransactionNo").alias("REVERSE_TRANSACTION_NO"),
+				root.get("vatPremiumOc").alias("VAT_PREMIUM_OC"),
+				root.get("vatPremiumDc").alias("VAT_PREMIUM_DC"),
+				root.get("brokerageVatOc").alias("BROKERAGE_VAT_OC"),
+				root.get("brokerageVatDc").alias("BROKERAGE_VAT_DC"),
+				root.get("documentType").alias("DOCUMENT_TYPE"))
 		
 		.where(cb.equal(root.get("contractNo"), contNo),
 				cb.equal(root.get("transactionNo"), requestNo));
@@ -1588,13 +1614,18 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 				deptSq.alias("SUB_CLASS"),//sq
 				root.get("tdsOc").alias("TDS_OC"),
 				root.get("tdsDc").alias("TDS_DC"),
-				root.get("stOc").alias("ST_OC"),
-				root.get("stDc").alias("ST_DC"),
+				//root.get("stOc").alias("ST_OC"),
+				//root.get("stDc").alias("ST_DC"),
 				root.get("bonusOc").alias("BONUS_OC"),
 				root.get("bonusDc").alias("BONUS_DC"),
 				pDeptSq.alias("PREMIUM_CLASS"),//sq
 				root.get("reverselStatus").alias("REVERSEL_STATUS"),
-				root.get("reverseTransactionNo").alias("REVERSE_TRANSACTION_NO"))
+				root.get("reverseTransactionNo").alias("REVERSE_TRANSACTION_NO"),
+				root.get("vatPremiumOc").alias("VAT_PREMIUM_OC"),
+				root.get("vatPremiumDc").alias("VAT_PREMIUM_DC"),
+				root.get("brokerageVatOc").alias("BROKERAGE_VAT_OC"),
+				root.get("brokerageVatDc").alias("BROKERAGE_VAT_DC"),
+				root.get("documentType").alias("DOCUMENT_TYPE"))
 		
 		.where(cb.equal(root.get("contractNo"), contNo),
 				cb.equal(root.get("transactionNo"), requestNo));
