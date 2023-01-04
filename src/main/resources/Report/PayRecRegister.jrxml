@@ -1,0 +1,1450 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="PayRecRegister" language="groovy" pageWidth="3080" pageHeight="842" columnWidth="3040" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="8165306f-5ba1-4d59-89eb-a8f711b0b8eb">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="net.sf.jasperreports.export.xls.detect.cell.type" value="true"/>
+	<style name="table">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5"/>
+			<leftPen lineWidth="0.5"/>
+			<bottomPen lineWidth="0.5"/>
+			<rightPen lineWidth="0.5"/>
+		</box>
+	</style>
+	<style name="table_TH" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5"/>
+			<leftPen lineWidth="0.5"/>
+			<bottomPen lineWidth="0.5"/>
+			<rightPen lineWidth="0.5"/>
+		</box>
+	</style>
+	<style name="table 1_TH" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="common1" hAlign="Center" vAlign="Middle" fontName="Arial" fontSize="9" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
+	<style name="common" hAlign="Left" vAlign="Middle" fontName="Arial" fontSize="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
+	<subDataset name="New Dataset 1" uuid="25baa3b7-b856-428f-af45-31f863593b0f">
+		<parameter name="status" class="java.lang.String"/>
+		<parameter name="startDate" class="java.lang.String"/>
+		<parameter name="endDate" class="java.lang.String"/>
+		<parameter name="branchCode" class="java.lang.String"/>
+		<parameter name="broker" class="java.lang.String"/>
+		<parameter name="ceding" class="java.lang.String"/>
+		<parameter name="payrectype" class="java.lang.String"/>
+		<parameter name="transactionType" class="java.lang.String"/>
+		<queryString>
+			<![CDATA[SELECT * FROM TABLE (PAYMENT_RECEIPT($P{branchCode},$P{startDate},$P{endDate},$P{ceding},$P{broker},$P{payrectype},$P{transactionType},$P{status}))]]>
+		</queryString>
+		<field name="PAYMENT_RECEIPT_NO" class="java.math.BigDecimal"/>
+		<field name="TRANS_DATE" class="java.lang.String"/>
+		<field name="AMENDMENT_DATE" class="java.lang.String"/>
+		<field name="TRANS_TYPE" class="java.lang.String"/>
+		<field name="BROKER_NAME" class="java.lang.String"/>
+		<field name="CEDING_ID" class="java.lang.String"/>
+		<field name="RECEIPT_BANK" class="java.lang.String"/>
+		<field name="CURRENCY_NAME" class="java.lang.String"/>
+		<field name="EXCHANGE_RATE" class="java.math.BigDecimal"/>
+		<field name="GROSS_AMT" class="java.math.BigDecimal"/>
+		<field name="BANK_CHARGES" class="java.math.BigDecimal"/>
+		<field name="HOLDTAXRECOVER_OC" class="java.math.BigDecimal"/>
+		<field name="NET_AMT" class="java.math.BigDecimal"/>
+		<field name="GROSS_AMT_DC" class="java.math.BigDecimal"/>
+		<field name="BANK_CHARGES_DC" class="java.math.BigDecimal"/>
+		<field name="HOLDTAXRECOVER_UGX" class="java.math.BigDecimal"/>
+		<field name="NET_AMT_DC" class="java.math.BigDecimal"/>
+		<field name="DIFF_TYPE" class="java.lang.String"/>
+		<field name="EXCHANGEDIFFERENCEAMOUNT" class="java.math.BigDecimal"/>
+		<field name="EXCHAGE_DIFF_PERC" class="java.math.BigDecimal"/>
+		<field name="TRANSCATIONTYPE" class="java.lang.String"/>
+		<field name="REVERSALTRANSNO" class="java.math.BigDecimal"/>
+		<field name="REMARKS" class="java.lang.String"/>
+		<field name="SNO" class="java.math.BigDecimal"/>
+		<field name="CURRENCY_ID" class="java.lang.String"/>
+		<field name="AMOUNT_OC" class="java.math.BigDecimal"/>
+		<field name="CLIENTEXCHANGERATE" class="java.math.BigDecimal"/>
+		<field name="CONVERTED_PAID_AMT" class="java.math.BigDecimal"/>
+		<field name="EXCHANGERATE" class="java.math.BigDecimal"/>
+		<field name="TOTAL_AMOUNT_DC" class="java.math.BigDecimal"/>
+		<field name="ALLOCATED_TILL_DATE" class="java.math.BigDecimal"/>
+		<field name="PENDING_AMOUNT" class="java.math.BigDecimal"/>
+		<field name="ALLOCATED_AMOUNT_UGX" class="java.math.BigDecimal"/>
+		<field name="PENDING_AMOUNT_UGX" class="java.math.BigDecimal"/>
+	</subDataset>
+	<subDataset name="New Dataset 2" uuid="c8dbeb2f-ba78-433a-8948-1439c0ea91a0">
+		<parameter name="status" class="java.lang.String"/>
+		<parameter name="startDate" class="java.lang.String"/>
+		<parameter name="endDate" class="java.lang.String"/>
+		<parameter name="branchCode" class="java.lang.String"/>
+		<parameter name="broker" class="java.lang.String"/>
+		<parameter name="ceding" class="java.lang.String"/>
+		<parameter name="payrectype" class="java.lang.String"/>
+		<parameter name="transactionType" class="java.lang.String"/>
+		<queryString>
+			<![CDATA[Select Payment_Receipt_No,To_Char(Tpr.Trans_Date,'DD/MM/YYYY') Trans_Date,To_Char(Tpr.Amendment_Date,'DD/MM/YYYY') Amendment_Date ,
+Decode(Trans_Type,'PT','PAYMENT','RECEIPT') Trans_Type,(Select First_Name From Personal_Info Pi Where Pi.Customer_Id=Tpr.Broker_Id And Tpr.Branch_Code=Pi.Branch_Code)Broker_Name,(Select First_Name From Personal_Info Pi Where Pi.Customer_Id=Tpr.Ceding_Id And Tpr.Branch_Code=Pi.Branch_Code) Ceding_Id,(Select Bank_Name From Bank_Master Bm Where Bm.Bank_Id=Receipt_Bank And Bm.Branch_Code=Tpr.Branch_Code) Receipt_Bank,(Select Currency_Name From Currency_Master Cm Where Cm.Currency_Id=Tpr.Currency_Id And Cm.Branch_Code=Tpr.Branch_Code And Amend_Id=(Select Max(Amend_Id) From Currency_Master C Where C.Currency_Id=Cm.Currency_Id And C.Branch_Code=Cm.Branch_Code)) Currency_Id,
+Tpr.Exchange_Rate,Paid_Amt Gross_Amt,Bank_Charges,'' Holdtaxrecover_Oc,Net_Amt,Round((Paid_Amt/Tpr.Exchange_Rate),2) Gross_Amt_Dc,
+Round((Bank_Charges/Tpr.Exchange_Rate),2)  Bank_Charges_Dc,'' Holdtaxrecover_Ugx,Round((Net_Amt/Tpr.Exchange_Rate),2) Net_Amt_Dc,
+Decode(Sign(Diff_Amt),'-1','SUBTRACT','ADD') Diff_Type,
+Diff_Amt Exchangedifferenceamount,Round(((Diff_Amt/(Paid_Amt/Tpr.Exchange_Rate)) * 100),2) Exchage_Diff_Perc,Transcationtype,Reversaltransno,Tpr.Remarks
+,'' sTATUS
+From Ttrn_Payment_Receipt Tpr,Ttrn_Payment_Receipt_Details Tprd
+Where Tpr.Payment_Receipt_No=Tprd.Receipt_Sl_No And
+Tprd.Currency_Id !=0 and branch_code=$P{branchCode}
+and tpr.TRANS_DATE BETWEEN TO_DATE($P{startDate},'DD/MM/YYYY')AND TO_DATE($P{endDate},'DD/MM/YYYY')
+AND upper(DECODE($P{ceding},'-1','A',Ceding_Id))=upper(Decode($P{ceding},'-1','A',$P{ceding}))  AND upper(DECODE($P{broker},'-1','A',BROKER_ID))=upper(Decode($P{broker},'-1','A',$P{broker}))
+AND upper(DECODE($P{payrectype},'ALL','A',TRANS_TYPE))=upper(Decode($P{payrectype},'ALL','A',$P{payrectype}))  AND upper(DECODE($P{transactionType},'ALL','A',TRANSCATIONTYPE))=upper(Decode($P{transactionType},'ALL','A',$P{transactionType}))
+and tpr.amend_id=(select max(amend_id) from Ttrn_Payment_Receipt where  PAYMENT_RECEIPT_NO=tpr.PAYMENT_RECEIPT_NO and branch_code=tpr.branch_code) and tpr.amend_id=Tprd.amend_id]]>
+		</queryString>
+		<field name="PAYMENT_RECEIPT_NO" class="java.math.BigDecimal"/>
+		<field name="TRANS_DATE" class="java.lang.String"/>
+		<field name="AMENDMENT_DATE" class="java.lang.String"/>
+		<field name="TRANS_TYPE" class="java.lang.String"/>
+		<field name="BROKER_NAME" class="java.lang.String"/>
+		<field name="CEDING_ID" class="java.lang.String"/>
+		<field name="RECEIPT_BANK" class="java.lang.String"/>
+		<field name="CURRENCY_ID" class="java.lang.String"/>
+		<field name="EXCHANGE_RATE" class="java.math.BigDecimal"/>
+		<field name="GROSS_AMT" class="java.math.BigDecimal"/>
+		<field name="BANK_CHARGES" class="java.math.BigDecimal"/>
+		<field name="HOLDTAXRECOVER_OC" class="java.lang.String"/>
+		<field name="NET_AMT" class="java.math.BigDecimal"/>
+		<field name="GROSS_AMT_DC" class="java.math.BigDecimal"/>
+		<field name="BANK_CHARGES_DC" class="java.math.BigDecimal"/>
+		<field name="HOLDTAXRECOVER_UGX" class="java.lang.String"/>
+		<field name="NET_AMT_DC" class="java.math.BigDecimal"/>
+		<field name="DIFF_TYPE" class="java.lang.String"/>
+		<field name="EXCHANGEDIFFERENCEAMOUNT" class="java.math.BigDecimal"/>
+		<field name="EXCHAGE_DIFF_PERC" class="java.math.BigDecimal"/>
+		<field name="TRANSCATIONTYPE" class="java.lang.String"/>
+		<field name="REVERSALTRANSNO" class="java.math.BigDecimal"/>
+		<field name="REMARKS" class="java.lang.String"/>
+	</subDataset>
+	<parameter name="status" class="java.lang.String"/>
+	<parameter name="startDate" class="java.lang.String"/>
+	<parameter name="endDate" class="java.lang.String"/>
+	<parameter name="branchCode" class="java.lang.String"/>
+	<parameter name="broker" class="java.lang.String"/>
+	<parameter name="ceding" class="java.lang.String"/>
+	<parameter name="payrectype" class="java.lang.String"/>
+	<parameter name="transactionType" class="java.lang.String"/>
+	<parameter name="productName" class="java.lang.String"/>
+	<parameter name="systemDate" class="java.lang.String"/>
+	<parameter name="cedingId" class="java.lang.String"/>
+	<parameter name="brokerId" class="java.lang.String"/>
+	<parameter name="reportName" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select COMPANY_NAME, EMAIL, ADDRESS1, COUNTRY, AMEND_ID, STATUS, WEB_SITE,TELEPHONE from company_master where branch_code='07' and STATUS='Y']]>
+	</queryString>
+	<field name="COMPANY_NAME" class="java.lang.String"/>
+	<field name="EMAIL" class="java.lang.String"/>
+	<field name="ADDRESS1" class="java.lang.String"/>
+	<field name="COUNTRY" class="java.lang.String"/>
+	<field name="AMEND_ID" class="java.math.BigDecimal"/>
+	<field name="STATUS" class="java.lang.String"/>
+	<field name="WEB_SITE" class="java.lang.String"/>
+	<field name="TELEPHONE" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="193" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="f336da44-03e0-4e6e-bfca-7f1fb0208442" style="common" x="190" y="129" width="180" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left"/>
+				<textFieldExpression><![CDATA[$P{productName}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="33ca90a7-bedc-496a-b777-f6c5cc6801fb" style="common1" x="190" y="10" width="540" height="20"/>
+				<textElement textAlignment="Center" markup="none"/>
+				<textFieldExpression><![CDATA[$F{COMPANY_NAME}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="673bef9d-e5cd-4913-ac6e-b83be7f92f0c" style="common1" x="730" y="149" width="155" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left"/>
+				<text><![CDATA[Transaction Date End To :
+]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="51949412-f32a-4b2c-994c-779048643d52" style="common" x="885" y="129" width="150" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left"/>
+				<textFieldExpression><![CDATA[$P{startDate}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="ed36ead9-8126-4839-9ca5-c6565c8f0a1f" style="common1" x="370" y="149" width="180" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left"/>
+				<text><![CDATA[Broker Name :
+]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="25d11c44-cace-4796-b8a7-474169102651" style="common" x="190" y="149" width="180" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left"/>
+				<textFieldExpression><![CDATA[$P{systemDate}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="02e00c55-2319-417a-8475-0b3f0585ea6b" style="common1" x="730" y="129" width="155" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left"/>
+				<text><![CDATA[Transaction Date Start From :
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="637874bb-47ac-4ec2-8e52-8ce6c96b0c63" style="common1" x="0" y="149" width="190" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left"/>
+				<text><![CDATA[Generated Date :
+]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="2fbe5ecc-abc6-49b2-88ea-4181223c170b" style="common" x="885" y="149" width="150" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left"/>
+				<textFieldExpression><![CDATA[$P{endDate}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="b288303a-6ba6-4c8e-b7fa-c52fe6c80023" style="common1" x="190" y="69" width="540" height="20"/>
+				<textElement textAlignment="Center" markup="none"/>
+				<textFieldExpression><![CDATA[$F{EMAIL}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="a7664d68-a6a5-4952-acab-83a9223e71af" style="common1" x="190" y="109" width="540" height="20"/>
+				<textElement textAlignment="Center" markup="none"/>
+				<textFieldExpression><![CDATA[$P{reportName}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="454eabf6-4220-45c0-a686-14c90f0c7494" style="common1" x="190" y="30" width="540" height="20"/>
+				<textElement textAlignment="Center" markup="none"/>
+				<textFieldExpression><![CDATA[$F{ADDRESS1}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="f0583ddb-9e14-4d66-892a-716acfc4ed92" style="common1" x="0" y="129" width="190" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left"/>
+				<text><![CDATA[Product :
+]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="5e3939c8-60df-4d4a-9a49-f29ef8370b61" style="common" x="550" y="149" width="180" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left"/>
+				<textFieldExpression><![CDATA[$P{brokerId}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="e71edb3b-f805-41d5-9492-a2027055a2ce" style="common" x="550" y="129" width="180" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left"/>
+				<textFieldExpression><![CDATA[$P{cedingId}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="42211d42-7ba2-4752-a996-d42a27cd66b4" style="common1" x="190" y="89" width="540" height="20"/>
+				<textElement textAlignment="Center" markup="none"/>
+				<textFieldExpression><![CDATA[$F{WEB_SITE}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="d5cd600f-7c96-4748-abb4-cd54cd623b1a" style="common1" x="370" y="129" width="180" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left"/>
+				<text><![CDATA[Ceding Name :
+]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="17" splitType="Stretch">
+			<printWhenExpression><![CDATA[$P{status}.equals("Y")]]></printWhenExpression>
+			<componentElement>
+				<reportElement uuid="4a47404e-aad3-4221-b6e1-0650030e33ed" key="table" style="table" x="0" y="0" width="3040" height="15"/>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="New Dataset 1" uuid="d49a57fa-6233-4e15-942a-298c44ce6437">
+						<datasetParameter name="status">
+							<datasetParameterExpression><![CDATA[$P{status}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="startDate">
+							<datasetParameterExpression><![CDATA[$P{startDate}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="endDate">
+							<datasetParameterExpression><![CDATA[$P{endDate}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="branchCode">
+							<datasetParameterExpression><![CDATA[$P{branchCode}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="broker">
+							<datasetParameterExpression><![CDATA[$P{broker}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="ceding">
+							<datasetParameterExpression><![CDATA[$P{ceding}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="payrectype">
+							<datasetParameterExpression><![CDATA[$P{payrectype}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="transactionType">
+							<datasetParameterExpression><![CDATA[$P{transactionType}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:column width="95" uuid="3dcd0ec4-f8a8-4029-ada8-15b13f3c44c3">
+						<jr:tableHeader style="table_TH" height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="9e8d48f0-c2d3-41f8-bf8e-300f4d7e09f1" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="95" height="17"/>
+								<textElement markup="none"/>
+								<textFieldExpression><![CDATA["Transaction No"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="eec3c30a-b96f-4385-a494-6f66d243324d" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="95" height="15"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{PAYMENT_RECEIPT_NO}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="95" uuid="f71a52e3-c228-4bfd-88d2-b2f0ec31aff4">
+						<jr:tableHeader style="table_TH" height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="9d5fe426-0ab0-44e8-baff-38893eca3b7d" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="95" height="17"/>
+								<textElement markup="none"/>
+								<textFieldExpression><![CDATA["Transaction Date"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="2e9b659d-8761-4efe-8604-3e78041722ac" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="95" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{TRANS_DATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="69bb8a2a-f973-4093-a34a-0234c602fad3">
+						<jr:tableHeader style="table_TH" height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="9e1cfe13-12ff-435a-8e09-c65430c7fd46" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="90" height="17"/>
+								<textElement markup="none"/>
+								<textFieldExpression><![CDATA["Amendment Date"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="aa12c14c-abff-4cbb-be56-1746e58461b0" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="90" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{AMENDMENT_DATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="69c23eed-74cb-4d8f-9b9f-62115dab5109">
+						<jr:tableHeader style="table_TH" height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="0e8ef993-7288-4ca2-9083-9a3ccf09e236" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="90" height="17"/>
+								<textElement markup="none"/>
+								<textFieldExpression><![CDATA["Transaction"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="4f7dfe21-68b4-4b69-9bdb-52eecc6033c3" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="90" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{TRANS_TYPE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="180" uuid="10a58308-f4f4-4221-a156-d65f46abfe25">
+						<jr:tableHeader style="table_TH" height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="8b57c3db-2f24-4a4a-9885-7844a824bd32" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="180" height="17"/>
+								<textElement markup="none"/>
+								<textFieldExpression><![CDATA["Broker"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="e7ef6320-88ec-4d2a-be2a-10b33c409c83" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="180" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{BROKER_NAME}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="180" uuid="24e05f9e-4f9c-4179-b8a5-ed089325ae73">
+						<jr:tableHeader style="table_TH" height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="2c1cf784-a1af-4df9-a0ce-a800902e6ea6" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="180" height="17"/>
+								<textElement markup="none"/>
+								<textFieldExpression><![CDATA["Ceding Company"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="b2ce1ff8-2715-4672-811a-84f5a9223c44" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="180" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{CEDING_ID}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="155" uuid="29c942a3-3877-43f3-899f-0f07aedcba62">
+						<jr:tableHeader style="table_TH" height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="34ca03d5-fd78-49a4-b2b6-5270712905a3" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="155" height="17"/>
+								<textElement markup="none"/>
+								<textFieldExpression><![CDATA["Bank"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="f045e1e9-7f66-47a6-925f-c7fa1e74d928" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="155" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{RECEIPT_BANK}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="8ce3ea43-25ae-468e-b295-e940d416b04f">
+						<jr:tableHeader style="table_TH" height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="c1d257f5-c4d7-4b15-8c5a-7084bcd8832d" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="17"/>
+								<textElement markup="none"/>
+								<textFieldExpression><![CDATA["Currency"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="6ed6788f-e3e0-41e1-8d3e-9dd196671843" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{CURRENCY_NAME}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="8f98d13e-7305-4bb1-a10e-1b1cfce850db">
+						<jr:tableHeader style="table_TH" height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="52bc5e6a-70e9-4fdb-8ae3-cd8913df5a37" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="90" height="17"/>
+								<textElement markup="none"/>
+								<textFieldExpression><![CDATA["Exchange Rate"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00000000" isBlankWhenNull="true">
+								<reportElement uuid="d430b268-8888-4946-a9f0-bdd9004ae058" style="common" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{EXCHANGE_RATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="deef5ed5-9746-4ecf-b6fe-41f41166eaac">
+						<jr:tableHeader style="table_TH" height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="0e231b2a-6203-468e-b89d-fe812290f453" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="17"/>
+								<textElement markup="none"/>
+								<textFieldExpression><![CDATA["Gross Amount - OC"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="9e8f7b4d-681d-40f8-a2c0-e5045b7d0e8c" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{GROSS_AMT}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="3337ce67-7517-438b-a064-47fffa968def">
+						<jr:tableHeader style="table_TH" height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="2c2908b3-2be5-4314-bb72-c2b7fe2650a3" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="17"/>
+								<textElement markup="none"/>
+								<textFieldExpression><![CDATA["Bank Charges - OC"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="63f0a34b-07d2-4d8c-b8c4-21c1afde0d47" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{BANK_CHARGES}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="d8aa4326-eee1-41f4-8e0c-04f0781d3c40">
+						<jr:tableHeader style="table_TH" height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="3f4cd798-037f-495c-afbf-ca115c0d0d1c" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="17"/>
+								<textElement markup="none"/>
+								<textFieldExpression><![CDATA["With Holding Tax Recoverable - OC"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="8aee11f4-362f-4ec8-87b9-d162121b3624" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{HOLDTAXRECOVER_OC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="4cdc6518-8d6a-4719-a7eb-d15f12126192">
+						<jr:tableHeader style="table_TH" height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="767fc4df-e025-42a1-9c60-8a19f7a232de" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="17"/>
+								<textElement markup="none"/>
+								<textFieldExpression><![CDATA["Net Amount - OC"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="051ad65f-cf87-4f6a-b0d0-55faaef88a4f" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{NET_AMT}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="546dc7fe-bf34-4dcb-a861-074614e32dcf">
+						<jr:tableHeader style="table_TH" height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="8f004d36-5d65-4a3a-a8ce-63a1d3381a6f" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="17"/>
+								<textElement markup="none"/>
+								<textFieldExpression><![CDATA["Gross Amount - UGX"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="45ad0866-17a2-4ee1-ad2f-23d8bcee47ec" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{GROSS_AMT_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="7827ea53-d637-4999-8b30-87a679f12359">
+						<jr:tableHeader style="table_TH" height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="90c303ea-3018-47c0-9e0e-5d8188e63c70" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="17"/>
+								<textElement markup="none"/>
+								<textFieldExpression><![CDATA["Bank Charges - UGX"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="ab002340-fdef-40d9-9ce8-843af9874275" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{BANK_CHARGES_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="4966cb37-a269-4a3e-8438-f545b88abec3">
+						<jr:tableHeader style="table_TH" height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="105610e4-04ae-4260-94ed-b83ebf09d886" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="17"/>
+								<textElement markup="none"/>
+								<textFieldExpression><![CDATA["With Holding Tax Recoverable - UGX"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="baf39766-3dc4-44c7-af2b-a81ec10d9ca2" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{HOLDTAXRECOVER_UGX}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="17e68a68-2221-49d0-8ba1-3590cd5c3c9b">
+						<jr:tableHeader style="table_TH" height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="9b7e4ac7-6bad-4d17-997f-5a88a5afc350" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="17"/>
+								<textElement markup="none"/>
+								<textFieldExpression><![CDATA["Net Amount - UGX"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="cc0a787f-0da0-4ce8-b9d2-6902c794bd91" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{NET_AMT_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="61e9cf13-c4a7-4ef3-b941-deea77e824bf">
+						<jr:tableHeader style="table_TH" height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="e47a914f-ee25-4a27-9375-f3b34c4d0fd4" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="17"/>
+								<textElement markup="none"/>
+								<textFieldExpression><![CDATA["Exchange Difference Type"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="06fbf345-bac7-46c5-b108-35d079b82d18" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{DIFF_TYPE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="42dff3bd-7be1-4a4b-98dd-82b14b264fd8">
+						<jr:tableHeader style="table_TH" height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="5ecfcae8-dde5-4a51-82f4-6efa4c1750b0" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="17"/>
+								<textElement markup="none"/>
+								<textFieldExpression><![CDATA["Exchange Difference Amount"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="4a1801f8-472b-4fbe-b843-e848f9b66349" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{EXCHANGEDIFFERENCEAMOUNT}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="5b5e1873-5624-4a37-9cf9-f11f8cb94aa1">
+						<jr:tableHeader style="table_TH" height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="db64d90c-d54d-4122-9c91-38fba14224f8" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="17"/>
+								<textElement markup="none"/>
+								<textFieldExpression><![CDATA["Exchange Difference Percentage"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="16ca26d8-b786-4ce8-8846-b25053bd7336" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{EXCHAGE_DIFF_PERC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="68db4b77-ab04-4049-b88b-a839d80ec4a3">
+						<jr:tableHeader style="table_TH" height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="68b5941a-ad61-4359-9a19-cc173ca13327" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="17"/>
+								<textElement markup="none"/>
+								<textFieldExpression><![CDATA["Transaction Type"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="a72dce48-c200-4762-9c98-e7bd46b0c142" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{TRANSCATIONTYPE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="e577a700-bd57-48b8-8d5a-3e40d3cd242e">
+						<jr:tableHeader style="table_TH" height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="b80e4d62-d846-4aca-8fdf-172e211905ee" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="17"/>
+								<textElement markup="none"/>
+								<textFieldExpression><![CDATA["Reversal Transaction Number"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="60597fdb-cbe2-4962-83bb-b3e35268fbb8" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{REVERSALTRANSNO}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="f6bf51fa-1386-42c2-b4eb-e33f277d1f42">
+						<jr:tableHeader style="table_TH" height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="d9da22b9-1ef0-4180-a18b-ca344086ad86" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="17"/>
+								<textElement markup="none"/>
+								<textFieldExpression><![CDATA["Remarks"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="3134a666-e343-47f0-8590-f3302d52f008" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{REMARKS}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="11c43ca7-15f1-446e-bb42-21560f673a2d">
+						<jr:tableHeader style="table_TH" height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="e7e2a176-a337-458c-a74e-8c610d6cffb9" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="17"/>
+								<textElement markup="none"/>
+								<textFieldExpression><![CDATA["Settled Item No."]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="73e4f849-cfdd-43cd-b827-9848606921f0" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{SNO}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="a5f72d6d-a8cd-4c9a-a2e9-4e78a48bd595">
+						<jr:tableHeader style="table_TH" height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="05d3cc45-39b1-4758-b65f-96863f1c3b7b" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="17"/>
+								<textElement markup="none"/>
+								<textFieldExpression><![CDATA["Settlement Currency"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="86bc1aa2-fa05-4875-a68b-e84935b56698" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{AMOUNT_OC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="2b714a81-3c72-41fb-b9bc-57422b0028f7">
+						<jr:tableHeader style="table_TH" height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="7e4eec3a-f32a-493d-a595-1c1c77822533" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="17"/>
+								<textElement markup="none"/>
+								<textFieldExpression><![CDATA["Amount - OC"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="8020dbd7-cddb-42a8-b6b0-cb8e236d1609" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{CLIENTEXCHANGERATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="86969287-3742-4653-8fd0-dc7794856982">
+						<jr:tableHeader style="table_TH" height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="041c0503-0f10-497b-ab84-3573b9beb07c" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="17"/>
+								<textElement markup="none"/>
+								<textFieldExpression><![CDATA["Client Exchange Rate"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="a1a05edc-d2ee-4c67-bc37-ad884e971f44" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{CONVERTED_PAID_AMT}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="18a76774-ee71-4dac-bf10-94ec9d7bca2f">
+						<jr:tableHeader style="table_TH" height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="2eeced45-5b75-424d-92ff-e4fe2d1c2bed" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="17"/>
+								<textElement markup="none"/>
+								<textFieldExpression><![CDATA["Converted Settlement Amount"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="f25d1bbb-c9c0-42e7-8200-8e7618f1226f" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{EXCHANGERATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="a2957852-778e-40fb-b4c6-3db33361fa83">
+						<jr:tableHeader style="table_TH" height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="4cde87f5-f71c-4266-83ca-89218932cad8" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="17"/>
+								<textElement markup="none"/>
+								<textFieldExpression><![CDATA["Exchange Rate (Settlement Currency and UGX)"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="2c49e582-5255-4bde-8f25-8f61b85ae38a" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{ALLOCATED_TILL_DATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="a97ab895-b339-4e28-918e-1ebc8788359e">
+						<jr:tableHeader style="table_TH" height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="c7a4b664-592e-456f-8fe4-b4c6de36936f" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="17"/>
+								<textElement markup="none"/>
+								<textFieldExpression><![CDATA["Total Amount - UGX"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="aee677c7-df66-4475-8851-c6fdd464d020" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{TOTAL_AMOUNT_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="0e4474d5-322c-4c2f-9b03-ee11f7e40670">
+						<jr:tableHeader style="table_TH" height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="9686e0b8-11d8-490f-af9b-c0e8b369ac18" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="17"/>
+								<textElement markup="none"/>
+								<textFieldExpression><![CDATA["Allocated Amount - OC"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="240101bc-f121-4bea-9dde-b98900d5d350" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{ALLOCATED_TILL_DATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="bf13c01b-4966-405c-88bd-5cb72dbd1d14">
+						<jr:tableHeader style="table_TH" height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="d8da0e5c-8984-4e25-9efc-0507fb39c13c" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="17"/>
+								<textElement markup="none"/>
+								<textFieldExpression><![CDATA["Pending Amount - OC"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="b963a602-10ce-425d-9745-f3c54fa4a18f" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{PENDING_AMOUNT}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="bfc9c29a-c009-4846-b2b4-5b8a2349a181">
+						<jr:tableHeader style="table_TH" height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="0a38afaa-b376-4232-b211-c472bfa63300" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="17"/>
+								<textElement markup="none"/>
+								<textFieldExpression><![CDATA["Allocated Amount - UGX"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="818b40cd-4156-46ca-8a24-ca4f7d12aaa1" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{ALLOCATED_AMOUNT_UGX}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="e60444f2-d6f0-420e-91ef-927f6a75bbad">
+						<jr:tableHeader height="17" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="c016ac46-ba2e-4341-b1c1-d7ce60c1dcc5" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="17"/>
+								<textElement markup="none"/>
+								<textFieldExpression><![CDATA["Pending Amount - UGX"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell height="15" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="d048e4b5-5406-4ad3-8d8f-dc8334e07de0" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{PENDING_AMOUNT_UGX}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+		</band>
+		<band height="25">
+			<printWhenExpression><![CDATA[$P{status}.equals("N")]]></printWhenExpression>
+			<componentElement>
+				<reportElement uuid="a4581878-324e-4341-adf8-bd169d6dfb67" key="table 1" style="table 1" stretchType="RelativeToBandHeight" x="0" y="0" width="2168" height="15"/>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="New Dataset 1" uuid="6183da25-9a2d-4cae-8298-8061486e9f07">
+						<datasetParameter name="status">
+							<datasetParameterExpression><![CDATA[$P{status}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="startDate">
+							<datasetParameterExpression><![CDATA[$P{startDate}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="endDate">
+							<datasetParameterExpression><![CDATA[$P{endDate}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="branchCode">
+							<datasetParameterExpression><![CDATA[$P{branchCode}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="broker">
+							<datasetParameterExpression><![CDATA[$P{broker}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="ceding">
+							<datasetParameterExpression><![CDATA[$P{ceding}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="payrectype">
+							<datasetParameterExpression><![CDATA[$P{payrectype}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="transactionType">
+							<datasetParameterExpression><![CDATA[$P{transactionType}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:column width="95" uuid="2224538a-f3e9-4436-b81c-9fd9e36d531f">
+						<jr:tableHeader style="table 1_TH" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="21600243-f6cd-4184-b2e3-529a172cebbd" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="95" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA["Transaction No"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table 1_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="01ca7a9a-9c30-4f2f-8848-3881f93fea55" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="95" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{PAYMENT_RECEIPT_NO}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="95" uuid="c0ab0c31-82b6-47ba-b84d-7b1d13284e1c">
+						<jr:tableHeader style="table 1_TH" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="6d1a561e-2a79-43fa-8921-7e94589465d6" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="95" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA["Transaction Date"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table 1_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="1582fa85-2fcf-4b9f-8e7c-e26f67ee113e" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="95" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{TRANS_DATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="c9ea8448-a644-4d1d-b75f-e335fd876193">
+						<jr:tableHeader style="table 1_TH" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="aa35c122-18d2-4e3d-9a5f-07af8f4981a4" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="90" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA["Amendment Date"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table 1_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="3a7dc959-3237-4ce4-8c7d-2cbf7b641228" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="90" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{AMENDMENT_DATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="9b490ea9-4cb2-46c7-9e79-fe03b5d93f00">
+						<jr:tableHeader style="table 1_TH" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="bf64fda3-6903-4fa4-96ae-e9f1771d20ba" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="90" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA["Transaction"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table 1_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="68de7e04-06e5-4475-bd64-f2f4d74d713b" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="90" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{TRANS_TYPE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="180" uuid="9436df49-c190-4fa4-9f39-feb547e4c474">
+						<jr:tableHeader style="table 1_TH" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="88ed0840-17bf-4462-83ec-9faecf71f4b1" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="180" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA["Broker"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table 1_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="92609a00-1137-486d-8bfa-1581caf2310c" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="180" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{BROKER_NAME}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="180" uuid="da407d00-1bfe-4477-ac92-cbdd7e27834f">
+						<jr:tableHeader style="table 1_TH" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="1d6f2789-95d3-4c7c-a0f0-e7fbb50f71c8" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="180" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA["Ceding Company"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table 1_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="637781a9-33b1-4177-8285-3d5f252b2b42" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="180" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{CEDING_ID}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="155" uuid="60a9b403-b083-4065-bb94-dbd469a3a372">
+						<jr:tableHeader style="table 1_TH" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="9c33b923-18ab-47eb-a653-a5bc8a7f3501" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="155" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA["Bank"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table 1_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="388bc391-607d-418f-95cc-47b946e90189" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="155" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{RECEIPT_BANK}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="a284abf3-28f6-4ef6-885b-802747c38cc1">
+						<jr:tableHeader style="table 1_TH" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="60937452-c9dd-4340-ac6b-afcc59853986" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA["Currency"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table 1_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="a4345b25-c7d5-42a7-84c0-c421b5a566f4" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{CURRENCY_NAME}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="78577502-be5e-431b-a647-cfc06b92df25">
+						<jr:tableHeader style="table 1_TH" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="425d04a7-c026-4ccc-8e44-312d9a774149" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA["Exchange Rate"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table 1_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="###0.00000000" isBlankWhenNull="true">
+								<reportElement uuid="603b3665-448e-48bb-b9f5-7d72d20a830f" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{EXCHANGE_RATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="9ca6403c-8a36-44c4-b941-e79ce6f35206">
+						<jr:tableHeader style="table 1_TH" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="e266acb9-7ac2-42ec-b6f3-8dd4646b97b8" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA["Gross Amount - OC"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table 1_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="66fc688f-0eba-4b68-9877-1221f570f67e" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{GROSS_AMT}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="434df022-4a41-42e2-852c-c5838e98808b">
+						<jr:tableHeader style="table 1_TH" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="0f22d215-d8f0-49b7-85db-97d1ed445ab4" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA["Bank Charges - OC"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table 1_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="86beda9f-c6be-406c-be1a-0e44cbd1dc71" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{BANK_CHARGES}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="9d844cb1-545c-45f0-90f0-b72c267d084f">
+						<jr:tableHeader style="table 1_TH" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="74d2ede1-0636-4d89-b7bf-fbdcf8d3fbae" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA["With Holding Tax Recoverable - OC"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table 1_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="82b1d668-c458-469e-a1c0-3145b0f820c6" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{HOLDTAXRECOVER_OC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="ce7f2a44-3d8f-4626-b00d-7fc75ff5ae4b">
+						<jr:tableHeader style="table 1_TH" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="d36e87a5-6116-4c67-8588-d13f2af8f893" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA["Net Amount - OC"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table 1_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="5cd109a9-1dd8-48ef-b489-4dfa3761edb5" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{NET_AMT}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="13783b6b-9132-49d3-bf5f-5ff50c96e0b6">
+						<jr:tableHeader style="table 1_TH" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="9af83696-ca22-4601-8d8c-6ebbac5a3b02" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA["Gross Amount - UGX"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table 1_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="c18dab3a-7775-4b1f-85d8-fa2d4b667c50" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{GROSS_AMT_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="bad90116-be1e-4ac5-9af5-3d1f466b1ce0">
+						<jr:tableHeader style="table 1_TH" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="cd56c3dd-31f6-4c4a-86dc-69b42be23e88" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA["Bank Charges - UGX"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table 1_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="027479be-b895-4d2a-99ab-2db8c03a75a4" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{BANK_CHARGES_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="48e7c479-fa9c-43a0-8506-110da9a8243a">
+						<jr:tableHeader style="table 1_TH" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="e3fd9044-5dbe-4bcb-bbdd-3f8410ed1a4d" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA["With Holding Tax Recoverable - UGX"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table 1_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="e612dfe8-ac76-462e-8280-fd9a7d908871" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{HOLDTAXRECOVER_UGX}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="2e23c95c-7828-4d26-9e77-5d554217649b">
+						<jr:tableHeader style="table 1_TH" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="17e166fd-3502-4b8a-b2c7-4a24336d7b2c" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA["Net Amount - UGX"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table 1_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="92374c92-b5a9-4f29-bae0-3a2dee1f9b37" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{NET_AMT_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="a3efa090-c6a2-4582-b90d-f47f94fb7177">
+						<jr:tableHeader style="table 1_TH" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="c25313a6-ecbf-4f13-9f47-da1ead9f1215" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA["Exchange Difference Type"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table 1_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="5df23fbb-3c2a-43de-808c-7f703ec43061" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{DIFF_TYPE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="5ebdbeb8-b550-4d40-811a-cd0f3dd5bc9c">
+						<jr:tableHeader style="table 1_TH" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="1ea6eb31-c4a1-49ca-8724-f97ff5afbc61" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA["Exchange Difference Amount"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table 1_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="ae1e1fad-b1ba-48c3-a166-030cab6c029d" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{EXCHANGEDIFFERENCEAMOUNT}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="bbcbcee2-d3c7-4130-9e48-7602b701255d">
+						<jr:tableHeader style="table 1_TH" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="8b8925cf-18a5-403c-875f-8c56e55cd873" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA["Exchange Difference Percentage"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table 1_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="582a91ae-7bd2-4e4e-843c-e5f8c245cc9d" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{EXCHAGE_DIFF_PERC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="8f1d7f34-11be-4173-81e7-37b29e44c926">
+						<jr:tableHeader style="table 1_TH" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="3b67e83c-0aa1-40d2-acf3-2fd95f80d71f" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA["Transaction Type"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table 1_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="fd92e94a-055d-4e16-8e62-ea3f1fa36c41" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{TRANSCATIONTYPE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="77404eaa-8b54-4324-a9c0-910d53debddb">
+						<jr:tableHeader style="table 1_TH" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="f168a994-8e58-48ab-8e54-20ca1ca3947f" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA["Reversal Transaction Number"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table 1_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="e14a9f23-cb83-41cc-a218-068cd8139ecd" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{REVERSALTRANSNO}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="7fb4ff18-ff35-4213-b7b6-45e2e001c25d">
+						<jr:tableHeader style="table 1_TH" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="395e7767-55d5-4ac9-be2d-0ace7ba83c0d" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA["Remarks"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table 1_TD" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="8d38657d-8bcc-4faf-9b8d-2ef90df51a50" style="common" stretchType="RelativeToBandHeight" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="4"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{REMARKS}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

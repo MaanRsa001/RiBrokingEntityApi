@@ -1,0 +1,700 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="PttyClaimOslrReport" pageWidth="3000" pageHeight="842" columnWidth="2960" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isIgnorePagination="true" uuid="c4f0b60c-0bd4-4cb1-bcff-0ca4e4f090fc">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="33"/>
+	<style name="table">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 2">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 2_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 2_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 2_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 3">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 3_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 3_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 3_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 4">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 4_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 4_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 4_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 5">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 5_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 5_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 5_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<subDataset name="New Dataset 1" uuid="3ee2f28d-17bb-4131-92a9-5f25e5e2181d">
+		<parameter name="branchCode" class="java.lang.String"/>
+		<parameter name="reportDate" class="java.lang.String"/>
+		<queryString>
+			<![CDATA[SELECT * FROM TABLE(FN_PTTY_OSLR_REPORT($P{reportDate},$P{branchCode}))]]>
+		</queryString>
+		<field name="TRANSACTION_NO" class="java.math.BigDecimal"/>
+		<field name="TRANSACTION_DATE" class="java.lang.String"/>
+		<field name="DOC_TYPE" class="java.lang.String"/>
+		<field name="CEDANT_REFERENCE" class="java.lang.String"/>
+		<field name="CONTRACT_NO" class="java.math.BigDecimal"/>
+		<field name="UW_YEAR" class="java.math.BigDecimal"/>
+		<field name="CONTRACT_CLASS" class="java.lang.String"/>
+		<field name="PREMIUM_CLASS" class="java.lang.String"/>
+		<field name="RSK_SPFCID" class="java.lang.String"/>
+		<field name="INCEPTION_DATE" class="java.lang.String"/>
+		<field name="EXPIRY_DATE" class="java.lang.String"/>
+		<field name="COMPANY_CODE" class="java.lang.String"/>
+		<field name="BROKER_CODE" class="java.lang.String"/>
+		<field name="RSK_TREATYID" class="java.lang.String"/>
+		<field name="ACCOUNT_PERIOD_QTR" class="java.lang.String"/>
+		<field name="STATEMENT_DATE" class="java.lang.String"/>
+		<field name="STATEMENT_RECD_DATE" class="java.lang.String"/>
+		<field name="CURRENCY" class="java.lang.String"/>
+		<field name="AMOUNT_OC" class="java.math.BigDecimal"/>
+		<field name="AMOUNT_BKD_DC" class="java.math.BigDecimal"/>
+		<field name="AMOUNT_RST_DC" class="java.math.BigDecimal"/>
+		<field name="SECTION_NAME" class="java.lang.String"/>
+		<field name="ACCOUNTING_PERIOD_DATE" class="java.lang.String"/>
+		<variable name="totalPremiumDue" class="java.lang.Double" calculation="Sum">
+			<variableExpression><![CDATA[]]></variableExpression>
+		</variable>
+		<variable name="totalPayment" class="java.lang.Double" calculation="Sum">
+			<variableExpression><![CDATA[]]></variableExpression>
+		</variable>
+		<variable name="totalNetDue" class="java.lang.Double" calculation="Sum">
+			<variableExpression><![CDATA[]]></variableExpression>
+		</variable>
+	</subDataset>
+	<parameter name="branchCode" class="java.lang.String"/>
+	<parameter name="imagePath" class="java.lang.String"/>
+	<parameter name="reportName" class="java.lang.String"/>
+	<parameter name="systemDate" class="java.lang.String"/>
+	<parameter name="reportDate" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select COMPANY_NAME, EMAIL, ADDRESS1, COUNTRY, AMEND_ID, STATUS, WEB_SITE,TELEPHONE from company_master where COMPANY_CODE='RI01' and STATUS='Y']]>
+	</queryString>
+	<field name="COMPANY_NAME" class="java.lang.String"/>
+	<field name="EMAIL" class="java.lang.String"/>
+	<field name="ADDRESS1" class="java.lang.String"/>
+	<field name="COUNTRY" class="java.lang.String"/>
+	<field name="AMEND_ID" class="java.math.BigDecimal"/>
+	<field name="STATUS" class="java.lang.String"/>
+	<field name="WEB_SITE" class="java.lang.String"/>
+	<field name="TELEPHONE" class="java.lang.String"/>
+	<variable name="totalPremiumDue" class="java.lang.Double" calculation="Sum"/>
+	<variable name="totalPayment" class="java.lang.Double" calculation="Sum"/>
+	<variable name="totalNetDue" class="java.lang.Double"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="240" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="306" y="87" width="432" height="20" uuid="6a48e5cf-2696-43f3-b36e-4dfcafd438b4"/>
+				<textElement textAlignment="Center" markup="none">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{TELEPHONE}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="306" y="107" width="432" height="20" uuid="e996a6f3-22ed-4af4-880e-e326511862a4"/>
+				<textElement textAlignment="Center" markup="none">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{WEB_SITE}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="306" y="67" width="432" height="20" uuid="90064f8f-b887-4c9a-abe4-d16c8debc43e"/>
+				<textElement textAlignment="Center" markup="none">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{COUNTRY}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="306" y="27" width="432" height="20" uuid="b71deefe-da6d-4216-bb7d-d566c50960e1"/>
+				<textElement textAlignment="Center" markup="none">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{COMPANY_NAME}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="306" y="47" width="432" height="20" uuid="d1276234-03f4-422c-8674-a186c54adf9e"/>
+				<textElement textAlignment="Center" markup="none">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ADDRESS1}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="306" y="127" width="432" height="20" uuid="14e3e363-4e26-4908-9007-b485c39c2a88"/>
+				<textElement textAlignment="Center" markup="none">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{EMAIL}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="522" y="167" width="216" height="20" uuid="15f2f727-922a-482f-9591-5814c30eea12"/>
+				<box leftPadding="2">
+					<pen lineWidth="0.0"/>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Left"/>
+				<textFieldExpression><![CDATA[$P{reportDate}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="306" y="167" width="216" height="20" uuid="b751b2ff-bb64-497e-8f2b-6a94a0527ff3"/>
+				<box leftPadding="2">
+					<pen lineWidth="0.0"/>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle" markup="none">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Claims Outstanding as on :"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="306" y="147" width="432" height="20" uuid="317819da-47ab-40f4-bbb1-7af288ec6b81"/>
+				<box leftPadding="2">
+					<pen lineWidth="0.0"/>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{reportName}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="34" splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="13" splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="34" splitType="Stretch">
+			<componentElement>
+				<reportElement key="table 5" style="table 5" stretchType="RelativeToTallestObject" isPrintRepeatedValues="false" mode="Opaque" x="0" y="10" width="555" height="24" uuid="4b61ac58-4dca-43ad-b858-e2e63ae83179"/>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="New Dataset 1" uuid="8b1f6d7c-f556-4835-aa0d-08e436fadaad">
+						<datasetParameter name="branchCode">
+							<datasetParameterExpression><![CDATA[$P{branchCode}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="reportDate">
+							<datasetParameterExpression><![CDATA[$P{reportDate}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:column width="102" uuid="1ab9779a-0411-4b91-9f6a-c3d8c7e420b1">
+						<jr:columnHeader style="table 5_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="102" height="30" uuid="7ab46e4b-0b80-4b65-99d3-c020e3f44222"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font isBold="true"/>
+								</textElement>
+								<text><![CDATA[Transaction No]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 5_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="102" height="20" uuid="fae76076-2364-4461-8c52-60ee24a79fc5"/>
+								<textFieldExpression><![CDATA[$F{TRANSACTION_NO}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="102" uuid="e3e1286e-e0a0-4a39-907b-0e2839f9cae7">
+						<jr:columnHeader style="table 5_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="102" height="30" uuid="a852a043-0988-45e1-a072-4ac277bdfdfe"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font isBold="true"/>
+								</textElement>
+								<text><![CDATA[Transaction Date]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 5_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="102" height="20" uuid="156a54e9-00e4-4eb0-af10-1420a13faea1"/>
+								<textFieldExpression><![CDATA[$F{TRANSACTION_DATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="102" uuid="9799cf31-db2a-48c8-8f2f-caf5008e3d93">
+						<jr:columnHeader style="table 5_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="102" height="30" uuid="cb9922df-b11f-480a-81a0-995c2bc37001"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font isBold="true"/>
+								</textElement>
+								<text><![CDATA[Doc Type]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 5_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="102" height="20" uuid="1872c848-264e-47df-b86e-0cf4e0a0d625"/>
+								<textFieldExpression><![CDATA[$F{DOC_TYPE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="108" uuid="4cec13e8-aa92-4688-b12c-94623ee95a72">
+						<jr:columnHeader style="table 5_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="108" height="30" uuid="fd7d15a6-ef29-400a-bbd7-82e5289d5312"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font isBold="true"/>
+								</textElement>
+								<text><![CDATA[Cedant Reference]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 5_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="108" height="20" uuid="0a99c349-bb19-4c1b-804d-256e017d3456"/>
+								<textFieldExpression><![CDATA[$F{CEDANT_REFERENCE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="108" uuid="88ed6bae-bfff-4b74-bcc5-1fa57f92800d">
+						<jr:columnHeader style="table 5_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="108" height="30" uuid="9e086bc5-8f57-42c6-a0d2-e4d31ab1e5d8"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font isBold="true"/>
+								</textElement>
+								<text><![CDATA[Contract No]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 5_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="###0" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="108" height="20" uuid="4bbb1daf-c7d2-4e10-88da-7afd8444a065"/>
+								<textFieldExpression><![CDATA[$F{CONTRACT_NO}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="108" uuid="b8909262-2c3e-4f0b-b12c-5e8f07801e77">
+						<jr:columnHeader style="table 5_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="108" height="30" uuid="ebfa444d-1f59-4e1f-b945-0804530be511"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font isBold="true"/>
+								</textElement>
+								<text><![CDATA[UW Year]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 5_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="108" height="20" uuid="cd80d2a7-aa0f-478d-8f20-04595ede21f5"/>
+								<textFieldExpression><![CDATA[$F{UW_YEAR}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="108" uuid="f3e12ade-69a0-455c-9a8c-a53ebe1a0add">
+						<jr:columnHeader style="table 5_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="108" height="30" uuid="7ebfe334-b72a-4840-94e9-568cdc0c7cc4"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font isBold="true"/>
+								</textElement>
+								<text><![CDATA[Contract Class]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 5_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="108" height="20" uuid="be7ac605-06c5-4e67-8272-3df1bf988e47"/>
+								<textFieldExpression><![CDATA[$F{CONTRACT_CLASS}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="108" uuid="e9499e2f-82c6-4f86-b58a-c1913b10c82e">
+						<jr:columnHeader style="table 5_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="108" height="30" uuid="ca65b541-4c06-4441-b90c-31d2e2b4a692"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font isBold="true"/>
+								</textElement>
+								<text><![CDATA[Premium Class]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 5_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="108" height="20" uuid="5a5563a0-9d84-462e-80d9-914b43d0ac6d"/>
+								<textFieldExpression><![CDATA[$F{PREMIUM_CLASS}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="108" uuid="065de438-872f-4393-8658-1eabd8b7c8f4">
+						<jr:columnHeader style="table 5_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="108" height="30" uuid="d6fbe5b0-3159-4efb-8180-a7a5bcc3298d"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font isBold="true"/>
+								</textElement>
+								<text><![CDATA[Sub Class]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 5_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="108" height="20" uuid="2b4e59bc-a7b0-429c-8077-b6c7dfa84dec"/>
+								<textFieldExpression><![CDATA[$F{RSK_SPFCID}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="03d8d569-1e4f-46ba-9b41-420c10961b20">
+						<jr:columnHeader style="table 5_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="90" height="30" uuid="528417c5-3cb9-4546-b493-055cfac36f5b"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font isBold="true"/>
+								</textElement>
+								<text><![CDATA[Section Name]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 5_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="90" height="20" uuid="2a37311f-2159-4b8a-a794-9861483c45e6"/>
+								<textFieldExpression><![CDATA[$F{SECTION_NAME}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="aba75a84-aef1-46df-b82a-f7d55d67aa66">
+						<jr:columnHeader style="table 5_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="90" height="30" uuid="fd5a75c4-5824-4e06-98f3-90439916082f"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font isBold="true"/>
+								</textElement>
+								<text><![CDATA[Inception Date]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 5_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="90" height="20" uuid="10792056-95da-42f0-9883-84e3854f9d25"/>
+								<textFieldExpression><![CDATA[$F{INCEPTION_DATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="ed865240-6fe9-46ce-99ef-212ff0d83281">
+						<jr:columnHeader style="table 5_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="90" height="30" uuid="5283b783-6ab4-4aa5-b101-75adf6e15bbf"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font isBold="true"/>
+								</textElement>
+								<text><![CDATA[Expiry  Date]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 5_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="90" height="20" uuid="e5fdab9c-78cc-40d8-b10b-ba4b9a9960d7"/>
+								<textFieldExpression><![CDATA[$F{EXPIRY_DATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="120" uuid="a5984775-87e7-4d81-b083-d4cf43eff3b9">
+						<jr:columnHeader style="table 5_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="120" height="30" uuid="fb017cbe-977f-4103-a5fe-79611612788e"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font isBold="true"/>
+								</textElement>
+								<text><![CDATA[Ceding Company]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 5_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="120" height="20" uuid="fa4ac897-6de6-4fce-ad72-1027f07f5a5e"/>
+								<textFieldExpression><![CDATA[$F{COMPANY_CODE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="120" uuid="2a1b0b14-56ae-4a4f-a03c-d2e4a47ce1dc">
+						<jr:columnHeader style="table 5_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="120" height="30" uuid="73d3b5fb-dd8a-495e-8751-1fef6cd38116"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font isBold="true"/>
+								</textElement>
+								<text><![CDATA[Broker Code]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 5_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="120" height="20" uuid="78215f98-44cb-4bd1-acff-dc8b7cbfba44"/>
+								<textFieldExpression><![CDATA[$F{BROKER_CODE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="120" uuid="fcccb679-fc61-44f4-9cce-d2b053c39e43">
+						<jr:columnHeader style="table 5_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="120" height="30" uuid="f4bb1855-d8f3-4274-952c-3c149c276480"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font isBold="true"/>
+								</textElement>
+								<text><![CDATA[Treaty Name]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 5_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="120" height="20" uuid="3671bb6e-7dcf-4afa-9be9-018d835f53e5"/>
+								<textFieldExpression><![CDATA[$F{RSK_TREATYID}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="f69471e5-1514-4071-b4fe-288da614300c">
+						<jr:columnHeader style="table 5_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="90" height="30" uuid="e826d495-656f-49b2-989e-531351bf8d36"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font isBold="true"/>
+								</textElement>
+								<text><![CDATA[Accounting Period]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 5_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="90" height="20" uuid="f8b2ec82-4e1c-49d8-9ce4-865b1ceac4c8"/>
+								<textFieldExpression><![CDATA[$F{ACCOUNT_PERIOD_QTR}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="30dd3d77-5c2e-4a34-9d51-5d7069d9f1a6">
+						<jr:columnHeader style="table 5_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="90" height="30" uuid="00777a68-af34-4505-bdfa-d0b341b60fcb"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font isBold="true"/>
+								</textElement>
+								<text><![CDATA[Accounting Period Date]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 5_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="90" height="20" uuid="4e617664-d75f-4664-a438-b5aa74eb90f5"/>
+								<textFieldExpression><![CDATA[$F{ACCOUNTING_PERIOD_DATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="4b3a96ef-bdb1-4c03-b390-4066cd09d6ec">
+						<jr:columnHeader style="table 5_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="90" height="30" uuid="245684d6-0f9f-4b65-a8cd-7a602d8eab6f"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font isBold="true"/>
+								</textElement>
+								<text><![CDATA[Statement Date]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 5_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="90" height="20" uuid="fb779c8c-b165-4524-8651-40403f7c66ac"/>
+								<textFieldExpression><![CDATA[$F{STATEMENT_DATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="9a8eeda4-83da-4b9a-8ea5-e2371c0fc1da">
+						<jr:columnHeader style="table 5_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="90" height="30" uuid="e7690413-653d-4f62-b007-9d170cecc598"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font isBold="true"/>
+								</textElement>
+								<text><![CDATA[Statement Received Date]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 5_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="90" height="20" uuid="5a3a8e18-9128-44c4-bc9c-2efe67f9386a"/>
+								<textFieldExpression><![CDATA[$F{STATEMENT_RECD_DATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="785eaab9-206c-4c9f-92cf-264eb96edcfd">
+						<jr:columnHeader style="table 5_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="90" height="30" uuid="9b87ca57-b6df-4afe-83fb-3fa206edde9e"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font isBold="true"/>
+								</textElement>
+								<text><![CDATA[Currency]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 5_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="90" height="20" uuid="11b8da88-134b-4eb1-a487-f1e6160f2265"/>
+								<textFieldExpression><![CDATA[$F{CURRENCY}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="d4e18545-43e9-4f60-accc-a7a91d4534e9">
+						<jr:columnHeader style="table 5_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="90" height="30" uuid="eac34d4a-8879-4516-810c-cd0437968db8"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font isBold="true"/>
+								</textElement>
+								<text><![CDATA[OSLR Amount - OC]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 5_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="90" height="20" uuid="f8b80142-9b41-43a2-a6d0-645d7dc3f55f"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{AMOUNT_OC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="712c9f9e-9edb-4427-b34c-a5a80754669f">
+						<jr:columnHeader style="table 5_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="90" height="30" uuid="3076b336-3436-40b0-8027-9641c26593d8"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font isBold="true"/>
+								</textElement>
+								<text><![CDATA[OSLR Amount - UGX]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 5_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="90" height="20" uuid="a9dc7ac9-5e98-4376-bf7e-14e45ae1fe3b"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{AMOUNT_BKD_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="100" uuid="a1e3afa6-220f-4c70-8cfe-74030c5813dd">
+						<jr:columnHeader style="table 5_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="100" height="30" uuid="ee612682-7ed2-4c6f-9757-8a4cf98d5529"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font isBold="true"/>
+								</textElement>
+								<text><![CDATA[OSLR Amount - UGX (Restated)]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 5_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="100" height="20" uuid="af46c59d-bce8-4d15-83f4-03a92bfb32f5"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{AMOUNT_RST_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

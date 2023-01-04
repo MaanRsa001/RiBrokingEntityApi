@@ -1,0 +1,2663 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="TransactionReport" pageWidth="3000" pageHeight="842" columnWidth="2960" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isIgnorePagination="true" uuid="bbcb0166-5c15-4b88-8327-470c9ea9aefe">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="net.sf.jasperreports.export.xls.detect.cell.type" value="true"/>
+	<style name="table">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TH" mode="Opaque" backcolor="#FFFFFF" fontName="SansSerif">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="common" hAlign="Left" vAlign="Middle" fontName="Arial" fontSize="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
+	<style name="common1" hAlign="Center" vAlign="Middle" fontName="Arial" fontSize="9" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
+	<subDataset name="Transdetailed" uuid="beae73e7-fb7a-46f6-9cff-1423c02fe3f8">
+		<parameter name="branchCode" class="java.lang.String"/>
+		<parameter name="startDate" class="java.lang.String"/>
+		<parameter name="endDate" class="java.lang.String"/>
+		<parameter name="docType" class="java.lang.String"/>
+		<parameter name="uwYear" class="java.lang.String"/>
+		<parameter name="contractNo" class="java.lang.String"/>
+		<parameter name="cedingName" class="java.lang.String"/>
+		<parameter name="brokerName" class="java.lang.String"/>
+		<parameter name="showfieldYN" class="java.lang.String"/>
+		<parameter name="systemDate" class="java.lang.String"/>
+		<queryString>
+			<![CDATA[Select * from table(FN_TRANSACTION_REPORT($P{startDate},$P{endDate},$P{branchCode},$P{docType},$P{brokerName},$P{cedingName}, $P{uwYear},$P{contractNo}))]]>
+		</queryString>
+		<field name="TRANSACTION_NO" class="java.math.BigDecimal"/>
+		<field name="TRANSACTION_DATE" class="java.lang.String"/>
+		<field name="AMENDMENT_DATE" class="java.lang.String"/>
+		<field name="TRANSACTION_MONTH" class="java.lang.String"/>
+		<field name="TRANSACTION_YEAR" class="java.lang.String"/>
+		<field name="DOC_TYPE" class="java.lang.String"/>
+		<field name="CEDANT_REFERENCE" class="java.lang.String"/>
+		<field name="CONTRACT_NO" class="java.math.BigDecimal"/>
+		<field name="UW_YEAR" class="java.lang.String"/>
+		<field name="RSK_SPFCID" class="java.lang.String"/>
+		<field name="INCEPTION_DATE" class="java.lang.String"/>
+		<field name="EXPIRY_DATE" class="java.lang.String"/>
+		<field name="COMPANY_CODE" class="java.lang.String"/>
+		<field name="BROKER_CODE" class="java.lang.String"/>
+		<field name="RSK_INSURED_NAME" class="java.lang.String"/>
+		<field name="LOSS_DATE" class="java.lang.String"/>
+		<field name="CLAIM_NO" class="java.lang.String"/>
+		<field name="ACCOUNT_PERIOD_QTR" class="java.lang.String"/>
+		<field name="CURRENCY" class="java.lang.String"/>
+		<field name="PREMIUM_QUOTASHARE_OC" class="java.math.BigDecimal"/>
+		<field name="PREMIUM_SURPLUS_OC" class="java.math.BigDecimal"/>
+		<field name="PREMIUM_TOTAL" class="java.math.BigDecimal"/>
+		<field name="XL_COST_OC" class="java.math.BigDecimal"/>
+		<field name="PREMIUM_PORTFOLIOIN_OC" class="java.math.BigDecimal"/>
+		<field name="PREMIUM_PORTFOLIOOUT_OC" class="java.math.BigDecimal"/>
+		<field name="NET_PREMIUM" class="java.math.BigDecimal"/>
+		<field name="COMMISSION_QUOTASHARE_OC" class="java.math.BigDecimal"/>
+		<field name="COMMISSION_SURPLUS_OC" class="java.math.BigDecimal"/>
+		<field name="COMMISSION_TOTAL" class="java.math.BigDecimal"/>
+		<field name="BROKERAGE_AMT_OC" class="java.math.BigDecimal"/>
+		<field name="TAX_AMT_OC" class="java.math.BigDecimal"/>
+		<field name="OVERRIDER_AMT_OC" class="java.math.BigDecimal"/>
+		<field name="OTHER_COST_OC" class="java.math.BigDecimal"/>
+		<field name="PROFIT_COMMISSION_OC" class="java.math.BigDecimal"/>
+		<field name="TOTAL_COST" class="java.math.BigDecimal"/>
+		<field name="WITH_HOLDING_TAX_OC" class="java.math.BigDecimal"/>
+		<field name="PREMIUM_RESERVE_RETAINED_OC" class="java.math.BigDecimal"/>
+		<field name="PREMIUM_RESERVE_REALSED_OC" class="java.math.BigDecimal"/>
+		<field name="LOSS_RESERVERETAINED_OC" class="java.math.BigDecimal"/>
+		<field name="LOSS_RESERVE_RELEASED_OC" class="java.math.BigDecimal"/>
+		<field name="INTEREST_OC" class="java.math.BigDecimal"/>
+		<field name="CLAIMS_PAID_OC" class="java.math.BigDecimal"/>
+		<field name="CLAIM_RECOVERY_OC" class="java.math.BigDecimal"/>
+		<field name="CLAIM_PORTFOLIOIN_OC" class="java.math.BigDecimal"/>
+		<field name="CLAIM_PORTFOLIO_OUT_OC" class="java.math.BigDecimal"/>
+		<field name="CASH_LOSSPAID_OC" class="java.math.BigDecimal"/>
+		<field name="CASH_LOSS_CREDIT_OC" class="java.math.BigDecimal"/>
+		<field name="NET_CLAIMS" class="java.math.BigDecimal"/>
+		<field name="RECEIPT_AMOUNT" class="java.math.BigDecimal"/>
+		<field name="PAYMENT_AMOUNT" class="java.math.BigDecimal"/>
+		<field name="NET_DUE_OC" class="java.math.BigDecimal"/>
+		<field name="ALLOCATED_TILL_DATE" class="java.math.BigDecimal"/>
+		<field name="PENDING_ALLOCATION" class="java.math.BigDecimal"/>
+		<field name="EXCHANGE_RATE" class="java.math.BigDecimal"/>
+		<field name="PREMIUM_QUOTASHARE_DC" class="java.math.BigDecimal"/>
+		<field name="PREMIUM_SURPLUS_DC" class="java.math.BigDecimal"/>
+		<field name="PREMIUM_TOTAL_DC" class="java.math.BigDecimal"/>
+		<field name="XL_COST_DC" class="java.math.BigDecimal"/>
+		<field name="PREMIUM_PORTFOLIOIN_DC" class="java.math.BigDecimal"/>
+		<field name="PREMIUM_PORTFOLIOOUT_DC" class="java.math.BigDecimal"/>
+		<field name="NET_PREMIUM_DC" class="java.math.BigDecimal"/>
+		<field name="COMMISSION_QUOTASHARE_DC" class="java.math.BigDecimal"/>
+		<field name="COMMISSION_SURPLUS_DC" class="java.math.BigDecimal"/>
+		<field name="COMMISSION_TOTAL_DC" class="java.math.BigDecimal"/>
+		<field name="BROKERAGE_AMT_DC" class="java.math.BigDecimal"/>
+		<field name="TAX_AMT_DC" class="java.math.BigDecimal"/>
+		<field name="OVERRIDER_AMT_DC" class="java.math.BigDecimal"/>
+		<field name="OTHER_COST_DC" class="java.math.BigDecimal"/>
+		<field name="PROFIT_COMMISSION_DC" class="java.math.BigDecimal"/>
+		<field name="TOTAL_COST_DC" class="java.math.BigDecimal"/>
+		<field name="WITH_HOLDING_TAX_DC" class="java.math.BigDecimal"/>
+		<field name="PREMIUM_RESERVE_RETAINED_DC" class="java.math.BigDecimal"/>
+		<field name="PREMIUM_RESERVE_REALSED_DC" class="java.math.BigDecimal"/>
+		<field name="LOSS_RESERVERETAINED_DC" class="java.math.BigDecimal"/>
+		<field name="LOSS_RESERVE_RELEASED_DC" class="java.math.BigDecimal"/>
+		<field name="INTEREST_DC" class="java.math.BigDecimal"/>
+		<field name="CLAIMS_PAID_DC" class="java.math.BigDecimal"/>
+		<field name="CLAIM_RECOVERY_DC" class="java.math.BigDecimal"/>
+		<field name="CLAIM_PORTFOLIOIN_DC" class="java.math.BigDecimal"/>
+		<field name="CLAIM_PORTFOLIO_OUT_DC" class="java.math.BigDecimal"/>
+		<field name="CASH_LOSSPAID_DC" class="java.math.BigDecimal"/>
+		<field name="CASH_LOSS_CREDIT_DC" class="java.math.BigDecimal"/>
+		<field name="NET_CLAIMS_DC" class="java.math.BigDecimal"/>
+		<field name="RECEIPT_AMOUNT_DC" class="java.math.BigDecimal"/>
+		<field name="PAYMENT_AMOUNT_DC" class="java.math.BigDecimal"/>
+		<field name="NET_DUE_DC" class="java.math.BigDecimal"/>
+		<field name="ALLOCATED_TILL_DATE_DC" class="java.math.BigDecimal"/>
+		<field name="PENDING_ALLOCATION_DC" class="java.math.BigDecimal"/>
+		<field name="ALLOCATION_NUMBER_DC" class="java.math.BigDecimal"/>
+		<field name="BRANCH_CODE" class="java.lang.String"/>
+		<field name="REINSTATEMENTPREMIUM_OC" class="java.math.BigDecimal"/>
+		<field name="REINSTATEMENTPREMIUM_DC" class="java.math.BigDecimal"/>
+		<field name="CUSTOMER_ID" class="java.math.BigDecimal"/>
+		<field name="BROKER_ID" class="java.math.BigDecimal"/>
+		<field name="SNO" class="java.lang.String"/>
+		<field name="LOGIN_ID" class="java.lang.String"/>
+		<field name="TDS_OC" class="java.math.BigDecimal"/>
+		<field name="TDS_DC" class="java.math.BigDecimal"/>
+		<field name="ST_OC" class="java.math.BigDecimal"/>
+		<field name="ST_DC" class="java.math.BigDecimal"/>
+		<field name="SC_COMM_OC" class="java.math.BigDecimal"/>
+		<field name="SC_COMM_DC" class="java.math.BigDecimal"/>
+		<field name="BONUS_OC" class="java.math.BigDecimal"/>
+		<field name="BONUS_DC" class="java.math.BigDecimal"/>
+		<field name="LPC_OC" class="java.math.BigDecimal"/>
+		<field name="LPC_DC" class="java.math.BigDecimal"/>
+		<field name="PRD_ALLOCATED_TILL_DATE" class="java.math.BigDecimal"/>
+		<field name="LRD_ALLOCATED_TILL_DATE" class="java.math.BigDecimal"/>
+		<field name="STATEMENT_DATE" class="java.lang.String"/>
+		<field name="OSBYN" class="java.lang.String"/>
+		<field name="DEPARTMENT_NAME" class="java.lang.String"/>
+		<field name="OSCLAIM_LOSSUPDATE_OC" class="java.math.BigDecimal"/>
+		<field name="OSCLAIM_LOSSUPDATE_DC" class="java.math.BigDecimal"/>
+		<field name="LAYER_NO" class="java.math.BigDecimal"/>
+		<field name="SAF_OS_OC" class="java.math.BigDecimal"/>
+		<field name="OTH_FEE_OS_OC" class="java.math.BigDecimal"/>
+		<field name="SAF_OS_DC" class="java.math.BigDecimal"/>
+		<field name="OTH_FEE_OS_DC" class="java.math.BigDecimal"/>
+        <field name="PRODUCT_NAME" class="java.lang.String"/>
+	</subDataset>
+	<parameter name="branchCode" class="java.lang.String"/>
+	<parameter name="startDate" class="java.lang.String"/>
+	<parameter name="endDate" class="java.lang.String"/>
+	<parameter name="docType" class="java.lang.String"/>
+	<parameter name="uwYear" class="java.lang.String"/>
+	<parameter name="contractNo" class="java.lang.String"/>
+	<parameter name="cedingName" class="java.lang.String"/>
+	<parameter name="brokerName" class="java.lang.String"/>
+	<parameter name="showfieldYN" class="java.lang.String"/>
+	<parameter name="systemDate" class="java.lang.String"/>
+	<parameter name="productName" class="java.lang.String"/>
+	<parameter name="loginId" class="java.lang.String"/>
+	<parameter name="cedingId" class="java.lang.String"/>
+	<parameter name="brokerId" class="java.lang.String"/>
+	<parameter name="reportName" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select COMPANY_NAME, EMAIL, ADDRESS1, COUNTRY, AMEND_ID, STATUS, WEB_SITE,TELEPHONE from company_master where branch_code='07' and STATUS='Y']]>
+	</queryString>
+	<field name="COMPANY_NAME" class="java.lang.String"/>
+	<field name="EMAIL" class="java.lang.String"/>
+	<field name="ADDRESS1" class="java.lang.String"/>
+	<field name="COUNTRY" class="java.lang.String"/>
+	<field name="AMEND_ID" class="java.math.BigDecimal"/>
+	<field name="STATUS" class="java.lang.String"/>
+	<field name="WEB_SITE" class="java.lang.String"/>
+	<field name="TELEPHONE" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="193" splitType="Stretch">
+			<textField>
+				<reportElement uuid="c7ecd3f9-3758-45a8-8082-ebda9d24baef" style="common1" x="270" y="0" width="487" height="20"/>
+				<textElement textAlignment="Center" markup="none"/>
+				<textFieldExpression><![CDATA[$F{COMPANY_NAME}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="070c04e9-2269-4bee-b51b-d4093596bcde" style="common1" x="270" y="20" width="487" height="20"/>
+				<textElement textAlignment="Center" markup="none"/>
+				<textFieldExpression><![CDATA[$F{ADDRESS1}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="f85e3178-a117-46bd-8630-7f51039c4b14" style="common1" x="270" y="59" width="487" height="20"/>
+				<textElement textAlignment="Center" markup="none"/>
+				<textFieldExpression><![CDATA[$F{EMAIL}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="5a87f95f-8003-45f7-a24b-8a17d3f3aac1" style="common1" x="270" y="79" width="487" height="20"/>
+				<textElement textAlignment="Center" markup="none"/>
+				<textFieldExpression><![CDATA[$F{WEB_SITE}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="0ee0c441-80f3-4aa6-8128-7b115b755434" style="common1" x="270" y="99" width="487" height="20"/>
+				<textElement textAlignment="Center" markup="none"/>
+				<textFieldExpression><![CDATA[$P{reportName}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="3db8d072-8d9f-459f-bb57-3a50fff46fdc" style="common1" x="90" y="119" width="90" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left"/>
+				<text><![CDATA[Product :
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="a4ba0533-305d-4f9d-aa49-7146a7d8ca99" style="common1" x="90" y="139" width="90" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left"/>
+				<text><![CDATA[LoginId :
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="df9d2306-4ba5-4ac2-98e4-42cc236502eb" style="common1" x="270" y="119" width="108" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left"/>
+				<text><![CDATA[Ceding Name :
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="3db71e14-249d-4ce4-8f3d-4af64a3e0fa8" style="common1" x="270" y="139" width="108" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left"/>
+				<text><![CDATA[Broker Name :
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="fd148419-c503-47de-a18b-7a71b16b5939" style="common1" x="757" y="119" width="180" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left"/>
+				<text><![CDATA[Transaction Date Start From :
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="f734977e-bac9-4fb2-bad8-25736b83c579" style="common1" x="757" y="139" width="180" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left"/>
+				<text><![CDATA[Transaction Date End To :
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="3a443609-3500-4796-a178-ff910ca4fff8" style="common1" x="1092" y="119" width="105" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left"/>
+				<text><![CDATA[UW Year :
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="91ca4e79-ee8f-4c9d-a0d6-efa9a9149638" style="common1" x="1092" y="139" width="105" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left"/>
+				<text><![CDATA[Generated Date :
+]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="f2695f34-bee6-48b1-9404-4a3a5f4e2a9b" style="common" x="180" y="119" width="90" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{productName}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="99a9abdb-3a86-4a2d-a628-4b7b7db8a757" style="common" x="180" y="139" width="90" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{loginId}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="81a22488-b690-4269-b368-87320e7e125d" style="common" x="378" y="119" width="379" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{cedingId}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="047163c0-98c1-4d74-a67f-59bb6518c94e" style="common" x="378" y="139" width="379" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{brokerId}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="86ad82ab-46d7-4d0e-97d8-16383bddf81e" style="common" x="937" y="119" width="155" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{startDate}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="0ac2f62c-02b5-4a3a-885e-d5685c807b4f" style="common" x="937" y="139" width="155" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{endDate}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="7bb2d58a-ebe4-4db3-8ab0-884c33940ce4" style="common" x="1197" y="119" width="203" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{uwYear}.equals("-1")?"ALL":$P{uwYear}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="563cc063-1331-47d9-9b3d-3dd4b8252161" style="common" x="1197" y="139" width="203" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{systemDate}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="19">
+			<printWhenExpression><![CDATA[$P{showfieldYN}.equals( "Y" )]]></printWhenExpression>
+			<componentElement>
+				<reportElement uuid="3a2b8928-f181-4de3-986b-5f9e46fe8806" key="table" style="table" x="0" y="0" width="2960" height="17">
+					<printWhenExpression><![CDATA[$P{showfieldYN}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="Transdetailed" uuid="fccb12ff-a442-4a66-861b-16ffe1ed9445">
+						<datasetParameter name="branchCode">
+							<datasetParameterExpression><![CDATA[$P{branchCode}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="startDate">
+							<datasetParameterExpression><![CDATA[$P{startDate}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="endDate">
+							<datasetParameterExpression><![CDATA[$P{endDate}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="docType">
+							<datasetParameterExpression><![CDATA[$P{docType}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="uwYear">
+							<datasetParameterExpression><![CDATA[$P{uwYear}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="contractNo">
+							<datasetParameterExpression><![CDATA[$P{contractNo}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="cedingName">
+							<datasetParameterExpression><![CDATA[$P{cedingName}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="brokerName">
+							<datasetParameterExpression><![CDATA[$P{brokerName}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:column width="90" uuid="5871196b-fb7d-432d-8f23-09486b0efcc5">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="fdd757bb-3d6b-4bf0-80a1-38e29a987c51" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Transaction No]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="a4a58551-f6bc-4b20-8510-ca1fac336570" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement textAlignment="Left"/>
+								<textFieldExpression><![CDATA[$F{TRANSACTION_NO}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="9fa06d46-c67b-421b-b59b-3ec1b336e9b4">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="0585f200-82a2-4e97-9397-81fba6bd51ee" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Transaction Date]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="5fd160f3-ff82-4c80-a848-be053522bc42" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement textAlignment="Left"/>
+								<textFieldExpression><![CDATA[$F{TRANSACTION_DATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="8aad37fc-f175-4995-b156-cebdeb236e20">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="794af9e7-1d65-4319-8f1b-c19e29b84b9d" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Doc Type]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="8b94572e-4f24-4fb0-90dd-dff6ecf437fb" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{DOC_TYPE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="108" uuid="3f1448bf-6fdc-4921-8873-9dce176712b4">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="ad335989-e04b-4e5b-889a-4ca6353e1553" style="common1" x="0" y="0" width="108" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Client Doc Reference]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="7eabf264-93b1-4271-969c-562e25b8eb90" style="common" x="0" y="0" width="108" height="20"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{CEDANT_REFERENCE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="109" uuid="ec23d804-1ed7-44a5-a0ff-a832af1249ef">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="33439045-d68e-402b-bfb7-b2653f311359" style="common1" x="0" y="0" width="109" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Contract No]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="###0" isBlankWhenNull="true">
+								<reportElement uuid="27255599-db6a-4d06-9fac-65d0af4f0243" style="common" x="0" y="0" width="109" height="20"/>
+								<textElement textAlignment="Left"/>
+								<textFieldExpression><![CDATA[$F{CONTRACT_NO}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="ec23d804-1ed7-44a5-a0ff-a832af1249ef">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="33439045-d68e-402b-bfb7-b2653f311359" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Layer No]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="27255599-db6a-4d06-9fac-65d0af4f0243" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement textAlignment="Left"/>
+								<textFieldExpression><![CDATA[$F{LAYER_NO}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="8a5afc6a-9c8d-4216-8ef4-695e3e2c3dda">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="9ff52a86-1f5c-4e1f-98b3-8b0b1d0dcef3" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[UW Year]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="c1d7ed06-65ff-41f5-92bd-673980b46a8d" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement textAlignment="Left"/>
+								<textFieldExpression><![CDATA[$F{UW_YEAR}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="8a5afc6a-9c8d-4216-8ef4-695e3e2c3dda">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="9ff52a86-1f5c-4e1f-98b3-8b0b1d0dcef3" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Class]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="c1d7ed06-65ff-41f5-92bd-673980b46a8d" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement textAlignment="Left"/>
+								<textFieldExpression><![CDATA[$F{DEPARTMENT_NAME}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="180" uuid="f29d6178-81a0-41af-adbb-addcd908c1bd">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="ada16205-55f0-4a33-9735-54d22f92d79c" style="common1" x="0" y="0" width="180" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Sub Class]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="e791dd1d-d04c-4103-afc8-cab70306e7f1" style="common" x="0" y="0" width="180" height="20"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{RSK_SPFCID}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="439ae324-d8e6-4deb-930b-da3d7694de3c">
+						<jr:tableHeader height="15" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<staticText>
+								<reportElement uuid="9ee72368-d337-4caf-9fdb-b07f204eee4f" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Product Name]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell height="20" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="4709f16d-8875-40f1-8308-f81f651996c3" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{PRODUCT_NAME}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="155" uuid="2050e4c7-e8ff-4555-ab0f-e622a34d64e8">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="3843cbbd-bdce-4cb0-9cbd-93b133e364cc" style="common1" x="0" y="0" width="155" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Inception Date]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="8220342c-aea1-4c61-8cdb-a22e5bd2c700" style="common" x="0" y="0" width="155" height="20"/>
+								<textElement textAlignment="Left"/>
+								<textFieldExpression><![CDATA[$F{INCEPTION_DATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="105" uuid="f41d74d1-e529-45e8-917e-19949bd503eb">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="1aeb4e62-c0ad-4db1-8875-423dc8103d98" style="common1" x="0" y="0" width="105" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Expiry Date]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="4d3946e4-fa73-4070-9ee3-f8507bac549e" style="common" x="0" y="0" width="105" height="20"/>
+								<textElement textAlignment="Left"/>
+								<textFieldExpression><![CDATA[$F{EXPIRY_DATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="203" uuid="b73f886b-ee3e-4e8d-ac19-a18d1945cd75">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="9bedc0ea-b43d-420e-a9aa-00ec8224ffff" style="common1" x="0" y="0" width="203" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Ceding Company]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="fa53cfb7-52b9-43e2-a828-cae29904c888" style="common" x="0" y="0" width="203" height="20"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{COMPANY_CODE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="207" uuid="0e4eafa6-1efd-4289-830d-8810ec33ca67">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="8c3340e1-7d7f-4973-81dc-19be40b0f490" style="common1" x="0" y="0" width="207" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Broker]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="1c753b00-ceff-43fd-a260-7397965ea25d" style="common" x="0" y="0" width="207" height="20"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{BROKER_CODE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="199" uuid="a099e2a0-5f32-41df-9988-2418329a624e">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="04d8867d-8b32-4263-ab0b-18010d2b8ce8" style="common1" x="0" y="0" width="199" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Treaty Name/Orig Insured]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="e4111219-647e-4e17-a239-9a7f597340d9" style="common" x="0" y="0" width="199" height="20"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{RSK_INSURED_NAME}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="0b84ddb8-ce57-450a-bef7-ce801831238f">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="52da0ec6-24f8-47a3-b5e2-7657af6023ea" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Date of Loss]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="c4d238b9-caa7-4b88-9bee-3f63b43ad97c" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{LOSS_DATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="c331cdfb-4f64-4385-a8eb-73c7d6ab3dff">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="36a21ab1-f5ab-420e-b9f7-e3f36f83351f" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Claim No]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="c00788f2-574e-4c0e-a94b-a22050e3145c" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement textAlignment="Left"/>
+								<textFieldExpression><![CDATA[$F{CLAIM_NO}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="101" uuid="4d51d232-a044-4e25-9191-b5dfff587df7">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="54920ccc-db15-491a-9c05-dfe7e7fd6bf7" style="common1" x="0" y="0" width="101" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Accounting Period]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="c654c8a6-4c67-4156-8128-2ff72d778e6a" style="common" x="0" y="0" width="101" height="20"/>
+								<textElement textAlignment="Left"/>
+								<textFieldExpression><![CDATA[$F{ACCOUNT_PERIOD_QTR}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="101" uuid="4d51d232-a044-4e25-9191-b5dfff587df7">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="54920ccc-db15-491a-9c05-dfe7e7fd6bf7" style="common1" x="0" y="0" width="101" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Statement Date]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="c654c8a6-4c67-4156-8128-2ff72d778e6a" style="common" x="0" y="0" width="101" height="20"/>
+								<textElement textAlignment="Left"/>
+								<textFieldExpression><![CDATA[$F{STATEMENT_DATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="ad2f5384-4690-443e-9e5f-0aba6d7d6b97">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="bbd2bc84-3d4a-44f2-9f9d-9e0fb74443f9" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Currency Code]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="50b4e740-9975-4975-86f5-68cde00dec10" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{CURRENCY}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="e207187e-91e4-41b1-87d5-53fa3824e020">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="14acffb3-9b51-4b91-bf43-0083af6c9a3b" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Premium - OC]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="8938b06b-da41-4f3d-8b1f-7b3ff1be86a7" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{PREMIUM_TOTAL}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="d982b675-0159-47ea-9e17-4ff636f58008">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="f580eb9d-1e6b-48fd-8ea4-8326d67db279" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[XL - Cost - OC]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="74a2a2c1-bf52-4d9c-9fcd-db1173079eee" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{XL_COST_OC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="140" uuid="0588fb63-1251-4b70-a30d-1fa5ba76dca3">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="3c5be9c6-bdad-4efd-81d7-1607b38efad4" style="common1" x="0" y="0" width="140" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Premium Portfolio In - OC]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="05d233dd-b854-402c-8a21-91b5708f8903" style="common" x="0" y="0" width="140" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{PREMIUM_PORTFOLIOIN_OC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="170" uuid="f088bfb1-3373-4df6-b977-6a06464ae2f5">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="074b4d62-f1f5-4ea5-87aa-2b9df2b16a69" style="common1" x="0" y="0" width="170" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Premium Portfolio Out - OC]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="9a87959d-e4bd-4346-89fb-718be1783228" style="common" x="0" y="0" width="170" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{PREMIUM_PORTFOLIOOUT_OC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="110" uuid="d6395d8c-5632-422e-878a-3e7c3abd761d">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="067f3d29-1c20-4e34-8222-7b95a4869330" style="common1" x="0" y="0" width="110" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Net Premium - OC]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="728c1b3f-2682-4ce4-a9b5-d94ba3591dba" style="common" x="0" y="0" width="110" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{NET_PREMIUM}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="140" uuid="d6395d8c-5632-422e-878a-3e7c3abd761d">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="067f3d29-1c20-4e34-8222-7b95a4869330" style="common1" x="0" y="0" width="140" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Loss Participation - OC]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="728c1b3f-2682-4ce4-a9b5-d94ba3591dba" style="common" x="0" y="0" width="140" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{LPC_OC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="0b806100-075d-45f4-89c0-9779e31454c5">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="1a468a7b-9186-4fd6-82cd-b8dd11cd8f5f" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Commission - OC]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="5b2a629b-b2b9-4600-b741-09a88436e315" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{COMMISSION_TOTAL}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="59c899cb-2ee8-44cc-800d-ebbeba296630">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="ef3d9af3-7e9d-4bca-94ab-aeaa21528c46" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Brokerage - OC]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="758ad2cb-b4ff-4b92-94a7-d6b461ebd86e" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{BROKERAGE_AMT_OC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="25820ff1-6703-4cb7-8fac-e467f9e69f91">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="f3c3c93f-0f78-4f12-9e31-21b27d5ac018" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Tax - OC]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="91ef31a6-cf6a-4c07-802e-75c2604cd475" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{TAX_AMT_OC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="163" uuid="30b18fd2-f6b4-4731-b75d-0435e0b93d70">
+						<jr:tableHeader height="15" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<staticText>
+								<reportElement uuid="21f49aad-1dca-4be2-b27b-a6724b2d1cf2" style="common1" x="0" y="0" width="163" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Overrider - OC]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell height="20" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="b42403e4-94a0-4622-95e8-4f66194368d6" style="common" x="0" y="0" width="163" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{OVERRIDER_AMT_OC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="fbae3dd6-6530-4483-a2c4-767ddd33c933">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="bcfa5d24-9e54-4161-babc-fb0f4c6ab1da" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Other Cost - OC]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="58b1d3ec-8e8d-427a-9690-b440cda54c29" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{OTHER_COST_OC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="222" uuid="fbae3dd6-6530-4483-a2c4-767ddd33c933">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="bcfa5d24-9e54-4161-babc-fb0f4c6ab1da" style="common1" x="0" y="0" width="220" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Sliding Scale Commission - OC]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="58b1d3ec-8e8d-427a-9690-b440cda54c29" style="common" x="0" y="0" width="220" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{SC_COMM_OC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="125" uuid="c38d916e-9f67-4eb1-9b6e-71199c478658">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="e641297b-d9ff-4034-a12f-9e4f7aaa1c1c" style="common1" x="0" y="0" width="125" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Profit Commission - OC]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="72eac24c-ad13-4bf1-be22-dc22168d3f4d" style="common" x="0" y="0" width="125" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{PROFIT_COMMISSION_OC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="125" uuid="c38d916e-9f67-4eb1-9b6e-71199c478658">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="e641297b-d9ff-4034-a12f-9e4f7aaa1c1c" style="common1" x="0" y="0" width="125" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Bonus - OC]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="72eac24c-ad13-4bf1-be22-dc22168d3f4d" style="common" x="0" y="0" width="125" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{BONUS_OC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="435311f2-3f1c-423a-8b9d-a9116561debe">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="65994572-fa52-4b6b-b37e-d2909c15f44a" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Total Cost - OC]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="e2e5c19c-3f43-4091-a8dd-6aafe243ee81" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{TOTAL_COST}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="229" uuid="15d97756-1213-4f5c-b545-95a14b750c74">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="64c9ae23-db96-4e9a-b3a1-877313b7742d" style="common1" x="0" y="0" width="229" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[With Holding Tax Recoverable - OC
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="0948c388-e85c-4592-b6be-5fb7f9ad9e00" style="common" x="0" y="0" width="229" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{WITH_HOLDING_TAX_OC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="221" uuid="bf7b7949-1510-40a0-aca7-1670f8ba431d">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="09864e0f-6265-4ca5-a5e6-459223485c1b" style="common1" x="0" y="0" width="220" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Premium Reserve Deposit Retained - OC
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="5c3eee4c-221e-40f9-875e-3608a5dcef88" style="common" x="0" y="0" width="220" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{PREMIUM_RESERVE_RETAINED_OC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="220" uuid="d181a9b0-42d2-471e-952f-9c2681cfac80">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="2282e684-e19b-4b8a-ab80-7cbee0e2ea3c" style="common1" x="0" y="0" width="220" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Premium Reserve Deposit Released - OC
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="86c56cc5-c944-4192-927e-06e8617c6afd" style="common" x="0" y="0" width="220" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{PREMIUM_RESERVE_REALSED_OC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="220" uuid="5bc0924a-8c90-478d-b7c1-610bdc23da17">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="999c9390-d3bf-426e-8449-7940d55af6dd" style="common1" x="0" y="0" width="220" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Loss Reserve Deposit Retained - OC
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="272f92fd-c4c4-43f3-8d45-b1e528ebb54b" style="common" x="0" y="0" width="220" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{LOSS_RESERVERETAINED_OC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="220" uuid="67a906b4-76ec-4e99-9573-31389cf86fd7">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="ac6395f6-bfd1-4dd6-ad91-700e999d52b9" style="common1" x="0" y="0" width="220" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Loss Reserve Deposit Released - OC
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="740e8418-3f46-43d1-9900-f21902a7c8ff" style="common" x="0" y="0" width="220" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{LOSS_RESERVE_RELEASED_OC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="00027bad-50ca-40cb-b4ee-b63c2dcae036">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="073348a8-2d99-4df5-9246-a2150962f0cd" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement/>
+								<text><![CDATA[Interest - OC
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="952c91b1-f0a9-4520-8186-26b20ef20b48" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{INTEREST_OC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="0b9fd845-f1bf-4183-a0b3-32807fcaf5bc">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="c2b530af-2fe5-4ff9-b069-a20b04f395dd" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Claims Paid - OC
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="f6d77825-63fe-460a-a01c-a12d0083ba45" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{CLAIMS_PAID_OC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="182" uuid="c456edca-1e85-4a0b-9dac-7dc76856e548">
+						<jr:tableHeader height="15" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<staticText>
+								<reportElement uuid="a33f3363-a130-442a-ba92-b8eb14f338a6" style="common1" x="0" y="0" width="182" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Claims Recovery - OC]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell height="20" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="94fbec20-8a15-437d-bbc1-abbeca50085b" style="common" x="0" y="0" width="182" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{CLAIM_RECOVERY_OC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="158" uuid="476c23b8-c58a-4afe-b712-7a4ef2152907">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="1bda411b-9651-435d-ae12-8658081a37eb" style="common1" x="0" y="0" width="158" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Reinstatement Premium - OC
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="a61ad187-d0ca-4cdc-86b4-d170a6c721ea" style="common" x="0" y="0" width="158" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{REINSTATEMENTPREMIUM_OC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="142" uuid="e344554d-354f-45ab-bc4f-1503acce8cc4">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="43472b08-bdb5-41f0-bb7a-1b390563e306" style="common1" x="0" y="0" width="142" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Claim Portfolio In - OC
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="9710e585-7df3-416f-bfe9-e421566412fb" style="common" x="0" y="0" width="142" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{CLAIM_PORTFOLIOIN_OC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="142" uuid="e5a9aede-81a9-40e0-80e3-5a8d5245f056">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="3ede6756-8522-4082-bdb7-718cf33399f7" style="common1" x="0" y="0" width="142" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Claim Portfolio Out - OC
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="ba253a83-1ae1-4be0-a393-0c912a99de92" style="common" x="0" y="0" width="142" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{CLAIM_PORTFOLIO_OUT_OC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="142" uuid="7fe29cf4-3e9c-4f98-b799-54b49f1c50a9">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="c2fbb34a-36e1-4a12-83a2-aeb802f396e8" style="common1" x="0" y="0" width="142" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Cash Loss Paid - OC
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="b80d77d2-576f-4c55-8037-98fa715b387f" style="common" x="0" y="0" width="142" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{CASH_LOSSPAID_OC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="141" uuid="87c4999a-b157-4cc6-9387-c617cbbe2447">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="28a0e6af-1e39-4797-bf6c-03c3b9b60e57" style="common1" x="0" y="0" width="141" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Cash Loss Credit - OC]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="7ff270d1-5f98-46ac-b33e-5d084d8daba1" style="common" x="0" y="0" width="141" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{CASH_LOSS_CREDIT_OC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="141" uuid="87c4999a-b157-4cc6-9387-c617cbbe2447">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="28a0e6af-1e39-4797-bf6c-03c3b9b60e57" style="common1" x="0" y="0" width="141" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Surveyor Fees - OC]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="7ff270d1-5f98-46ac-b33e-5d084d8daba1" style="common" x="0" y="0" width="141" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{SAF_OS_OC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="220" uuid="87c4999a-b157-4cc6-9387-c617cbbe2447">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="28a0e6af-1e39-4797-bf6c-03c3b9b60e57" style="common1" x="0" y="0" width="220" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Other Professional Fees - OC]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="7ff270d1-5f98-46ac-b33e-5d084d8daba1" style="common" x="0" y="0" width="220" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{OTH_FEE_OS_OC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="1190d5f0-9fd1-4f22-8db3-a10ea291ce9c">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="2e09ee02-3da0-4786-8374-79ebddefbeab" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Net Claims - OC]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="57ebe744-ccde-42f3-8e88-152f6847183c" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{NET_CLAIMS}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="131" uuid="2bae16d0-22ac-4f5f-80dc-751d09e404b0">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="9bb2f26f-734c-4fc0-886b-bdf7718efb45" style="common1" x="0" y="0" width="130" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Receipt Amount - OC
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="908e82fe-9fe8-4312-876d-1e11e28c92ee" style="common" x="0" y="0" width="130" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{RECEIPT_AMOUNT}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="115" uuid="7ef692e5-1ef2-4e6b-9c0a-8dc83ef63d9d">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="93db2bd8-150d-49f3-81c9-b13b4d9db2ad" style="common1" x="0" y="0" width="115" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Payment Amount - OC
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="93a1dce9-9049-4d7f-9fce-05b976f0dc3a" style="common" x="0" y="0" width="115" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{PAYMENT_AMOUNT}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="053e66b6-3ba3-40b2-a02d-55e9e5efcdbd">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="bf78a6b8-fea5-4f5c-8037-9e01a04e608e" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Net Due - OC
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="3c6d7993-c5cd-4f54-8181-c13c5d161f6a" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{NET_DUE_OC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="117" uuid="34338711-0c67-4b98-897a-5ac4601933cc">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="8cb33b10-913a-489f-b17f-a71aa09421d1" style="common1" x="0" y="0" width="117" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Allocated Amount - OC
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="ca892a8b-835d-45ba-b26f-2db8b7f30bee" style="common" x="0" y="0" width="117" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{ALLOCATED_TILL_DATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="132" uuid="2653b966-c6c1-4aad-8303-28afd2a9d7ca">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="b034c5f9-125f-4b4b-abad-bb4d5a762e4d" style="common1" x="0" y="0" width="132" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Pending Allocation - OC
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="735485e9-8aa5-43a9-a035-19b8ed532856" style="common" x="0" y="0" width="132" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{PENDING_ALLOCATION}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="116" uuid="d41451b7-0408-4561-b774-54c5557e1659">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="8250f97e-3213-42a8-bd34-71e1c230c96a" style="common1" x="0" y="0" width="116" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Allocation No
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="dc00209a-4157-45a4-9fed-888b10dff090" style="common" x="0" y="0" width="116" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{SNO}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="0864303a-6596-4e65-b3b4-d85e6bbd2796">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="eaac75e3-c9e2-47f3-869a-8c2556cb23eb" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Exchange Rate
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00000000" isBlankWhenNull="true">
+								<reportElement uuid="de662495-420a-497d-ba5c-199706e4c99c" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{EXCHANGE_RATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="1e24f26f-a880-4973-8f3c-66d690584b9c">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="e8aac6d1-3395-45dc-b96e-9ceb1b50c7b0" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Premium - UGX
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="40213f2f-28d4-4ebc-88ae-e64d74442aa0" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{PREMIUM_TOTAL_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="7a01e212-ea35-4355-b79d-4f77ce9f4a24">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="2e263d3e-c4bb-481c-9fe5-880d485ac86d" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[XL - Cost - UGX
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="3dc47b2a-6d19-45bb-ace3-d03ea1fcb42e" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{XL_COST_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="156" uuid="18e56e7d-231f-402c-b5b0-e7c632595496">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="d29d4e47-dced-408f-b660-e438bb3f4916" style="common1" x="0" y="0" width="156" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Premium Portfolio In - UGX
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="c463c5dc-7c32-496d-8b90-db94fe134a80" style="common" x="0" y="0" width="156" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{PREMIUM_PORTFOLIOIN_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="152" uuid="7e3fbfed-bb0c-4027-85ce-b4d6a5a51771">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="24427d1b-7f35-4ff7-b8d0-f6c2f7006246" style="common1" x="0" y="0" width="152" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Premium Portfolio Out - UGX
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="603dde4c-9fae-4c24-adea-84e43b18c0e6" style="common" x="0" y="0" width="152" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{PREMIUM_PORTFOLIOOUT_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="104" uuid="971e6879-bfb3-4d48-908a-3ce07d02c45d">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="4ef95303-69d8-4597-b3ae-d4cf9016bd8d" style="common1" x="0" y="0" width="104" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Net Premium - UGX]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="eb8c9108-0640-4a9e-b9c2-e16926a7150f" style="common" x="0" y="0" width="104" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{NET_PREMIUM_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="140" uuid="971e6879-bfb3-4d48-908a-3ce07d02c45d">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="4ef95303-69d8-4597-b3ae-d4cf9016bd8d" style="common1" x="0" y="0" width="140" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Loss Participation - UGX]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="eb8c9108-0640-4a9e-b9c2-e16926a7150f" style="common" x="0" y="0" width="140" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{LPC_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="116" uuid="d5c48565-30f2-4c9a-897b-3f6b7cc403db">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="366adb35-902b-454b-b4d9-f762b9b3ea7e" style="common1" x="0" y="0" width="116" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Commission - UGX
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="599c1745-f445-4037-9a25-39d8c23b1cab" style="common" x="0" y="0" width="116" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{COMMISSION_TOTAL_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="f34c417c-c70a-41a1-877f-df5b2055f789">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="4b090e50-72b1-4fef-8805-967f4a4a5717" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Brokerage - UGX
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="aef0cbad-ae36-4e51-8d6b-1f81e978fc50" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{BROKERAGE_AMT_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="c5d8e30c-1e85-4749-8ec6-964799dbe95e">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="9ee15e16-b0ac-4f5a-8a41-6832b0777c6a" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Tax - UGX
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="48ef2a74-cf48-4ad9-9b3a-1e7fb8290b9a" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{TAX_AMT_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="160" uuid="6184f63b-a917-4a63-8082-6374f1c9908e">
+						<jr:tableHeader height="15" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<staticText>
+								<reportElement uuid="c52dff3e-616d-42ab-bc8c-d4ca58a2ac0e" style="common1" x="0" y="0" width="160" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Overrider - UGX]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell height="20" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="7d952203-b4f8-4317-8550-e772b2098673" style="common" x="0" y="0" width="160" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{OVERRIDER_AMT_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="d8a09791-ac0c-4aeb-9338-ca25fb08be32">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="2ee63f56-f583-45b3-a8ca-56329116085e" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Other Cost - UGX
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="daddb0b9-9934-4532-a67e-0774d7d6aa7f" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{OTHER_COST_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="220" uuid="d8a09791-ac0c-4aeb-9338-ca25fb08be32">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="2ee63f56-f583-45b3-a8ca-56329116085e" style="common1" x="0" y="0" width="220" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Sliding Scale Commission - UGX]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="daddb0b9-9934-4532-a67e-0774d7d6aa7f" style="common" x="0" y="0" width="220" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{SC_COMM_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="140" uuid="8088319c-caf3-4059-b33c-94226c77745d">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="3bf5b25b-5ae8-4883-b292-8f38d72d7e98" style="common1" x="0" y="0" width="140" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Profit Commission - UGX]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="44385c76-1f86-4e31-b70e-c7960eb2d9fa" style="common" x="0" y="0" width="140" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{PROFIT_COMMISSION_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="140" uuid="8088319c-caf3-4059-b33c-94226c77745d">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="3bf5b25b-5ae8-4883-b292-8f38d72d7e98" style="common1" x="0" y="0" width="140" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Bonus - UGX]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="44385c76-1f86-4e31-b70e-c7960eb2d9fa" style="common" x="0" y="0" width="140" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{BONUS_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="e0bba82a-e159-4a29-b042-0313d770dadb">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="89ec54d6-4912-4129-b4df-fac3372243c0" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Total Cost - UGX
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="46e34d23-5c60-4dad-ab6a-e80588c460e7" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{TOTAL_COST_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="190" uuid="cd431641-c2f7-47d0-9847-a34aaf173293">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="8204cc0e-c586-431d-b999-653598873b02" style="common1" x="0" y="0" width="190" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[With Holding Tax Recoverable - UGX
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="db8fe2d8-3cd0-4935-9692-6710d794ce31" style="common" x="0" y="0" width="190" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{WITH_HOLDING_TAX_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="221" uuid="643f0f7c-a738-4f8a-9904-b76a4799a489">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="0f518cd5-a7d1-4e71-92e7-709f59eba42e" style="common1" x="0" y="0" width="220" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Premium Reserve Deposit Retained - UGX
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="40badb26-7a05-4934-bb66-5aadad7c239c" style="common" x="0" y="0" width="220" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{PREMIUM_RESERVE_RETAINED_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="221" uuid="e8bbb0b2-3b44-4e33-ad47-891f20d7178d">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="bd829c1e-be66-4e87-b11a-2de8199d9616" style="common1" x="0" y="0" width="220" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Premium Reserve Deposit Released - UGX
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="31864616-0397-42f6-82e4-06ea1d71ab0f" style="common" x="0" y="0" width="220" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{PREMIUM_RESERVE_REALSED_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="220" uuid="c7db040d-903e-4676-8487-d5d42adfc27b">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="63e25375-314a-45cc-bcef-159b466cee02" style="common1" x="0" y="0" width="220" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Loss Reserve Deposit Retained - UGX
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="160eed29-8d24-4f08-92f0-8e68b0df5fd2" style="common" x="0" y="0" width="220" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{LOSS_RESERVERETAINED_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="220" uuid="6e942714-2663-44cc-aba6-05614f5e7aee">
+						<jr:tableHeader height="15" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<staticText>
+								<reportElement uuid="a1e7825b-c6f9-4daa-a76f-34dc60e6f443" style="common1" x="0" y="0" width="220" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Loss Reserve Deposit Released - UGX]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell height="20" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="abb68ef0-8ad6-4710-91ab-2d8182f790f0" style="common" x="0" y="0" width="220" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{LOSS_RESERVE_RELEASED_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="daa9d076-4319-4cf9-aeb5-f17d29b5e7b3">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="229214e4-7390-4579-8e3c-ec1c545cc5fd" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Interest - UGX
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="484cac99-f4ed-4603-b062-9437075c6f82" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{INTEREST_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="113" uuid="84f0a498-86c6-4417-8297-79d54b14c17a">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="d5185bc4-91e4-46ea-91df-4185a2624771" style="common1" x="0" y="0" width="113" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Claims Paid - UGX
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="6e970d46-da95-463e-b12e-6e61c8c66e7c" style="common" x="0" y="0" width="113" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{CLAIMS_PAID_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="171" uuid="c13011f1-9ac9-4bbd-9f37-3d8ac8d63a15">
+						<jr:tableHeader height="15" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<staticText>
+								<reportElement uuid="c852fbe2-9406-4320-af47-d5a3d6772eca" style="common1" x="0" y="0" width="171" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Claims Recovery - UGX]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell height="20" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="f4f978cd-e9ca-40a8-a6f2-18c07983a68c" style="common" x="0" y="0" width="171" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{CLAIM_RECOVERY_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="168" uuid="a5559282-e86b-4e45-ba02-fcd66e615e6b">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="a0c3cea6-3096-4695-ab48-cd429097e5bb" style="common1" x="0" y="0" width="168" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Reinstatement Premium - UGX
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="2cb3be4c-305e-4984-8749-24ae8c2007a9" style="common" x="0" y="0" width="168" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{REINSTATEMENTPREMIUM_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="135" uuid="cd4eafed-a77d-4663-ac39-f1adf035cf3b">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="42011c65-6979-48b9-9842-d4c6f0aff065" style="common1" x="0" y="0" width="135" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Claim Portfolio In - UGX
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="93c2499c-6689-4da8-8ea9-ed436a851924" style="common" x="0" y="0" width="135" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{CLAIM_PORTFOLIOIN_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="140" uuid="384b6a18-ca8c-485d-a285-86fe5e3b0316">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="5e3cd72d-f092-47ac-bc24-ed260dde1e93" style="common1" x="0" y="0" width="140" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Claim Portfolio Out - UGX
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="7428179d-7a8b-4b9c-aa97-7858e30990e6" style="common" x="0" y="0" width="140" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{CLAIM_PORTFOLIO_OUT_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="146" uuid="54de9ee6-3593-4115-92df-592fa04a71f2">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="b21376fa-acc7-45c7-b29c-a698df388dab" style="common1" x="0" y="0" width="146" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Cash Loss Paid - UGX
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="40aa3281-84bb-46ea-b98f-df6d75724f00" style="common" x="0" y="0" width="146" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{CASH_LOSSPAID_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="146" uuid="1498ac68-af2f-46ac-b330-cd95738df340">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="75742f1e-9f26-4e39-b3e4-2b387d0ee27c" style="common1" x="0" y="0" width="146" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Cash Loss Credit - UGX]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="f640c03f-2216-4393-a17a-ff9975ef78cd" style="common" x="0" y="0" width="146" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{CASH_LOSS_CREDIT_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="146" uuid="1498ac68-af2f-46ac-b330-cd95738df340">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="75742f1e-9f26-4e39-b3e4-2b387d0ee27c" style="common1" x="0" y="0" width="146" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Surveyor Fees - UGX]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="f640c03f-2216-4393-a17a-ff9975ef78cd" style="common" x="0" y="0" width="146" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{SAF_OS_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="180" uuid="1498ac68-af2f-46ac-b330-cd95738df340">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="75742f1e-9f26-4e39-b3e4-2b387d0ee27c" style="common1" x="0" y="0" width="180" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Other Professional Fees â€“ UGX]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="f640c03f-2216-4393-a17a-ff9975ef78cd" style="common" x="0" y="0" width="180" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{OTH_FEE_OS_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="113" uuid="deda13ed-8245-4785-99c6-dc63251dc4cc">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="c29f278b-6bf2-47d3-bdf7-9f77abc61293" style="common1" x="0" y="0" width="113" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Net Claims - UGX
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="a8911e0d-f8f2-498a-8917-a915466d1490" style="common" x="0" y="0" width="113" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{NET_CLAIMS_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="146" uuid="f53bc8c3-9a46-4f17-a4dd-2ab9538e6d70">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="f00b9b4f-6056-4d54-933a-8db0a35aff72" style="common1" x="0" y="0" width="146" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Receipt Amount - UGX
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="41ae1f47-483a-47d1-8da0-4e36fecb37c9" style="common" x="0" y="0" width="146" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{RECEIPT_AMOUNT_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="140" uuid="2278ce62-b372-40a1-940c-e0a4f6d52f5d">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="afa87e4b-02b3-4220-87e3-b19d293586a1" style="common1" x="0" y="0" width="140" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Payment Amount - UGX
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="1dc99958-b948-456d-944b-6d2be86fde10" style="common" x="0" y="0" width="140" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{PAYMENT_AMOUNT_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="5c0cc3ad-6a38-4126-8ed4-39110337f53a">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="4a24a14c-b1c1-40d3-9d16-ed13727647b7" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Net Due - UGX
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="0e9b043f-77c4-4716-9281-f1f061bacd23" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{NET_DUE_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="114" uuid="e3cde8db-074b-4f67-b029-6f42dd033c1d">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="9d065e15-9c87-456e-95ed-6524ac9d4b22" style="common1" x="0" y="0" width="114" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Allocated Amount - UGX
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="5ed5e72d-9a74-47d7-b6d5-23d5e04fd0fd" style="common" x="0" y="0" width="114" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{ALLOCATED_TILL_DATE_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="131" uuid="ac128364-bb09-42b1-b4b3-4bcbac9e4858">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="35770870-4162-4c60-b530-4e3df6a66590" style="common1" x="0" y="0" width="131" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Pending Allocation - UGX]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="18191c2d-089f-4247-9b6b-fd55f58933a9" style="common" x="0" y="0" width="131" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{PENDING_ALLOCATION_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="200" uuid="ac128364-bb09-42b1-b4b3-4bcbac9e4858">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="35770870-4162-4c60-b530-4e3df6a66590" style="common1" x="0" y="0" width="200" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Outstanding Loss Reserve Update?]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="18191c2d-089f-4247-9b6b-fd55f58933a9" style="common" x="0" y="0" width="200" height="20"/>
+								<textElement textAlignment="Left"/>
+								<textFieldExpression><![CDATA[$F{OSBYN}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="200" uuid="ac128364-bb09-42b1-b4b3-4bcbac9e4858">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="35770870-4162-4c60-b530-4e3df6a66590" style="common1" x="0" y="0" width="200" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Outstanding Loss Reserve - OC]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="18191c2d-089f-4247-9b6b-fd55f58933a9" style="common" x="0" y="0" width="200" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{OSCLAIM_LOSSUPDATE_OC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="220" uuid="ac128364-bb09-42b1-b4b3-4bcbac9e4858">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="35770870-4162-4c60-b530-4e3df6a66590" style="common1" x="0" y="0" width="220" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Outstanding Loss Reserve - UGX]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="18191c2d-089f-4247-9b6b-fd55f58933a9" style="common" x="0" y="0" width="220" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{OSCLAIM_LOSSUPDATE_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="91" uuid="ac128364-bb09-42b1-b4b3-4bcbac9e4858">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="35770870-4162-4c60-b530-4e3df6a66590" style="common1" x="0" y="0" width="91" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Login ID]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="18191c2d-089f-4247-9b6b-fd55f58933a9" style="common" x="0" y="0" width="91" height="20"/>
+								<textElement textAlignment="Left"/>
+								<textFieldExpression><![CDATA[$F{LOGIN_ID}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+		</band>
+		<band height="17">
+			<printWhenExpression><![CDATA[$P{showfieldYN}.equals( "N" )]]></printWhenExpression>
+			<componentElement>
+				<reportElement uuid="0e144bf0-e411-4cb7-a632-791c03d5530c" key="table" style="table" x="0" y="0" width="2960" height="17">
+					<printWhenExpression><![CDATA[$P{showfieldYN}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="Transdetailed" uuid="59d60195-28ae-4a0f-902f-a25daa47ad09">
+						<datasetParameter name="branchCode">
+							<datasetParameterExpression><![CDATA[$P{branchCode}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="startDate">
+							<datasetParameterExpression><![CDATA[$P{startDate}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="endDate">
+							<datasetParameterExpression><![CDATA[$P{endDate}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="docType">
+							<datasetParameterExpression><![CDATA[$P{docType}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="uwYear">
+							<datasetParameterExpression><![CDATA[$P{uwYear}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="contractNo">
+							<datasetParameterExpression><![CDATA[$P{contractNo}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="cedingName">
+							<datasetParameterExpression><![CDATA[$P{cedingName}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="brokerName">
+							<datasetParameterExpression><![CDATA[$P{brokerName}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:column width="90" uuid="7dd36061-d1c3-4c4a-b517-9fd02a6ad506">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="553a29fc-9596-4b67-917c-b062946f386b" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Transaction No]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="f3d831bf-ca8f-4694-8544-601a5569a43d" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement textAlignment="Left"/>
+								<textFieldExpression><![CDATA[$F{TRANSACTION_NO}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="51f22d6a-62f4-40fe-ae29-9cb368c72390">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="c56c611a-d68b-48ad-9560-a56ad6b825d5" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Transaction Date
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="2febe7bd-ac99-4c06-9035-44b3972a1b24" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement textAlignment="Left"/>
+								<textFieldExpression><![CDATA[$F{TRANSACTION_DATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="f1e7cfc0-62bc-4536-825c-22727b2584af">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="a30dca80-fd31-4f8f-b006-b45c090ba718" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Doc Type
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="1d69f0df-bb2f-4d4f-963e-b320d5ae67d2" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{DOC_TYPE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="108" uuid="45e0575e-8906-48cc-bafe-55edf86d7f29">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="149a9f8e-6c79-4bc7-b258-a0fc4aee6284" style="common1" x="0" y="0" width="108" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Client Doc Reference
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="975e560a-4a09-45ca-91e8-988929ce3e48" style="common" x="0" y="0" width="108" height="20"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{CEDANT_REFERENCE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="109" uuid="9d09dd84-db8c-46fd-a9fe-de30156c3228">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="01bb0b5c-d6f7-40b4-a00c-18ff3b0e978d" style="common1" x="0" y="0" width="109" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Contract No
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="###0" isBlankWhenNull="true">
+								<reportElement uuid="1356b140-7ad9-4786-90bf-5d32879250d3" style="common" x="0" y="0" width="109" height="20"/>
+								<textElement textAlignment="Left"/>
+								<textFieldExpression><![CDATA[$F{CONTRACT_NO}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="9d09dd84-db8c-46fd-a9fe-de30156c3228">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="01bb0b5c-d6f7-40b4-a00c-18ff3b0e978d" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Layer No
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="1356b140-7ad9-4786-90bf-5d32879250d3" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement textAlignment="Left"/>
+								<textFieldExpression><![CDATA[$F{LAYER_NO}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="fae3747b-8796-481d-9136-5f57b84d89c6">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="9969c253-d791-441b-a0e1-6182ddf156a1" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[UW Year
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="c2209c82-2681-4011-b7f7-ff2d330a8187" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement textAlignment="Center"/>
+								<textFieldExpression><![CDATA[$F{UW_YEAR}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="fae3747b-8796-481d-9136-5f57b84d89c6">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="9969c253-d791-441b-a0e1-6182ddf156a1" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Class
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="c2209c82-2681-4011-b7f7-ff2d330a8187" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement textAlignment="Left"/>
+								<textFieldExpression><![CDATA[$F{DEPARTMENT_NAME}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="180" uuid="75c161af-0f34-48d7-a65a-53fce9660862">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="3b79b190-d932-483c-9542-b12dd0d2c64c" style="common1" x="0" y="0" width="180" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Sub Class]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="6cf3c9be-0494-43fa-b83f-10867d72a091" style="common" x="0" y="0" width="180" height="20"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{RSK_SPFCID}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="155" uuid="67fc27ad-90b7-495f-b83d-e770e30cdaf4">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="a7d90009-a18b-45d7-8fea-dd158d41a8de" style="common1" x="0" y="0" width="155" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Inception Date
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="b67de1d3-eb8a-40e5-a876-6dbf1b5fefcd" style="common" x="0" y="0" width="155" height="20"/>
+								<textElement textAlignment="Left"/>
+								<textFieldExpression><![CDATA[$F{INCEPTION_DATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="105" uuid="71c5ca58-87e4-49d3-89aa-fce227cba4bc">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="edda7dea-c137-4265-be0e-979834b045fa" style="common1" x="0" y="0" width="105" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Expiry Date
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="a628de6b-c940-4c40-8a68-0a7118553cf8" style="common" x="0" y="0" width="105" height="20"/>
+								<textElement textAlignment="Left"/>
+								<textFieldExpression><![CDATA[$F{EXPIRY_DATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="203" uuid="f0632564-7d2a-4c68-b3a8-43f1faebb6fb">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="a9c7cd78-129c-459f-a7a3-131797e59775" style="common1" x="0" y="0" width="203" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Ceding Company
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="8e1abd92-c8f3-49b8-b34d-8c66d5ae64ac" style="common" x="0" y="0" width="203" height="20"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{COMPANY_CODE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="207" uuid="2ac78033-2f6b-4d88-b9fd-900a1bb25aff">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="27cf5b6e-2310-4eaa-84b6-b9abcee49eb4" style="common1" x="0" y="0" width="207" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Broker
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="fc0f8cf1-4187-4b0b-86e3-94327d31be14" style="common" x="0" y="0" width="207" height="20"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{BROKER_CODE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="199" uuid="64021f6e-89d3-4346-b5d7-b00ec6052eba">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="df8cc9ee-f3c6-46c3-b38d-29f8eccb973c" style="common1" x="0" y="0" width="199" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Treaty Name/Orig Insured
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="5016d0cd-8e77-4abb-815b-ca73f161d33d" style="common" x="0" y="0" width="199" height="20"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{RSK_INSURED_NAME}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="d1c03b02-cf5b-4881-8ede-2f0fab4407ba">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="2b5cb066-963d-45f4-8f87-75ea4f765eec" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Date of Loss
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="1c6c8488-03d3-4148-ba43-796b4532c3a5" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{LOSS_DATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="97a8ee5b-0c74-4716-82f6-28e2431c8883">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="bc458cbb-7c40-4112-a78c-d206d9d13e13" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Claim No
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="1510ee4b-e3e3-4f70-9ad9-7b5a89f2bacf" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement textAlignment="Center"/>
+								<textFieldExpression><![CDATA[$F{CLAIM_NO}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="101" uuid="73b32e11-2595-40b9-bed0-97bc14044050">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="b97465bb-4b65-4063-979a-7424f711664d" style="common1" x="0" y="0" width="101" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Accounting Period
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="8878c9c2-06bc-49b4-8a30-8d1ecd42ed8f" style="common" x="0" y="0" width="101" height="20"/>
+								<textElement textAlignment="Left"/>
+								<textFieldExpression><![CDATA[$F{ACCOUNT_PERIOD_QTR}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="101" uuid="73b32e11-2595-40b9-bed0-97bc14044050">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="b97465bb-4b65-4063-979a-7424f711664d" style="common1" x="0" y="0" width="101" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Statement Date
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="8878c9c2-06bc-49b4-8a30-8d1ecd42ed8f" style="common" x="0" y="0" width="101" height="20"/>
+								<textElement textAlignment="Left"/>
+								<textFieldExpression><![CDATA[$F{STATEMENT_DATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="e8f74929-513c-40d6-8ed6-c42519456242">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="774ee412-ca06-45c2-9b7e-451a97358c68" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Currency Code
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="c5604a7c-1446-494e-a7e0-02fc0fc9c25e" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{CURRENCY}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="47adb7c0-b7e1-4289-8a58-0eb01664f729">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="3c6f2ca5-fe51-4474-9acb-78ca1d7d0d4a" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Net Due - OC
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="7146a08a-41e4-4cf7-9203-f69088de6bb9" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{NET_DUE_OC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="139" uuid="0a916869-3c85-43bf-ad1d-54d6bbe074a4">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="dcaefbd0-b3ed-49e2-ab73-4959982f44cb" style="common1" x="0" y="0" width="139" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Allocated Amount - OC
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="f60f6cda-ee29-4d26-952b-38056df7b7e0" style="common" x="0" y="0" width="139" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{ALLOCATED_TILL_DATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="132" uuid="cd0d506d-4bd0-424d-b025-3c3f0778567e">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="3e20014d-68bc-46ce-a539-755a514ec1da" style="common1" x="0" y="0" width="132" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Pending Allocation - OC
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="3dcfe0d1-5679-4542-996b-edf078fd110f" style="common" x="0" y="0" width="132" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{PENDING_ALLOCATION}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="116" uuid="635025c5-0345-4a00-bf3e-f7679c6c8c42">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="a2595aa9-f75b-4c5f-9819-b2fb1c8ecbc0" style="common1" x="0" y="0" width="116" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Allocation No
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="5ec00f9c-60fb-4417-a441-b6050ab4c50d" style="common" x="0" y="0" width="116" height="20"/>
+								<textElement textAlignment="Left"/>
+								<textFieldExpression><![CDATA[$F{SNO}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="243c2528-f520-496d-90a2-4030bc070006">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="bd0458e5-761b-475d-be93-033ad584906c" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Exchange Rate
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00000000" isBlankWhenNull="true">
+								<reportElement uuid="247108c1-44f8-4d38-bffb-ffacc4a97d27" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{EXCHANGE_RATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="f33bb57a-0577-4549-af2c-7c7551a2849f">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="f79ba9b4-0be5-484a-bf21-aa1df992663d" style="common1" x="0" y="0" width="90" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Net Due - UGX
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="bb759804-5f47-4bd1-8f7e-77ae82d7c5a8" style="common" x="0" y="0" width="90" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{NET_DUE_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="142" uuid="fa69b3eb-6ffa-4eec-bbac-857100d90727">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="fe0c7408-6d32-4cb4-9d33-8f4d1b9dae6c" style="common1" x="0" y="0" width="142" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Allocated Amount - UGX
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="99dc839a-1aa5-4b3f-9197-adca5ae50398" style="common" x="0" y="0" width="142" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{ALLOCATED_TILL_DATE_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="131" uuid="b19bb6f1-db99-435b-a8c3-54fd76dcdb56">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<staticText>
+								<reportElement uuid="e0698ae2-9f2c-46e9-9723-b65a190f5325" style="common1" x="0" y="0" width="131" height="15"/>
+								<textElement textAlignment="Center"/>
+								<text><![CDATA[Pending Allocation - UGX
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="441d983a-1658-4ad0-9a33-5b2fb9ec249a" style="common" x="0" y="0" width="131" height="20"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{PENDING_ALLOCATION_DC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

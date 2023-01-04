@@ -1,0 +1,2193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="SOAReportXls" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isIgnorePagination="true" uuid="c4f0b60c-0bd4-4cb1-bcff-0ca4e4f090fc">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="48"/>
+	<style name="table">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 2">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 2_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 2_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 2_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 3">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 3_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 3_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 3_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 4">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 4_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 4_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 4_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 5">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 5_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 5_CH" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 5_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 6">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 6_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 6_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 6_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 7">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 7_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 7_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 7_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 8">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 8_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 8_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 8_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<subDataset name="Type 1" uuid="3ee2f28d-17bb-4131-92a9-5f25e5e2181d">
+		<parameter name="productId" class="java.lang.String"/>
+		<parameter name="startDate" class="java.lang.String"/>
+		<parameter name="endDate" class="java.lang.String"/>
+		<parameter name="branchCode" class="java.lang.String"/>
+		<parameter name="brokerId" class="java.lang.String"/>
+		<parameter name="cedingId" class="java.lang.String"/>
+		<parameter name="systemDate" class="java.lang.String"/>
+		<parameter name="settledItems" class="java.lang.String"/>
+		<parameter name="unAllocatedCash" class="java.lang.String"/>
+		<parameter name="prclSeparate" class="java.lang.String"/>
+		<queryString>
+			<![CDATA[Select * from table(FN_SOA_REPORT('1',$P{startDate},$P{endDate},$P{branchCode},$P{brokerId},$P{cedingId},$P{productId},$P{settledItems},$P{prclSeparate},$P{unAllocatedCash})) WHERE BLOCK_NO = 1]]>
+		</queryString>
+		<field name="BROKER_CODE" class="java.lang.String"/>
+		<field name="COMPANY_CODE" class="java.lang.String"/>
+		<field name="RSK_INSURED_NAME" class="java.lang.String"/>
+		<field name="CONTRACT_NO" class="java.math.BigDecimal"/>
+		<field name="LAYER_NO" class="java.math.BigDecimal"/>
+		<field name="TRANS_TYPE" class="java.lang.String"/>
+		<field name="TRANSACTION_NO" class="java.lang.String"/>
+		<field name="TRANSACTION_DATE" class="java.lang.String"/>
+		<field name="INST_DATE" class="java.lang.String"/>
+		<field name="CURRENCY" class="java.lang.String"/>
+		<field name="SETTLED_AMOUNT" class="java.math.BigDecimal"/>
+		<field name="PREMIUM_DUE" class="java.math.BigDecimal"/>
+		<field name="NET_DUE_OC" class="java.math.BigDecimal"/>
+		<field name="STLMT_NO" class="java.lang.String"/>
+		<field name="ALLOCATED_TILL_DATE" class="java.math.BigDecimal"/>
+		<field name="PENDING_ALLOCATION" class="java.math.BigDecimal"/>
+		<field name="PENDING_ALLOCATION_DC" class="java.math.BigDecimal"/>
+		<field name="M1" class="java.math.BigDecimal"/>
+		<field name="M2" class="java.math.BigDecimal"/>
+		<field name="M3" class="java.math.BigDecimal"/>
+		<field name="M4" class="java.math.BigDecimal"/>
+		<field name="M5" class="java.math.BigDecimal"/>
+		<field name="PRODUCT_ID" class="java.math.BigDecimal"/>
+		<field name="CUMULATIVE_ALLOCATION" class="java.math.BigDecimal"/>
+		<field name="BLOCK_NO" class="java.math.BigDecimal"/>
+		<variable name="totalPremiumDue" class="java.lang.Double" calculation="Sum">
+			<variableExpression><![CDATA[$F{NET_DUE_OC}]]></variableExpression>
+		</variable>
+		<variable name="totalPayment" class="java.lang.Double" calculation="Sum">
+			<variableExpression><![CDATA[$F{ALLOCATED_TILL_DATE}]]></variableExpression>
+		</variable>
+		<variable name="totalNetDue" class="java.lang.Double" calculation="Sum">
+			<variableExpression><![CDATA[$F{PENDING_ALLOCATION}]]></variableExpression>
+		</variable>
+	</subDataset>
+	<subDataset name="Type 5" uuid="e721b339-e712-4de3-be17-661c060d8533">
+		<parameter name="productId" class="java.lang.String"/>
+		<parameter name="startDate" class="java.lang.String"/>
+		<parameter name="endDate" class="java.lang.String"/>
+		<parameter name="branchCode" class="java.lang.String"/>
+		<parameter name="brokerId" class="java.lang.String"/>
+		<parameter name="cedingId" class="java.lang.String"/>
+		<parameter name="systemDate" class="java.lang.String"/>
+		<parameter name="settledItems" class="java.lang.String"/>
+		<parameter name="unAllocatedCash" class="java.lang.String"/>
+		<queryString>
+			<![CDATA[Select * from table(FN_SOA_REPORT('5',$P{startDate},$P{endDate},$P{branchCode},$P{brokerId},$P{cedingId},$P{productId},$P{settledItems},$P{unAllocatedCash}))]]>
+		</queryString>
+		<field name="BROKER_CODE" class="java.lang.String"/>
+		<field name="COMPANY_CODE" class="java.lang.String"/>
+		<field name="RSK_INSURED_NAME" class="java.lang.String"/>
+		<field name="CONTRACT_NO" class="java.math.BigDecimal"/>
+		<field name="LAYER_NO" class="java.math.BigDecimal"/>
+		<field name="TRANS_TYPE" class="java.lang.String"/>
+		<field name="TRANSACTION_NO" class="java.lang.String"/>
+		<field name="TRANSACTION_DATE" class="java.lang.String"/>
+		<field name="INST_DATE" class="java.lang.String"/>
+		<field name="CURRENCY" class="java.lang.String"/>
+		<field name="SETTLED_AMOUNT" class="java.math.BigDecimal"/>
+		<field name="PREMIUM_DUE" class="java.math.BigDecimal"/>
+		<field name="NET_DUE_OC" class="java.math.BigDecimal"/>
+		<field name="STLMT_NO" class="java.lang.String"/>
+		<field name="ALLOCATED_TILL_DATE" class="java.math.BigDecimal"/>
+		<field name="PENDING_ALLOCATION" class="java.math.BigDecimal"/>
+		<field name="PENDING_ALLOCATION_DC" class="java.math.BigDecimal"/>
+		<field name="M1" class="java.math.BigDecimal"/>
+		<field name="M2" class="java.math.BigDecimal"/>
+		<field name="M3" class="java.math.BigDecimal"/>
+		<field name="M4" class="java.math.BigDecimal"/>
+		<field name="M5" class="java.math.BigDecimal"/>
+		<field name="PRODUCT_ID" class="java.math.BigDecimal"/>
+		<field name="CUMULATIVE_ALLOCATION" class="java.math.BigDecimal"/>
+		<variable name="totalPremiumDue" class="java.lang.Double" calculation="Sum">
+			<variableExpression><![CDATA[]]></variableExpression>
+		</variable>
+		<variable name="totalPayment" class="java.lang.Double" calculation="Sum">
+			<variableExpression><![CDATA[]]></variableExpression>
+		</variable>
+		<variable name="totalNetDue" class="java.lang.Double" calculation="Sum">
+			<variableExpression><![CDATA[]]></variableExpression>
+		</variable>
+	</subDataset>
+	<subDataset name="Type 4" uuid="20c44172-18dc-421b-aee5-0cbbedf2bd75">
+		<parameter name="settledItems" class="java.lang.String"/>
+		<parameter name="unAllocatedCash" class="java.lang.String"/>
+		<parameter name="productId" class="java.lang.String"/>
+		<parameter name="startDate" class="java.lang.String"/>
+		<parameter name="endDate" class="java.lang.String"/>
+		<parameter name="branchCode" class="java.lang.String"/>
+		<parameter name="brokerId" class="java.lang.String"/>
+		<parameter name="cedingId" class="java.lang.String"/>
+		<parameter name="systemDate" class="java.lang.String"/>
+		<parameter name="prclSeparate" class="java.lang.String"/>
+		<queryString>
+			<![CDATA[Select * from table(FN_SOA_REPORT('1',$P{startDate},$P{endDate},$P{branchCode},$P{brokerId},$P{cedingId},$P{productId},$P{settledItems},$P{prclSeparate},$P{unAllocatedCash})) WHERE BLOCK_NO = 4]]>
+		</queryString>
+		<field name="BROKER_CODE" class="java.lang.String"/>
+		<field name="COMPANY_CODE" class="java.lang.String"/>
+		<field name="RSK_INSURED_NAME" class="java.lang.String"/>
+		<field name="CONTRACT_NO" class="java.math.BigDecimal"/>
+		<field name="LAYER_NO" class="java.math.BigDecimal"/>
+		<field name="TRANS_TYPE" class="java.lang.String"/>
+		<field name="TRANSACTION_NO" class="java.lang.String"/>
+		<field name="TRANSACTION_DATE" class="java.lang.String"/>
+		<field name="INST_DATE" class="java.lang.String"/>
+		<field name="CURRENCY" class="java.lang.String"/>
+		<field name="SETTLED_AMOUNT" class="java.math.BigDecimal"/>
+		<field name="PREMIUM_DUE" class="java.math.BigDecimal"/>
+		<field name="NET_DUE_OC" class="java.math.BigDecimal"/>
+		<field name="STLMT_NO" class="java.lang.String"/>
+		<field name="ALLOCATED_TILL_DATE" class="java.math.BigDecimal"/>
+		<field name="PENDING_ALLOCATION" class="java.math.BigDecimal"/>
+		<field name="PENDING_ALLOCATION_DC" class="java.math.BigDecimal"/>
+		<field name="M1" class="java.math.BigDecimal"/>
+		<field name="M2" class="java.math.BigDecimal"/>
+		<field name="M3" class="java.math.BigDecimal"/>
+		<field name="M4" class="java.math.BigDecimal"/>
+		<field name="M5" class="java.math.BigDecimal"/>
+		<field name="PRODUCT_ID" class="java.math.BigDecimal"/>
+		<field name="CUMULATIVE_ALLOCATION" class="java.math.BigDecimal"/>
+		<field name="BLOCK_NO" class="java.math.BigDecimal"/>
+		<group name="BROKER_CODE">
+			<groupExpression><![CDATA[$F{BROKER_CODE}]]></groupExpression>
+		</group>
+	</subDataset>
+	<subDataset name="Type 2" uuid="261f2efb-0b61-40fb-aae6-b931d5e5a534">
+		<parameter name="settledItems" class="java.lang.String"/>
+		<parameter name="unAllocatedCash" class="java.lang.String"/>
+		<parameter name="productId" class="java.lang.String"/>
+		<parameter name="startDate" class="java.lang.String"/>
+		<parameter name="endDate" class="java.lang.String"/>
+		<parameter name="branchCode" class="java.lang.String"/>
+		<parameter name="brokerId" class="java.lang.String"/>
+		<parameter name="cedingId" class="java.lang.String"/>
+		<parameter name="systemDate" class="java.lang.String"/>
+		<parameter name="prclSeparate" class="java.lang.String"/>
+		<queryString>
+			<![CDATA[Select * from table(FN_SOA_REPORT('1',$P{startDate},$P{endDate},$P{branchCode},$P{brokerId},$P{cedingId},$P{productId},$P{settledItems},$P{prclSeparate},$P{unAllocatedCash}))WHERE BLOCK_NO = 2]]>
+		</queryString>
+		<field name="BROKER_CODE" class="java.lang.String"/>
+		<field name="COMPANY_CODE" class="java.lang.String"/>
+		<field name="RSK_INSURED_NAME" class="java.lang.String"/>
+		<field name="CONTRACT_NO" class="java.math.BigDecimal"/>
+		<field name="LAYER_NO" class="java.math.BigDecimal"/>
+		<field name="TRANS_TYPE" class="java.lang.String"/>
+		<field name="TRANSACTION_NO" class="java.lang.String"/>
+		<field name="TRANSACTION_DATE" class="java.lang.String"/>
+		<field name="INST_DATE" class="java.lang.String"/>
+		<field name="CURRENCY" class="java.lang.String"/>
+		<field name="SETTLED_AMOUNT" class="java.math.BigDecimal"/>
+		<field name="PREMIUM_DUE" class="java.math.BigDecimal"/>
+		<field name="NET_DUE_OC" class="java.math.BigDecimal"/>
+		<field name="STLMT_NO" class="java.lang.String"/>
+		<field name="ALLOCATED_TILL_DATE" class="java.math.BigDecimal"/>
+		<field name="PENDING_ALLOCATION" class="java.math.BigDecimal"/>
+		<field name="PENDING_ALLOCATION_DC" class="java.math.BigDecimal"/>
+		<field name="M1" class="java.math.BigDecimal"/>
+		<field name="M2" class="java.math.BigDecimal"/>
+		<field name="M3" class="java.math.BigDecimal"/>
+		<field name="M4" class="java.math.BigDecimal"/>
+		<field name="M5" class="java.math.BigDecimal"/>
+		<field name="PRODUCT_ID" class="java.math.BigDecimal"/>
+		<field name="CUMULATIVE_ALLOCATION" class="java.math.BigDecimal"/>
+		<field name="BLOCK_NO" class="java.math.BigDecimal"/>
+	</subDataset>
+	<subDataset name="Type 3" uuid="cf637f74-084c-4591-a485-ca995809aaf4">
+		<parameter name="settledItems" class="java.lang.String"/>
+		<parameter name="unAllocatedCash" class="java.lang.String"/>
+		<parameter name="productId" class="java.lang.String"/>
+		<parameter name="startDate" class="java.lang.String"/>
+		<parameter name="endDate" class="java.lang.String"/>
+		<parameter name="branchCode" class="java.lang.String"/>
+		<parameter name="brokerId" class="java.lang.String"/>
+		<parameter name="cedingId" class="java.lang.String"/>
+		<parameter name="systemDate" class="java.lang.String"/>
+		<parameter name="prclSeparate" class="java.lang.String"/>
+		<queryString>
+			<![CDATA[Select * from table(FN_SOA_REPORT('1',$P{startDate},$P{endDate},$P{branchCode},$P{brokerId},$P{cedingId},$P{productId},$P{settledItems},$P{prclSeparate},$P{unAllocatedCash}))WHERE BLOCK_NO = 3]]>
+		</queryString>
+		<field name="BROKER_CODE" class="java.lang.String"/>
+		<field name="COMPANY_CODE" class="java.lang.String"/>
+		<field name="RSK_INSURED_NAME" class="java.lang.String"/>
+		<field name="CONTRACT_NO" class="java.math.BigDecimal"/>
+		<field name="LAYER_NO" class="java.math.BigDecimal"/>
+		<field name="TRANS_TYPE" class="java.lang.String"/>
+		<field name="TRANSACTION_NO" class="java.lang.String"/>
+		<field name="TRANSACTION_DATE" class="java.lang.String"/>
+		<field name="INST_DATE" class="java.lang.String"/>
+		<field name="CURRENCY" class="java.lang.String"/>
+		<field name="SETTLED_AMOUNT" class="java.math.BigDecimal"/>
+		<field name="PREMIUM_DUE" class="java.math.BigDecimal"/>
+		<field name="NET_DUE_OC" class="java.math.BigDecimal"/>
+		<field name="STLMT_NO" class="java.lang.String"/>
+		<field name="ALLOCATED_TILL_DATE" class="java.math.BigDecimal"/>
+		<field name="PENDING_ALLOCATION" class="java.math.BigDecimal"/>
+		<field name="PENDING_ALLOCATION_DC" class="java.math.BigDecimal"/>
+		<field name="M1" class="java.math.BigDecimal"/>
+		<field name="M2" class="java.math.BigDecimal"/>
+		<field name="M3" class="java.math.BigDecimal"/>
+		<field name="M4" class="java.math.BigDecimal"/>
+		<field name="M5" class="java.math.BigDecimal"/>
+		<field name="PRODUCT_ID" class="java.math.BigDecimal"/>
+		<field name="CUMULATIVE_ALLOCATION" class="java.math.BigDecimal"/>
+		<field name="BLOCK_NO" class="java.math.BigDecimal"/>
+	</subDataset>
+	<parameter name="productId" class="java.lang.String"/>
+	<parameter name="startDate" class="java.lang.String"/>
+	<parameter name="endDate" class="java.lang.String"/>
+	<parameter name="branchCode" class="java.lang.String"/>
+	<parameter name="brokerId" class="java.lang.String"/>
+	<parameter name="cedingId" class="java.lang.String"/>
+	<parameter name="imagePath" class="java.lang.String"/>
+	<parameter name="productName" class="java.lang.String"/>
+	<parameter name="systemDate" class="java.lang.String"/>
+	<parameter name="cedingName" class="java.lang.String"/>
+	<parameter name="brokerName" class="java.lang.String"/>
+	<parameter name="settledItems" class="java.lang.String"/>
+	<parameter name="unAllocatedCash" class="java.lang.String"/>
+	<parameter name="prclSeparate" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select COMPANY_NAME, EMAIL, ADDRESS1, COUNTRY, AMEND_ID, STATUS, WEB_SITE,TELEPHONE,(Select DECODE(COUNT(*),0,'N','Y') from table(FN_SOA_REPORT('1',$P{startDate},$P{endDate},$P{branchCode},$P{brokerId},$P{cedingId},$P{productId},$P{settledItems},$P{prclSeparate},$P{unAllocatedCash})) WHERE BLOCK_NO = 4) Block4YN from company_master where COMPANY_CODE='RI01' and STATUS='Y']]>
+	</queryString>
+	<field name="COMPANY_NAME" class="java.lang.String"/>
+	<field name="EMAIL" class="java.lang.String"/>
+	<field name="ADDRESS1" class="java.lang.String"/>
+	<field name="COUNTRY" class="java.lang.String"/>
+	<field name="AMEND_ID" class="java.math.BigDecimal"/>
+	<field name="STATUS" class="java.lang.String"/>
+	<field name="WEB_SITE" class="java.lang.String"/>
+	<field name="TELEPHONE" class="java.lang.String"/>
+	<field name="BLOCK4YN" class="java.lang.String"/>
+	<variable name="totalPremiumDue" class="java.lang.Double" calculation="Sum"/>
+	<variable name="totalPayment" class="java.lang.Double" calculation="Sum"/>
+	<variable name="totalNetDue" class="java.lang.Double"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="266" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="e996a6f3-22ed-4af4-880e-e326511862a4" x="126" y="45" width="400" height="15"/>
+				<textElement textAlignment="Center" markup="none">
+					<font fontName="Arial" size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{WEB_SITE}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="90064f8f-b887-4c9a-abe4-d16c8debc43e" x="126" y="30" width="400" height="15"/>
+				<textElement textAlignment="Center" markup="none">
+					<font fontName="Arial" size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{COUNTRY}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="b71deefe-da6d-4216-bb7d-d566c50960e1" x="126" y="0" width="400" height="15"/>
+				<textElement textAlignment="Center" markup="none">
+					<font fontName="Arial" size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{COMPANY_NAME}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="d1276234-03f4-422c-8674-a186c54adf9e" x="126" y="15" width="400" height="15"/>
+				<textElement textAlignment="Center" markup="none">
+					<font fontName="Arial" size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ADDRESS1}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="14e3e363-4e26-4908-9007-b485c39c2a88" x="126" y="60" width="400" height="15"/>
+				<textElement textAlignment="Center" markup="none">
+					<font fontName="Arial" size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{EMAIL}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="72fba777-4a2e-49ad-8b76-66aad75ea229" x="0" y="83" width="126" height="20"/>
+				<box leftPadding="2">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle" markup="none">
+					<font fontName="Arial" isBold="true" isStrikeThrough="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" Generated Date"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="5d25ea9d-b217-4eb8-acb3-61ae81f2a718" x="126" y="103" width="290" height="20"/>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left">
+					<font fontName="Arial" isStrikeThrough="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{brokerName}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="04f85d1b-5400-4e39-9fb4-dc6aa121d9a1" x="526" y="123" width="220" height="20"/>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{endDate}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="6d34732b-b658-4fd5-b7b5-18477d726f38" x="526" y="103" width="220" height="20"/>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA["MULTIPLE".equals($P{cedingName})?"ALL":$P{cedingName}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="f79f603c-f1c1-464f-883e-5c1c0cede66c" x="416" y="103" width="110" height="20"/>
+				<box leftPadding="2">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle" markup="none">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" Ceding Name"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="00a55603-4a73-4cc3-b760-a0d8adea1d8a" x="126" y="83" width="290" height="20"/>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{systemDate}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="9cd30944-4d18-487a-ae00-74b7e8aadf90" x="416" y="123" width="110" height="20"/>
+				<box leftPadding="2">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle" markup="none">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" End Date "]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="f3a8429d-6b06-4300-8477-80739d582478" x="0" y="103" width="126" height="20"/>
+				<box leftPadding="2">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle" markup="none">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" Broker Name"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="57f95393-4f1b-425c-b146-ce7e5605b1a4" x="0" y="123" width="126" height="20"/>
+				<box leftPadding="2">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle" markup="none">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" Start Date"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="f430a458-c9d0-472a-acc7-2366930e0db3" x="126" y="123" width="290" height="20"/>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{startDate}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="fc2987d0-f10c-4bff-93bc-22033ab79f3b" x="0" y="143" width="126" height="20"/>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" Include settled items?"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="fb9333c1-d356-4ed5-821e-47f8c40d2ea0" x="126" y="143" width="290" height="20"/>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{settledItems}.equals( "Y" )?"Yes":"No"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="560ec5df-ed47-4cea-89f1-7d4e4e7c807b" x="126" y="192" width="400" height="20"/>
+				<textElement textAlignment="Center" markup="none">
+					<font fontName="Arial" size="15" isBold="true" isUnderline="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["DEBTOR STATEMENT OF ACCOUNT-INWARD"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="8130d0d6-6eb2-435c-8d6d-3544078d5627" x="0" y="226" width="746" height="20"/>
+				<box topPadding="0" leftPadding="2" bottomPadding="0" rightPadding="0"/>
+				<textElement textAlignment="Left" markup="none">
+					<font fontName="Arial" size="15" isBold="true" isUnderline="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Booked Premium / Claims"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="5ad91869-7758-4ce6-95ca-1bc3195028f2" x="416" y="83" width="110" height="20"/>
+				<box leftPadding="2">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle" markup="none">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" Product Id"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="21818065-0a1a-4539-bc41-c1f46811026d" x="526" y="83" width="220" height="20"/>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left">
+					<font fontName="Arial" isStrikeThrough="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["-1".equals($P{productId})?"All":$P{productId}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="d9809943-d1a8-4f3e-af50-0c5dc3d6321c" x="416" y="143" width="110" height="20"/>
+				<box leftPadding="2">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle" markup="none">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" Doc Type"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="f0bdaa3a-b2ca-4800-809e-94bdfd2a66ad" x="526" y="143" width="220" height="20"/>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA["P".equals($P{prclSeparate})?"Premium":("C".equals($P{prclSeparate})?"Claim":"All")]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="32" splitType="Stretch">
+			<componentElement>
+				<reportElement uuid="ae0245ea-6a99-45fc-a023-b72bd3678305" key="table 4" style="table 4" isPrintRepeatedValues="false" x="0" y="0" width="802" height="23"/>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="Type 1" uuid="5e1bc11f-7a23-421e-a77d-44b1b7fa3735">
+						<datasetParameter name="startDate">
+							<datasetParameterExpression><![CDATA[$P{startDate}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="endDate">
+							<datasetParameterExpression><![CDATA[$P{endDate}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="branchCode">
+							<datasetParameterExpression><![CDATA[$P{branchCode}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="brokerId">
+							<datasetParameterExpression><![CDATA[$P{brokerId}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="cedingId">
+							<datasetParameterExpression><![CDATA[$P{cedingId}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="productId">
+							<datasetParameterExpression><![CDATA[$P{productId}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="settledItems">
+							<datasetParameterExpression><![CDATA[$P{settledItems}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="unAllocatedCash">
+							<datasetParameterExpression><![CDATA[$P{unAllocatedCash}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="prclSeparate">
+							<datasetParameterExpression><![CDATA[$P{prclSeparate}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:column width="126" uuid="37e708b6-5ca7-4d18-98c0-d28e0d29c956">
+						<jr:tableHeader height="30" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<staticText>
+								<reportElement uuid="0df09ca6-ba7a-4fce-aab7-908bbd5bae61" x="0" y="0" width="126" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<text><![CDATA[Broker]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table 4_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="e7b2cfac-de1b-4b4b-a47b-ba6fa20d1a8d" stretchType="RelativeToBandHeight" x="0" y="0" width="126" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement textAlignment="Left">
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{BROKER_CODE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="180" uuid="d25c6cc2-9138-427e-a8f5-5621bd48c484">
+						<jr:tableHeader height="30" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<staticText>
+								<reportElement uuid="f00677c8-6160-4fa5-a80b-5afbcaf1c87b" x="0" y="0" width="180" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<text><![CDATA[Cedant]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table 4_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="ea961d03-c66f-404d-9b9e-6bc802285c69" stretchType="RelativeToBandHeight" x="0" y="0" width="180" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement textAlignment="Left">
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{COMPANY_CODE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="110" uuid="9bf88cba-7bd7-4ffd-9788-f2563a8b9a27">
+						<jr:tableHeader height="30" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="b8600565-3f7e-4cf9-a96d-ea70300a5b29" x="0" y="0" width="110" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA["Treaty / Insured Name"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table 4_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="018a1266-f701-4dfd-83a6-0192e28865e3" stretchType="RelativeToBandHeight" x="0" y="0" width="110" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement textAlignment="Left">
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{RSK_INSURED_NAME}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="110" uuid="efdba9ec-6a11-401e-b063-ab7a46ad6f3c">
+						<jr:tableHeader height="30" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<staticText>
+								<reportElement uuid="213f2a9b-2ce6-477f-ab50-d1daf75fcc19" x="0" y="0" width="110" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<text><![CDATA[Contract No]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table 4_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="f6fd4f48-88ba-4aab-8685-531930a16593" stretchType="RelativeToBandHeight" x="0" y="0" width="110" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement textAlignment="Left">
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{CONTRACT_NO}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="110" uuid="649309de-2dc2-4ec9-9511-3f04e7742134">
+						<printWhenExpression><![CDATA[$P{productId}.equalsIgnoreCase( "3" )]]></printWhenExpression>
+						<jr:tableHeader height="30" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<staticText>
+								<reportElement uuid="f61a90bf-ae69-46a8-8359-4abff88573bb" x="0" y="0" width="110" height="30">
+									<printWhenExpression><![CDATA[$P{productId}.equalsIgnoreCase( "3" )]]></printWhenExpression>
+								</reportElement>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<text><![CDATA[Layer No]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table 4_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="27300f20-a595-4c09-b8c7-6975f931763a" stretchType="RelativeToBandHeight" x="0" y="0" width="110" height="20">
+									<printWhenExpression><![CDATA[$P{productId}.equalsIgnoreCase( "3" )]]></printWhenExpression>
+								</reportElement>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement textAlignment="Left">
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{LAYER_NO}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="110" uuid="610a10ae-4cf0-46c5-8ede-f612b63ad901">
+						<jr:tableHeader height="30" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField>
+								<reportElement uuid="96df6ae0-fed5-4b4b-910b-ad96270afac3" x="0" y="0" width="110" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA["Transaction No"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table 4_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="###0" isBlankWhenNull="true">
+								<reportElement uuid="49287566-d8fc-402a-8e6f-8830b79a104a" stretchType="RelativeToBandHeight" x="0" y="0" width="110" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement textAlignment="Left">
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{TRANSACTION_NO}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="110" uuid="3934924a-6be0-4457-a758-e1dfc7819f8e">
+						<jr:tableHeader height="30" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField>
+								<reportElement uuid="93a32cea-0e48-443e-bb66-f5f41f74913b" x="0" y="0" width="110" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA["Type"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell height="20" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" pattern="###0" isBlankWhenNull="true">
+								<reportElement uuid="72af1102-2990-47ad-933a-c58d293f75a3" stretchType="RelativeToBandHeight" x="0" y="0" width="110" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement textAlignment="Left">
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{TRANS_TYPE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="110" uuid="dd5cde35-3c52-4a80-b38e-d1c66cb9d0c9">
+						<jr:tableHeader height="30" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<staticText>
+								<reportElement uuid="04edaadd-3b1d-429e-b297-9650c52ec53d" x="0" y="0" width="110" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<text><![CDATA[Transaction Date]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table 4_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="###0.00" isBlankWhenNull="true">
+								<reportElement uuid="7c919382-eeac-477e-9306-a579086bbe29" stretchType="RelativeToBandHeight" x="0" y="0" width="110" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement textAlignment="Left">
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{TRANSACTION_DATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="110" uuid="7e51dc21-359c-4755-b433-b34d3f290038">
+						<jr:tableHeader height="30" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="2eea47ff-39ab-4f90-9466-b01022a0c0f9" x="0" y="0" width="110" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA["Inst Date"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table 4_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="484f5892-e00d-48ec-b431-45462fc356dc" stretchType="RelativeToBandHeight" x="0" y="0" width="110" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement textAlignment="Left">
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{INST_DATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="85" uuid="cf94cc98-5af3-4ce9-9bee-c6149bf4d43d">
+						<jr:tableHeader height="30" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<staticText>
+								<reportElement uuid="f4689c92-1aee-41e4-9c17-cfd6c39cb546" x="0" y="0" width="85" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<text><![CDATA[Currency]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table 4_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="###0.00" isBlankWhenNull="true">
+								<reportElement uuid="b0296873-aa23-4208-b895-8d93db2b79b5" stretchType="RelativeToBandHeight" x="0" y="0" width="85" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement textAlignment="Left">
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{CURRENCY}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="81" uuid="ec4192bf-afe8-4873-b628-dcf0244e4f26">
+						<jr:tableHeader height="30" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="699c7bad-00c0-4f8e-a337-2910e589703e" x="0" y="0" width="81" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA["  Premium   Due "]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell height="20" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="2fdd2afc-e3d0-4820-8144-80dc291f1793" stretchType="RelativeToBandHeight" x="0" y="0" width="81" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement textAlignment="Right">
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{PREMIUM_DUE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="84" uuid="d5a7b3f2-1ddf-4914-b342-a0b7d7a4066b">
+						<jr:tableHeader height="30" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="364b65e1-f35a-4ab0-94db-83da28a33907" x="0" y="0" width="84" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA["Net Due"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell height="20" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="ad6a2a96-b11d-4a80-aa07-b1aeb51cb710" stretchType="RelativeToBandHeight" x="0" y="0" width="84" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement textAlignment="Right">
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{NET_DUE_OC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="80" uuid="63067d18-f141-4345-9d17-d1f56dc60be2">
+						<jr:tableHeader height="30" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="c62b0c6a-7541-477c-b1d7-ac19fda625d1" x="0" y="0" width="80" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA["Settlement Trxn No"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell height="20" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="a4a61502-0a82-4334-bb20-07234ed66c1e" stretchType="RelativeToBandHeight" x="0" y="0" width="80" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement textAlignment="Right">
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{STLMT_NO}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="78" uuid="c0f1d608-ffda-4bf2-a5f6-0e0776875956">
+						<jr:tableHeader height="30" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="29fecde5-f990-411c-a8b3-0f31a822f9ff" x="0" y="0" width="78" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA["Allocated till date"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell height="20" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="a4eeef93-965b-412d-aeac-4917a962d59b" stretchType="RelativeToBandHeight" x="0" y="0" width="78" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement textAlignment="Right">
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{ALLOCATED_TILL_DATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="78" uuid="ee9a0fde-caff-472c-b8bb-6da06d987052">
+						<jr:tableHeader height="30" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="c2c512c4-5dcf-4982-aa26-2b03f7a70c12" x="0" y="0" width="78" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA["Pending Allocation"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell height="20" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="cf48002a-6973-4210-a1f7-706e35b75a91" stretchType="RelativeToBandHeight" x="0" y="0" width="78" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement textAlignment="Right">
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{PENDING_ALLOCATION}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="95" uuid="e7996078-92f4-4f1d-8550-6a941bb1b7ad">
+						<jr:tableHeader height="30" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="aefd2b1f-2951-4d04-a68a-b3b473414b25" x="0" y="0" width="95" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA["Cumulative Amount Pending"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell height="20" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="3dfa3302-043f-463b-9a19-31ad5f6342aa" stretchType="RelativeToBandHeight" x="0" y="0" width="95" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement textAlignment="Right">
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{CUMULATIVE_ALLOCATION}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+		</band>
+		<band height="21">
+			<break>
+				<reportElement uuid="89e215f2-667c-44e9-a3ee-f445c72804cd" x="0" y="9" width="100" height="1"/>
+			</break>
+		</band>
+		<band height="29">
+			<textField>
+				<reportElement uuid="fd52bd34-9d43-4ccf-b5d0-04dad6399d85" x="0" y="0" width="746" height="20"/>
+				<box topPadding="0" leftPadding="2" bottomPadding="0" rightPadding="0"/>
+				<textElement textAlignment="Left" markup="none">
+					<font fontName="Arial" size="15" isBold="true" isUnderline="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Summary by Currency"]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="40">
+			<componentElement>
+				<reportElement uuid="4f0ea43c-8c73-410a-baf5-dda881534c5d" key="table 4" style="table 4" isPrintRepeatedValues="false" x="0" y="0" width="802" height="23"/>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="Type 2" uuid="284cb094-7af7-4f0f-bf25-ef55fdaa656e">
+						<datasetParameter name="productId">
+							<datasetParameterExpression><![CDATA[$P{productId}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="startDate">
+							<datasetParameterExpression><![CDATA[$P{startDate}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="endDate">
+							<datasetParameterExpression><![CDATA[$P{endDate}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="branchCode">
+							<datasetParameterExpression><![CDATA[$P{branchCode}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="brokerId">
+							<datasetParameterExpression><![CDATA[$P{brokerId}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="cedingId">
+							<datasetParameterExpression><![CDATA[$P{cedingId}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="settledItems">
+							<datasetParameterExpression><![CDATA[$P{settledItems}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="unAllocatedCash">
+							<datasetParameterExpression><![CDATA[$P{unAllocatedCash}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="prclSeparate">
+							<datasetParameterExpression><![CDATA[$P{prclSeparate}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:column width="126" uuid="279114ca-a0a6-4ae6-8157-d8cf6d411a48">
+						<jr:tableHeader height="30" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField>
+								<reportElement uuid="1e374b5c-9139-4407-928a-3e49da66bd40" x="0" y="0" width="126" height="30"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA["Currency"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell height="20" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="636e231a-b73b-408a-bc15-b54ec7698a3b" stretchType="RelativeToTallestObject" x="0" y="0" width="126" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement>
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{CURRENCY}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="180" uuid="001beb06-5a65-4f99-a233-f7aea9a96e08">
+						<jr:tableHeader height="30" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField>
+								<reportElement uuid="7de913ac-abba-4936-a2bb-fb31c3bb6cc2" x="0" y="0" width="180" height="30"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA["Type"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell height="20" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="2cf185ad-9e6d-4a53-bb77-652c3be88b35" stretchType="RelativeToTallestObject" x="0" y="0" width="180" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement>
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{TRANS_TYPE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="110" uuid="053a738a-4ec9-4fff-bcd5-1fd21448296b">
+						<jr:tableHeader height="30" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="157a4049-7963-4fc7-9a1a-45ad937cb3d3" x="0" y="0" width="110" height="30"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA["Pending Allocation - Org Curr"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell height="20" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="a9a8c5a5-f908-4b1c-8fcc-eff273eb752b" stretchType="RelativeToTallestObject" x="0" y="0" width="110" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement textAlignment="Right" verticalAlignment="Top">
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{PENDING_ALLOCATION}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="110" uuid="cde3a5c3-b813-47dd-9287-4b638ebfed14">
+						<jr:tableHeader height="30" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<staticText>
+								<reportElement uuid="dcdf5696-d868-47cf-8361-f0cb5fa1afde" x="0" y="0" width="110" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<text><![CDATA[0-90 Days]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table 4_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="f3a992e2-8b75-48b2-8939-ca5aad314c6b" stretchType="RelativeToTallestObject" x="0" y="0" width="110" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement textAlignment="Right">
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{M1}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="110" uuid="59fbe668-fa26-49fd-8399-8ccc41d20e94">
+						<jr:tableHeader height="30" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<staticText>
+								<reportElement uuid="a56278e5-8e5a-4cf0-a3d1-b16681d92a80" x="0" y="0" width="110" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Bottom" rotation="None">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<text><![CDATA[91-180 Days
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table 4_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="529ab449-40b6-439b-81ea-74e4c0d1fae8" stretchType="RelativeToTallestObject" x="0" y="0" width="110" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement textAlignment="Right">
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{M2}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="110" uuid="05226226-531a-4a73-b089-b8e6928e643c">
+						<jr:tableHeader height="30" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<staticText>
+								<reportElement uuid="15a6e23e-1a48-421d-a423-1a0f51d8cc01" x="0" y="0" width="110" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Bottom">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<text><![CDATA[181-270 Days
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table 4_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="94ad80b5-8104-4621-8c79-14364a0fc98c" stretchType="RelativeToTallestObject" x="0" y="0" width="110" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement textAlignment="Right">
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{M3}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="110" uuid="b5d5e89f-2dc1-46c1-b413-e35abfbf05d5">
+						<jr:tableHeader height="30" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<staticText>
+								<reportElement uuid="20ee3e11-f8b0-49cb-b475-3df0de35e694" x="0" y="0" width="110" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Bottom">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<text><![CDATA[271-360 Days
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table 4_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="bac865aa-ed98-43c4-995f-179368404e7a" stretchType="RelativeToTallestObject" x="0" y="0" width="110" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement textAlignment="Right">
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{M4}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="110" uuid="97dd63ab-bfc6-445b-a3fe-05d5c85a8c86">
+						<jr:tableHeader height="30" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<staticText>
+								<reportElement uuid="d998c7c5-debb-4e28-aacc-c9e6d6088b33" x="0" y="0" width="110" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Bottom" rotation="None">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<text><![CDATA[360+Days
+]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table 4_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="2aef4d29-cbb5-4cb3-9ac2-82442409b3af" stretchType="RelativeToTallestObject" x="0" y="0" width="110" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement textAlignment="Right">
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{M5}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+		</band>
+		<band height="22">
+			<break>
+				<reportElement uuid="0009582f-2ecc-4ad5-b1cb-477b5b343d1b" x="0" y="11" width="100" height="1"/>
+			</break>
+		</band>
+		<band height="31">
+			<textField>
+				<reportElement uuid="122fe2e9-6ed1-4ec7-8dca-08b0df917e11" x="0" y="0" width="746" height="20"/>
+				<box topPadding="0" leftPadding="2" bottomPadding="0" rightPadding="0"/>
+				<textElement textAlignment="Left" markup="none">
+					<font fontName="Arial" size="15" isBold="true" isUnderline="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Summary by Cedant"]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="46">
+			<componentElement>
+				<reportElement uuid="6ce07671-b138-4c26-b904-bf31735a2bd7" key="table 7" style="table 7" x="0" y="0" width="802" height="25"/>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="Type 3" uuid="c06f8727-e1cb-480e-882a-bdaebdf8a5d5">
+						<datasetParameter name="settledItems">
+							<datasetParameterExpression><![CDATA[$P{settledItems}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="productId">
+							<datasetParameterExpression><![CDATA[$P{productId}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="startDate">
+							<datasetParameterExpression><![CDATA[$P{startDate}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="endDate">
+							<datasetParameterExpression><![CDATA[$P{endDate}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="brokerId">
+							<datasetParameterExpression><![CDATA[$P{brokerId}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="cedingId">
+							<datasetParameterExpression><![CDATA[$P{cedingId}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="branchCode">
+							<datasetParameterExpression><![CDATA[$P{branchCode}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="unAllocatedCash">
+							<datasetParameterExpression><![CDATA[$P{unAllocatedCash}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="prclSeparate">
+							<datasetParameterExpression><![CDATA[$P{prclSeparate}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:column width="126" uuid="a44f077f-f431-4cae-bc50-ab3b92113fc1">
+						<jr:tableHeader height="30" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<staticText>
+								<reportElement uuid="b043132a-1deb-4af1-b394-bbce938135b6" x="0" y="0" width="126" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<text><![CDATA[Cedant]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table 7_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="056673d9-b6ec-412a-b289-4d2ce3771c59" stretchType="RelativeToBandHeight" x="0" y="0" width="126" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement>
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{COMPANY_CODE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="80" uuid="9bb3e74f-5071-446e-a2ef-9e4d7855afc8">
+						<jr:tableHeader height="30" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<staticText>
+								<reportElement uuid="6e1263a5-eb14-4b49-8d1e-5d103ff2833a" x="0" y="0" width="80" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<text><![CDATA[Currency]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table 7_TD" height="20" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="0b5a4c05-ea7c-47e3-bacd-1b33fdc55aae" stretchType="RelativeToBandHeight" x="0" y="0" width="80" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement>
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{CURRENCY}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="100" uuid="0a4b0c94-babb-4410-aa41-d77b97f0057c">
+						<jr:tableHeader height="30" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<staticText>
+								<reportElement uuid="708ca534-bf88-4266-a961-6f1309c10aad" x="0" y="0" width="100" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<text><![CDATA[Type]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell height="20" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="107a949f-053d-46cf-b4bf-8fd8022ce199" stretchType="RelativeToBandHeight" x="0" y="0" width="100" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement>
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{TRANS_TYPE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="110" uuid="2f40998e-bd12-40d6-b63e-990162ef700f">
+						<jr:tableHeader height="30" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField>
+								<reportElement uuid="892cb4b5-7b1d-4ac1-98aa-1d92a5edf840" x="0" y="0" width="110" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA["Pending Allocation - Org Curr"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell style="table 7_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="01f166b1-2b43-48ba-9f48-5c5b382c4fa5" stretchType="RelativeToBandHeight" x="0" y="0" width="110" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement textAlignment="Right">
+									<font fontName="Arial" size="8" isBold="false"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{PENDING_ALLOCATION}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="110" uuid="73f7e2ba-c389-466d-a2d2-dc6f2f1bbff4">
+						<jr:tableHeader height="30" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="d26acf96-5f15-4728-8e79-a4dffc50e108" x="0" y="0" width="110" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA["0-90 Days"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell height="20" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="f915f4fd-7859-465f-b25c-6e3ae7902c07" stretchType="RelativeToBandHeight" x="0" y="0" width="110" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement textAlignment="Right">
+									<font fontName="Arial" size="8" isBold="false"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{M1}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="110" uuid="c04fa91e-7c2b-4215-b63c-62b68990873f">
+						<jr:tableHeader height="30" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="484bdd86-f642-4ecc-98a7-fec50f0a3544" x="0" y="0" width="110" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA["91-180 Days"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell height="20" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="93cf63ac-9d2d-4560-974f-fa2e15e7bb23" stretchType="RelativeToBandHeight" x="0" y="0" width="110" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement textAlignment="Right">
+									<font fontName="Arial" size="8" isBold="false"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{M2}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="110" uuid="5df51766-b822-4cc9-b492-c6246a341c83">
+						<jr:tableHeader height="30" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="e1252503-d7bb-45a3-988f-cfea9e9a32ce" x="0" y="0" width="110" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA["181-270 Days"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell height="20" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="31c65cf5-9bda-4daa-9d6a-eac220aaf186" stretchType="RelativeToBandHeight" x="0" y="0" width="110" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement textAlignment="Right">
+									<font fontName="Arial" size="8" isBold="false"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{M3}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="110" uuid="270ca40c-f484-440a-a869-610dd64ac73b">
+						<jr:tableHeader height="30" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="3fae1d15-2eb4-4548-8f71-253e2bac67c1" x="0" y="0" width="110" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA["271-360 Days"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell height="20" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="a30bdf1c-79c7-465d-92c3-d6c4c6f51951" stretchType="RelativeToBandHeight" x="0" y="0" width="110" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement textAlignment="Right">
+									<font fontName="Arial" size="8" isBold="false"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{M4}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="110" uuid="763f6264-a52d-4b62-845b-8e836e1ad3bc">
+						<jr:tableHeader height="30" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="1be2b5b2-63e9-4f3e-ab76-284030085c71" x="0" y="0" width="110" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA["360+Days"]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:detailCell height="20" rowSpan="1">
+							<box>
+								<pen lineWidth="0.5"/>
+								<topPen lineWidth="0.5"/>
+								<leftPen lineWidth="0.5"/>
+								<bottomPen lineWidth="0.5"/>
+								<rightPen lineWidth="0.5"/>
+							</box>
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="672b3ff1-c1be-41a6-936f-63c56d6f3ea3" stretchType="RelativeToBandHeight" x="0" y="0" width="110" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement textAlignment="Right">
+									<font fontName="Arial" size="8" isBold="false"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{M4}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+		</band>
+		<band>
+			<printWhenExpression><![CDATA[$P{unAllocatedCash}.equalsIgnoreCase("Y")]]></printWhenExpression>
+		</band>
+		<band>
+			<printWhenExpression><![CDATA[$P{unAllocatedCash}.equalsIgnoreCase("Y")]]></printWhenExpression>
+		</band>
+		<band>
+			<printWhenExpression><![CDATA[$P{unAllocatedCash}.equalsIgnoreCase("Y")]]></printWhenExpression>
+		</band>
+		<band>
+			<printWhenExpression><![CDATA[$P{unAllocatedCash}.equalsIgnoreCase("Y")]]></printWhenExpression>
+		</band>
+		<band>
+			<printWhenExpression><![CDATA[$P{unAllocatedCash}.equalsIgnoreCase("Y")]]></printWhenExpression>
+		</band>
+		<band>
+			<printWhenExpression><![CDATA[$P{unAllocatedCash}.equalsIgnoreCase("Y")]]></printWhenExpression>
+		</band>
+		<band height="30">
+			<printWhenExpression><![CDATA[!(!"-1".equals($P{brokerId}) && "-1".equals($P{cedingId}) && "-1".equals($P{productId}) &&"N".equals($P{prclSeparate})) || "Y".equals($F{BLOCK4YN})]]></printWhenExpression>
+			<textField>
+				<reportElement uuid="371862ed-1294-4ace-a6af-d86a719ac9c1" x="0" y="0" width="746" height="20"/>
+				<box topPadding="0" leftPadding="2" bottomPadding="0" rightPadding="0"/>
+				<textElement textAlignment="Left" markup="none">
+					<font fontName="Arial" size="15" isBold="true" isUnderline="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Unallocated Cash Transactions"]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="50">
+			<printWhenExpression><![CDATA[!(!"-1".equals($P{brokerId}) && "-1".equals($P{cedingId}) && "-1".equals($P{productId}) &&"N".equals($P{prclSeparate})) || "Y".equals($F{BLOCK4YN})]]></printWhenExpression>
+			<componentElement>
+				<reportElement uuid="aa6a88ce-2be2-4213-875d-65618967de8d" key="table 5" style="table 5" x="0" y="0" width="802" height="23"/>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="Type 4" uuid="89f69d11-427c-4855-a29f-d2facb5aff53">
+						<datasetParameter name="productId">
+							<datasetParameterExpression><![CDATA[$P{productId}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="startDate">
+							<datasetParameterExpression><![CDATA[$P{startDate}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="endDate">
+							<datasetParameterExpression><![CDATA[$P{endDate}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="branchCode">
+							<datasetParameterExpression><![CDATA[$P{branchCode}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="brokerId">
+							<datasetParameterExpression><![CDATA[$P{brokerId}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="cedingId">
+							<datasetParameterExpression><![CDATA[$P{cedingId}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="settledItems">
+							<datasetParameterExpression><![CDATA[$P{settledItems}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="unAllocatedCash">
+							<datasetParameterExpression><![CDATA[$P{unAllocatedCash}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="prclSeparate">
+							<datasetParameterExpression><![CDATA[$P{prclSeparate}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:column width="126" uuid="de1a2c39-5ce1-4848-b3a7-6fba43dbfb54">
+						<jr:columnHeader style="table 5_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement uuid="d2856e09-6518-48e5-bab1-347017ec2d0c" x="0" y="0" width="126" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<text><![CDATA[Broker]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 5_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="407fd557-b98e-42fd-ad56-78af0144c729" stretchType="RelativeToBandHeight" x="0" y="0" width="126" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement>
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{BROKER_CODE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="80" uuid="ddae5444-408b-4c38-b7c0-fb84e676e241">
+						<jr:columnHeader style="table 5_CH" height="30" rowSpan="1">
+							<textField>
+								<reportElement uuid="ff77aac0-bb61-4dd6-8a09-03e1ecac4f6b" x="0" y="0" width="80" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA["Cedant"]]></textFieldExpression>
+							</textField>
+						</jr:columnHeader>
+						<jr:detailCell style="table 5_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="c866d9fa-e0ea-4b1a-974f-915724a29a47" stretchType="RelativeToBandHeight" x="0" y="0" width="80" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement>
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{COMPANY_CODE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="100" uuid="39e12e0f-9b03-4b04-a2a6-d44bb861ba37">
+						<jr:columnHeader style="table 5_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement uuid="7e7a0ed9-10d1-4014-9379-bb17342c93ec" x="0" y="0" width="100" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<text><![CDATA[Transaction Date]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 5_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="148f5b8c-71ca-4c26-8ae3-dac6f19d95a6" stretchType="RelativeToBandHeight" x="0" y="0" width="100" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement>
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{TRANSACTION_DATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="110" uuid="7595ee3f-f82f-46b8-84db-2bde8812e695">
+						<jr:columnHeader style="table 5_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement uuid="feb5064d-5451-4036-854b-b6eb4b01678f" x="0" y="0" width="110" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<text><![CDATA[Transaction No]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 5_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="34ba533b-11d1-47f8-b8e2-58196551dfaa" stretchType="RelativeToBandHeight" x="0" y="0" width="110" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement>
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{TRANSACTION_NO}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="110" uuid="5ac9b84d-8b3a-47a4-8f09-9c62e333739f">
+						<jr:columnHeader style="table 5_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement uuid="48147ad1-93dc-44fb-9e2d-d3a2d2835da8" x="0" y="0" width="110" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<text><![CDATA[Stlmt Type]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 5_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="b72a0f5f-007f-4418-b431-d2dcd4a8d1e5" stretchType="RelativeToBandHeight" x="0" y="0" width="110" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement>
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{TRANS_TYPE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="110" uuid="19bacd32-893e-42b6-939f-020f84ed39f2">
+						<jr:columnHeader style="table 5_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement uuid="daeb2741-de7b-4deb-8e77-18d93a951fee" x="0" y="0" width="110" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<text><![CDATA[Currency]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 5_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="b9925c46-f30f-418c-839e-37f359060bd9" stretchType="RelativeToBandHeight" x="0" y="0" width="110" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement>
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{CURRENCY}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="110" uuid="9bad7f1e-ae96-41af-9bf8-4892b703246e">
+						<jr:columnHeader style="table 5_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement uuid="0d2c4b90-fa6a-4184-b7d9-614f7932527b" x="0" y="0" width="110" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<text><![CDATA[ Settled Amount]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 5_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="d1b783c6-8f47-4e9f-9223-3b2bef5a2024" stretchType="RelativeToBandHeight" x="0" y="0" width="110" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement textAlignment="Right">
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{SETTLED_AMOUNT}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="110" uuid="78c08d7d-b29d-4bc5-a180-fdcc4ef54675">
+						<jr:columnHeader style="table 5_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement uuid="4ef31c97-a0e2-4534-9bce-9e1dc4f30bfd" x="0" y="0" width="110" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<text><![CDATA[Allocated]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="table 5_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="bd27e983-1c7f-4927-af70-e9a5edb92f01" stretchType="RelativeToBandHeight" x="0" y="0" width="110" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement textAlignment="Right">
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{ALLOCATED_TILL_DATE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="110" uuid="2802a861-30bb-44c6-aad2-083eb3b86440">
+						<jr:columnHeader style="table 5_CH" height="30" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="fd551c1f-efea-48a8-b3be-ebcbf62bc52b" x="0" y="0" width="110" height="30"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+									<font fontName="Arial" isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA["Pending      Allocation "]]></textFieldExpression>
+							</textField>
+						</jr:columnHeader>
+						<jr:detailCell style="table 5_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="7f1e6507-e2a4-4bdf-a7f6-8af7d90901a5" stretchType="RelativeToBandHeight" x="0" y="0" width="110" height="20"/>
+								<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2"/>
+								<textElement textAlignment="Right">
+									<font fontName="Arial" size="8"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{PENDING_ALLOCATION}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+		</band>
+	</detail>
+	<pageFooter>
+		<band/>
+	</pageFooter>
+</jasperReport>

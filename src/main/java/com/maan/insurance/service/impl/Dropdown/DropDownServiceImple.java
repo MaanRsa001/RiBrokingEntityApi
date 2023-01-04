@@ -1,0 +1,3972 @@
+package com.maan.insurance.service.impl.Dropdown;
+
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
+
+import javax.persistence.EntityManager;
+import javax.persistence.ParameterMode;
+import javax.persistence.PersistenceContext;
+import javax.persistence.StoredProcedureQuery;
+import javax.persistence.Tuple;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.CriteriaUpdate;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+
+import com.maan.insurance.jpa.entity.facultative.TtrnFacSi;
+import com.maan.insurance.jpa.entity.treasury.BankMaster;
+import com.maan.insurance.jpa.mapper.TtrnPaymentReceiptDetailsMapper;
+import com.maan.insurance.jpa.repository.propPremium.TtrnDepositReleaseRepository;
+import com.maan.insurance.jpa.repository.treasury.TreasuryCustomRepository;
+import com.maan.insurance.model.entity.ConstantDetail;
+import com.maan.insurance.model.entity.CountryMaster;
+import com.maan.insurance.model.entity.CurrencyMaster;
+import com.maan.insurance.model.entity.ExchangeMaster;
+import com.maan.insurance.model.entity.PersonalInfo;
+import com.maan.insurance.model.entity.PositionMaster;
+import com.maan.insurance.model.entity.RskPremiumDetails;
+import com.maan.insurance.model.entity.TerritoryMaster;
+import com.maan.insurance.model.entity.TmasDepartmentMaster;
+import com.maan.insurance.model.entity.TmasDocTypeMaster;
+import com.maan.insurance.model.entity.TmasOpenPeriod;
+import com.maan.insurance.model.entity.TmasPfcMaster;
+import com.maan.insurance.model.entity.TmasPolicyBranch;
+import com.maan.insurance.model.entity.TmasSpfcMaster;
+import com.maan.insurance.model.entity.TmasTerritory;
+import com.maan.insurance.model.entity.TtrnClaimDetails;
+import com.maan.insurance.model.entity.TtrnClaimPayment;
+import com.maan.insurance.model.entity.TtrnPttySection;
+import com.maan.insurance.model.entity.TtrnRetroClaimDetails;
+import com.maan.insurance.model.entity.TtrnRiskCommission;
+import com.maan.insurance.model.entity.TtrnRskClassLimits;
+import com.maan.insurance.model.repository.BankMasterRepository;
+import com.maan.insurance.model.repository.ConstantDetailRepository;
+import com.maan.insurance.model.repository.TerritoryMasterRepository;
+import com.maan.insurance.model.repository.TmasDepartmentMasterRepository;
+import com.maan.insurance.model.repository.TmasOpenPeriodRepository;
+import com.maan.insurance.model.repository.TmasPfcMasterRepository;
+import com.maan.insurance.model.repository.TmasPolicyBranchRepository;
+import com.maan.insurance.model.repository.TmasSpfcMasterRepository;
+import com.maan.insurance.model.repository.TtrnClaimDetailsRepository;
+import com.maan.insurance.model.repository.TtrnInsurerDetailsRepository;
+import com.maan.insurance.model.repository.TtrnMndInstallmentsRepository;
+import com.maan.insurance.model.repository.TtrnPttySectionRepository;
+import com.maan.insurance.model.repository.TtrnRetroCessionaryRepository;
+import com.maan.insurance.model.repository.TtrnRetroClaimDetailsRepository;
+import com.maan.insurance.model.repository.TtrnRiskCommissionRepository;
+import com.maan.insurance.model.req.DropDown.DuplicateCountCheckReq;
+import com.maan.insurance.model.req.DropDown.GetClaimDepartmentDropDownReq;
+import com.maan.insurance.model.req.DropDown.GetContractLayerNoReq;
+import com.maan.insurance.model.req.DropDown.GetCopyQuoteReq;
+import com.maan.insurance.model.req.DropDown.GetCurrencyIdReq;
+import com.maan.insurance.model.req.DropDown.GetDepartmentDropDownReq;
+import com.maan.insurance.model.req.DropDown.GetDepartmentieModuleDropDownReq;
+import com.maan.insurance.model.req.DropDown.GetInwardBusinessTypeDropDownReq;
+import com.maan.insurance.model.req.DropDown.GetPreDepartmentDropDownReq;
+import com.maan.insurance.model.req.DropDown.GetProductModuleDropDownReq;
+import com.maan.insurance.model.req.DropDown.GetProfitCentreieModuleDropDownReq;
+import com.maan.insurance.model.req.DropDown.GetProposalNoReq;
+import com.maan.insurance.model.req.DropDown.GetSectionListReq;
+import com.maan.insurance.model.req.DropDown.GetSubProfitCentreMultiDropDownReq;
+import com.maan.insurance.model.req.DropDown.GetSubProfitCentreMultiReq;
+import com.maan.insurance.model.req.DropDown.GetTreatyTypeDropDownReq;
+import com.maan.insurance.model.req.proportionality.ContractReq;
+import com.maan.insurance.model.req.proportionality.GetRetroContractDetailsListReq;
+import com.maan.insurance.model.res.DropDown.CommonResDropDown;
+import com.maan.insurance.model.res.DropDown.CommonResponse;
+import com.maan.insurance.model.res.DropDown.GetCommonDropDownRes;
+import com.maan.insurance.model.res.DropDown.GetCommonValueRes;
+import com.maan.insurance.model.res.DropDown.GetContractValRes;
+import com.maan.insurance.model.res.DropDown.GetContractValidationRes;
+import com.maan.insurance.model.res.DropDown.GetOpenPeriodRes;
+import com.maan.insurance.model.res.DropDown.GetOpenPeriodRes1;
+import com.maan.insurance.service.Dropdown.DropDownService;
+import com.maan.insurance.service.impl.QueryImplemention;
+import com.maan.insurance.validation.Formatters;
+
+@Service
+public class DropDownServiceImple implements DropDownService{
+	private Logger log = LogManager.getLogger(DropDownServiceImple.class);
+	private List<Map<String, Object>> department;
+	@Autowired
+	private QueryImplemention queryImpl;
+	@Autowired
+	private TreasuryCustomRepository treasuryCustomRepository;
+	@Autowired
+	private TtrnPaymentReceiptDetailsMapper ttrnPaymentReceiptDetailsMapper;
+	@Autowired
+	private TmasSpfcMasterRepository spfcRepo;
+	@Autowired
+	private TtrnClaimDetailsRepository claimRepo;
+	@Autowired
+	private TtrnRetroClaimDetailsRepository retroClaimRepo;
+	@Autowired
+	private  TtrnPttySectionRepository pttyRepo;
+	@Autowired
+	private  TtrnDepositReleaseRepository repo;
+	@Autowired
+	private  BankMasterRepository bankRepo;
+	@Autowired
+	private  ConstantDetailRepository constRepo;
+	@Autowired
+	private  TmasPolicyBranchRepository polRepo;
+	@Autowired
+	private  TmasPfcMasterRepository pfcRepo;
+	@Autowired
+	private  TerritoryMasterRepository tmRepo;
+	
+	SimpleDateFormat sdf=new SimpleDateFormat("dd/MM/yyyy");
+//	@Autowired
+//	private DropDownValidation dropDownValidation;
+
+	
+	@Autowired
+	private Formatters fm;
+	@Autowired
+	private TtrnRiskCommissionRepository rcRepo;
+	@Autowired
+	private TtrnMndInstallmentsRepository mndRepo;
+	@Autowired
+	private TtrnInsurerDetailsRepository idRepo;
+	@Autowired
+	private TtrnRetroCessionaryRepository cessRepo;
+	@Autowired
+	private TmasOpenPeriodRepository tmasOpenRepo;
+	@Autowired
+	private TmasDepartmentMasterRepository deptRepo;
+	
+	@PersistenceContext
+	private EntityManager em;
+
+
+	@Override
+	public GetCommonValueRes EditModeStatus(String proposalNo) {
+		GetCommonValueRes response = new GetCommonValueRes();
+		String result="";
+		try{
+			//POS_MAS_ED_MODE_SELECT
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<String> query = cb.createQuery(String.class); 
+			Root<PositionMaster> rd = query.from(PositionMaster.class);
+
+			query.multiselect(cb.selectCase().when(cb.isNull(rd.get("editMode")), "N")
+					.otherwise(rd.get("editMode"))); 
+
+			Subquery<Long> amend = query.subquery(Long.class); 
+			Root<PositionMaster> rds = amend.from(PositionMaster.class);
+			amend.select(cb.max(rds.get("amendId")));
+			Predicate a1 = cb.equal( rds.get("proposalNo"), rd.get("proposalNo"));
+			amend.where(a1);
+
+			Predicate n1 = cb.equal(rd.get("proposalNo"), proposalNo);
+			Predicate n2 = cb.equal(rd.get("amendId"), amend);
+			query.where(n1,n2);
+
+			TypedQuery<String> res = em.createQuery(query);
+			List<String> list = res.getResultList();
+			
+			if (!CollectionUtils.isEmpty(list)) {
+				result = list.get(0);
+			}
+			response.setCommonResponse(result);
+			response.setMessage("Success");
+			response.setIsError(false);
+			}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	}
+
+	@Override
+	public GetCommonValueRes getCoverLimitAmount(String proposalNo, String departmentId, String productId) {
+		GetCommonValueRes response = new GetCommonValueRes();
+		String coverLimitAmount="0";
+		List<String> list = null;
+		try{
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+
+			if("1".equalsIgnoreCase(productId)){
+				//GET_CLAIM_COVERLIMIT_FAC
+				CriteriaQuery<String> query = cb.createQuery(String.class); 
+				Root<TtrnFacSi> rd = query.from(TtrnFacSi.class);
+
+				Expression<Integer> exp = cb.sum(cb.<Integer>selectCase().when(cb.isNull(rd.<Integer>get("rskCoverlimitOc")),0)
+						.otherwise(rd.<Integer>get("rskCoverlimitOc")));
+				
+				query.multiselect(exp.as(String.class).alias("RSK_COVERLIMIT_OC"));
+				
+				//amend
+				Subquery<Long> amend = query.subquery(Long.class); 
+				Root<TtrnFacSi> rds = amend.from(TtrnFacSi.class);
+				amend.select(cb.max(rds.get("amendId")));
+				Predicate a1 = cb.equal( rds.get("proposalNo"), rd.get("proposalNo"));
+				amend.where(a1);
+
+				Predicate n1 = cb.equal(rd.get("proposalNo"), proposalNo);
+				Predicate n2 = cb.equal(rd.get("amendId"), amend);
+				query.where(n1,n2);
+
+				TypedQuery<String> res = em.createQuery(query);
+				 list = res.getResultList();
+				
+			}else{
+				//GET_CLAIM_COVERLIMIT
+				CriteriaQuery<String> query = cb.createQuery(String.class); 
+				Root<TtrnRskClassLimits> rd = query.from(TtrnRskClassLimits.class);
+				
+				Expression<Integer> exp = cb.<Integer>selectCase().when(cb.isNull(rd.<Integer>get("rskCoverLimt")),0)
+						.otherwise(rd.<Integer>get("rskCoverLimt"));
+
+				query.multiselect(exp.as(String.class).alias("RSK_COVERLIMIT_OC"));
+				
+				//end
+				Subquery<Long> end = query.subquery(Long.class); 
+				Root<TtrnRskClassLimits> rds = end.from(TtrnRskClassLimits.class);
+				end.select(cb.max(rds.get("rskEndorsementNo")));
+				Predicate a1 = cb.equal( rds.get("rskProposalNumber"), rd.get("rskProposalNumber"));
+				Predicate a2 = cb.equal( rds.get("rskLayerNo"), rd.get("rskLayerNo"));
+				Predicate a3 = cb.equal( rds.get("rskCoverClass"), rd.get("rskCoverClass"));
+				end.where(a1,a2,a3);
+
+				Predicate n1 = cb.equal(rd.get("rskProposalNumber"), proposalNo);
+				Predicate n2 = cb.equal(rd.get("rskEndorsementNo"), end);
+				Predicate n3 = cb.equal(rd.get("rskCoverClass"), departmentId);
+				query.where(n1,n2,n3);
+
+				TypedQuery<String> res = em.createQuery(query);
+				list = res.getResultList();
+			}
+			if (!CollectionUtils.isEmpty(list)) {
+				coverLimitAmount = list.get(0);
+			}
+			response.setCommonResponse(coverLimitAmount);
+			response.setMessage("Success");
+			response.setIsError(false);
+			}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	}
+
+	@Override
+	public GetOpenPeriodRes getOpenPeriod(String branchCode) {
+		GetOpenPeriodRes response = new GetOpenPeriodRes();
+		List<GetOpenPeriodRes1> finalList = new ArrayList<GetOpenPeriodRes1>();
+		GetOpenPeriodRes1 res = new GetOpenPeriodRes1();
+		String openPeriodDate="";
+		try {
+		//GET_OPEN_PERIOD_DATE
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Tuple> cq = cb.createQuery(Tuple.class);
+		Root<TmasOpenPeriod> root = cq.from(TmasOpenPeriod.class);
+
+		cq.multiselect(root.get("startDate").alias("START_DATE"), root.get("endDate").alias("END_DATE")).where(cb.equal(root.get("status"), "Y"),
+				cb.equal(root.get("branchCode"), branchCode));
+
+		TypedQuery<Tuple> q = em.createQuery(cq);
+		List<Tuple> list = q.getResultList();
+		
+		for(int i=0 ; i<list.size() ; i++) {
+			Tuple tempMap =  list.get(i);
+			res.setOpstartDate(tempMap.get("START_DATE")==null?"":tempMap.get("START_DATE").toString());
+			res.setOpendDate(tempMap.get("END_DATE")==null?"":tempMap.get("END_DATE").toString());
+			openPeriodDate=openPeriodDate+res.getOpstartDate()+" to "+res.getOpendDate()+" ,";
+			finalList.add(res);
+		}
+		if(StringUtils.isNotBlank(openPeriodDate))
+		openPeriodDate = openPeriodDate.substring(0, openPeriodDate.length() - 1);
+		response.setOpenPeriodDate(openPeriodDate);
+		response.setCommonResponse(finalList);
+		response.setMessage("Success");
+		response.setIsError(false);
+		}catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+			response.setMessage("Failed");
+			response.setIsError(true);
+		}
+		return response;
+	}
+
+	@Override
+	public GetCommonDropDownRes getCurrencyMasterDropDown(String branchCode, String countryId) {
+		List<CommonResDropDown> personalInfo = new ArrayList<CommonResDropDown>();
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		try{
+			//common.select.getCurrencyList
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			Root<CurrencyMaster> rd = query.from(CurrencyMaster.class);
+
+			query.multiselect(rd.get("currencyId").alias("CURRENCY_ID"),rd.get("shortName").alias("CURRENCY_NAME")).distinct(true); 
+
+			Subquery<Long> amend = query.subquery(Long.class); 
+			Root<CurrencyMaster> rds = amend.from(CurrencyMaster.class);
+			amend.select(cb.max(rds.get("amendId")));
+			Predicate a1 = cb.equal( rds.get("branchCode"), rd.get("branchCode"));
+			Predicate a2 = cb.equal( rds.get("countryId"), rd.get("countryId"));
+			Predicate a3 = cb.equal( rds.get("status"), rd.get("status"));
+			Predicate a4 = cb.equal( rds.get("currencyId"), rd.get("currencyId"));
+			amend.where(a1,a2,a3,a4);
+
+			List<Order> orderList = new ArrayList<Order>();
+			orderList.add(cb.asc(rd.get("currencyId")));
+			
+			Predicate n1 = cb.equal(rd.get("branchCode"), branchCode);
+			Predicate n2 = cb.equal(rd.get("countryId"), countryId);
+			Predicate n3 = cb.equal(rd.get("status"), "Y");
+			Predicate n4 = cb.equal(rd.get("amendId"), amend);
+			query.where(n1,n2,n3,n4).orderBy(orderList);
+
+			TypedQuery<Tuple> result = em.createQuery(query);
+			List<Tuple> list = result.getResultList();
+			for(int i=0 ; i<list.size() ; i++) {
+				CommonResDropDown res = new CommonResDropDown();
+				Tuple tempMap =  list.get(i);
+				res.setCode(tempMap.get("CURRENCY_ID")==null?"":tempMap.get("CURRENCY_ID").toString());
+				res.setCodeDescription(tempMap.get("CURRENCY_NAME")==null?"":tempMap.get("CURRENCY_NAME").toString());
+				personalInfo.add(res);
+			}
+			response.setCommonResponse(personalInfo);
+			response.setMessage("Success");
+			response.setIsError(false);
+		}catch(Exception e){
+			log.error(e);
+			e.printStackTrace();
+			response.setMessage("Failed");
+			response.setIsError(true);
+		}
+		return response;
+	}
+
+	@Override
+	public GetCommonValueRes getDepartmentName(String branchCode, String productCode, String deptCode) {
+		GetCommonValueRes response = new GetCommonValueRes();
+		String deptName="";
+		try{
+			//common.select.getDeptName
+			TmasDepartmentMaster list = deptRepo.findByBranchCodeAndTmasProductIdAndTmasDepartmentIdAndTmasStatus(branchCode,
+					new BigDecimal(productCode),new BigDecimal(deptCode),"Y");
+			if (list!= null) {
+				deptName = list.getTmasDepartmentName() == null ? ""	
+						: list.getTmasDepartmentName().toString();
+			}
+			response.setCommonResponse(deptName);
+			response.setMessage("Success");
+			response.setIsError(false);
+		}catch(Exception e){
+			log.error(e);
+			e.printStackTrace();
+			response.setMessage("Failed");
+			response.setIsError(true);
+		}
+
+		return response;
+	}
+
+	@Override
+	public GetCommonDropDownRes getClaimDepartmentDropDown(GetClaimDepartmentDropDownReq req) {
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		List<CommonResDropDown> department = new ArrayList<CommonResDropDown>();
+		List<Tuple> list= null;
+		try{
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			String count="";
+			if("2".equals(req.getProductId())){
+				count=getCombinedClass(req.getBranchCode(),req.getProductId(),req.getDepartmentId());
+			}
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			Root<TmasDepartmentMaster> rd = query.from(TmasDepartmentMaster.class);
+
+			query.multiselect(rd.get("tmasDepartmentId").alias("TMAS_DEPARTMENT_ID"),rd.get("tmasDepartmentName").alias("TMAS_DEPARTMENT_NAME")).distinct(true); 
+
+			List<Order> orderList = new ArrayList<Order>();
+			orderList.add(cb.asc(rd.get("tmasDepartmentName")));
+			
+			Predicate n1 = cb.equal(rd.get("branchCode"), req.getBranchCode());
+			Predicate n2 = cb.equal(rd.get("tmasProductId"), req.getProductId());
+			
+			if(StringUtils.isNotBlank(count) && "2".equals(req.getProductId())){
+				//common.department.combined.premiumclaim
+				
+				
+				Predicate n3 = cb.equal(rd.get("tmasStatus"), "Y");
+				List<String> dept =new ArrayList<String>(Arrays.asList(count.split(","))) ;
+				Expression<String> e0=rd.get("tmasDepartmentId");
+				Predicate n4 = e0.in(dept);
+				query.where(n1,n2,n3,n4).orderBy(orderList);
+
+				TypedQuery<Tuple> result = em.createQuery(query);
+				list = result.getResultList();
+				
+			}else{
+				  //common.select.getDepartmentList.preClaim
+				//dept
+				Subquery<String> dept = query.subquery(String.class); 
+				Root<TtrnRskClassLimits> pi = dept.from(TtrnRskClassLimits.class);
+				dept.select(pi.get("rskCoverClass"));
+				//maxAmend
+				Subquery<Long> end = query.subquery(Long.class); 
+				Root<TtrnRskClassLimits> pis = end.from(TtrnRskClassLimits.class);
+				end.select(cb.max(pis.get("rskEndorsementNo")));
+				Predicate c1 = cb.equal( pis.get("rskProposalNumber"), pi.get("rskProposalNumber"));
+				end.where(c1);
+				Predicate d1 = cb.equal( pi.get("rskContractNo"), req.getContractNo());
+				Predicate d2 = cb.equal( pi.get("rskLayerNo"), req.getLayerNo());
+				Predicate d3 = cb.equal( pi.get("rskEndorsementNo"), end);
+				dept.where(d1,d2,d3);
+				
+				Predicate n3 = cb.equal(rd.get("tmasStatus"), req.getStatus());
+				Expression<String> e0=rd.get("tmasDepartmentId");
+				Predicate n4 = e0.in(dept==null?null:dept);
+				query.where(n1,n2,n3,n4).orderBy(orderList);
+
+				TypedQuery<Tuple> result = em.createQuery(query);
+				list = result.getResultList();
+			
+			if(list.size()==0){
+				//DEPARTMENT_VALUE
+				//dept
+				Subquery<String> dept1 = query.subquery(String.class); 
+				Root<PositionMaster> pi1 = dept1.from(PositionMaster.class);
+				dept1.select(pi1.get("deptId"));
+				//maxAmend
+				Subquery<Long> amendId = query.subquery(Long.class); 
+				Root<PositionMaster> pis1 = amendId.from(PositionMaster.class);
+				amendId.select(cb.max(pis1.get("amendId")));
+				Predicate q1 = cb.equal( pis1.get("proposalNo"), pi1.get("proposalNo"));
+				amendId.where(q1);
+				Predicate p1 = cb.equal( pi1.get("contractNo"), req.getContractNo());
+				Predicate p2 = cb.equal( pi1.get("layerNo"), req.getLayerNo());
+				Predicate p3 = cb.equal( pi1.get("amendId"), amendId);
+				dept1.where(p1,p2,p3);
+				
+				Predicate m3 = cb.equal(rd.get("tmasStatus"), req.getStatus());
+				Expression<String> e1=rd.get("tmasDepartmentId");
+				Predicate m4 = e1.in(dept1==null?null:dept1);
+				query.where(n1,n2,m3,m4).orderBy(orderList);
+
+				TypedQuery<Tuple> result1 = em.createQuery(query);
+				list = result1.getResultList();
+			}
+			}
+			if(list!=null && list.size()>0) {
+			 for(int i=0 ; i<list.size() ; i++) {
+				 CommonResDropDown res = new CommonResDropDown();
+				 Tuple tempMap = list.get(i);
+					res.setCode(tempMap.get("TMAS_DEPARTMENT_ID")==null?"":tempMap.get("TMAS_DEPARTMENT_ID").toString());
+					res.setCodeDescription(tempMap.get("TMAS_DEPARTMENT_NAME")==null?"":tempMap.get("TMAS_DEPARTMENT_NAME").toString());
+					department.add(res);
+				}
+			}
+			response.setCommonResponse(department);
+			response.setMessage("Success");
+			response.setIsError(false);
+			}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+		}
+
+		return response;
+	}
+	public String getCombinedClass(String branchCode,String productId,String departId){
+		String count="";
+		try {
+			//common.select.getCoreCompanyName
+			//in
+			List<String> dept =new ArrayList<String>(Arrays.asList(departId.split(","))) ;
+			List<BigDecimal> dept1 = dept.stream().map(BigDecimal::new).collect(Collectors.toList());
+		
+			TmasDepartmentMaster list = deptRepo.findByBranchCodeAndTmasProductIdAndTmasStatusAndCoreCompanyCodeNotNullAndTmasDepartmentIdIn(
+					branchCode,new BigDecimal(productId),"Y",dept1);
+			if(list!=null){
+				count=list.getCoreCompanyCode()==null?"":list.getCoreCompanyCode().toString();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return count;
+	}
+
+
+	@Override
+	public GetCommonDropDownRes getSubProfitCentreMulti(GetSubProfitCentreMultiReq req) {
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		List<CommonResDropDown> subProfitCenterList=new ArrayList<CommonResDropDown>();
+		List<TmasSpfcMaster> list = null; 
+		try{
+			if(req.getSubProfitId()!=null && !req.getSubProfitId().equalsIgnoreCase("ALL")){
+				//common.select.getspfcName1
+				//in
+				List<String> spfcId =new ArrayList<String>(Arrays.asList(req.getSubProfitId().split(","))) ;
+				list = spfcRepo.findDistinctByBranchCodeAndTmasProductIdAndTmasStatusAndTmasDepartmentIdAndTmasSpfcIdInOrderByTmasSpfcNameAsc(
+						req.getBranchCode(),new BigDecimal(req.getProductCode()),"Y",new BigDecimal(req.getDepartmentId()),spfcId);
+			}else{
+				  //common.select.getspfcName
+				list = spfcRepo.findDistinctByBranchCodeAndTmasProductIdAndTmasStatusAndTmasDepartmentIdOrderByTmasSpfcNameAsc(
+						req.getBranchCode(),new BigDecimal(req.getProductCode()),"Y",new BigDecimal(req.getDepartmentId()));
+			}
+			if(list.size()>0) {
+			for(int i=0 ; i<list.size() ; i++) {
+				 CommonResDropDown res = new CommonResDropDown();
+				 TmasSpfcMaster tempMap =  list.get(i);
+					res.setCode(tempMap.getTmasSpfcId()==null?"":tempMap.getTmasSpfcId().toString());
+					res.setCodeDescription(tempMap.getTmasSpfcName()==null?"":tempMap.getTmasSpfcName().toString());
+					subProfitCenterList.add(res);
+				}
+			}
+			response.setCommonResponse(subProfitCenterList);
+			response.setMessage("Success");
+			response.setIsError(false);
+			}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	}
+	
+	public String getpreReopendDate(String contractNo, String claimNo, String type) {
+		String result="";
+		try{
+			if("Reopen".equalsIgnoreCase(type)){
+				//GET_PRE_REOPEN_DATE
+				TtrnClaimDetails list = claimRepo.findByContractNoAndClaimNo(contractNo, new BigDecimal(claimNo));
+				if (list != null) {
+					result = list.getReopenedDate() == null ? ""
+							: list.getReopenedDate().toString();
+				}
+			}else if("RetroReopen".equalsIgnoreCase(type)){
+				//GET_PRE_REOPEN_DATE_RETRO
+				TtrnRetroClaimDetails list = retroClaimRepo.findByContractNoAndClaimNo(contractNo, new BigDecimal(claimNo));
+				if (list != null) {
+					result = list.getReopenedDate() == null ? ""
+							: list.getReopenedDate().toString();
+				}
+			}else if("RetroReputed".equalsIgnoreCase(type)){
+				//GET_PRE_REPUTED_DATE_RETRO
+				TtrnRetroClaimDetails list = retroClaimRepo.findByContractNoAndClaimNo(contractNo, new BigDecimal(claimNo));
+				if (list != null) {
+					result = list.getRepudateDate() == null ? ""
+							: list.getRepudateDate().toString();
+				}
+			}
+			else {
+				//GET_PRE_REPUTED_DATE
+				TtrnClaimDetails list = claimRepo.findByContractNoAndClaimNo(contractNo, new BigDecimal(claimNo));
+				if (list != null) {
+					result = list.getRepudateDate() == null ? ""
+							: list.getRepudateDate().toString();
+				}
+			}
+			System.out.println(result);
+		}catch(Exception e){
+			e.printStackTrace();
+			log.debug("Exception @ {" + e + "}");	
+		}
+		return result;
+	}
+
+	@Override
+	public GetCommonValueRes getCurrencyId(GetCurrencyIdReq req) {
+		GetCommonValueRes response = new GetCommonValueRes();
+		String currency="";
+		try{
+			if("4".equalsIgnoreCase(req.getProductId())||"5".equalsIgnoreCase(req.getProductId())){
+				//GET_CLAIM_CURRENCY_RETRO
+				TtrnRetroClaimDetails list = retroClaimRepo.findByContractNoAndClaimNoAndLayerNo(
+						req.getContractNo(), new BigDecimal(req.getClaimNo()),new BigDecimal(req.getLayerNo()));
+				if (list != null) {
+					currency = list.getCurrency() == null ? ""
+							: list.getCurrency().toString();
+				}
+			}else{
+				//GET_CLAIM_CURRENCY
+				TtrnClaimDetails list = claimRepo.findByContractNoAndClaimNoAndLayerNo(
+						req.getContractNo(), new BigDecimal(req.getClaimNo()),new BigDecimal(req.getLayerNo()));
+				if (list != null) {
+					currency = list.getCurrency() == null ? ""
+							: list.getCurrency().toString();
+				}
+			}
+		
+			response.setCommonResponse(currency);
+			response.setMessage("Success");
+			response.setIsError(false);
+			}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	}
+
+	@Override
+	public GetCommonValueRes getProposalNo(GetProposalNoReq req) {
+		GetCommonValueRes response = new GetCommonValueRes();
+		String proposalNo="";
+		try {
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			Root<PositionMaster> pm = query.from(PositionMaster.class);
+			query.multiselect(pm.get("proposalNo").alias("PROPOSAL_NO"),pm.get("deptId").alias("DEPT_ID")); 
+			
+		if(StringUtils.isNotBlank(req.getProductId()) &&("1".equals(req.getProductId()) || "4".equals(req.getProductId())) ){
+			//GET_FAC_PROPOSAL_NO
+			
+			// MAXAmend ID
+			Subquery<Long> amend = query.subquery(Long.class); 
+			Root<PositionMaster> pms = amend.from(PositionMaster.class);
+			amend.select(cb.max(pms.get("amendId")));
+			Predicate a1 = cb.equal( pm.get("contractNo"), pms.get("contractNo"));
+			amend.where(a1);
+
+			Predicate n1 = cb.equal(pm.get("contractNo"),req.getContractNo());
+			Predicate n3 = cb.equal(pm.get("amendId"), amend);
+			query.where(n1,n3);
+			
+		
+		}else if("2".equals(req.getProductId())){
+			//GET_PRO_PROPOSAL_NO
+			
+			// MAXAmend ID
+			Subquery<Long> amend = query.subquery(Long.class); 
+			Root<PositionMaster> pms = amend.from(PositionMaster.class);
+			amend.select(cb.max(pms.get("amendId")));
+			Predicate a1 = cb.equal( pm.get("contractNo"), pms.get("contractNo"));
+			Predicate a2 = cb.equal( pm.get("deptId"), pms.get("deptId"));
+			amend.where(a1,a2);
+
+			Predicate n1 = cb.equal(pm.get("contractNo"),req.getContractNo());
+			Predicate n2 = cb.equal(pm.get("deptId"),req.getDepartId());
+			Predicate n3 = cb.equal(pm.get("amendId"), amend);
+			query.where(n1,n2,n3);
+			
+		}
+		else if("3".equals(req.getProductId()) || "5".equalsIgnoreCase(req.getProductId())){
+			//GET_XOL_PROPOSAL_NO
+			
+			Subquery<Long> amend = query.subquery(Long.class); 
+			Root<PositionMaster> pms = amend.from(PositionMaster.class);
+			amend.select(cb.max(pms.get("amendId")));
+			Predicate a1 = cb.equal( pm.get("contractNo"), pms.get("contractNo"));
+			Predicate a2 = cb.equal( pm.get("getLayerNo"), pms.get("getLayerNo"));
+			amend.where(a1,a2);
+
+			Predicate n1 = cb.equal(pm.get("contractNo"),req.getContractNo());
+			Predicate n2 = cb.equal(pm.get("getLayerNo"),req.getLayerNo()==null?0:req.getLayerNo());
+			Predicate n3 = cb.equal(pm.get("amendId"), amend);
+			query.where(n1,n2,n3);
+			
+		}
+		TypedQuery<Tuple> res = em.createQuery(query);
+		List<Tuple> list = res.getResultList();
+		
+		if(list!=null &&list.size()>0){
+			Tuple map=list.get(0);
+			proposalNo=map.get("PROPOSAL_NO")==null?"":map.get("PROPOSAL_NO").toString();
+		}
+
+		response.setCommonResponse(proposalNo);
+		response.setMessage("Success");
+		response.setIsError(false);
+		}catch(Exception e){
+			log.error(e);
+			e.printStackTrace();
+			response.setMessage("Failed");
+			response.setIsError(true);
+		}
+	return response;
+	
+	}
+	public int Validatethree(String branchCode, String accountDate) {
+		int result = 0;
+		String[] args = null;
+		try {
+			String OpstartDate = "";
+			String OpendDate = "";
+			args = new String[1];
+			args[0] = branchCode;
+			List<TmasOpenPeriod> list = tmasOpenRepo.findByBranchCodeOrderBySnoDesc(branchCode);
+
+			if (!CollectionUtils.isEmpty(list)) {
+				for (TmasOpenPeriod tmasOpenPeriod : list) {
+					OpstartDate = tmasOpenPeriod.getStartDate() == null ? ""
+							: sdf.format(tmasOpenPeriod.getStartDate());
+					OpendDate = tmasOpenPeriod.getEndDate() == null ? ""
+							:sdf.format(tmasOpenPeriod.getEndDate());
+
+					boolean status = ttrnPaymentReceiptDetailsMapper.parseDateLocal(accountDate)
+							.after(ttrnPaymentReceiptDetailsMapper.parseDateLocal(OpstartDate))
+							&& ttrnPaymentReceiptDetailsMapper.parseDateLocal(accountDate)
+									.before(ttrnPaymentReceiptDetailsMapper.parseDateLocal(OpendDate));
+					result = status ? 1 : 0;
+					if (result > 0)
+						break;
+				}
+			}
+
+		} catch (Exception e) {
+			log.debug("Exception @ {" + e + "}");
+		}
+		return 1;
+	}
+	@Override
+	public GetCommonDropDownRes getSectionList(GetSectionListReq req) {
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		List<CommonResDropDown> resList=new ArrayList<CommonResDropDown>();
+		try{
+			//GET_SECTION_LIST
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			
+			Root<TtrnPttySection> pm = query.from(TtrnPttySection.class);
+
+			query.multiselect(pm.get("sectionNo").alias("SECTION_NO"),pm.get("sectionName").alias("SECTION_NAME")); 
+
+			Subquery<Long> amend = query.subquery(Long.class); 
+			Root<TtrnPttySection> pms = amend.from(TtrnPttySection.class);
+			amend.select(cb.max(pms.get("amendId")));
+			Predicate a1 = cb.equal( pm.get("contractNo"), pms.get("contractNo"));
+			Predicate a2 = cb.equal( pm.get("branchCode"), pms.get("branchCode"));
+			Predicate a3 = cb.equal( pm.get("deptId"), pms.get("deptId"));
+			amend.where(a1,a2,a3);
+
+			Predicate n1 = cb.equal(pm.get("contractNo"), req.getContractNo());
+			Predicate n2 = cb.equal(pm.get("deptId"), req.getDepartId());
+			Predicate n3 = cb.equal(pm.get("branchCode"), req.getBranchCode());
+			Predicate n4 = cb.equal(pm.get("amendId"), amend);
+			query.where(n1,n2,n3,n4);
+			
+			TypedQuery<Tuple> reslt = em.createQuery(query);
+			List<Tuple> list = reslt.getResultList();
+
+			if(list!=null) {
+			for(int i=0 ; i<list.size() ; i++) {
+				CommonResDropDown res = new CommonResDropDown();
+				Tuple tempMap = list.get(i);
+				res.setCode(tempMap.get("SECTION_NO")==null?"":tempMap.get("SECTION_NO").toString());
+				res.setCodeDescription(tempMap.get("SECTION_NAME")==null?"":tempMap.get("SECTION_NAME").toString());
+				resList.add(res);
+			}
+			}
+			response.setCommonResponse(resList);
+			response.setMessage("Success");
+			response.setIsError(false);
+			}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	}
+
+	@Override
+	public GetCommonValueRes getContractLayerNo(GetContractLayerNoReq req) {
+		GetCommonValueRes response = new GetCommonValueRes();
+		String result =" ";
+		
+		try{
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			Root<PositionMaster> pm = query.from(PositionMaster.class);
+			if("3".equalsIgnoreCase(req.getProductId()) || "5".equalsIgnoreCase(req.getProductId())){
+			//GET_CON_DEPT_ID_LAYER
+			
+			query.multiselect(cb.selectCase().when(cb.isNull(pm.get("layerNo")), 0)
+					.otherwise(pm.get("layerNo"))); 
+
+			Subquery<Long> amend = query.subquery(Long.class); 
+			Root<PositionMaster> pms = amend.from(PositionMaster.class);
+			amend.select(cb.max(pms.get("amendId")));
+			Predicate a1 = cb.equal( pm.get("contractNo"), pms.get("contractNo"));
+			Predicate a2 = cb.equal( pm.get("branchCode"), pms.get("branchCode"));
+			Predicate a3 = cb.equal( pm.get("deptId"), pms.get("deptId"));
+			amend.where(a1,a2,a3);
+
+			Predicate n1 = cb.equal(pm.get("contractNo"), req.getContractNo());
+			Predicate n2 = cb.equal(pm.get("layerNo"), req.getLayerNo());
+			Predicate n3 = cb.equal(pm.get("branchCode"), req.getBranchCode());
+			Predicate n5 = cb.equal(pm.get("contractStatus"), "A");
+			Predicate n4 = cb.equal(pm.get("amendId"), amend);
+			query.where(n1,n2,n3,n4,n5);
+			
+			TypedQuery<Tuple> reslt = em.createQuery(query);
+			List<Tuple> list = reslt.getResultList();
+			
+			if (!CollectionUtils.isEmpty(list)) {
+				result =(list.get(0) == null ? ""
+						: list.get(0).toString());
+						}
+			}
+			else if("2".equalsIgnoreCase(req.getProductId())){
+				//GET_CON_DEPT_ID
+				query.multiselect(cb.selectCase().when(cb.isNull(pm.get("deptId")), "0")
+						.otherwise(pm.get("deptId"))); 
+
+				Subquery<Long> amend = query.subquery(Long.class); 
+				Root<PositionMaster> pms = amend.from(PositionMaster.class);
+				amend.select(cb.max(pms.get("amendId")));
+				Predicate a1 = cb.equal( pm.get("contractNo"), pms.get("contractNo"));
+				Predicate a2 = cb.equal( pm.get("branchCode"), pms.get("branchCode"));
+				Predicate a3 = cb.equal( pm.get("deptId"), pms.get("deptId"));
+				Predicate a4 = cb.equal( pm.get("contractStatus"), pms.get("contractStatus"));
+				amend.where(a1,a2,a3,a4);
+
+				Predicate n1 = cb.equal(pm.get("contractNo"), req.getContractNo());
+				Predicate n2 = cb.equal(pm.get("deptId"), req.getLayerNo());
+				Predicate n3 = cb.equal(pm.get("branchCode"), req.getBranchCode());
+				Predicate n5 = cb.equal(pm.get("contractStatus"), "A");
+				Predicate n4 = cb.equal(pm.get("amendId"), amend);
+				query.where(n1,n2,n3,n4,n5);
+				
+				TypedQuery<Tuple> reslt = em.createQuery(query);
+				List<Tuple> list = reslt.getResultList();
+				
+				if (!CollectionUtils.isEmpty(list)) {
+					result =(list.get(0) == null ? ""
+							: list.get(0).toString());
+							}
+			}
+			else if("1".equalsIgnoreCase(req.getProductId())){
+				//GET_CON_DETAILS
+				query.multiselect(cb.selectCase().when(cb.isNull(pm.get("contractNo")), 0)
+						.otherwise(pm.get("contractNo"))); 
+
+				Subquery<Long> amend = query.subquery(Long.class); 
+				Root<PositionMaster> pms = amend.from(PositionMaster.class);
+				amend.select(cb.max(pms.get("amendId")));
+				Predicate a1 = cb.equal( pm.get("contractNo"), pms.get("contractNo"));
+				Predicate a2 = cb.equal( pm.get("branchCode"), pms.get("branchCode"));
+				Predicate a4 = cb.equal( pm.get("contractStatus"), pms.get("contractStatus"));
+				amend.where(a1,a2,a4);
+
+				Predicate n1 = cb.equal(pm.get("contractNo"), req.getContractNo());
+				Predicate n3 = cb.equal(pm.get("branchCode"), req.getBranchCode());
+				Predicate n5 = cb.equal(pm.get("contractStatus"), "A");
+				Predicate n4 = cb.equal(pm.get("amendId"), amend);
+				query.where(n1,n3,n4,n5);
+				
+				TypedQuery<Tuple> reslt = em.createQuery(query);
+				List<Tuple> list = reslt.getResultList();
+				
+				if (!CollectionUtils.isEmpty(list)) {
+					result =(list.get(0) == null ? ""
+							: list.get(0).toString());
+							}
+				
+				if (!CollectionUtils.isEmpty(list)) {
+					result =(list.get(0) == null ? ""
+							: list.get(0).toString());
+				}
+			}
+			
+			response.setCommonResponse(result);
+			response.setMessage("Success");
+			response.setIsError(false);
+			}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	
+	}
+
+	@Override
+	public GetCommonDropDownRes getPreDepartmentDropDown(GetPreDepartmentDropDownReq req) {
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		List<CommonResDropDown> department = new ArrayList<CommonResDropDown>();
+		List<Tuple> list= null;
+		try{
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			String count="";
+			if("2".equals(req.getProductId())){
+				count=getCombinedClass(req.getBranchCode(),req.getProductId(),req.getDepartmentId());
+			}
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			Root<TmasDepartmentMaster> rd = query.from(TmasDepartmentMaster.class);
+
+			query.multiselect(rd.get("tmasDepartmentId").alias("TMAS_DEPARTMENT_ID"),rd.get("tmasDepartmentName").alias("TMAS_DEPARTMENT_NAME")).distinct(true); 
+
+			List<Order> orderList = new ArrayList<Order>();
+			orderList.add(cb.asc(rd.get("tmasDepartmentName")));
+			
+			Predicate n1 = cb.equal(rd.get("branchCode"), req.getBranchCode());
+			Predicate n2 = cb.equal(rd.get("tmasProductId"), req.getProductId());
+			
+			if(StringUtils.isNotBlank(count) && "2".equals(req.getProductId())){
+				//common.department.combined.premiumclaim
+				
+				
+				Predicate n3 = cb.equal(rd.get("tmasStatus"), "Y");
+				List<String> dept =new ArrayList<String>(Arrays.asList(count.split(","))) ;
+				Expression<String> e0=rd.get("tmasDepartmentId");
+				Predicate n4 = e0.in(dept);
+				query.where(n1,n2,n3,n4).orderBy(orderList);
+
+				TypedQuery<Tuple> result = em.createQuery(query);
+				list = result.getResultList();
+				
+			}else{
+				  //common.select.getDepartmentList.preClaim
+				//dept
+				Subquery<String> dept = query.subquery(String.class); 
+				Root<TtrnRskClassLimits> pi = dept.from(TtrnRskClassLimits.class);
+				dept.select(pi.get("rskCoverClass"));
+				//maxAmend
+				Subquery<Long> end = query.subquery(Long.class); 
+				Root<TtrnRskClassLimits> pis = end.from(TtrnRskClassLimits.class);
+				end.select(cb.max(pis.get("rskEndorsementNo")));
+				Predicate c1 = cb.equal( pis.get("rskProposalNumber"), pi.get("rskProposalNumber"));
+				end.where(c1);
+				Predicate d1 = cb.equal( pi.get("rskContractNo"), req.getContractNo());
+				Predicate d2 = cb.equal( pi.get("rskLayerNo"), req.getLayerNo());
+				Predicate d3 = cb.equal( pi.get("rskEndorsementNo"), end);
+				dept.where(d1,d2,d3);
+				
+				Predicate n3 = cb.equal(rd.get("tmasStatus"), req.getStatus());
+				Expression<String> e0=rd.get("tmasDepartmentId");
+				Predicate n4 = e0.in(dept==null?null:dept);
+				query.where(n1,n2,n3,n4).orderBy(orderList);
+
+				TypedQuery<Tuple> result = em.createQuery(query);
+				list = result.getResultList();
+			
+			if(list.size()==0){
+				//DEPARTMENT_VALUE
+				//dept
+				Subquery<String> dept1 = query.subquery(String.class); 
+				Root<PositionMaster> pi1 = dept1.from(PositionMaster.class);
+				dept1.select(pi1.get("deptId"));
+				//maxAmend
+				Subquery<Long> amendId = query.subquery(Long.class); 
+				Root<PositionMaster> pis1 = amendId.from(PositionMaster.class);
+				amendId.select(cb.max(pis1.get("amendId")));
+				Predicate q1 = cb.equal( pis1.get("proposalNo"), pi1.get("proposalNo"));
+				amendId.where(q1);
+				Predicate p1 = cb.equal( pi1.get("contractNo"), req.getContractNo());
+				Predicate p2 = cb.equal( pi1.get("layerNo"), req.getLayerNo());
+				Predicate p3 = cb.equal( pi1.get("amendId"), amendId);
+				dept1.where(p1,p2,p3);
+				
+				Predicate m3 = cb.equal(rd.get("tmasStatus"), req.getStatus());
+				Expression<String> e1=rd.get("tmasDepartmentId");
+				Predicate m4 = e1.in(dept1==null?null:dept1);
+				query.where(n1,n2,m3,m4).orderBy(orderList);
+
+				TypedQuery<Tuple> result1 = em.createQuery(query);
+				list = result1.getResultList();
+			}
+			}
+			if(list!=null && list.size()>0) {
+			 for(int i=0 ; i<list.size() ; i++) {
+				 CommonResDropDown res = new CommonResDropDown();
+				 Tuple tempMap = list.get(i);
+					res.setCode(tempMap.get("TMAS_DEPARTMENT_ID")==null?"":tempMap.get("TMAS_DEPARTMENT_ID").toString());
+					res.setCodeDescription(tempMap.get("TMAS_DEPARTMENT_NAME")==null?"":tempMap.get("TMAS_DEPARTMENT_NAME").toString());
+					department.add(res);
+				}
+			}
+			response.setCommonResponse(department);
+			response.setMessage("Success");
+			response.setIsError(false);
+			}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+		}
+
+		return response;
+	}
+
+	@Override
+	public GetCommonDropDownRes getSubProfitCentreMultiDropDown(GetSubProfitCentreMultiDropDownReq req) {
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		List<CommonResDropDown> subProfitCenterList=new ArrayList<CommonResDropDown>();
+		List<TmasSpfcMaster> list = null; 
+		try{
+			if(req.getSubProfitId()!=null && !req.getSubProfitId().equalsIgnoreCase("ALL")){
+				//common.select.getspfcName1
+				//in
+				List<String> spfcId =new ArrayList<String>(Arrays.asList(req.getSubProfitId().split(","))) ;
+				list = spfcRepo.findDistinctByBranchCodeAndTmasProductIdAndTmasStatusAndTmasDepartmentIdAndTmasSpfcIdInOrderByTmasSpfcNameAsc(
+						req.getBranchCode(),new BigDecimal(req.getProductCode()),"Y",new BigDecimal(req.getDepartmentId()),spfcId);
+			}else{
+				  //common.select.getspfcName
+				list = spfcRepo.findDistinctByBranchCodeAndTmasProductIdAndTmasStatusAndTmasDepartmentIdOrderByTmasSpfcNameAsc(
+						req.getBranchCode(),new BigDecimal(req.getProductCode()),"Y",new BigDecimal(req.getDepartmentId()));
+			}
+			if(list.size()>0) {
+			for(int i=0 ; i<list.size() ; i++) {
+				 CommonResDropDown res = new CommonResDropDown();
+				 TmasSpfcMaster tempMap =  list.get(i);
+					res.setCode(tempMap.getTmasSpfcId()==null?"":tempMap.getTmasSpfcId().toString());
+					res.setCodeDescription(tempMap.getTmasSpfcName()==null?"":tempMap.getTmasSpfcName().toString());
+					subProfitCenterList.add(res);
+				}
+			}
+			response.setCommonResponse(subProfitCenterList);
+			response.setMessage("Success");
+			response.setIsError(false);
+			}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	}
+
+	@Override
+	public GetCommonValueRes getCashLossCount(String contractNo, String departmentId) {
+		GetCommonValueRes response = new GetCommonValueRes();
+		try{
+			//GET_CASHLOSS_COUNT
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Long> query = cb.createQuery(Long.class); 
+			Root<TtrnClaimPayment> tcp = query.from(TtrnClaimPayment.class);
+			Root<TtrnClaimDetails> tcd = query.from(TtrnClaimDetails.class);
+			
+			query.multiselect(cb.count(tcd)); 
+			
+			Expression<Long> e = cb.diff(cb.<Long>selectCase().when(cb.isNull(tcp.<Long>get("paidAmountOc")),0l)
+					.otherwise(tcp.<Long>get("paidAmountOc")), cb.<Long>selectCase().when(cb.isNull(tcp.<Long>get("cashLossSettledTilldate")),0l)
+							.otherwise(tcp.<Long>get("cashLossSettledTilldate")));
+			
+			Predicate n1 = cb.equal(tcp.get("contractNo"), contractNo);
+			Predicate n2 = cb.equal(tcd.get("subClass"), departmentId);
+			Predicate n3 = cb.equal(tcp.get("contractNo"), tcd.get("contractNo"));
+			Predicate n5 = cb.equal(tcp.get("claimNo"), tcd.get("claimNo"));
+			Predicate n4 = cb.greaterThan(e, 0l);
+			query.where(n1,n2,n3,n4,n5);
+			
+			TypedQuery<Long> reslt = em.createQuery(query);
+			Long count = reslt.getResultList().get(0);
+			
+			response.setCommonResponse(String.valueOf(count==null?"":count));
+			response.setMessage("Success");
+			response.setIsError(false);
+			}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	
+	}
+//	public int validatethree(String branchCode, String accountDate) {
+//
+//		int count=0;
+//		
+//		List<Map<String, Object>> result=new ArrayList<Map<String, Object>>();
+//		
+//		try{
+//			String query="GET_OPEN_PERIOD_DATE";
+//			String OpstartDate="";
+//			String OpendDate="";
+//			String[] args = new String[1];
+//			args[0]=branchCode;
+//			
+//			log.info("Select Query ==> " + query);
+//			List<Map<String,Object>> list=queryImpl.selectList(query,args);
+//			for(int i=0 ; i<list.size() ; i++) {
+//				Map<String,Object> tempMap = (Map<String,Object>) list.get(i);
+//				OpstartDate=tempMap.get("START_DATE")==null?"":tempMap.get("START_DATE").toString();
+//				OpendDate=tempMap.get("END_DATE")==null?"":tempMap.get("END_DATE").toString();
+//				String query1="GET_OPEN_PERIOD_VALIDATE";
+//				args = new String[3];
+//				args[0]=accountDate;
+//				args[1]=OpstartDate;
+//				args[2]=OpendDate;
+//		
+//				result=queryImpl.selectList(query1,args);
+//				if (!CollectionUtils.isEmpty(result)) {
+//					count =Integer.valueOf((result.get(0).get("TOTAL") == null ? ""
+//							: result.get(0).get("TOTAL").toString()));
+//				
+//				}
+//				
+//				 if(count>0)
+//					 break;
+//			}
+//		}catch(Exception e){
+//			e.printStackTrace();
+//			log.debug("Exception @ {" + e + "}");	
+//		}
+//		return count;
+//	
+//	}
+	public  String GetDesginationCountry(final String limitOrigCur,final String ExchangeRate) {
+		String valu="0";
+		if (StringUtils.isNotBlank(limitOrigCur)&& Double.parseDouble(limitOrigCur) != 0) {
+			double originalCountry = Double.parseDouble(limitOrigCur)/ Double.parseDouble(ExchangeRate);
+			DecimalFormat myFormatter = new DecimalFormat("###0.00");
+			final double dround = Math.round(originalCountry * 100.0) / 100.0;
+			valu = myFormatter.format(dround);
+		}
+		return valu;
+	}
+	public static String formatter(final String value)
+	{
+		String output="0.00";
+		if(StringUtils.isNotBlank(value))
+		{
+			double doublevalue=Double.parseDouble(value);
+			DecimalFormat myFormatter = new DecimalFormat("###,###,###,###,##0.00");
+			output =myFormatter.format(doublevalue);
+		}
+		return output;
+	}
+	public static String formattereight(final String value)
+	{
+		String output="0.00";
+		if(StringUtils.isNotBlank(value))
+		{
+			double doublevalue=Double.parseDouble(value);
+			DecimalFormat myFormatter = new DecimalFormat("###,###,###,###,##0.00000000");
+			output =myFormatter.format(doublevalue);
+		}
+		return output;
+	}
+	public GetCommonValueRes GetExchangeRate(final String location,final String date,final String countryid,final String branchCode) {
+		GetCommonValueRes response=new GetCommonValueRes();
+		String exRate="";
+		String startDtOfMonth="";
+		try{
+			//common.select.getStartDTOfMonth
+			Date date1 = sdf.parse(date);
+			LocalDate localDate = date1.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+			String s = String.valueOf(localDate);
+			String regex = "-";
+			String[] r =s.split(regex);
+			String month =r[1];
+			Long year = (long) localDate.getYear();
+		//	int day = localDate.getDayOfMonth()	;
+			startDtOfMonth = "01/" + month +"/" + year ;
+			Date startDtOfMonth1 = sdf.parse(startDtOfMonth);
+			
+			if(!"01/".equalsIgnoreCase(startDtOfMonth))		{
+				//common.select.getExRate
+				CriteriaBuilder cb = em.getCriteriaBuilder(); 
+				CriteriaQuery<BigDecimal> query = cb.createQuery(BigDecimal.class); 
+				Root<ExchangeMaster> m = query.from(ExchangeMaster.class);
+				
+				query.select(m.get("exchangeRate")); 
+				
+				Subquery<Long> amend = query.subquery(Long.class); 
+				Root<ExchangeMaster> rds = amend.from(ExchangeMaster.class);
+				amend.select(cb.max(rds.get("amendId")));
+				Predicate a1 = cb.equal( rds.get("currencyId"), m.get("currencyId"));
+				Predicate a2 = cb.equal( rds.get("countryId"), m.get("countryId"));
+				Predicate a3 = cb.lessThanOrEqualTo(rds.get("inceptionDate"), startDtOfMonth1);
+				Predicate a4 = cb.equal( rds.get("branchCode"), m.get("branchCode"));
+				amend.where(a1,a2,a3,a4);
+				
+				List<Order> orderList = new ArrayList<Order>();
+				orderList.add(cb.asc(m.get("inceptionDate")));
+			
+				Predicate n1 = cb.equal(m.get("currencyId"), location);
+				Predicate n2 = cb.equal(m.get("countryId"), countryid);
+				Predicate n3 = cb.lessThanOrEqualTo(m.get("inceptionDate"), startDtOfMonth1);
+				Predicate n5 = cb.equal(m.get("branchCode"), branchCode);
+				Predicate n4 = cb.equal(m.get("amendId"), amend);
+				query.where(n1,n2,n3,n4,n5).orderBy(orderList);
+				
+				TypedQuery<BigDecimal> reslt = em.createQuery(query);
+				List<BigDecimal> val = reslt.getResultList();
+			  if(val!=null) {
+					exRate=val.get(0)==null?"":val.get(0).toString();
+						}
+			  }
+			response.setCommonResponse(exRate);
+			response.setMessage("Success");
+			response.setIsError(false);
+			}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	}
+	public static String exchRateFormat(final String value){
+		String output="0.00";
+		if(StringUtils.isNotBlank(value))
+		{
+			System.out.println(value);
+			double doublevalue=Double.parseDouble(value);
+			DecimalFormat myFormatter = new DecimalFormat("#####.##########");
+			output = myFormatter.format(doublevalue);
+		}
+		return output;
+	}
+
+	@Override
+	public GetCommonDropDownRes getPersonalInfoDropDown(String branchCode, String customerType, String pid) {
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		List<CommonResDropDown> resList = new ArrayList<CommonResDropDown>();
+		try{
+			//common.select.getPersonalInfoList
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			
+			Root<PersonalInfo> pm = query.from(PersonalInfo.class);
+
+			Expression<String> firstname = cb.concat(pm.get("firstName"), " ");
+			query.multiselect(pm.get("customerId").alias("CUSTOMER_ID"),
+					cb.selectCase().when(cb.equal(pm.get("customerType"),"C"), pm.get("companyName"))
+					.otherwise(cb.concat(firstname, pm.get("lastName")) ).alias("NAME")).distinct(true); 
+
+			Subquery<Long> amend = query.subquery(Long.class); 
+			Root<PersonalInfo> pms = amend.from(PersonalInfo.class);
+			amend.select(cb.max(pms.get("amendId")));
+			Predicate a1 = cb.equal( pm.get("branchCode"), pms.get("branchCode"));
+			Predicate a2 = cb.equal( pm.get("customerType"), pms.get("customerType"));
+			Predicate a3 = cb.equal( pm.get("status"), pms.get("status"));
+			Predicate a4 = cb.equal( pm.get("customerId"), pms.get("customerId"));
+			amend.where(a1,a2,a3,a4);
+
+			Predicate n1 = cb.equal(pm.get("branchCode"), branchCode);
+			Predicate n2 = cb.equal(pm.get("customerType"), customerType);
+			Predicate n3 = cb.equal(pm.get("status"), "Y");
+			//Not in
+			Expression<String> e0 = pm.get("customerId");
+      		Predicate n4 = e0.in("64").not();
+
+			Predicate n5 = cb.equal(pm.get("amendId"), amend);
+			query.where(n1,n2,n3,n4,n5);
+			
+			// Get Result
+			TypedQuery<Tuple> res = em.createQuery(query);
+			List<Tuple> list = res.getResultList();
+			if(list.size()>0) {
+				 for(int i=0 ; i<list.size() ; i++) {
+					 CommonResDropDown resp = new CommonResDropDown();
+					 Tuple tempMap = list.get(i);
+						resp.setCode(tempMap.get("CUSTOMER_ID")==null?"":tempMap.get("CUSTOMER_ID").toString());
+						resp.setCodeDescription(tempMap.get("NAME")==null?"":tempMap.get("NAME").toString());
+						resList.add(resp);
+					}	
+			}
+			
+			if((customerType.equals("L") && !pid.equalsIgnoreCase("4") &&  !pid.equalsIgnoreCase("5")) ||(customerType.equals("C") && pid.equalsIgnoreCase("4") )){
+				//common.select.getPersonalInfoList1
+				CriteriaQuery<Tuple> query1 = cb.createQuery(Tuple.class); 
+				
+				Root<PersonalInfo> pm1 = query1.from(PersonalInfo.class);
+
+				// Select
+				query1.multiselect(pm1.get("customerId").alias("CUSTOMER_ID"),
+						pm1.get("companyName").alias("NAME")).distinct(true).distinct(true); 
+
+				// MAXAmend ID
+				Subquery<Long> amendid = query1.subquery(Long.class); 
+				Root<PersonalInfo> pms1 = amendid.from(PersonalInfo.class);
+				amendid.select(cb.max(pms1.get("amendId")));
+				Predicate b1 = cb.equal( pm1.get("branchCode"), pms1.get("branchCode"));
+				Predicate b2 = cb.equal( pm1.get("customerType"), pms1.get("customerType"));
+				Predicate b3 = cb.equal( pm1.get("status"), pms1.get("status"));
+				Predicate b4 = cb.equal( pm1.get("customerId"), pms1.get("customerId"));
+				amendid.where(b1,b2,b3,b4);
+
+
+				// Where
+				Predicate m1 = cb.equal(pm1.get("branchCode"), branchCode);
+				Predicate m2 = cb.equal(pm1.get("customerType"), "C");
+				Predicate m3 = cb.equal(pm1.get("status"), "Y");
+	      		Predicate m4 = cb.equal(pm1.get("customerId"), "64");
+				Predicate m5 = cb.equal(pm1.get("amendId"), amendid);
+				query.where(m1,m2,m3,m4,m5);
+				
+				// Get Result
+				TypedQuery<Tuple> res1 = em.createQuery(query);
+				List<Tuple> list1 = res1.getResultList();
+				if(list1.size()>0) {
+					 for(int i=0 ; i<list1.size() ; i++) {
+						 CommonResDropDown resp = new CommonResDropDown();
+						 Tuple tempMap =  list1.get(i);
+							resp.setCode(tempMap.get("CUSTOMER_ID")==null?"":tempMap.get("CUSTOMER_ID").toString());
+							resp.setCodeDescription(tempMap.get("NAME")==null?"":tempMap.get("NAME").toString());
+							resList.add(resp);
+						}	
+				}
+				resList.sort(Comparator.comparing(CommonResDropDown :: getCodeDescription));
+			}
+			response.setCommonResponse(resList);
+			response.setMessage("Success");
+			response.setIsError(false);
+			}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	
+	}
+
+	@Override
+	public GetCommonDropDownRes getBankMasterDropDown(String branchCode) {
+		List<CommonResDropDown> resList = new ArrayList<CommonResDropDown>();
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		try{
+			//common.select.getBankMasterList
+			List<BankMaster> list = bankRepo.findByBranchCodeAndStatusOrderByBankName(branchCode,"Y");
+			 for(int i=0 ; i<list.size() ; i++) {
+				 CommonResDropDown res = new CommonResDropDown();
+				 BankMaster tempMap =  list.get(i);
+					res.setCode(tempMap.getBankId()==null?"":tempMap.getBankId().toString());
+					res.setCodeDescription(tempMap.getBankName()==null?"":tempMap.getBankName().toString());
+					resList.add(res);
+				}
+			response.setCommonResponse(resList);
+			response.setMessage("Success");
+			response.setIsError(false);
+			}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	
+	}
+
+	@Override
+	public GetCommonDropDownRes getConstantDropDown(String categoryId) {
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		List<CommonResDropDown> resList = new ArrayList<CommonResDropDown>();
+		List<ConstantDetail> list = null;
+		try{
+			if("30".equalsIgnoreCase(categoryId) || "48".equalsIgnoreCase(categoryId)){
+				//COM_SELECT_PERILS
+				list = constRepo.findDistinctByCategoryIdAndStatusOrderByType(new BigDecimal(categoryId),"Y");
+			}
+			else{
+			 //common.select.getConstDet
+				list = constRepo.findDistinctByCategoryIdAndStatus(new BigDecimal(categoryId),"Y");
+			 }
+			
+			 for(int i=0 ; i<list.size() ; i++) {
+				 CommonResDropDown res = new CommonResDropDown();
+				 ConstantDetail tempMap = list.get(i);
+					res.setCode(tempMap.getType()==null?"":tempMap.getType().toString());
+					res.setCodeDescription(tempMap.getDetailName()==null?"":tempMap.getDetailName().toString());
+					resList.add(res);
+				}
+			response.setCommonResponse(resList);
+			response.setMessage("Success");
+			response.setIsError(false);
+			}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	}
+
+
+
+	public GetCommonDropDownRes getCurrencyShortList(String branchCode, String countryId) {
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		List<CommonResDropDown> resList = new ArrayList<CommonResDropDown>();
+		try{
+			//GET_CURRENCY_SHORT_LIST
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			
+			Root<CurrencyMaster> pm = query.from(CurrencyMaster.class);
+
+			query.multiselect(pm.get("currencyId").alias("CURRENCY_ID"),pm.get("shortName").alias("SHORT_NAME")).distinct(true); 
+
+			// MAXAmend ID
+			Subquery<Long> amend = query.subquery(Long.class); 
+			Root<CurrencyMaster> pms = amend.from(CurrencyMaster.class);
+			amend.select(cb.max(pms.get("amendId")));
+			Predicate a1 = cb.equal( pm.get("branchCode"), pms.get("branchCode"));
+			Predicate a2 = cb.equal( pm.get("countryId"), pms.get("countryId"));
+			Predicate a3 = cb.equal( pm.get("status"), pms.get("status"));
+			Predicate a4 = cb.equal( pm.get("currencyId"), pms.get("currencyId"));
+			amend.where(a1,a2,a3,a4);
+
+			//Order By
+			List<Order> orderList = new ArrayList<Order>();
+			orderList.add(cb.asc(pm.get("currencyId")));
+
+			// Where
+			Predicate n1 = cb.equal(pm.get("branchCode"), branchCode);
+			Predicate n2 = cb.equal(pm.get("countryId"), countryId);
+			Predicate n3 = cb.equal(pm.get("status"), "Y");
+			Predicate n4 = cb.equal(pm.get("amendId"), amend);
+			query.where(n1,n2,n3,n4).orderBy(orderList);
+			
+			// Get Result
+			TypedQuery<Tuple> res1 = em.createQuery(query);
+			List<Tuple> list = res1.getResultList();
+			 for(int i=0 ; i<list.size() ; i++) {
+				 CommonResDropDown res = new CommonResDropDown();
+				 Tuple tempMap = list.get(i);
+					res.setCode(tempMap.get("CURRENCY_ID")==null?"":tempMap.get("CURRENCY_ID").toString());
+					res.setCodeDescription(tempMap.get("SHORT_NAME")==null?"":tempMap.get("SHORT_NAME").toString());
+					resList.add(res);
+				}
+			response.setCommonResponse(resList);
+
+			response.setMessage("Success");
+			response.setIsError(false);
+			}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+
+	}
+
+	@Override
+	public GetCommonValueRes getDisableStatus1(String contractNo, String layerNo) {
+		GetCommonValueRes response = new GetCommonValueRes();
+		String status="Y";
+		if(StringUtils.isBlank(contractNo)){
+			contractNo="";
+		}if(StringUtils.isBlank(layerNo)){
+			layerNo="";
+		}
+		int cnt = 0;
+		try {
+			//GET_DISABLE_STATUS1
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Long> query = cb.createQuery(Long.class); 
+			Root<TtrnClaimDetails> pm = query.from(TtrnClaimDetails.class);
+			query.multiselect(cb.count(pm)); 
+			
+			Predicate n1 = cb.equal(pm.get("contractNo"), contractNo);
+			Predicate n2 = cb.equal(cb.coalesce(pm.get("layerNo"), 0),StringUtils.isBlank(layerNo)?0:layerNo);
+			query.where(n1,n2);
+			TypedQuery<Long> res1 = em.createQuery(query);
+			List<Long> list = res1.getResultList();
+			if(list!=null) {
+				cnt = list.get(0).intValue();	
+				}
+			
+			if(cnt>0) {
+				status="Y";
+			}	else {
+			CriteriaQuery<Long> query1 = cb.createQuery(Long.class); 
+			Root<RskPremiumDetails> pd = query1.from(RskPremiumDetails.class);
+			query1.multiselect(cb.count(pd)); 
+			
+			Predicate m1 = cb.equal(pd.get("contractNo"), contractNo);
+			Predicate m2 = cb.equal(cb.coalesce(pd.get("layerNo"), 0),StringUtils.isBlank(layerNo)?0:layerNo);
+			query1.where(m1,m2);
+			TypedQuery<Long> res = em.createQuery(query1);
+			List<Long> list1 = res.getResultList();
+			if(list1!=null) {
+				cnt = list1.get(0).intValue();	
+				}
+			if(cnt>0) {
+				status="Y";
+			}else {
+				status="N";
+			}
+			}
+			
+			response.setCommonResponse(status);
+			response.setMessage("Success");
+			response.setIsError(false);
+			}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	}
+
+	@Override
+	public CommonResponse riskDetailsEndorsement(String proposalNo, String endtStatus) {
+		CommonResponse response = new CommonResponse();
+		try {
+			
+			String query = "call COPYQUOTE (?,?,?,?,?)";
+			
+			queryImpl.updateQuery(query, new String[]{"Endt",endtStatus==null?"":endtStatus,"","",proposalNo});
+			
+			response.setMessage("Success");
+			response.setIsError(false);
+	 }	catch(Exception e){
+				log.error(e);
+
+	}
+		return response;
+	}
+
+	@Override
+	public GetCommonDropDownRes getCountryDropDown(String branchCode) {
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		List<CommonResDropDown> resList = new ArrayList<CommonResDropDown>();
+		try{
+			//common.select.getCountryList
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			Root<CountryMaster> pm = query.from(CountryMaster.class);
+			query.multiselect(pm.get("countryId").alias("COUNTRY_ID"),pm.get("countryName").alias("COUNTRY_NAME")).distinct(true); 
+
+			Subquery<Long> amend = query.subquery(Long.class); 
+			Root<CountryMaster> pms = amend.from(CountryMaster.class);
+			amend.select(cb.max(pms.get("amendId")));
+			Predicate a1 = cb.equal( pm.get("branchCode"), pms.get("branchCode"));
+			Predicate a2 = cb.equal( pm.get("countryId"), pms.get("countryId"));
+			Predicate a3 = cb.equal( pm.get("status"), pms.get("status"));
+			amend.where(a1,a2,a3);
+
+			List<Order> orderList = new ArrayList<Order>();
+			orderList.add(cb.asc(pm.get("countryName")));
+
+			Predicate n1 = cb.equal(pm.get("branchCode"), branchCode);
+			Predicate n3 = cb.equal(pm.get("status"), "Y");
+			Predicate n4 = cb.equal(pm.get("amendId"), amend);
+			query.where(n1,n3,n4).orderBy(orderList);
+			
+			TypedQuery<Tuple> res1 = em.createQuery(query);
+			List<Tuple> list = res1.getResultList();
+			
+			for(int i=0 ; i<list.size() ; i++) {
+					CommonResDropDown res = new CommonResDropDown();
+					Tuple tempMap = list.get(i);
+					res.setCode(tempMap.get("COUNTRY_ID")==null?"":tempMap.get("COUNTRY_ID").toString());
+					res.setCodeDescription(tempMap.get("COUNTRY_NAME")==null?"":tempMap.get("COUNTRY_NAME").toString());
+					resList.add(res);
+			 	}
+			 	response.setCommonResponse(resList);
+				response.setMessage("Success");
+				response.setIsError(false);
+			}
+		     catch(Exception e){
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+		        }
+			return response;
+	}
+	
+	@Override
+	public GetCommonDropDownRes getTypeList(String type) {
+	GetCommonDropDownRes response = new GetCommonDropDownRes();
+	List<CommonResDropDown> resList = new ArrayList<CommonResDropDown>();
+		try {
+			//GET_COMMISSION_LIST
+			List<ConstantDetail> list = constRepo.findByCategoryIdAndStatus(new BigDecimal(type),"Y");			
+			for(int i=0 ; i<list.size() ; i++){
+				CommonResDropDown res = new CommonResDropDown();
+				ConstantDetail tempMap =  list.get(i);
+				res.setCode(tempMap.getDetailName()==null?"":tempMap.getDetailName().toString());
+				res.setCodeDescription(tempMap.getRemarks()==null?"":tempMap.getRemarks().toString());
+				resList.add(res);
+				}
+			    response.setCommonResponse(resList);
+				response.setMessage("Success");
+				response.setIsError(false);
+			}
+		     catch(Exception e){
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+		       }
+			return response;	
+	}
+
+	@Override
+	public GetCommonDropDownRes getReinstatementOptionList() {
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		List<CommonResDropDown> resList = new ArrayList<CommonResDropDown>();
+		try {
+			//GET_REINSTATEMENT_LIST
+			List<ConstantDetail> list = constRepo.findByCategoryIdAndStatus(new BigDecimal("33"),"Y");			
+			for(int i=0 ; i<list.size() ; i++){
+				CommonResDropDown res = new CommonResDropDown();
+				ConstantDetail tempMap =  list.get(i);
+				res.setCode(tempMap.getDetailName()==null?"":tempMap.getDetailName().toString());
+				res.setCodeDescription(tempMap.getRemarks()==null?"":tempMap.getRemarks().toString());
+				resList.add(res);
+				}
+			response.setCommonResponse(resList);
+			response.setMessage("Success");
+			response.setIsError(false);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			response.setMessage("Failed");
+			response.setIsError(true);
+		}
+		return response;
+	}
+	
+   @Override
+	public GetCommonDropDownRes getTerritoryRegionList(String branchCode) {
+		GetCommonDropDownRes red = new GetCommonDropDownRes();
+		List<CommonResDropDown> res = new ArrayList<CommonResDropDown>();
+		try{
+			//GET_Rate_FLOW
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			Root<TmasTerritory> pm = query.from(TmasTerritory.class);
+			query.multiselect(pm.get("territoryId").alias("TERRITORY_ID"),pm.get("territoryName").alias("TERRITORY_NAME")); 
+
+			Expression<Object> caseExpression = cb.selectCase()
+			            .when(cb.like(pm.get("territoryName"), "India%"), 1)
+			            .otherwise(2);
+			
+			List<Order> orderList = new ArrayList<Order>();
+			orderList.add(cb.asc(caseExpression));
+			orderList.add(cb.asc(pm.get("territoryName")));
+
+			Predicate n1 = cb.equal(pm.get("branchCode"), branchCode);
+			query.where(n1).orderBy(orderList);
+			
+			TypedQuery<Tuple> res1 = em.createQuery(query);
+			List<Tuple> list = res1.getResultList();
+			for(int i=0;i<list.size();i++){
+				CommonResDropDown range=new CommonResDropDown();
+				Tuple tempMap =  list.get(i);
+				range.setCode(tempMap.get("TERRITORY_ID")==null?"":tempMap.get("TERRITORY_ID").toString());
+				range.setCodeDescription(tempMap.get("TERRITORY_NAME")==null?"":tempMap.get("TERRITORY_NAME").toString());
+				res.add(range);				
+				}
+				red.setCommonResponse(res);
+				red.setMessage("Success");
+				red.setIsError(false);
+			}
+		     catch(Exception e){
+				e.printStackTrace();
+				red.setMessage("Failed");
+				red.setIsError(true);
+		     }
+		return red;	
+	}
+	
+	@Override
+	public GetCommonDropDownRes getDocType(String branchCode, String productId, String moduleType) {
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		List<CommonResDropDown> reslist = new ArrayList<CommonResDropDown>();
+        try{
+        	//upload.getDocTypeList
+        	CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			Root<TmasDocTypeMaster> pm = query.from(TmasDocTypeMaster.class);
+			query.multiselect(pm.get("docType").alias("DOC_TYPE"),pm.get("docName").alias("DOC_NAME")); 
+
+			Subquery<Long> amend = query.subquery(Long.class); 
+			Root<TmasDocTypeMaster> pms = amend.from(TmasDocTypeMaster.class);
+			amend.select(cb.max(pms.get("amendId")));
+			Predicate a1 = cb.equal( pm.get("branchCode"), pms.get("branchCode"));
+			Predicate a2 = cb.equal( pm.get("productId"), pms.get("productId"));
+			Predicate a3 = cb.equal( pm.get("docType"), pms.get("docType"));
+			Predicate a4 = cb.equal( pm.get("moduleType"), pms.get("moduleType"));
+			amend.where(a1,a2,a3,a4);
+
+			List<Order> orderList = new ArrayList<Order>();
+			orderList.add(cb.asc(pm.get("docName")));
+
+			Predicate n1 = cb.equal(pm.get("branchCode"), branchCode);
+			Predicate n2 = cb.equal(pm.get("productId"), productId);
+			Predicate n5 = cb.equal(pm.get("moduleType"), moduleType);
+			Predicate n3 = cb.equal(pm.get("status"), "Y");
+			Predicate n4 = cb.equal(pm.get("amendId"), amend);
+			query.where(n1,n3,n4,n2,n5).orderBy(orderList);
+			
+			TypedQuery<Tuple> res1 = em.createQuery(query);
+			List<Tuple> list = res1.getResultList();
+			
+			for(int i=0;i<list.size();i++){
+				CommonResDropDown range=new CommonResDropDown();
+				Tuple tempMap = list.get(i);
+				range.setCode(tempMap.get("DOC_TYPE")==null?"":tempMap.get("DOC_TYPE").toString());
+				range.setCodeDescription(tempMap.get("DOC_NAME")==null?"":tempMap.get("DOC_NAME").toString());
+				reslist.add(range);		
+			}
+				response.setCommonResponse(reslist);
+				response.setMessage("Success");
+				response.setIsError(false);
+		}
+			catch(Exception e) {
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+			return response;
+	}
+
+	@Override
+	public GetCommonDropDownRes getPolicyBranchDropDown(String branchCode) {
+	GetCommonDropDownRes response = new GetCommonDropDownRes();
+	List<CommonResDropDown> reslist = new ArrayList<CommonResDropDown>();
+		try{
+			//common.select.getPolicyBranchList
+			List<TmasPolicyBranch> list = polRepo.findDistinctByBranchCodeAndTmasStatusOrderByTmasPolBranchNameAsc(branchCode,"Y");
+			for(int i=0;i<list.size();i++){
+				CommonResDropDown range=new CommonResDropDown();
+				TmasPolicyBranch tempMap =  list.get(i);
+				range.setCode(tempMap.getTmasPolBranchId()==null?"":tempMap.getTmasPolBranchId().toString());
+				range.setCodeDescription(tempMap.getTmasPolBranchName()==null?"":tempMap.getTmasPolBranchName().toString());
+				reslist.add(range);		
+				}
+				response.setCommonResponse(reslist);
+				response.setMessage("Success");
+				response.setIsError(false);
+			}
+		catch(Exception e){
+			e.printStackTrace();
+			response.setMessage("Failed");
+			response.setIsError(true);
+		}
+		return response;
+	}
+
+	@Override
+	public GetCommonDropDownRes getDepartmentDropDown(GetDepartmentDropDownReq req) {
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		List<CommonResDropDown> reslist = new ArrayList<CommonResDropDown>();
+		try{
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			Root<TmasDepartmentMaster> pm = query.from(TmasDepartmentMaster.class);
+			query.multiselect(pm.get("tmasDepartmentId").alias("TMAS_DEPARTMENT_ID"),pm.get("tmasDepartmentName").alias("TMAS_DEPARTMENT_NAME")).distinct(true); 
+			
+			List<Order> orderList = new ArrayList<Order>();
+			orderList.add(cb.asc(pm.get("tmasDepartmentName")));
+
+			Predicate n1 = cb.equal(pm.get("branchCode"), req.getBranchCode());
+			Predicate n2 = cb.equal(pm.get("tmasStatus"), req.getStatus());
+		
+			if(StringUtils.isBlank(req.getProductCode())){
+				//common.select.departlist.premium
+				query.where(n1,n2).orderBy(orderList);
+				
+			}else if(!StringUtils.isBlank(req.getBaseLayer()) ) {
+				//common.select.getDepartmentList3
+				//deptId
+				Subquery<String> deptId = query.subquery(String.class); 
+				Root<PositionMaster> pms = deptId.from(PositionMaster.class);
+				deptId.select(pms.get("deptId"));
+				//propNo
+				Subquery<String> propNo = query.subquery(String.class); 
+				Root<PositionMaster> pms1 = propNo.from(PositionMaster.class);
+				propNo.select(pms1.get("proposalNo"));
+				Predicate b1 = cb.notEqual( pms1.get("contractStatus"),"C");
+				Predicate b2 = cb.equal( pms1.get("baseLayer"),req.getBaseLayer());
+				Predicate b3 = cb.notEqual( pms1.get("proposalNo"),req.getProposalNo());
+				propNo.where(b1,b2,b3);
+				
+				Predicate a1 = cb.equal( pms.get("proposalNo"),req.getBaseLayer());
+				Expression<String> e1 = pms.get("proposalNo");
+	      		Predicate a2 = e1.in(propNo);
+	      		Predicate a3 = cb.or(a1,a2);
+				deptId.where(a3);
+
+				Predicate n3 = cb.equal(pm.get("tmasProductId"), req.getProductCode());
+				Expression<String> e0 = pm.get("tmasDepartmentId");
+	      		Predicate n4 = e0.in(deptId).not();
+	      		query.where(n1,n2,n3,n4).orderBy(orderList);
+					
+			}else if(StringUtils.isBlank(req.getProposalNo()) && StringUtils.isBlank(req.getContractNo())){
+				//common.select.getDepartmentList
+				Predicate n3 = cb.equal(pm.get("tmasProductId"), req.getProductCode());
+				query.where(n1,n2,n3).orderBy(orderList);
+						
+			}else if(StringUtils.isBlank(req.getContractNo()) && !StringUtils.isBlank(req.getProposalNo())){
+				//common.select.getDepartmentList2
+				//deptId
+				Subquery<String> deptId = query.subquery(String.class); 
+				Root<PositionMaster> pms = deptId.from(PositionMaster.class);
+				deptId.select(pms.get("deptId"));
+				//propNo
+				Subquery<String> propNo = query.subquery(String.class); 
+				Root<PositionMaster> pms1 = propNo.from(PositionMaster.class);
+				propNo.select(pms1.get("proposalNo"));
+				Predicate b2 = cb.equal( pms1.get("baseLayer"),req.getBaseLayer());
+				propNo.where(b2);
+				
+				Predicate a1 = cb.equal( pms.get("proposalNo"),req.getProposalNo());
+				Predicate a2 = cb.equal( pms.get("proposalNo"),req.getBaseLayer()==""?null:req.getBaseLayer());
+				Expression<String> e1 = pms.get("proposalNo");
+	      		Predicate a3 = e1.in(propNo);
+	      		Predicate a4 = cb.or(a1,a2,a3);
+				deptId.where(a4);
+
+				Predicate n3 = cb.equal(pm.get("tmasProductId"), req.getProductCode());
+				Expression<String> e0 = pm.get("tmasDepartmentId");
+	      		Predicate n4 = e0.in(deptId).not();
+	      		query.where(n1,n2,n3,n4).orderBy(orderList);
+	      		
+					
+			}else if((!StringUtils.isBlank(req.getContractNo()) && StringUtils.isBlank(req.getProposalNo())) || (!StringUtils.isBlank(req.getContractNo()))){
+				//common.select.getDepartmentList1
+				//deptId
+				Subquery<String> deptId = query.subquery(String.class); 
+				Root<PositionMaster> pms = deptId.from(PositionMaster.class);
+				deptId.select(pms.get("deptId"));
+				Predicate a1 = cb.equal( pms.get("contractNo"),req.getContractNo());
+				Predicate a2 = cb.equal( pms.get("baseLayer"),req.getContractNo());
+				Predicate a3 = cb.or(a1,a2);
+				deptId.where(a3);
+				
+				Predicate n3 = cb.equal(pm.get("tmasProductId"), req.getProductCode());
+				Expression<String> e0 = pm.get("tmasDepartmentId");
+	      		Predicate n4 = e0.in(deptId).not();
+	      		query.where(n1,n2,n3,n4).orderBy(orderList);
+			}
+			
+			TypedQuery<Tuple> res1 = em.createQuery(query);
+			List<Tuple> list = res1.getResultList();
+				for(int m=0;m<list.size();m++){
+					CommonResDropDown range=new CommonResDropDown();
+					Tuple tempMap = list.get(m);
+					range.setCode(tempMap.get("TMAS_DEPARTMENT_ID")==null?"":tempMap.get("TMAS_DEPARTMENT_ID").toString());
+					range.setCodeDescription(tempMap.get("TMAS_DEPARTMENT_NAME")==null?"":tempMap.get("TMAS_DEPARTMENT_NAME").toString());
+					reslist.add(range);	
+				}
+				response.setCommonResponse(reslist);
+				response.setMessage("Success");
+				response.setIsError(false);
+			}
+			catch(Exception e){
+				e.printStackTrace();
+				response.setMessage("Success");
+				response.setIsError(false);
+		}
+		return response;
+	}
+
+	@Override
+	public GetCommonDropDownRes getUnderwriterCountryList(String leaderUnderriter, String branchCode) {
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		List<CommonResDropDown> reslist = new ArrayList<CommonResDropDown>();
+		try{
+			//GET_UNDERWRITER_COUNTRY_LIST
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			Root<CountryMaster> pm = query.from(CountryMaster.class);
+			query.multiselect(pm.get("countryId").alias("COUNTRY_ID"),pm.get("countryName").alias("COUNTRY_NAME")); 
+
+			//country
+			Subquery<String> country = query.subquery(String.class); 
+			Root<PersonalInfo> pms = country.from(PersonalInfo.class);
+			country.select(pms.get("country"));
+			//amend
+			Subquery<Long> amend = query.subquery(Long.class); 
+			Root<PersonalInfo> pi = amend.from(PersonalInfo.class);
+			amend.select(cb.max(pi.get("amendId")));
+			Predicate b3 = cb.equal( pi.get("customerId"), pms.get("customerId"));
+			Predicate b4 = cb.equal( pi.get("branchCode"), pms.get("branchCode"));
+			amend.where(b3,b4);
+			
+			Predicate a1 = cb.equal( pms.get("customerId"), leaderUnderriter);
+			Predicate a2 = cb.equal( pm.get("countryId"), pms.get("country"));
+			Predicate a3 = cb.equal( pm.get("branchCode"), pms.get("branchCode"));
+			Predicate a4 = cb.equal( pms.get("amendId"), amend);
+			country.where(a1,a2,a3,a4);
+			
+			Predicate n1 = cb.equal(pm.get("branchCode"), branchCode);
+			Predicate n3 = cb.equal(pm.get("status"), "Y");
+			Predicate n4 = cb.equal(pm.get("countryId"), country);
+			query.where(n1,n3,n4);
+			
+			TypedQuery<Tuple> res1 = em.createQuery(query);
+			List<Tuple> list = res1.getResultList();
+			for(int i=0;i<list.size();i++){
+				CommonResDropDown range=new CommonResDropDown();    
+				Tuple tempMap =  list.get(i);
+				range.setCode(tempMap.get("COUNTRY_ID")==null?"":tempMap.get("COUNTRY_ID").toString());
+				range.setCodeDescription(tempMap.get("COUNTRY_NAME")==null?"":tempMap.get("COUNTRY_NAME").toString());
+				reslist.add(range);		   
+			}
+				response.setCommonResponse(reslist);
+				response.setMessage("Success");
+				response.setIsError(false);
+		}
+		catch(Exception e){
+			e.printStackTrace();
+			response.setMessage("Failed");
+			response.setIsError(true);
+		}
+		return response;
+	}
+
+	@Override
+	public GetCommonDropDownRes getProfitCentreDropDown(String branchCode) {
+		List<CommonResDropDown> reslist = new ArrayList<CommonResDropDown>();
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		try{
+			//common.select.getProfitCenterList
+			List<TmasPfcMaster> list = pfcRepo.findDistinctByBranchCodeAndTmasStatusOrderByTmasPfcNameAsc(branchCode,"Y");
+			for(int i=0;i<list.size();i++){
+				CommonResDropDown range=new CommonResDropDown();  
+				TmasPfcMaster tempMap = list.get(i);
+				range.setCode(tempMap.getTmasPfcId()==null?"":tempMap.getTmasPfcId().toString());
+				range.setCodeDescription(tempMap.getTmasPfcName()==null?"":tempMap.getTmasPfcName().toString());
+				reslist.add(range);		
+        	}
+			response.setCommonResponse(reslist);
+			response.setMessage("Success");
+			response.setIsError(false);
+		}
+		catch(Exception e){
+			e.printStackTrace();
+			response.setMessage("Failed");
+			response.setIsError(true);
+		}
+	return response;
+	}
+
+	@Override
+	public GetCommonDropDownRes RenewalDropDown(String branchCode, String productCode, String status) {
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		List<CommonResDropDown> reslist = new ArrayList<CommonResDropDown>();
+		try{
+			//common.select.getDepartmentList
+			List<TmasDepartmentMaster> list = deptRepo.findDistinctByBranchCodeAndTmasProductIdAndTmasStatusOrderByTmasDepartmentNameAsc(branchCode,new BigDecimal(productCode),status);
+			for(int i=0;i<list.size();i++){
+				CommonResDropDown range=new CommonResDropDown();  
+				TmasDepartmentMaster tempMap = list.get(i);
+				range.setCode(tempMap.getTmasDepartmentId()==null?"":tempMap.getTmasDepartmentId().toString());
+				range.setCodeDescription(tempMap.getTmasDepartmentName()==null?"":tempMap.getTmasDepartmentName().toString());
+				reslist.add(range);		
+			}
+			response.setCommonResponse(reslist);
+			response.setMessage("Success");
+			response.setIsError(false);
+		}
+		catch(Exception e){
+			e.printStackTrace();
+			response.setMessage("Failed");
+			response.setIsError(true);
+		}
+		return response;
+	}
+
+	@Override
+	public GetCommonDropDownRes getTerritoryDropDown(String branchCode) {
+		List<CommonResDropDown> reslist = new ArrayList<CommonResDropDown>();
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		try {
+			//common.select.getTerritoryList
+			List<TerritoryMaster> list = tmRepo.findDistinctByBranchCodeAndTerritoryStatusOrderByTerritoryDescrAsc(branchCode,"Y");
+			for(int i=0;i<list.size();i++){
+				CommonResDropDown range=new CommonResDropDown();  
+				TerritoryMaster tempMap =  list.get(i);
+				range.setCode(tempMap.getTerritoryCode()==null?"":tempMap.getTerritoryCode().toString());
+				range.setCodeDescription(tempMap.getTerritoryDescr()==null?"":tempMap.getTerritoryDescr().toString());
+				reslist.add(range);		
+			}
+			response.setCommonResponse(reslist);
+			response.setMessage("Success");
+			response.setIsError(false);
+		}catch(Exception e){
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	}
+	@Override
+	public CommonResponse updateSubClass(String proposalNo, String type) {
+		CommonResponse response = new CommonResponse();
+		try {
+			//UPDATE_SUBCLASS_QUERY
+			  StoredProcedureQuery integration = null;
+			  integration = em.createStoredProcedureQuery("UPDATE_SUB")
+			  .registerStoredProcedureParameter("PVPROPOSAL_NO", String.class, ParameterMode.IN)
+			  .registerStoredProcedureParameter("pvstatus", String.class, ParameterMode.IN)
+			  .registerStoredProcedureParameter("lcnt", String.class, ParameterMode.OUT)
+			  .registerStoredProcedureParameter("Lvnewproposal", String.class, ParameterMode.OUT)
+			  .registerStoredProcedureParameter("LvnewProductid", String.class, ParameterMode.OUT)
+			  .registerStoredProcedureParameter("LVSLIDESCLASS", String.class, ParameterMode.OUT)
+			  .registerStoredProcedureParameter("LVCMBINESCLASS", String.class, ParameterMode.OUT)
+			  .registerStoredProcedureParameter("LVCRESTACLASS", String.class, ParameterMode.OUT)
+			  .registerStoredProcedureParameter("LVLOSCOMBINESCLASS", String.class, ParameterMode.OUT)
+			  .setParameter("PVPROPOSAL_NO",proposalNo)
+			  .setParameter("pvstatus", type);
+			  integration.execute();
+			// output=(String) integration.getOutputParameterValue("pvQuoteNo");
+
+			response.setMessage("Success");
+			response.setIsError(false);
+			}catch(Exception e){
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	}
+
+	@Override
+	public CommonResponse updateRenewalEditMode(String proposalNo, String status, String updateProposalNo) {
+		CommonResponse response = new CommonResponse();
+		String proposal = "";
+		try{
+			//GET_BASE_PROPOSAL_NO
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Long> query = cb.createQuery(Long.class); 
+			Root<PositionMaster> pm = query.from(PositionMaster.class);
+			query.multiselect(cb.selectCase().when(cb.isNull(pm.get("proposalNo")), 0l)
+					.otherwise(pm.get("proposalNo"))).distinct(true); 
+			
+			//contractNo
+			Subquery<Long> cont = query.subquery(Long.class); 
+			Root<PositionMaster> cs = cont.from(PositionMaster.class);
+			cont.select(cs.get("oldContractno")).distinct(true);
+			//amendId
+			Subquery<Long> amendId = query.subquery(Long.class); 
+			Root<PositionMaster> cs1 = amendId.from(PositionMaster.class);
+			amendId.select(cb.max(cs1.get("amendId")));
+			Predicate c1 = cb.equal( pm.get("proposalNo"), cs1.get("proposalNo"));
+			amendId.where(c1);
+			
+			Predicate b1 = cb.equal( cs.get("proposalNo"), proposalNo);
+			Predicate b2 = cb.equal( cs.get("amendId"), amendId);
+			cont.where(b1,b2);
+
+			//amend
+			Subquery<Long> amend = query.subquery(Long.class); 
+			Root<PositionMaster> pms = amend.from(PositionMaster.class);
+			amend.select(cb.max(pms.get("amendId")));
+			Predicate a1 = cb.equal( pm.get("proposalNo"), pms.get("proposalNo"));
+			amend.where(a1);
+
+			// Where
+			Predicate n1 = cb.isNull(pm.get("baseLayer"));
+			Predicate n2 = cb.equal(pm.get("contractNo"), cont);
+			Predicate n3 = cb.equal(pm.get("amendId"), amend);
+			query.where(n1,n3,n2);
+			
+			TypedQuery<Long> result = em.createQuery(query);
+			List<Long> list = result.getResultList();
+			
+				proposal = list.size()==0?"0":list.get(0).toString();
+
+				if(!"0".equalsIgnoreCase(proposal)){
+			updateSubEditMode(proposal,status,updateProposalNo);
+			updateEditMode(proposal,status,updateProposalNo);
+			}
+			response.setMessage("Success");
+			response.setIsError(false);
+			}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	}
+	@Transactional
+	@Override
+	public CommonResponse updateSubEditMode(String proposalNo, String status, String updateProposalNo) {
+		CommonResponse response = new CommonResponse();
+		try{
+			//user requested cancel of current operation
+			//UPDATE_SUB_ENDT_STATUS
+			String args[] = new String[2];
+			if(!"N".equalsIgnoreCase(status)){
+			args[0] = status +"-"+ updateProposalNo;
+			}
+			else{
+				args[0] = status;	
+			}
+			args[1] = proposalNo;
+			CriteriaBuilder cb = this.em.getCriteriaBuilder();
+			CriteriaUpdate<PositionMaster> update = cb.createCriteriaUpdate(PositionMaster.class);
+			Root<PositionMaster> m = update.from(PositionMaster.class);
+			update.set("editMode", args[0] );
+			
+			//propNo
+			Subquery<Long> propNo = update.subquery(Long.class); 
+			Root<PositionMaster> cs = propNo.from(PositionMaster.class);
+			propNo.select(cs.get("proposalNo"));
+			//amendId
+			Subquery<Long> amendId = update.subquery(Long.class); 
+			Root<PositionMaster> cs1 = amendId.from(PositionMaster.class);
+			amendId.select(cb.max(cs1.get("amendId")));
+			Predicate c1 = cb.equal( cs.get("proposalNo"), cs1.get("proposalNo"));
+			Predicate c2 = cb.notEqual( cs1.get("contractStatus"), "C");
+			amendId.where(c1,c2);
+			
+			Predicate b1 = cb.equal( cs.get("baseLayer"), args[1]);
+			Predicate b2 = cb.equal( cs.get("amendId"), amendId);
+			propNo.where(b1,b2);
+			
+			//amend
+			Subquery<Long> amend = update.subquery(Long.class); 
+			Root<PositionMaster> pms = amend.from(PositionMaster.class);
+			amend.select(cb.max(pms.get("amendId")));
+			Predicate a1 = cb.equal( m.get("proposalNo"), pms.get("proposalNo"));
+			amend.where(a1);
+
+			Expression<String> e0 = m.get("proposalNo");
+			Predicate n1 = e0.in(propNo==null?null:propNo);
+			Expression<String> e1 = m.get("amendId");
+			Predicate n2 = e1.in(amend==null?null:amend);
+			update.where(n1,n2);
+			em.createQuery(update).executeUpdate();
+
+			response.setMessage("Success");
+			response.setIsError(false);
+	 }catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	}
+	@Transactional
+	@Override
+		public CommonResponse updateEditMode(String proposalNo, String status,String updateProposalNo) {
+			CommonResponse response = new CommonResponse();
+			try{
+				//POS_MAS_ED_MODE_UPDT
+				String args[] = new String[2];
+				if(!"N".equalsIgnoreCase(status)){
+					args[0] = status +"-"+ updateProposalNo;
+					}
+					else{
+						args[0] = status;	
+					}
+				args[1] = proposalNo;
+				CriteriaBuilder cb = this.em.getCriteriaBuilder();
+				CriteriaUpdate<PositionMaster> update = cb.createCriteriaUpdate(PositionMaster.class);
+				Root<PositionMaster> m = update.from(PositionMaster.class);
+				update.set("editMode", args[0] );
+				
+				//amend
+				Subquery<Long> amend = update.subquery(Long.class); 
+				Root<PositionMaster> pms = amend.from(PositionMaster.class);
+				amend.select(cb.max(pms.get("amendId")));
+				Predicate a1 = cb.equal(m.get("proposalNo"), pms.get("proposalNo"));
+				amend.where(a1);
+
+				Expression<String> e1 = m.get("amendId");
+				Predicate n2 = e1.in(amend==null?null:amend);
+				update.where(n2);
+				em.createQuery(update).executeUpdate();
+				
+				response.setMessage("Success");
+				response.setIsError(false);
+		 }catch(Exception e){
+					log.error(e);
+					e.printStackTrace();
+					response.setMessage("Failed");
+					response.setIsError(true);
+				}
+			return response;
+		}
+
+		@Override
+		public GetCommonValueRes getBaseProposal(String proposalNo) {
+			GetCommonValueRes response = new GetCommonValueRes();
+			String result="";
+			try{
+				//GET_BASE_PROPOSAL
+				CriteriaBuilder cb = em.getCriteriaBuilder(); 
+				CriteriaQuery<String> query = cb.createQuery(String.class); 
+				Root<PositionMaster> pm = query.from(PositionMaster.class);
+				query.select(pm.get("baseLayer")); 
+				
+				Predicate n1 = cb.equal(pm.get("proposalNo"), proposalNo);
+				Predicate n2 = cb.equal(pm.get("amendId"), proposalNo);
+				query.where(n1,n2);
+				TypedQuery<String> res1 = em.createQuery(query);
+				List<String> list = res1.getResultList();
+				
+				String args[] = new String[1];
+				args[0] = proposalNo;
+//				list=queryImpl.selectList(query, args);
+//				if (!CollectionUtils.isEmpty(list)) {
+//					result = list.get(0).get("BASE_LAYER") == null ? ""
+//							: list.get(0).get("BASE_LAYER").toString();
+//				}
+				response.setCommonResponse(result);
+				response.setMessage("Success");
+				response.setIsError(false);
+		 }catch(Exception e){
+					log.error(e);
+					e.printStackTrace();
+					response.setMessage("Failed");
+					response.setIsError(true);
+				}
+			return response;
+		
+		}
+		public GetCommonDropDownRes getSubProfitCentreDropDown(String deptid,String branchCode,String productCode){
+			GetCommonDropDownRes response = new GetCommonDropDownRes();
+			List<Map<String,Object>> subProfitCenterList=new ArrayList<Map<String,Object>>();
+			List<CommonResDropDown>  resList = new ArrayList<CommonResDropDown>();
+			try{
+				String query="common.select.getSubProfitCenterList";
+			
+				subProfitCenterList=queryImpl.selectList(query,new String[]{branchCode,productCode,deptid,"Y"});
+				 for(int i=0 ; i<subProfitCenterList.size() ; i++) {
+					 CommonResDropDown res = new CommonResDropDown();
+						Map<String,Object> tempMap = (Map<String,Object>) subProfitCenterList.get(i);
+						res.setCode(tempMap.get("TMAS_SPFC_ID")==null?"":tempMap.get("TMAS_SPFC_ID").toString());
+						res.setCodeDescription(tempMap.get("TMAS_SPFC_NAME")==null?"":tempMap.get("TMAS_SPFC_NAME").toString());
+						resList.add(res);
+					}
+				 response.setCommonResponse(resList);
+				response.setMessage("Success");
+				response.setIsError(false);
+		 }	catch(Exception e){
+					log.error(e);
+					e.printStackTrace();
+					response.setMessage("Failed");
+					response.setIsError(true);
+				}
+			return response;
+		}	
+		public GetCommonDropDownRes getRetroContractDetailsList(GetRetroContractDetailsListReq req,int flag, String UWYear){
+			GetCommonDropDownRes response = new GetCommonDropDownRes();
+			List<CommonResDropDown>  resList = new ArrayList<CommonResDropDown>();
+			String query="";
+			List<Map<String, Object>> list= new ArrayList<Map<String, Object>>();
+			try{
+				if(flag==1)	{
+					if("4".equals(req.getProductid())){
+						query = "fac.select.uwYear";
+					}else{
+						query = "risk.select.uwYear";
+					}
+					list=queryImpl.selectList(query,new String[] {req.getProductid(),req.getIncepDate(),req.getBranchCode(),req.getIncepDate()});
+					
+					}
+				 else if(StringUtils.isNotEmpty(UWYear)&& flag==2){
+					query = "fac.select.retroContDet";
+					
+					list = queryImpl.selectList(query, new String[] {req.getProductid(),(StringUtils.isBlank(req.getRetroType())?"":req.getRetroType()),UWYear,req.getIncepDate(),req.getBranchCode(),(StringUtils.isBlank(req.getRetroType())?"":req.getRetroType()),UWYear,req.getIncepDate()});
+				}
+				 else if(StringUtils.isNotEmpty(UWYear)&&flag==3){
+					query = "FAC_SELECT_RETRO_DUP_CONTRACT";
+					
+					list = queryImpl.selectList(query, new String[] {"4","TR",UWYear,req.getIncepDate(),req.getBranchCode(),"TR",UWYear,req.getIncepDate()});
+				}
+				
+				if(list!=null && list.size()>0){
+
+					for (int i = 0; i < list.size(); i++) {
+						CommonResDropDown res = new CommonResDropDown();
+						Map<String, Object> insMap = (Map<String, Object>)list.get(i);
+						res.setCode(insMap.get("CONTDET1")==null?"":insMap.get("CONTDET1").toString());
+						res.setCodeDescription(insMap.get("CONTDET2")==null?"":insMap.get("CONTDET2").toString());
+						resList.add(res);					
+						}
+				
+				response.setCommonResponse(resList);
+				response.setMessage("Success");
+				response.setIsError(false);
+		 }	}catch(Exception e){
+					log.error(e);
+					e.printStackTrace();
+					response.setMessage("Failed");
+					response.setIsError(true);
+				}
+			return response;
+		}
+		public  String formatterpercentage(final String value)
+		{
+			String output="0.00";
+			if(StringUtils.isNotBlank(value))
+			{
+				double doublevalue=Double.parseDouble(value);
+				DecimalFormat myFormatter = new DecimalFormat("###,###,###,###,##0.0000");
+				output =myFormatter.format(doublevalue);
+			}
+			return output;
+		}
+			
+		public GetCommonValueRes getUnderWriterLimmit(String uwName,String processId,String ProductId,String deptId){
+			GetCommonValueRes response=new GetCommonValueRes();
+			String uwLimit=null;
+			String query="";
+			List<Map<String, Object>> uwList= new ArrayList<Map<String, Object>>();
+			try{
+				query="common.select.getUWLimit1";
+				uwList=queryImpl.selectList(query,new String[] {uwName,ProductId,deptId});
+				
+				
+				if(uwList!=null && uwList.size()>0)
+				{
+					Map<String,Object> uwMap=(Map<String,Object>)uwList.get(0);
+					uwLimit=uwMap.get("UWLIMIT")==null?"0":fm.decimalFormat(Double.parseDouble(uwMap.get("UWLIMIT").toString()),0);
+				}else
+					uwLimit ="0";
+				response.setCommonResponse(uwLimit);
+				response.setMessage("Success");
+				response.setIsError(false);
+			}catch(Exception e){
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+
+			return response;
+		}
+		
+		public List<GetContractValidationRes> getContractValidation(String productId, String cedingCompany,String inceptionDate, String expiryDate, String year,String originalCurrency, String departmentId, String type,String sumInsured, String ContNo, String profitCenter,String surplus, String coverPer, String dedPer, String layerNo, String branchCode) {
+			String query="";
+		//	GetContractValidationRes1 response = new GetContractValidationRes1();
+			List<GetContractValidationRes> resList = new ArrayList<GetContractValidationRes>();
+			List<Map<String,Object>> ContractList=new ArrayList<Map<String,Object>>();
+			String args[] = null;
+			try{
+				if(StringUtils.isBlank(sumInsured)){
+					sumInsured="0";
+				}
+				if(StringUtils.isBlank(surplus)){
+					surplus="0";
+				}
+				if(StringUtils.isBlank(coverPer)){
+					coverPer="0";
+				}
+				if(StringUtils.isBlank(dedPer)){
+					dedPer="0";
+				}
+				if(!cedingCompany.matches("^[0-9]+$")){
+					cedingCompany="";
+				}
+				if("1".equalsIgnoreCase(productId)){
+					query="FAC_CONTRACT_LIST";
+					 args = new String[10];
+						args[0] = cedingCompany;
+						args[1] = inceptionDate;
+						args[2] = expiryDate;
+						args[3] = year;
+						args[4] = originalCurrency;
+						
+						args[5] = departmentId;
+						args[6] = type;
+						args[7] = sumInsured;
+						args[8] = profitCenter;
+						args[9] = branchCode;
+						if(ContNo!="0"){
+						query="FAC_CONTRACT_LIST1";
+					}
+				}
+				else if("2".equalsIgnoreCase(productId)){
+					query="PTTY_CONTRACT_LIST";
+					args = new String[9];
+					args[0] = cedingCompany;
+					args[1] = inceptionDate;
+					args[2] = expiryDate;
+					args[3] = year;
+					args[4] = originalCurrency;
+					args[5] = departmentId;
+					args[6] = type;
+					args[7] = profitCenter;
+					args[8] = branchCode;
+					if("1".equalsIgnoreCase(type) ||"4".equalsIgnoreCase(type)||"5".equalsIgnoreCase(type) ){
+						//query+="  and RP.RSK_LIMIT_OC="+req.getSumInsured();
+						query="PTTY_CONTRACT_LIST1";
+					}
+					else if("2".equalsIgnoreCase(type)){
+						//query+="  and RP.RSK_TREATY_SURP_LIMIT_OC="+req.getSumInsured();
+						query="PTTY_CONTRACT_LIST2";
+					}
+					else if("3".equalsIgnoreCase(type)){
+						//query+="  and RP.RSK_LIMIT_OC="+req.getSumInsured()+" and RP.RSK_TREATY_SURP_LIMIT_OC = "+req.getSurplus();
+						query="PTTY_CONTRACT_LIST3";
+					}
+					if(ContNo!="0"){
+						//query+="  and RD.RSK_CONTRACT_NO!="+req.getContno();
+						query="PTTY_CONTRACT_LIST4";
+					}
+				}  if("3".equalsIgnoreCase(productId)){
+					if(ContNo!="0"){
+						query="NPTTY_CONTRACT_LIST_CON";
+						args = new String[11];
+						args[0] = cedingCompany;
+						args[1] = inceptionDate;
+						args[2] = expiryDate;
+						args[3] = year;
+						args[4] = originalCurrency;
+						args[5] = departmentId;
+						args[6] = type;
+						args[7] = profitCenter;
+						args[8] = layerNo;
+						args[9] = ContNo;
+						args[10] = branchCode;
+					}
+					else{
+						query="NPTTY_CONTRACT_LIST";
+						args = new String[10];
+						args[0] = cedingCompany;
+						args[1] = inceptionDate;
+						args[2] = expiryDate;
+						args[3] = year;
+						args[4] = originalCurrency;
+						args[5] = departmentId;
+						args[6] = type;
+						args[7] = profitCenter;
+						args[8] = layerNo;
+						args[9] = branchCode;
+					}
+					
+					if("1".equalsIgnoreCase(type) ||"2".equalsIgnoreCase(type)||"3".equalsIgnoreCase(type)||"4".equalsIgnoreCase(type)||"5".equalsIgnoreCase(type) ){
+						//query+="  and  E1.cvr_limit="+req.getSumInsured()+" AND E1.DEDU="+req.getSurplus();
+						query="NPTTY_CONTRACT_LIST_CON1";
+					}
+					else if("5".equalsIgnoreCase(type)){
+						//query+="  and  E1.cvr_limit="+req.getSumInsured()+" AND E1.DEDU="+req.getSurplus()+" AND E1.COVER_PER = "+req.getCoverPer()+" AND E1.DED_PER = "+req.getDedPer() ;
+						query="NPTTY_CONTRACT_LIST1";
+					}
+				}
+		
+				
+				ContractList =queryImpl.selectList(query,args);
+			
+		
+					 for(int i=0 ; i<ContractList.size() ; i++) {
+						 GetContractValidationRes res = new GetContractValidationRes();
+							Map<String,Object> tempMap = (Map<String,Object>) ContractList.get(i);
+							res.setContractNo(tempMap.get("RSK_CONTRACT_NO")==null?"":tempMap.get("RSK_CONTRACT_NO").toString());
+							res.setEndoresmentNo(tempMap.get("RSK_ENDORSEMENT_NO")==null?"":tempMap.get("RSK_ENDORSEMENT_NO").toString());
+							res.setProposalNo(tempMap.get("RSK_PROPOSAL_NUMBER")==null?"":tempMap.get("RSK_PROPOSAL_NUMBER").toString());
+							res.setBrokerId(tempMap.get("RSK_BROKERID")==null?"":tempMap.get("RSK_BROKERID").toString());
+							res.setUnderWritter(tempMap.get("RSK_UNDERWRITTER")==null?"":tempMap.get("RSK_UNDERWRITTER").toString());
+							res.setInsuredName(tempMap.get("RSK_INSURED_NAME")==null?"":tempMap.get("RSK_INSURED_NAME").toString());
+							
+							resList.add(res);
+						}	
+				
+				
+		 	}catch(Exception e){
+					log.error(e);
+					e.printStackTrace();
+					
+				}
+			return resList;
+		}
+		//Productid 3
+//		public List<GetContractValidationRes3> getContractValidation3(String productId, String cedingCompany,String inceptionDate, String expiryDate, String year,String originalCurrency, String departmentId, String type,String sumInsured, String ContNo, String profitCenter,String surplus, String coverPer, String dedPer, String layerNo, String branchCode) {
+//			String query="";
+//		
+//			List<GetContractValidationRes3> resList = new ArrayList<GetContractValidationRes3>();
+//			List<Map<String,Object>> ContractList=new ArrayList<Map<String,Object>>();
+//			String args[] = null;
+//			try{
+//				if(StringUtils.isBlank(sumInsured)){
+//					sumInsured="0";
+//				}
+//				if(StringUtils.isBlank(surplus)){
+//					surplus="0";
+//				}
+//				if(StringUtils.isBlank(coverPer)){
+//					coverPer="0";
+//				}
+//				if(StringUtils.isBlank(dedPer)){
+//					dedPer="0";
+//				}
+//				if(!cedingCompany.matches("^[0-9]+$")){
+//					cedingCompany="";
+//				}
+//	
+//				 if("3".equalsIgnoreCase(productId)){
+//					if(ContNo!="0"){
+//						query="NPTTY_CONTRACT_LIST_CON";
+//						args = new String[11];
+//						args[0] = cedingCompany;
+//						args[1] = inceptionDate;
+//						args[2] = expiryDate;
+//						args[3] = year;
+//						args[4] = originalCurrency;
+//						args[5] = departmentId;
+//						args[6] = type;
+//						args[7] = profitCenter;
+//						args[8] = layerNo;
+//						args[9] = ContNo;
+//						args[10] = branchCode;
+//					}
+//					else{
+//						query="NPTTY_CONTRACT_LIST";
+//						args = new String[10];
+//						args[0] = cedingCompany;
+//						args[1] = inceptionDate;
+//						args[2] = expiryDate;
+//						args[3] = year;
+//						args[4] = originalCurrency;
+//						args[5] = departmentId;
+//						args[6] = type;
+//						args[7] = profitCenter;
+//						args[8] = layerNo;
+//						args[9] = branchCode;
+//					}
+//					
+//					if("1".equalsIgnoreCase(type) ||"2".equalsIgnoreCase(type)||"3".equalsIgnoreCase(type)||"4".equalsIgnoreCase(type)||"5".equalsIgnoreCase(type) ){
+//						//query+="  and  E1.cvr_limit="+req.getSumInsured()+" AND E1.DEDU="+req.getSurplus();
+//						query="NPTTY_CONTRACT_LIST_CON1";
+//					}
+//					else if("5".equalsIgnoreCase(type)){
+//						//query+="  and  E1.cvr_limit="+req.getSumInsured()+" AND E1.DEDU="+req.getSurplus()+" AND E1.COVER_PER = "+req.getCoverPer()+" AND E1.DED_PER = "+req.getDedPer() ;
+//						query="NPTTY_CONTRACT_LIST1";
+//					}
+//				}
+//				
+//				ContractList =queryImpl.selectList(query,args);
+//			
+//				
+//					 for(int i=0 ; i<ContractList.size() ; i++) {
+//						 GetContractValidationRes3 res = new GetContractValidationRes3();
+//							Map<String,Object> tempMap = (Map<String,Object>) ContractList.get(i);
+////							res.setDedPer(tempMap.get("DED_PER")==null?"":tempMap.get("DED_PER").toString());
+////							res.setLayerNo(tempMap.get("LAYER_NO")==null?"":tempMap.get("LAYER_NO").toString());
+////							res.setCoverPer(tempMap.get("COVER_PER")==null?"":tempMap.get("COVER_PER").toString());
+////							res.setDedu(tempMap.get("DEDU")==null?"":tempMap.get("DEDU").toString());
+////							res.setCoverLimit(tempMap.get("CVR_LIMIT")==null?"":tempMap.get("CVR_LIMIT").toString());
+//							
+//							
+//							res.setInsuredName(tempMap.get("RSK_INSURED_NAME")==null?"":tempMap.get("RSK_INSURED_NAME").toString());
+//							res.setProposalNo(tempMap.get("RSK_PROPOSAL_NUMBER")==null?"":tempMap.get("RSK_PROPOSAL_NUMBER").toString());
+//							res.setContractNo(tempMap.get("RSK_CONTRACT_NO")==null?"":tempMap.get("RSK_CONTRACT_NO").toString());
+//							res.setEndoresmentNo(tempMap.get("RSK_ENDORSEMENT_NO")==null?"":tempMap.get("RSK_ENDORSEMENT_NO").toString());
+//							res.setBrokerId(tempMap.get("RSK_BROKERID")==null?"":tempMap.get("RSK_BROKERID").toString());
+//							res.setUnderWritter(tempMap.get("RSK_UNDERWRITTER")==null?"":tempMap.get("RSK_UNDERWRITTER").toString());
+//							
+//							resList.add(res);
+//						
+//					 }
+//				
+//		 	}catch(Exception e){
+//					log.error(e);
+//					e.printStackTrace();
+//					
+//				}
+//			return resList;
+//		}
+		public String getAcceptanceDate(String proposalNo) {
+			List<Map<String,Object>> list=new ArrayList<Map<String,Object>>();
+			String result="";
+			try{
+				String query="GET_ACCEPTANCE_DATE";
+				list=queryImpl.selectList(query, new String[]{proposalNo});
+				if (!CollectionUtils.isEmpty(list)) {
+					result = list.get(0).get("ACCOUNT_DATE") == null ? ""
+							: list.get(0).get("ACCOUNT_DATE").toString();
+				}
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+			return result;
+		}	
+		public  boolean GetShareEqualValidation(String productId,String leaderUnderwriterShare, String proposalNo ) {
+			List<Map<String,Object>> list=new ArrayList<Map<String,Object>>();
+			boolean result=false;
+			int count=0;
+			String query="";
+			try {
+				if("1".equals(productId)){
+				 query="GET_SIGN_SHARE_EQUAL_PRODUCT1";
+				}else{
+					query="GET_SIGN_SHARE_EQUAL_PRODUCT23";
+				}
+				list=queryImpl.selectList(query, new String[]{leaderUnderwriterShare,proposalNo});
+				if (!CollectionUtils.isEmpty(list)) {
+					count = Integer.valueOf(list.get(0).get("COUNT") == null ? ""
+							: list.get(0).get("COUNT").toString());
+				}
+			
+				if(count==0){
+					result=true;
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			return result;
+
+		}
+
+	
+
+
+
+//@Override
+//	public GetCommonDropDownRes getCeaseaccountStatus(String ContractNo) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+
+@Override
+public GetCommonDropDownRes getCrestaIDList(String branchCode, String crestaValue) {
+	GetCommonDropDownRes response = new GetCommonDropDownRes();
+	try{
+		List<CommonResDropDown> reslist = new ArrayList<CommonResDropDown>();
+		List<Map<String,Object>> list=new ArrayList<Map<String,Object>>();	
+		String query="GET_CRESTAID_LIST";
+		list=queryImpl.selectList(query,new String[]{branchCode,StringUtils.isBlank(crestaValue)?"":crestaValue});
+
+	for(int i=0;i<list.size();i++)	{
+		CommonResDropDown range=new CommonResDropDown();  
+		Map<String,Object> tempMap = (Map<String,Object>) list.get(i);
+		range.setCode(tempMap.get("CRESTA_ID")==null?"":tempMap.get("CRESTA_ID").toString());
+		range.setCodeDescription(tempMap.get("CRESTA_NAME")==null?"":tempMap.get("CRESTA_NAME").toString());
+		reslist.add(range);		
+	}
+    response.setCommonResponse(reslist);
+	response.setMessage("Success");
+	response.setIsError(false);
+}
+	catch(Exception e){
+		e.printStackTrace();
+		response.setMessage("Failed");
+		response.setIsError(true);
+	}
+	return response;
+}
+
+@Override
+public GetCommonDropDownRes getCrestaNameList(String branchCode, String crestaValue)
+{
+	
+	GetCommonDropDownRes response = new GetCommonDropDownRes();
+	try
+	{
+
+		List<CommonResDropDown> reslist = new ArrayList<CommonResDropDown>();
+
+		List<Map<String,Object>> list=new ArrayList<Map<String,Object>>();	
+
+	String query="GET_CRESTA_NAME_LIST";
+		list=queryImpl.selectList(query,new String[]{branchCode,StringUtils.isBlank(crestaValue)?"":crestaValue});
+		
+
+		for(int i=0;i<list.size();i++)
+		{
+			CommonResDropDown range=new CommonResDropDown();  
+
+			Map<String,Object> tempMap = (Map<String,Object>) list.get(i);
+			range.setCode(tempMap.get("CRESTA_ID")==null?"":tempMap.get("CRESTA_ID").toString());
+			range.setCodeDescription(tempMap.get("CRESTA_NAME")==null?"":tempMap.get("CRESTA_NAME").toString());
+			reslist.add(range);		
+		}
+		   response.setCommonResponse(reslist);
+			response.setMessage("Success");
+			response.setIsError(false);
+			
+		}
+	
+	catch(Exception e)
+	{
+		e.printStackTrace();
+		response.setMessage("Failed");
+		response.setIsError(true);
+	}
+
+	return response;
+}
+
+@Override
+public GetCommonValueRes getCeaseaccountStatus(String ContractNo)
+{
+	GetCommonValueRes response = new GetCommonValueRes();
+	String ceaseStatus="";
+	int count=0;
+	try
+	{
+		
+	String query="GET_SELECT_ORDER";
+	
+	List<Map<String,Object>>list=queryImpl.selectList(query, new String[] {ContractNo, ContractNo});
+	
+	if(list!=null && list.size()>0){
+		for(int i=0;i<list.size();i++)
+		{
+			Map<String,Object> map=list.get(i);
+			if(!((map.get("NETDUE_OC")==null?"":map.get("NETDUE_OC").toString()).equalsIgnoreCase((map.get("ALLOCATED_TILL_DATE")==null?"":map.get("ALLOCATED_TILL_DATE").toString())))){
+				count=count+1;
+			}
+					}
+	}
+	if(count>0){
+	ceaseStatus="N";
+	}
+
+	 response.setCommonResponse(ceaseStatus);
+		response.setMessage("Success");
+		response.setIsError(false);
+		
+	}
+
+catch(Exception e)
+{
+	e.printStackTrace();
+	response.setMessage("Failed");
+	response.setIsError(true);
+}
+
+return response;
+}
+
+
+
+@Override
+public GetCommonDropDownRes getUnderWritterDropDown(String branchCode, String attachedUW) {
+	List<CommonResDropDown> reslist = new ArrayList<CommonResDropDown>();
+
+	List<Map<String,Object>> list=new ArrayList<Map<String,Object>>();	
+	GetCommonDropDownRes response = new GetCommonDropDownRes();
+	try
+	{
+     if(StringUtils.isNotBlank(attachedUW) && !"ALL".equalsIgnoreCase(attachedUW)) {
+			String query="GET_UNDERWRITER_ATTACHED";
+			
+			list=queryImpl.selectList(query,new String[]{branchCode,"Y",attachedUW});
+			for(int i=0;i<list.size();i++)
+			{
+				CommonResDropDown range=new CommonResDropDown();  
+
+				Map<String,Object> tempMap = (Map<String,Object>) list.get(i);
+				range.setCode(tempMap.get("UWR_CODE")==null?"":tempMap.get("UWR_CODE").toString());
+				range.setCodeDescription(tempMap.get("UNDERWRITTER")==null?"":tempMap.get("UNDERWRITTER").toString());
+				reslist.add(range);		
+			}}
+		
+		else 
+		{
+			
+			String query="common.select.getUWList";
+
+			
+			list=queryImpl.selectList(query,new String[]{branchCode,"Y"});
+			
+			
+			for(int i=0;i<list.size();i++)
+			{
+				CommonResDropDown range=new CommonResDropDown();  
+
+				Map<String,Object> tempMap = (Map<String,Object>) list.get(i);
+				range.setCode(tempMap.get("UWR_CODE")==null?"":tempMap.get("UWR_CODE").toString());
+				range.setCodeDescription(tempMap.get("UNDERWRITTER")==null?"":tempMap.get("UNDERWRITTER").toString());
+				reslist.add(range);		
+			}
+			
+			
+		}
+	
+	
+	response.setCommonResponse(reslist);
+	response.setMessage("Success");
+	response.setIsError(false);
+	
+}
+
+catch(Exception e)
+{
+e.printStackTrace();
+response.setMessage("Failed");
+response.setIsError(true);
+}
+
+return response;
+}
+
+@Override
+public GetCommonValueRes getCrestaName(String branchCode, String crestaValue) {
+
+	String crestaName="";
+	GetCommonValueRes response = new GetCommonValueRes();
+	try
+	{
+
+		
+	
+		String query="GET_CRESTA_NAME_LIST";
+	List<Map<String,Object>>result=queryImpl.selectList(query,new String[]{branchCode,crestaValue});
+	if(result!=null && result.size()>0){
+		Map<String,Object> res=result.get(0);
+		crestaName=(res.get("CRESTA_ID")==null?"":res.get("CRESTA_NAME").toString());
+	}
+	response.setCommonResponse(crestaName);
+	response.setMessage("Success");
+	response.setIsError(false);
+}
+catch(Exception e){
+e.printStackTrace();
+response.setMessage("Failed");
+response.setIsError(true);
+}
+return response;
+}
+
+@Override
+public GetCommonValueRes getDisableStatus(String contractNo, String layerNo) {
+	GetCommonValueRes response =new GetCommonValueRes();
+	String status="Y";
+	if(StringUtils.isBlank(contractNo)){
+		contractNo="";
+	}
+	try {
+		String query = "GET_DISABLE_STATUS";
+		List<Map<String,Object>>list=queryImpl.selectList(query,new String[]{contractNo,layerNo});
+		if(list!=null && list.size()>0){
+			Map<String,Object> res=list.get(0);
+			status=(res.get("STATUS")==null?"":res.get("STATUS").toString());
+		}
+	response.setCommonResponse(status);
+	response.setMessage("Success");
+	response.setIsError(false);
+}
+catch(Exception e){
+e.printStackTrace();
+response.setMessage("Failed");
+response.setIsError(true);
+}
+return response;
+}
+
+@Override
+public GetCommonValueRes getCopyQuote(GetCopyQuoteReq req) {
+	GetCommonValueRes response = new GetCommonValueRes();
+	String newProposalNo="";
+	Connection con = null;
+	//CallableStatement cstmt = null;
+	 StoredProcedureQuery cstmt = null;
+	try{
+//	con = queryImpl.getDataSource().getConnection();
+//	
+//	cstmt = con.prepareCall("{CALL copyquote(?,?,?,?,?)}");
+//	cstmt.setString(1, type);
+//	cstmt.setString(2, "");
+//	cstmt.setString(3, productId);
+//	cstmt.setString(4, branchCode);
+//	cstmt.registerOutParameter(5, java.sql.Types.VARCHAR);
+//	cstmt.setString(5, proposalNo);
+//	boolean count = cstmt.execute();
+//	newProposalNo = cstmt.getString(5);
+	response.setCommonResponse(newProposalNo);
+	response.setMessage("Success");
+	response.setIsError(false);
+}
+catch(Exception e){
+e.printStackTrace();
+response.setMessage("Failed");
+response.setIsError(true);
+}
+return response;
+}
+
+@Override
+public GetCommonValueRes getAllocationDisableStatus(String contractNo, String layerNo) {
+	GetCommonValueRes response = new GetCommonValueRes();
+	String status = "Y";
+	List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
+	try {
+		if (StringUtils.isBlank(contractNo)) {
+			contractNo = "";
+		}
+		String query ="GET_ALLOCATION_DISABLE_STATUS";
+		list=queryImpl.selectList(query, new String[]{contractNo,layerNo});
+		if (!CollectionUtils.isEmpty(list)) {
+			status = list.get(0).get("Status") == null ? "": list.get(0).get("Status").toString();
+		}
+	response.setCommonResponse(status);
+	response.setMessage("Success");
+	response.setIsError(false);
+	} catch(Exception e){
+		log.error(e);
+		e.printStackTrace();
+		response.setMessage("Failed");
+		response.setIsError(true);
+	}
+		return response;
+	}
+
+	@Override
+	public CommonResponse updatepositionMasterEndtStatus(String proposalNo, String endtDate,String ceaseStatus) {
+		CommonResponse response = new CommonResponse();
+		try {
+			String query = "UPDATE_POSITION_MASTER_END_STATUS";
+			queryImpl.updateQuery(query, new String[]{endtDate,ceaseStatus,proposalNo});
+			response.setMessage("Success");
+			response.setIsError(false);
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+			response.setMessage("Failed");
+			response.setIsError(true);
+		}
+		return response;
+	}
+
+	@Override
+	public GetCommonDropDownRes getYearListValue(String inceptionDate) {
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		List<CommonResDropDown> yearsList = new ArrayList<CommonResDropDown>();
+		
+		String format = "dd/MM/yyyy";
+		try {
+			if (StringUtils.isNotBlank(inceptionDate)) {
+			  
+				SimpleDateFormat sdf = new SimpleDateFormat(format);
+				Date dateAsObj = null;
+				dateAsObj = sdf.parse(inceptionDate);
+				
+				Calendar cal = Calendar.getInstance();
+				cal.setTime(dateAsObj);
+				
+				// cal.add(Calendar.MONTH, nbMonths);
+				int year = cal.get(Calendar.YEAR);
+				int month = cal.get(Calendar.MONTH);
+				int day = cal.get(Calendar.DATE);
+				
+					CommonResDropDown res = new CommonResDropDown();
+
+					res.setCode(String.valueOf(year));
+					res.setCodeDescription(String.valueOf(year));
+					yearsList.add(res);
+
+				if (month == 11) {
+					if (day >= 25) {
+						cal.add(Calendar.YEAR, 1);
+						year = cal.get(Calendar.YEAR);
+
+						res.setCode(String.valueOf(year));
+						res.setCodeDescription(String.valueOf(year));
+						yearsList.add(res);
+
+					}
+				} else if (month == 0) {
+					if (7 >= day) {
+						cal.add(Calendar.YEAR, -1);
+						year = cal.get(Calendar.YEAR);
+						res.setCode(String.valueOf(year));
+						res.setCodeDescription(String.valueOf(year));
+						yearsList.add(res);
+					}
+				}
+
+			}
+
+			response.setCommonResponse(yearsList);
+			response.setMessage("Success");
+			response.setIsError(false);
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+			response.setMessage("Failed");
+			response.setIsError(true);
+		}
+		return response;
+	}
+
+	@Override
+	public CommonResponse updateInstallmentTransaction(String proposalNo) {
+	CommonResponse response = new CommonResponse();
+	try {
+			String query = "UPDATE_INSTALLMENT_TRANSACTION";
+			queryImpl.updateQuery(query, new String[] { proposalNo});
+			response.setMessage("Success");
+			response.setIsError(false);
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+			response.setMessage("Failed");
+			response.setIsError(true);
+		}
+		return response;
+
+	}
+
+	@Override
+	public GetCommonDropDownRes getBonusList() {
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		List<CommonResDropDown> resList = new ArrayList<CommonResDropDown>();
+
+		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
+		try {
+
+			String query = "GET_BONUS_LIST";
+
+			result = queryImpl.selectList(query, new String[] { "23", "Y" });
+
+			for (int i = 0; i < result.size(); i++) {
+				CommonResDropDown res = new CommonResDropDown();
+				Map<String, Object> tempMap = (Map<String, Object>) result.get(i);
+				res.setCode(tempMap.get("DETAIL_NAME") == null ? "" : tempMap.get("DETAIL_NAME").toString());
+				res.setCodeDescription(tempMap.get("REMARKS") == null ? "" : tempMap.get("REMARKS").toString());
+				resList.add(res);
+			}
+
+			response.setCommonResponse(resList);
+			response.setMessage("Success");
+			response.setIsError(false);
+		}
+
+		catch (Exception e) {
+
+			log.error(e);
+			e.printStackTrace();
+			response.setMessage("Failed");
+			response.setIsError(true);
+
+		}
+		return response;
+	}
+
+	@Override
+	public GetCommonDropDownRes getConstantDropDownET(String categoryId, String contractNo) {
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		List<Map<String,Object>> list=new ArrayList<Map<String,Object>>();
+		List<CommonResDropDown> constantList = new ArrayList<CommonResDropDown>();
+		
+		String query = "";
+		String transNo = "";
+		String contNo = "";
+		try {
+			query = "common.select.getConstDet";
+			list = queryImpl.selectList(query, new String[] { categoryId, "Y" });
+
+			query = "GET_CONSTANT_DROPDOWN_ET";
+			list = queryImpl.selectList(query, new String[] { contractNo });
+			if (list.size() > 0) {
+				for (int i = 0; i < list.size(); i++) {
+					Map<String, Object> tempMap = (Map<String, Object>) list.get(i);
+					transNo = tempMap.get("TRANSACTION_NO") == null ? "" : tempMap.get("TRANSACTION_NO").toString();
+					contNo = tempMap.get("CONTRACT_NO") == null ? "" : tempMap.get("CONTRACT_NO").toString();
+				}
+			}
+			if (transNo.equalsIgnoreCase(contNo) && contractNo != null && contractNo != "") {
+				for (int i = 0; i < list.size(); i++) {
+					CommonResDropDown res = new CommonResDropDown();
+					Map<String, Object> tempMap = (Map<String, Object>) list.get(i);
+					res.setCode(tempMap.get("DETAIL_NAME") == null ? "": tempMap.get("DETAIL_NAME").toString());
+					res.setCodeDescription(tempMap.get("TYPE") == null ? "": tempMap.get("TYPE").toString());
+					constantList.add(res);
+				}
+			}
+			response.setCommonResponse(constantList);
+			response.setMessage("Success");
+			response.setIsError(false);
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+			response.setMessage("Failed");
+			response.setIsError(true);
+		}
+
+	return response;
+	}
+
+	@Override
+	public GetCommonDropDownRes getCoverDEpartmentDropDown(String branchCode, String pid, String departId) {
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		List<Map<String,Object>> list=new ArrayList<Map<String,Object>>();
+		List<CommonResDropDown> department = new ArrayList<CommonResDropDown>();
+		String query="";
+		try{
+			if("17".equalsIgnoreCase(departId) || "18".equalsIgnoreCase(departId) ||"19".equalsIgnoreCase(departId) ){
+				query="GET_COVER_DEPT_LIST";
+				list = queryImpl.selectList(query,new String[]{departId,branchCode,pid});
+			}else{
+				 list=getDepartmentDropDown(branchCode,pid,"Y","","","","","");
+			}
+	
+			 for(int i=0 ; i<list.size() ; i++) {
+				 CommonResDropDown res = new CommonResDropDown();
+					Map<String,Object> tempMap = (Map<String,Object>) list.get(i);
+					res.setCode(tempMap.get("TMAS_DEPARTMENT_ID")==null?"":tempMap.get("TMAS_DEPARTMENT_ID").toString());
+					res.setCodeDescription(tempMap.get("TMAS_DEPARTMENT_NAME")==null?"":tempMap.get("TMAS_DEPARTMENT_NAME").toString());
+					department.add(res);
+				}
+			response.setCommonResponse(department);
+			response.setMessage("Success");
+			response.setIsError(false);
+			}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+		}
+
+		return response;
+	}
+	public 	List<Map<String,Object>> getDepartmentDropDown(String branchCode,String productCode,String status, String contNo, String endt, String proposalNo,String mode, String baseLayer){
+		
+		List<Map<String,Object>> list=new ArrayList<Map<String,Object>>();
+		List<CommonResDropDown> department = new ArrayList<CommonResDropDown>();
+		String query="";
+		try{
+
+			if (productCode.equalsIgnoreCase("")) {
+				query = "common.select.departlist.premium";
+				list = queryImpl.selectList(query, new String[] { branchCode, status });
+			} else if(!StringUtils.isBlank(baseLayer) ) { 
+				query = "common.select.getDepartmentList3";
+				list = queryImpl.selectList(query, new String[] { branchCode,productCode,status,baseLayer,baseLayer,proposalNo });
+			}else if(StringUtils.isBlank(proposalNo) && StringUtils.isBlank(contNo)){
+				 query = "common.select.getDepartmentList";
+				 list=queryImpl.selectList(query,new String[]{branchCode,productCode,status});	
+			}else if(StringUtils.isBlank(contNo) && !StringUtils.isBlank(proposalNo)){
+				query = "common.select.getDepartmentList2";
+				list = queryImpl.selectList(query,new String[] { branchCode, productCode, status, proposalNo, baseLayer, baseLayer });
+			}else if(!StringUtils.isBlank(contNo) && StringUtils.isBlank(proposalNo)){
+				query = "common.select.getDepartmentList1";
+				list = queryImpl.selectList(query,new String[] { branchCode,productCode,status,contNo,contNo });
+			}else if(!StringUtils.isBlank(contNo)){
+				query = "common.select.getDepartmentList1";
+				list = queryImpl.selectList(query,new String[] { branchCode,productCode,status,contNo,contNo });
+			}
+			
+			 for(int i=0 ; i<list.size() ; i++) {
+				 CommonResDropDown res = new CommonResDropDown();
+					Map<String,Object> tempMap = (Map<String,Object>) list.get(i);
+					res.setCode(tempMap.get("TMAS_DEPARTMENT_ID")==null?"":tempMap.get("TMAS_DEPARTMENT_ID").toString());
+					res.setCodeDescription(tempMap.get("TMAS_DEPARTMENT_NAME")==null?"":tempMap.get("TMAS_DEPARTMENT_NAME").toString());
+					department.add(res);
+				}
+			
+			}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				
+		}
+
+		return list;
+	}
+
+
+	@Override
+	public GetCommonDropDownRes getProductieModuleDropDown(GetProductModuleDropDownReq req) {
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		List<Map<String,Object>> list=new ArrayList<Map<String,Object>>();
+		List<CommonResDropDown> productList = new ArrayList<CommonResDropDown>();
+		try {
+			String  query="";
+			query="common.select.getPRoductListIE";
+			
+			if(req.getMode().equals("edit")){
+				 query="GET_PRODUCTION_MODULE_DROPDOWN";
+				 list=queryImpl.selectList(query,new String[]{req.getBranchCode(),req.getProposalNo(),req.getTransactionNo(),req.getType(),req.getTransactionNo()});
+				
+			}else{
+				list=queryImpl.selectList(query,new String[]{req.getBranchCode()});
+			}
+			for (int i = 0; i < list.size(); i++) {
+				CommonResDropDown res = new CommonResDropDown();
+				Map<String, Object> tempMap = (Map<String, Object>) list.get(i);
+				res.setCode(tempMap.get("TMAS_PRODUCT_ID") == null ? "" : tempMap.get("TMAS_PRODUCT_ID").toString());
+				res.setCodeDescription(tempMap.get("TMAS_PRODUCT_NAME") == null ? "": tempMap.get("TMAS_PRODUCT_NAME").toString());
+				productList.add(res);
+			}
+			response.setCommonResponse(productList);
+			response.setMessage("Success");
+			response.setIsError(false);
+			}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+		}
+
+		return response;
+	}
+
+	@Override
+	public GetCommonDropDownRes getInwardBusinessTypeDropDown(GetInwardBusinessTypeDropDownReq req) {
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		List<Map<String,Object>> list=new ArrayList<Map<String,Object>>();
+		List<CommonResDropDown> constantList = new ArrayList<CommonResDropDown>();
+		try {
+			String query="";
+			query="common.select.getConstDetie";
+			
+			
+			if(req.getMode().equals("edit")){
+				 query="GET_INWARD_BUSINESS_TYPE_DROPDOWN";
+				 list=queryImpl.selectList(query,new String[]{req.getCategoryId(),"Y",req.getProposalNo(),req.getTransactionNo(),req.getType(),req.getTransactionNo()});
+				
+			}else{
+				list=queryImpl.selectList(query,new String[]{req.getCategoryId(),"Y"});
+			}
+			for (int i = 0; i < list.size(); i++) {
+				CommonResDropDown res = new CommonResDropDown();
+				Map<String, Object> tempMap = (Map<String, Object>) list.get(i);
+				res.setCode(tempMap.get("TYPE") == null ? "" : tempMap.get("TYPE").toString());
+				res.setCodeDescription(tempMap.get("DETAIL_NAME") == null ? "": tempMap.get("DETAIL_NAME").toString());
+				constantList.add(res);
+			}
+			response.setCommonResponse(constantList);
+			response.setMessage("Success");
+			response.setIsError(false);
+			}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+		}
+
+		return response;
+	}
+
+	@Override
+	public GetCommonDropDownRes getTreatyTypeDropDown(GetTreatyTypeDropDownReq req) {
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		List<Map<String,Object>> list=new ArrayList<Map<String,Object>>();
+		List<CommonResDropDown> constantList = new ArrayList<CommonResDropDown>();
+		try {
+			String query="";  
+			query="common.select.getConstDetie1";
+			
+			
+			if(req.getMode().equals("edit")){
+				 query="GET_TREATY_TYPE_DROPDOWN";
+				 list=queryImpl.selectList(query,new String[]{req.getCategoryId(),"Y",req.getProposalNo(),req.getTransactionNo(),req.getType(),req.getTransactionNo()});
+				
+			}else{
+				list=queryImpl.selectList(query,new String[]{req.getCategoryId(),"Y",});
+			}
+			for (int i = 0; i < list.size(); i++) {
+				CommonResDropDown res = new CommonResDropDown();
+				Map<String, Object> tempMap = (Map<String, Object>) list.get(i);
+				res.setCode(tempMap.get("TYPE") == null ? "" : tempMap.get("TYPE").toString());
+				res.setCodeDescription(tempMap.get("DETAIL_NAME") == null ? "": tempMap.get("DETAIL_NAME").toString());
+				constantList.add(res);
+			}
+			response.setCommonResponse(constantList);
+			response.setMessage("Success");
+			response.setIsError(false);
+			}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+		}
+
+		return response;
+	}
+
+	@Override
+	public GetCommonDropDownRes getProfitCentreieModuleDropDown(GetProfitCentreieModuleDropDownReq req) {
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		List<Map<String,Object>> list=new ArrayList<Map<String,Object>>();
+		List<CommonResDropDown> profitCenterList = new ArrayList<CommonResDropDown>();
+		try {
+			String query=""; 
+			query="common.select.getProfitCenterListIE";
+			
+			
+			if(req.getMode().equals("edit")){
+				query="GET_PROFIT_CENTREIE_MODULE_DROPDOWN";
+				 list=queryImpl.selectList(query,new String[]{req.getBranchCode(),"Y",req.getProposalNo(),req.getTransactionNo(),req.getType(),req.getTransactionNo()});
+				
+			}else{
+				list=queryImpl.selectList(query,new String[]{req.getBranchCode(),"Y"});
+			}
+			for (int i = 0; i < list.size(); i++) {
+				CommonResDropDown res = new CommonResDropDown();
+				Map<String, Object> tempMap = (Map<String, Object>) list.get(i);
+				res.setCode(tempMap.get("TMAS_PFC_ID") == null ? "" : tempMap.get("TMAS_PFC_ID").toString());
+				res.setCodeDescription(tempMap.get("TMAS_PFC_NAME") == null ? "": tempMap.get("TMAS_PFC_NAME").toString());
+				profitCenterList.add(res);
+			}
+			response.setCommonResponse(profitCenterList);
+			response.setMessage("Success");
+			response.setIsError(false);
+			}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+		}
+
+		return response;
+	}
+
+	@Override
+	public GetCommonDropDownRes getDepartmentieModuleDropDown(GetDepartmentieModuleDropDownReq req) {
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		List<Map<String,Object>> list=new ArrayList<Map<String,Object>>();
+		List<CommonResDropDown> departmentList = new ArrayList<CommonResDropDown>();
+		try {
+			String query=""; 
+			query="common.select.getDepartListIE";
+			
+			
+			if(req.getMode().equals("edit")){
+				query="GET_DEPARTMENTIE_MODULE_DROPDOWN";
+				 list=queryImpl.selectList(query,new String[]{req.getBranchCode(),"Y",req.getProposalNo(),req.getTransactionNo(),req.getType(),req.getTransactionNo()});
+				
+			}else{
+				list=queryImpl.selectList(query,new String[]{req.getBranchCode(),"Y"});
+			}
+			for (int i = 0; i < list.size(); i++) {
+				CommonResDropDown res = new CommonResDropDown();
+				Map<String, Object> tempMap = (Map<String, Object>) list.get(i);
+				res.setCode(tempMap.get("TMAS_DEPARTMENT_ID") == null ? "" : tempMap.get("TMAS_DEPARTMENT_ID").toString());
+				res.setCodeDescription(tempMap.get("TMAS_DEPARTMENT_NAME") == null ? "": tempMap.get("TMAS_DEPARTMENT_NAME").toString());
+				departmentList.add(res);
+			}
+			response.setCommonResponse(departmentList);
+			response.setMessage("Success");
+			response.setIsError(false);
+			}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+		}
+
+		return response;
+
+	}
+
+	@Override
+	public GetCommonDropDownRes getProposalStatus(String excludeProposalNo) {
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		List<Map<String,Object>> list=new ArrayList<Map<String,Object>>();
+		List<CommonResDropDown> proposalList = new ArrayList<CommonResDropDown>();
+		String query="";
+		try{
+			excludeProposalNo = excludeProposalNo.trim();
+			excludeProposalNo = excludeProposalNo.replaceAll(",", "','");
+			query="GET_PROPO_STATUS";
+			list=queryImpl.selectList(query,new String[]{excludeProposalNo});
+			if(!(list==null)&&list.size()>0) {
+			 for(int i=0 ; i<list.size() ; i++) {
+				 CommonResDropDown res = new CommonResDropDown();
+					Map<String,Object> tempMap = (Map<String,Object>) list.get(i);
+					res.setCode(tempMap.get("PROPOSAL_NO")==null?"":tempMap.get("PROPOSAL_NO").toString());
+					res.setCodeDescription(tempMap.get("CONTRACT_STATUS")==null?"":tempMap.get("CONTRACT_STATUS").toString());
+					proposalList.add(res);
+				}
+			}
+			response.setCommonResponse(proposalList);
+			response.setMessage("Success");
+			response.setIsError(false);
+			}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+		}
+		return response;
+	}
+
+	@Override
+	public GetCommonValueRes getExcludeProposalNo(String branchCode, String proposalNo, String transactionNo) {
+		
+		GetCommonValueRes response = new GetCommonValueRes();
+		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
+		
+		String result =" ";
+		try {
+		String query="GET_EXCLUDE_PROPOSAL";
+		String args[] = new String[3];
+		args[0] =branchCode;
+		args[1] =proposalNo;
+		args[2] =transactionNo;
+		list=queryImpl.selectList(query,args);
+		int j= list.size()-1;
+		for(int i=0;i<list.size();i++){
+				Map<String,Object> tempMap = (Map<String,Object>) list.get(i);
+				if(i==j){
+					result += tempMap.get("ITEM_TYPE")==null?"":tempMap.get("ITEM_TYPE").toString();
+				
+				}else{
+					result += tempMap.get("ITEM_TYPE")==null?"":tempMap.get("ITEM_TYPE").toString()+",";
+				}
+			}
+		
+		response.setCommonResponse(result);
+		response.setMessage("Success");
+		response.setIsError(false);
+		}catch(Exception e){
+			log.error(e);
+			e.printStackTrace();
+			response.setMessage("Failed");
+			response.setIsError(true);
+		}
+	return response;
+	}
+
+	@Override
+	public GetCommonDropDownRes getConstantDropDownBusinessType(String categoryId,  String deptId) {
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		List<Map<String,Object>> list=new ArrayList<Map<String,Object>>();
+		List<CommonResDropDown> departmentList = new ArrayList<CommonResDropDown>();
+		try {
+			String query=""; 
+			
+			if(!"16".equalsIgnoreCase(deptId)){
+				query="common.select.getConstDet";
+			}else{
+				query="GET_CONSTANT_DROPDOWN_BUSINESS_TYPE1";
+			}
+		
+			list=queryImpl.selectList(query,new String[]{categoryId,"Y"});
+			for (int i = 0; i < list.size(); i++) {
+				CommonResDropDown res = new CommonResDropDown();
+				Map<String, Object> tempMap = (Map<String, Object>) list.get(i);
+				res.setCode(tempMap.get("TYPE") == null ? "" : tempMap.get("TYPE").toString());
+				res.setCodeDescription(tempMap.get("DETAIL_NAME") == null ? "": tempMap.get("DETAIL_NAME").toString());
+				departmentList.add(res);
+			}
+			response.setCommonResponse(departmentList);
+			response.setMessage("Success");
+			response.setIsError(false);
+			}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+		}
+
+		return response;
+	}
+
+	@Override
+	public GetCommonDropDownRes getConstantDropDownBasis(String categoryId, String deptId) {
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		List<Map<String,Object>> list=new ArrayList<Map<String,Object>>();
+		List<CommonResDropDown> constantList = new ArrayList<CommonResDropDown>();
+		try {
+			String query=""; 
+			query="COMMON_SELECT_GETCONSTDET_BASIC";
+		
+			if(!"16".equalsIgnoreCase(deptId)){
+				query="GET_CONSTANT_DROPDOWN_BASIS";
+			}
+		
+			list=queryImpl.selectList(query,new String[]{categoryId,"Y"});
+			for (int i = 0; i < list.size(); i++) {
+				CommonResDropDown res = new CommonResDropDown();
+				Map<String, Object> tempMap = (Map<String, Object>) list.get(i);
+				res.setCode(tempMap.get("TYPE") == null ? "" : tempMap.get("TYPE").toString());
+				res.setCodeDescription(tempMap.get("DETAIL_NAME") == null ? "": tempMap.get("DETAIL_NAME").toString());
+				constantList.add(res);
+			}
+			response.setCommonResponse(constantList);
+			response.setMessage("Success");
+			response.setIsError(false);
+			}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+		}
+
+		return response;
+	}
+
+	@Override
+	public int DuplicateCountCheck(DuplicateCountCheckReq req) {
+	int count=0;
+	List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
+	try {
+		String query = "DUPLICATE_COUNT_CHECK";
+		String args[] = new String[4];
+		args[0]=req.getUwYear();
+		args[1]=req.getBranchCode();
+		args[2]=req.getPid();
+		args[3]=req.getType();
+		if (StringUtils.isNotBlank(req.getProposalNo())) {
+			args = new String[5];
+			args[0]=req.getUwYear();
+			args[1]=req.getBranchCode();
+			args[2]=req.getPid();
+			args[3]=req.getType();
+			args[4]=req.getProposalNo();
+			query ="DUPLICATE_COUNT_CHECK1";
+		}
+		list=queryImpl.selectList(query,args);
+	
+		for (int i = 0; i < list.size(); i++) {
+			if (!CollectionUtils.isEmpty(list)) {
+				count =Integer.valueOf((list.get(0).get("PROPOSAL_NO") == null ? "": list.get(0).get("PROPOSAL_NO").toString()));
+			}
+		}
+	} catch (Exception e) {
+		e.printStackTrace();
+		log.debug("Exception @ {" + e + "}");
+	}
+	return count;
+}
+
+	@Override
+	public GetCommonDropDownRes getCountryDate(String branchCode, String DEC_FILE) {
+		List<Map<String,Object>> list=new ArrayList<Map<String,Object>>();
+		List<CommonResDropDown> result = new ArrayList<CommonResDropDown>();
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		try{
+			String query = "GET_CRESTA_DATE";
+			
+			list = queryImpl.selectList(query,new String[]{branchCode,branchCode});
+			XSSFWorkbook workbook = new XSSFWorkbook();
+		    XSSFSheet sheet = workbook.createSheet("Master");
+		    
+		    Map<String, Object[]> data = new TreeMap<String, Object[]>();
+		    data.put("1", new Object[] {"Territory Code", "Cresta ID", "Cresta Name"});
+		    int j=2;
+		    for(int i=0;i<list.size();i++){
+		    	Map<String,Object> map =list.get(i);
+		    	data.put(Integer.toString(j), new Object[]{map.get("COUNTRY_NAME")==null?"":map.get("COUNTRY_NAME"),map.get("CRESTA_ID")==null?"":map.get("CRESTA_ID"),map.get("CRESTA_NAME")==null?"":map.get("CRESTA_NAME")});
+		    	j++;
+		    }
+		    Set<String> keyset = data.keySet();
+		    int rownum = 0;
+		    for (String key : keyset)
+		    {
+		        XSSFRow row = sheet.createRow(rownum++);
+		        Object [] objArr = data.get(key);
+		        int cellnum = 0;
+		        for (Object obj : objArr)
+		        {
+		           XSSFCell cell = row.createCell(cellnum++);
+		           if(obj instanceof String)
+		                cell.setCellValue((String)obj);
+		            else if(obj instanceof Integer)
+		                cell.setCellValue((Integer)obj);
+		        }
+		    }
+		    XSSFSheet sheet1 = workbook.createSheet("Import");
+		    Map<String, Object[]> data1 = new TreeMap<String, Object[]>();
+		    data1.put("1", new Object[] {"Territory Code", "Cresta ID", "Currency ","Accumulation Date","Accumulation of Risk"});
+		    Set<String> keyset1 = data1.keySet();
+		    int rownum1 = 0;
+		    for (String key : keyset1)
+		    {
+		        XSSFRow row = sheet1.createRow(rownum1++);
+		        Object [] objArr = data1.get(key);
+		        int cellnum = 0;
+		        for (Object obj : objArr)
+		        {
+		           XSSFCell cell = row.createCell(cellnum++);
+		           if(obj instanceof String)
+		                cell.setCellValue((String)obj);
+		            else if(obj instanceof Integer)
+		                cell.setCellValue((Integer)obj);
+		        }
+		    }
+		    try
+		    {
+		        FileOutputStream out = new FileOutputStream(new File(DEC_FILE));
+		        for (int k = 0; k<  5; k++) {
+		        	sheet1.autoSizeColumn(k);
+                }
+		        for (int l = 0; l < 3; l++) {
+		        	sheet.autoSizeColumn(l);
+                }
+		        workbook.write(out);
+		        out.close();
+		    }
+		    catch (Exception e)
+		    {
+		        e.printStackTrace();
+		    }
+		
+			for(int i=0 ; i<list.size() ; i++) {
+				CommonResDropDown res = new CommonResDropDown();
+				Map<String,Object> tempMap = (Map<String,Object>) list.get(i);
+				res.setCode(tempMap.get("CRESTA_ID")==null?"":tempMap.get("CRESTA_ID").toString());
+				res.setCodeDescription(tempMap.get("CRESTA_NAME")==null?"":tempMap.get("CRESTA_NAME").toString());
+				
+				result.add(res);
+			}
+			response.setCommonResponse(result);
+			response.setMessage("Success");
+			response.setIsError(false);
+		}catch(Exception e){
+			log.error(e);
+			e.printStackTrace();
+			response.setMessage("Failed");
+			response.setIsError(true);
+		}
+		return response;
+	}
+	public int getSumOfInstallmentBooked(String contractNo,String layerNo) {
+		int amount=0;
+		try {
+			String obj[]=new String[2];
+			obj[0]=contractNo;
+			obj[1]=layerNo;
+			String query="GET_SUM_INSTALLMENT_BOOKED";
+			List<Map<String,Object>>	list=queryImpl.selectList(query,obj);
+				if (!CollectionUtils.isEmpty(list)) {
+					amount =Integer.valueOf((list.get(0).get("MND_PREMIUM_OC") == null ? "": list.get(0).get("MND_PREMIUM_OC").toString()));
+				}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return amount;
+	}
+	public int getCountOfInstallmentBooked(String contractNo,String layerNo) {
+		int count=0;
+		try {
+			String obj[]=new String[2];
+			obj[0]=contractNo;
+			obj[1]=layerNo;
+			String query="GET_COUNT_INSTALLMENT_BOOKED";
+			List<Map<String,Object>>	list=queryImpl.selectList(query,obj);
+			if (!CollectionUtils.isEmpty(list)) {
+				count =Integer.valueOf((list.get(0).get("COUNT") == null ? "": list.get(0).get("COUNT").toString()));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return count;
+	}
+	public boolean getPLCLCountStatus(String contractNo,String layerNo) {
+		boolean  status=false;
+		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
+		int plclCount=0;
+		try{
+			String query="common.select.getPRCLCount";
+			list= queryImpl.selectList(query,new String[] {contractNo,layerNo,contractNo,layerNo});
+			if (!CollectionUtils.isEmpty(list)) {
+				plclCount = Integer.valueOf(list.get(0).get("COUNT") == null ? ""
+						: list.get(0).get("COUNT").toString());
+			}
+			
+			
+			if(plclCount>0)
+				status=true;
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+
+		return status;
+	}
+	public String getRiskComMaxAmendId(final String proposalNo) {
+		String result="";
+		try{
+			List<TtrnRiskCommission> list = rcRepo.findTop1ByRskProposalNumberOrderByRskEndorsementNoDesc(proposalNo);
+			if(list.size()>0) {
+				result= list.get(0).getRskEndorsementNo()==null?"":list.get(0).getRskEndorsementNo().toString();
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+
+		return result;
+	}
+	public GetContractValRes getContractValidation(ContractReq req) {
+		GetContractValRes resp=new GetContractValRes();
+		String query="";
+		String sumInsured="";
+		String surplus="",coverPer="",dedPer="";
+		String ContNo=StringUtils.isEmpty(req.getContNo())? "0":req.getContNo();
+			List<GetContractValidationRes> resList = new ArrayList<GetContractValidationRes>();
+			List<Map<String,Object>> ContractList=new ArrayList<Map<String,Object>>();
+			String args[] = null;
+			try{
+				if(StringUtils.isNotBlank(req.getCedingCo())&&StringUtils.isNotBlank(req.getIncepDate())&&StringUtils.isNotBlank(req.getExpDate())&&StringUtils.isNotBlank(req.getUwYear())&&StringUtils.isNotBlank(req.getOrginalCurrency())&&StringUtils.isNotBlank(req.getDepartId())&&StringUtils.isNotBlank(req.getTreatyType())&&StringUtils.isNotBlank(req.getProfitCenter())){
+					if(StringUtils.isNotBlank(req.getTreatyType())&&("4".equalsIgnoreCase(req.getTreatyType()) || "5".equalsIgnoreCase(req.getTreatyType()))){
+							sumInsured =StringUtils.isEmpty(req.getFaclimitOrigCur())? "0":req.getFaclimitOrigCur().replaceAll(",", "");
+						}
+					else if(StringUtils.isNotBlank(req.getTreatyType())&&"3".equalsIgnoreCase(req.getTreatyType())){
+							sumInsured =Double.toString(Double.parseDouble(StringUtils.isEmpty(req.getLimitOrigCur())? "0":req.getLimitOrigCur().replaceAll(",", "")));
+							surplus = 	Double.toString(Double.parseDouble(StringUtils.isEmpty(req.getTreatyLimitsurplusOC())? "0":req.getTreatyLimitsurplusOC().replaceAll(",", ""))) ;
+						}	
+					else if(StringUtils.isNotBlank(req.getTreatyType())&&"1".equalsIgnoreCase(req.getTreatyType())){
+						sumInsured = StringUtils.isEmpty(req.getLimitOrigCur())? "0":req.getLimitOrigCur().replaceAll(",", "");
+					}
+					else if(StringUtils.isNotBlank(req.getTreatyType())&&"2".equalsIgnoreCase(req.getTreatyType())){
+						surplus = StringUtils.isEmpty(req.getTreatyLimitsurplusOC())? "0":req.getTreatyLimitsurplusOC().replaceAll(",", "");
+					}
+					
+					
+				if(StringUtils.isBlank(sumInsured)){
+					sumInsured="0";
+				}
+				if(StringUtils.isBlank(surplus)){
+					surplus="0";
+				}
+				if(StringUtils.isBlank(coverPer)){
+					coverPer="0";
+				}
+				if(StringUtils.isBlank(dedPer)){
+					dedPer="0";
+				}
+				if(!req.getCedingCo().matches("^[0-9]+$")){
+					req.setCedingCo("");
+				}
+				if("1".equalsIgnoreCase(req.getProductId())){
+					query="FAC_CONTRACT_LIST";
+					 args = new String[10];
+						args[0] = req.getCedingCo();
+						args[1] = req.getIncepDate();
+						args[2] = req.getExpDate();
+						args[3] = req.getUwYear();
+						args[4] = req.getOrginalCurrency();
+						
+						args[5] = req.getDepartId();
+						args[6] = req.getTreatyType();
+						args[7] = sumInsured;
+						args[8] = req.getProfitCenter();
+						args[9] = req.getBranchCode();
+						if(ContNo!="0"){
+						query="FAC_CONTRACT_LIST1";
+					}
+				}
+				else if("2".equalsIgnoreCase(req.getProductId())){
+					query="PTTY_CONTRACT_LIST";
+					args = new String[9];
+					args[0] = req.getCedingCo();
+					args[1] = req.getIncepDate();
+					args[2] = req.getExpDate();
+					args[3] = req.getUwYear();
+					args[4] = req.getOrginalCurrency();
+					args[5] = req.getDepartId();
+					args[6] = req.getTreatyType();
+					args[7] = req.getProfitCenter();
+					args[8] = req.getBranchCode();
+					if("1".equalsIgnoreCase(req.getTreatyType()) ||"4".equalsIgnoreCase(req.getTreatyType())||"5".equalsIgnoreCase(req.getTreatyType()) ){
+						//query+="  and RP.RSK_LIMIT_OC="+req.getSumInsured();
+						query="PTTY_CONTRACT_LIST1";
+					}
+					else if("2".equalsIgnoreCase(req.getTreatyType())){
+						//query+="  and RP.RSK_TREATY_SURP_LIMIT_OC="+req.getSumInsured();
+						query="PTTY_CONTRACT_LIST2";
+					}
+					else if("3".equalsIgnoreCase(req.getTreatyType())){
+						//query+="  and RP.RSK_LIMIT_OC="+req.getSumInsured()+" and RP.RSK_TREATY_SURP_LIMIT_OC = "+req.getSurplus();
+						query="PTTY_CONTRACT_LIST3";
+					}
+					if(ContNo!="0"){
+						//query+="  and RD.RSK_CONTRACT_NO!="+req.getContno();
+						query="PTTY_CONTRACT_LIST4";
+					}
+				}  if("3".equalsIgnoreCase(req.getProductId())){
+					if(!ContNo.equalsIgnoreCase("0")){
+						query="NPTTY_CONTRACT_LIST_CON";
+						args = new String[11];
+						args[0] = req.getCedingCo();
+						args[1] = req.getIncepDate();
+						args[2] = req.getExpDate();
+						args[3] = req.getUwYear();
+						args[4] = req.getOrginalCurrency();
+						args[5] = req.getDepartId();
+						args[6] = req.getTreatyType();
+						args[7] = req.getProfitCenter();
+						args[8] = req.getLayerNo();
+						args[9] = ContNo;
+						args[10] = req.getBranchCode();
+					}
+					else{
+						query="NPTTY_CONTRACT_LIST";
+						args = new String[10];
+						args[0] = req.getCedingCo();
+						args[1] = req.getIncepDate();
+						args[2] = req.getExpDate();
+						args[3] = req.getUwYear();
+						args[4] = req.getOrginalCurrency();
+						args[5] = req.getDepartId();
+						args[6] = req.getTreatyType();
+						args[7] = req.getProfitCenter();
+						args[8] = req.getLayerNo();
+						args[9] = req.getBranchCode();
+					}
+					
+					if("1".equalsIgnoreCase(req.getTreatyType()) ||"2".equalsIgnoreCase(req.getTreatyType())||"3".equalsIgnoreCase(req.getTreatyType())||"4".equalsIgnoreCase(req.getTreatyType())||"5".equalsIgnoreCase(req.getTreatyType()) ){
+						args = new String[13];
+						args[0] = req.getCedingCo();
+						args[1] = req.getIncepDate();
+						args[2] = req.getExpDate();
+						args[3] = req.getUwYear();
+						args[4] = req.getOrginalCurrency();
+						args[5] = req.getDepartId();
+						args[6] = req.getTreatyType();
+						args[7] = req.getProfitCenter();
+						args[8] = req.getLayerNo();
+						args[9] = ContNo;
+						args[10] = req.getBranchCode();
+						args[11] = sumInsured;
+						args[12] = surplus;
+						query="NPTTY_CONTRACT_LIST_CON1";
+					}
+					else if("5".equalsIgnoreCase(req.getTreatyType())){
+						args = new String[14];
+						args[0] = req.getCedingCo();
+						args[1] = req.getIncepDate();
+						args[2] = req.getExpDate();
+						args[3] = req.getUwYear();
+						args[4] = req.getOrginalCurrency();
+						args[5] = req.getDepartId();
+						args[6] = req.getTreatyType();
+						args[7] = req.getProfitCenter();
+						args[8] = req.getLayerNo();
+						args[9] = req.getBranchCode();
+						args[10] = sumInsured;
+						args[11] = surplus;
+						args[12] = coverPer;
+						args[13] = dedPer;
+						
+						query="NPTTY_CONTRACT_LIST1";
+					}
+				}
+		
+				
+				ContractList =queryImpl.selectList(query,args);
+			
+		
+					 for(int i=0 ; i<ContractList.size() ; i++) {
+						 GetContractValidationRes res = new GetContractValidationRes();
+							Map<String,Object> tempMap = (Map<String,Object>) ContractList.get(i);
+							res.setContractNo(tempMap.get("RSK_CONTRACT_NO")==null?"":tempMap.get("RSK_CONTRACT_NO").toString());
+							res.setEndoresmentNo(tempMap.get("RSK_ENDORSEMENT_NO")==null?"":tempMap.get("RSK_ENDORSEMENT_NO").toString());
+							res.setProposalNo(tempMap.get("RSK_PROPOSAL_NUMBER")==null?"":tempMap.get("RSK_PROPOSAL_NUMBER").toString());
+							res.setBrokerId(tempMap.get("RSK_BROKERID")==null?"":tempMap.get("RSK_BROKERID").toString());
+							res.setUnderWritter(tempMap.get("RSK_UNDERWRITTER")==null?"":tempMap.get("RSK_UNDERWRITTER").toString());
+							res.setInsuredName(tempMap.get("RSK_INSURED_NAME")==null?"":tempMap.get("RSK_INSURED_NAME").toString());
+							
+							resList.add(res);
+						}	
+					 resp.setCommonResponse(resList);
+					 resp.setMessage("Success");
+					 resp.setIsError(false);
+				}
+		 	}catch(Exception e){
+					log.error(e);
+					e.printStackTrace();
+					resp.setMessage("Failed");
+					resp.setIsError(true);
+				}
+			return resp;
+	}
+	public boolean getMode(final String proposalNo, int instNo, String endtNo,final int mode) {
+		boolean flag=false;
+		int count=0;
+		try {
+			if(mode==1) {
+				count = mndRepo.countByProposalNoAndInstallmentNoAndEndorsementNo(proposalNo,new BigDecimal(instNo),new BigDecimal(endtNo));
+			}else if(mode==2) {
+				count =  idRepo.countByProposalNoAndInsurerNoAndEndorsementNo(proposalNo,new BigDecimal(instNo),new BigDecimal(endtNo));
+				}else if(mode==3) {
+					count = cessRepo.countByProposalNoAndSnoAndAmendId(proposalNo,new BigDecimal(instNo),new BigDecimal(endtNo));
+				}
+			if (count==0) {
+				flag = true;
+			} else {
+				flag = false;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return flag;
+	}
+
+	public static String GetACC(final double dround) {
+		String valu="0";
+			DecimalFormat myFormatter = new DecimalFormat("####.####");
+			valu = myFormatter.format(dround);
+		return valu;
+	}
+	public String[] getIncObjectArray(String[] srcObj,String[] descObj){
+		final String[] tempObj = new String[srcObj.length];
+		System.arraycopy(srcObj, 0, tempObj, 0, srcObj.length);
+		srcObj=new String[tempObj.length+descObj.length];
+		System.arraycopy(tempObj, 0, srcObj, 0, tempObj.length);
+		System.arraycopy(descObj, 0, srcObj, tempObj.length, descObj.length);
+		return srcObj;
+	}
+	public synchronized String getSequencePTRT(String type,String productID,String departmentId,String branchCode, String proposalNo, String trDate){ 
+		String seqName="";
+		try{
+			//select Fn_get_SeqNo(?,?,?,?,?,?) from dual
+			String query="select Fn_get_SeqNo(?,?,?,?,?,?) SEQNAME from dual";
+			List<Map<String, Object>> list  = queryImpl.selectList(query,new String[]{type,productID,departmentId,branchCode,proposalNo,trDate});
+			if (!CollectionUtils.isEmpty(list)) {
+				seqName = list.get(0).get("SEQNAME") == null ? ""
+						: list.get(0).get("SEQNAME").toString();
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return seqName;
+	}
+
+//	public String selectCeaseStatus(String contNo, String layerNo) {
+//		String s="";
+//		try {
+//			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+//			CriteriaQuery<String> query = cb.createQuery(String.class); 
+//			
+//			Root<PositionMaster> pm = query.from(PositionMaster.class);
+//
+//			query.select(pm.get("ceaseStatus")); 
+//
+//			Subquery<Long> amend = query.subquery(Long.class); 
+//			Root<PositionMaster> pms = amend.from(PositionMaster.class);
+//			amend.select(cb.max(pms.get("amendId")));
+//			Predicate a1 = cb.equal( pm.get("contractNo"), pms.get("contractNo"));
+//			Predicate a2 = cb.equal( pm.get("layerNo"), pms.get("layerNo"));
+//			amend.where(a1,a2);
+//
+//			Predicate n1 = cb.equal(pm.get("contractNo"),contNo);
+//			Predicate n2 = cb.equal(pm.get("layerNo"), layerNo);
+//			Predicate n3 = cb.equal(pm.get("amendId"),amend);
+//			Predicate n4 = cb.equal(pm.get("contractStatus"), "A");
+//			query.where(n1,n2,n3,n4);
+//
+//			TypedQuery<String> res = em.createQuery(query);
+//			List<String> list = res.getResultList();
+//			if(list!=null) {
+//			s =	list.get(0)	;
+//			}
+//			
+//		} catch(Exception e) {
+//			e.printStackTrace();
+//			}
+//
+//		return s;
+//		}
+	
+}

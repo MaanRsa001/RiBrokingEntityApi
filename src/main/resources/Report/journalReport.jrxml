@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="journalReport" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="59ad733b-35b4-40ed-aedb-e253f1f15844">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<style name="common1" hAlign="Center" vAlign="Middle" fontName="Arial" fontSize="9" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
+	<style name="common" hAlign="Left" vAlign="Middle" fontName="Arial" fontSize="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
+	<style name="table">
+		<box>
+			<pen lineWidth="0.25" lineColor="#000000"/>
+			<topPen lineWidth="0.25"/>
+			<leftPen lineWidth="0.25"/>
+			<bottomPen lineWidth="0.25"/>
+			<rightPen lineWidth="0.25"/>
+		</box>
+	</style>
+	<style name="table_TH" mode="Opaque" backcolor="#FF6699">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<subDataset name="Journal" uuid="056ecc5e-b9e0-4167-a4c5-da3333079407">
+		<parameter name="startDate" class="java.lang.String"/>
+		<parameter name="journalId" class="java.lang.String"/>
+		<parameter name="endDate" class="java.lang.String"/>
+		<parameter name="branchCode" class="java.lang.String"/>
+		<parameter name="spc" class="java.lang.String"/>
+		<parameter name="currency" class="java.lang.String"/>
+		<parameter name="uwy" class="java.lang.String"/>
+		<parameter name="productId" class="java.lang.String"/>
+		<parameter name="referance" class="java.lang.String"/>
+		<parameter name="shortname" class="java.lang.String"/>
+		<queryString>
+			<![CDATA[Select  To_Char(Startdate) Startdate , Reference, Ledger, Uwy, Spc, Currency,
+      To_Number(Debitoc) Debitoc, To_Number(Creditoc) Creditoc, To_Number(
+      Debitugx) Debitugx,To_Number(Creditugx) Creditugx, Narration, To_Char(
+      Product_Id),To_Char(End_Date)
+      From Journel_Format
+      Where  SPC=$P{spc}
+      and CURRENCY=$P{currency}
+      and UWY=$P{uwy}
+      and JV_ID=$P{journalId}
+      and Trunc(STARTDATE) =to_date($P{startDate},'DD/MM/YYYY')
+      and Trunc(END_DATE)=to_date($P{endDate},'DD/MM/YYYY')
+      and PRODUCT_ID=$P{productId}
+      and branch_code=$P{branchCode} Union All
+      Select '','','Total',to_number(''),'','',Sum(Debitoc) Debitoc,Sum(
+      Creditoc) Creditoc,Sum(Debitugx) Debitugx,Sum(Creditugx) Creditugx,'',''
+      ,''
+      From Journel_Format
+      Where  SPC=$P{spc}
+      and CURRENCY=$P{currency}
+      and UWY=$P{uwy}
+      and JV_ID=$P{journalId}
+      and Trunc(STARTDATE) = to_date($P{startDate},'DD/MM/YYYY')
+      and Trunc(END_DATE)=to_date($P{endDate},'DD/MM/YYYY')
+      and PRODUCT_ID=$P{productId}
+      and branch_code=$P{branchCode}]]>
+		</queryString>
+		<field name="STARTDATE" class="java.lang.String"/>
+		<field name="REFERENCE" class="java.lang.String"/>
+		<field name="LEDGER" class="java.lang.String"/>
+		<field name="UWY" class="java.math.BigDecimal"/>
+		<field name="SPC" class="java.lang.String"/>
+		<field name="CURRENCY" class="java.lang.String"/>
+		<field name="DEBITOC" class="java.math.BigDecimal"/>
+		<field name="CREDITOC" class="java.math.BigDecimal"/>
+		<field name="DEBITUGX" class="java.math.BigDecimal"/>
+		<field name="CREDITUGX" class="java.math.BigDecimal"/>
+		<field name="NARRATION" class="java.lang.String"/>
+		<field name="TO_CHAR(PRODUCT_ID)" class="java.lang.String"/>
+		<field name="TO_CHAR(END_DATE)" class="java.lang.String"/>
+	</subDataset>
+	<parameter name="journalId" class="java.lang.String"/>
+	<parameter name="startDate" class="java.lang.String"/>
+	<parameter name="endDate" class="java.lang.String"/>
+	<parameter name="branchCode" class="java.lang.String"/>
+	<parameter name="shortname" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[Select distinct UWY,SPC,CURRENCY,to_char(JV_DATE,'DD/MM/YYYY') STARTDATE,
+      NARRATION,REFERENCE,PRODUCT_ID,JOURNAL_ID
+      from JOURNEL_FORMAT
+      Where jv_id=$P{journalId}
+      and Trunc(STARTDATE) = to_date($P{startDate},'DD/MM/YYYY')
+      and Trunc(END_DATE)=to_date($P{endDate},'DD/MM/YYYY')
+      and branch_code=$P{branchCode} group by REFERENCE,LEDGER,JV_DATE,JV_ID,UWY,SPC,
+      CURRENCY,NARRATION,PRODUCT_ID,JOURNAL_ID
+      order by JOURNAL_ID,PRODUCT_ID,UWY,SPC,CURRENCY]]>
+	</queryString>
+	<field name="UWY" class="java.math.BigDecimal"/>
+	<field name="SPC" class="java.lang.String"/>
+	<field name="CURRENCY" class="java.lang.String"/>
+	<field name="STARTDATE" class="java.lang.String"/>
+	<field name="NARRATION" class="java.lang.String"/>
+	<field name="REFERENCE" class="java.lang.String"/>
+	<field name="PRODUCT_ID" class="java.math.BigDecimal"/>
+	<field name="JOURNAL_ID" class="java.math.BigDecimal"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="43" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="e5690d6b-1b7f-48ea-9def-334e7b672e2a" style="common1" stretchType="RelativeToBandHeight" x="0" y="0" width="555" height="25" backcolor="#FFFFFF"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{journalId}.equals("1")?"Premium Journals":$P{journalId}.equals("2")?"Claims Journals":$P{journalId}.equals("3")?"Treasury Journals":$P{journalId}.equals("4")?"Pipeline Journals":$P{journalId}.equals("5")?"Outstanding Loss Journals":$P{journalId}.equals("6")?"Pipeline UPR":"Booked UPR"]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="30" splitType="Prevent">
+			<componentElement>
+				<reportElement uuid="738f9b32-b0bc-4532-8f22-02f37be3f598" key="table" style="table" x="0" y="0" width="555" height="30"/>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="Journal" uuid="4249ef44-6da1-4bb8-9064-e7fbcb551a6d">
+						<datasetParameter name="startDate">
+							<datasetParameterExpression><![CDATA[$P{startDate}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="endDate">
+							<datasetParameterExpression><![CDATA[$P{endDate}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="branchCode">
+							<datasetParameterExpression><![CDATA[$P{branchCode}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="journalId">
+							<datasetParameterExpression><![CDATA[$P{journalId}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="spc">
+							<datasetParameterExpression><![CDATA[$F{SPC}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="currency">
+							<datasetParameterExpression><![CDATA[$F{CURRENCY}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="uwy">
+							<datasetParameterExpression><![CDATA[$F{UWY}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="productId">
+							<datasetParameterExpression><![CDATA[$F{PRODUCT_ID}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="referance">
+							<datasetParameterExpression><![CDATA[$F{REFERENCE}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="shortname">
+							<datasetParameterExpression><![CDATA[$P{shortname}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:column width="150" uuid="d4e19a29-5dea-41a4-9e6e-d16f669077cc">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="f85e2ec7-d7b0-4bcc-8ffd-6fc2fe8c8430" style="common1" x="0" y="0" width="150" height="15"/>
+								<box leftPadding="3"/>
+								<textElement textAlignment="Left"/>
+								<textFieldExpression><![CDATA["Transaction Date:"+($P{startDate}==null?"":($P{startDate}))]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:columnHeader height="15" rowSpan="1">
+							<textField>
+								<reportElement uuid="a8ebfb88-9218-4224-a350-071475971f63" style="common1" x="0" y="0" width="150" height="15"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement/>
+								<textFieldExpression><![CDATA["Ledger"]]></textFieldExpression>
+							</textField>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="7caf308d-3e5d-499b-b7bd-869fd7f38a9f" style="common" x="0" y="0" width="150" height="20"/>
+								<box leftPadding="3"/>
+								<textElement/>
+								<textFieldExpression><![CDATA[$F{LEDGER}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="100" uuid="015722a7-362f-4ade-9812-b3198fa9ce10">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="ccdc3f3b-b71d-487a-a4b0-9c3be0abd492" style="common1" x="0" y="0" width="100" height="15"/>
+								<box leftPadding="3"/>
+								<textElement textAlignment="Left"/>
+								<textFieldExpression><![CDATA["UWY"+($P{uwy}==null?"":($P{uwy}))]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:columnHeader height="15" rowSpan="1">
+							<textField>
+								<reportElement uuid="51ff5824-89bd-41b9-8cb8-9cd035b7cdbf" style="common1" x="0" y="0" width="100" height="15"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement/>
+								<textFieldExpression><![CDATA["Debit (OC)"]]></textFieldExpression>
+							</textField>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="8b54a014-d384-4801-a7fb-eec274114bac" style="common" x="0" y="0" width="100" height="20"/>
+								<box leftPadding="3" rightPadding="3"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{DEBITOC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="100" uuid="235ba0c8-c9d6-4d4d-b980-a0331d1ce461">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="c8656e6b-cc27-4c64-803a-f31de537de43" style="common1" x="0" y="0" width="100" height="15"/>
+								<box leftPadding="3"/>
+								<textElement textAlignment="Left"/>
+								<textFieldExpression><![CDATA["Currency:"+($P{currency}==null?"":($P{currency}))]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:columnHeader height="15" rowSpan="1">
+							<textField>
+								<reportElement uuid="f37acfd4-dbb1-4a78-9ee2-484c32316182" style="common1" x="0" y="0" width="100" height="15"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement/>
+								<textFieldExpression><![CDATA["Credit (OC)"]]></textFieldExpression>
+							</textField>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="4829ecbc-271f-4c33-a718-5cbe9728cefa" style="common" x="0" y="0" width="100" height="20"/>
+								<box leftPadding="3" rightPadding="3"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{CREDITOC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="100" uuid="9d81f4ae-f43f-4779-a95b-a005221fc868">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="367ede65-319f-4064-8066-1a45e39ff79e" style="common1" x="0" y="0" width="100" height="15"/>
+								<box leftPadding="3"/>
+								<textElement textAlignment="Left"/>
+								<textFieldExpression><![CDATA["SPC:"+($P{spc}==null?"":($P{spc}))]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:columnHeader height="15" rowSpan="1">
+							<textField>
+								<reportElement uuid="6fccdac4-1da0-4534-a94e-9870a7ece047" style="common1" x="0" y="0" width="100" height="15"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement/>
+								<textFieldExpression><![CDATA["Debit ("+$P{shortname}+")"]]></textFieldExpression>
+							</textField>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="64b97692-8432-4b99-8d4b-0108bbd28c70" style="common" x="0" y="0" width="100" height="20"/>
+								<box leftPadding="3" rightPadding="3"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{DEBITUGX}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="105" uuid="3dea8662-2e7f-427a-8028-195a0f012cc0">
+						<jr:tableHeader style="table_TH" height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement uuid="f1baeda7-4f23-4c1a-b819-097348c51d96" style="common1" x="0" y="0" width="105" height="15"/>
+								<box leftPadding="3"/>
+								<textElement textAlignment="Left"/>
+								<textFieldExpression><![CDATA["Reference:"+($P{referance}==null?"":($P{referance}))]]></textFieldExpression>
+							</textField>
+						</jr:tableHeader>
+						<jr:columnHeader height="15" rowSpan="1">
+							<textField>
+								<reportElement uuid="31c1abc6-6f35-4055-a074-263763119d5f" style="common1" x="0" y="0" width="105" height="15"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement/>
+								<textFieldExpression><![CDATA["Credit ("+$P{shortname}+")"]]></textFieldExpression>
+							</textField>
+						</jr:columnHeader>
+						<jr:detailCell style="table_TD" height="20" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+								<reportElement uuid="ee896799-2de0-4fdd-95f2-5f11fbcd8ed7" style="common" x="0" y="0" width="105" height="20"/>
+								<box leftPadding="3" rightPadding="3"/>
+								<textElement textAlignment="Right"/>
+								<textFieldExpression><![CDATA[$F{CREDITUGX}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+		</band>
+		<band height="36" splitType="Prevent">
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="cff4b5d7-682b-4f9f-84b6-11a00ad62d30" style="common1" stretchType="RelativeToTallestObject" x="0" y="0" width="150" height="15"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement/>
+				<textFieldExpression><![CDATA["Narration"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="2a715499-16f0-4a21-8b6e-c70e297827ba" style="common" stretchType="RelativeToTallestObject" x="150" y="0" width="405" height="15"/>
+				<box leftPadding="3">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{NARRATION}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>
