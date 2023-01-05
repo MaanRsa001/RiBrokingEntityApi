@@ -48,10 +48,10 @@ import com.maan.insurance.model.entity.RskPremiumDetailsTemp;
 import com.maan.insurance.model.entity.TmasBranchMaster;
 import com.maan.insurance.model.entity.TmasDepartmentMaster;
 import com.maan.insurance.model.entity.TmasPfcMaster;
-import com.maan.insurance.model.entity.TmasPolicyBranch;
 import com.maan.insurance.model.entity.TtrnRiskCommission;
 import com.maan.insurance.model.entity.TtrnRiskDetails;
 import com.maan.insurance.model.entity.TtrnRiskProposal;
+import com.maan.insurance.model.req.premium.InsertPremiumReq;
 import com.maan.insurance.model.req.xolPremium.ContractDetailsReq;
 import com.maan.insurance.model.req.xolPremium.GetAdjPremiumReq;
 import com.maan.insurance.model.req.xolPremium.GetPremiumedListReq;
@@ -62,7 +62,7 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 	
 	@Autowired
 	EntityManager em;
-
+	SimpleDateFormat sdf = new  SimpleDateFormat("dd/MM/yyyy");
 	@Override
 	public List<Tuple> selectPremiumedList1(GetPremiumedListReq beanObj) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -800,7 +800,7 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 		Root<TtrnRiskDetails> rkRoot = cq.from(TtrnRiskDetails.class);
 		Root<TmasPfcMaster> pfcRoot = cq.from(TmasPfcMaster.class);
 		Root<PersonalInfo> personalRoot = cq.from(PersonalInfo.class);
-		Root<TmasPolicyBranch> branchRoot = cq.from(TmasPolicyBranch.class);
+		//Root<TmasPolicyBranch> branchRoot = cq.from(TmasPolicyBranch.class);
 		Root<PersonalInfo> piRoot = cq.from(PersonalInfo.class);
 		Root<CurrencyMaster> cmRoot = cq.from(CurrencyMaster.class);
 		
@@ -834,7 +834,7 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 				rkRoot.get("rskAccountDate").alias("RSK_ACCOUNT_DATE"),
 				rkRoot.get("rskExpiryDate").alias("EXP_DATE"),
 				rkRoot.get("rskMonth").alias("MONTH"),
-				branchRoot.get("tmasPolBranchName").alias("TMAS_POL_BRANCH_NAME"),	
+				//branchRoot.get("tmasPolBranchName").alias("TMAS_POL_BRANCH_NAME"),	
 				rkRoot.get("rskProposalNumber").alias("RSK_PROPOSAL_NUMBER"),
 				rkRoot.get("rskUwyear").alias("RSK_UWYEAR"),
 				rkRoot.get("rskLayerNo").alias("RSK_LAYER_NO"),
@@ -888,7 +888,7 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 			   cb.equal(piRoot.get("branchCode"), req.getBranchCode()),
 			   cb.equal(piRoot.get("amendId"), piAmendSq),
 			   cb.equal(rkRoot.get("rskEndorsementNo"), endoSq),
-			   cb.equal(rkRoot.get("rskPolbranch"), branchRoot.get("tmasPolBranchId")),
+			   //cb.equal(rkRoot.get("rskPolbranch"), branchRoot.get("tmasPolBranchId")),
 			   cb.equal(rkRoot.get("branchCode"), req.getBranchCode()),
 			   cb.equal(cmRoot.get("currencyId"), rkRoot.get("rskOriginalCurr")),
 			   cb.equal(cmRoot.get("branchCode"), piRoot.get("branchCode")),
@@ -1117,8 +1117,8 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 				root.get("mDpremiumOc").alias("M_DPREMIUM_OC"),
 				root.get("adjustmentPremiumOc").alias("ADJUSTMENT_PREMIUM_OC"),
 				root.get("recPremiumOc").alias("REC_PREMIUM_OC"),
-				root.get("commission").alias("INSTALMENT_NUMBER"),
-				root.get("entryDateTime").alias("INS_DATE"),
+				root.get("commission").alias("COMMISSION"),
+				//root.get("entryDateTime").alias("INS_DATE"),
 				root.get("xlCostOc").alias("XL_COST_OC"),
 				root.get("claimPortfolioOutOc").alias("CLAIM_PORTFOLIO_OUT_OC"),
 				root.get("premiumReserveRealsedOc").alias("PREMIUM_RESERVE_REALSED_OC"),
@@ -1156,6 +1156,7 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 				root.get("sectionName").alias("SECTION_NAME"),
 				root.get("reverselStatus").alias("REVERSEL_STATUS"),
 				root.get("reverseTransactionNo").alias("REVERSE_TRANSACTION_NO"),
+				root.get("instalmentNumber").alias("INSTALMENT_NUMBER"),
 				root.get("vatPremiumOc").alias("VAT_PREMIUM_OC"),
 				root.get("vatPremiumDc").alias("VAT_PREMIUM_DC"),
 				root.get("brokerageVatOc").alias("BROKERAGE_VAT_OC"),
@@ -1225,6 +1226,7 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 				root.get("premiumClass").alias("PREMIUM_CLASS"),
 				root.get("reverseTransactionNo").alias("REVERSE_TRANSACTION_NO"),
 				root.get("reverselStatus").alias("REVERSEL_STATUS"),
+				root.get("instalmentNumber").alias("INSTALMENT_NUMBER"),
 				root.get("vatPremiumOc").alias("VAT_PREMIUM_OC"),
 				root.get("vatPremiumDc").alias("VAT_PREMIUM_DC"),
 				root.get("brokerageVatOc").alias("BROKERAGE_VAT_OC"),
@@ -1722,7 +1724,7 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 
 		update.set(root.get("reverseTransactionNo"), input1);
 
-		update.where(cb.equal(root.get("transactionNo"), input2));
+		update.where(cb.equal(root.get("transactionNo"), new BigDecimal(input2)));
 
 		Query q = em.createQuery(update);
 		return q.executeUpdate();
@@ -1788,7 +1790,7 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaUpdate<RskPremiumDetailsTemp> update = cb.createCriteriaUpdate(RskPremiumDetailsTemp.class);
 		Root<RskPremiumDetailsTemp> root = update.from(RskPremiumDetailsTemp.class);
-		SimpleDateFormat sdf = new  SimpleDateFormat("dd/MM/yyyy");
+		
 
 		update.set(root.get("transactionMonthYear"), present(args[0]))
 		.set(root.get("currencyId"), Double.parseDouble(args[1]))
@@ -1827,76 +1829,81 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 		.set(root.get("subClass"), Integer.parseInt(args[33]))
 		.set(root.get("tdsOc"), Double.parseDouble(args[34]))
 		.set(root.get("tdsDc"), Double.parseDouble(args[35]))
-		.set(root.get("stOc"), Double.parseDouble(args[36]))
-		.set(root.get("stDc"), Double.parseDouble(args[37]))
+		.set(root.get("vatPremiumOc"), Double.parseDouble(args[36]))
+		.set(root.get("vatPremiumDc"), Double.parseDouble(args[37]))
 		.set(root.get("bonusOc"), Double.parseDouble(args[38]))
 		.set(root.get("bonusDc"), Double.parseDouble(args[39]))
 		.set(root.get("gnpiEndtNo"), args[40])
 		.set(root.get("premiumClass"), args[41])
-		.set(root.get("statementDate"), present(args[42]));
+		.set(root.get("statementDate"), present(args[42]))
+		.set(root.get("brokerageVatOc"), Double.parseDouble(args[43]))
+		.set(root.get("brokerageVatDc"), Double.parseDouble(args[44]))
+		.set(root.get("documentType"), args[45]);
 
-		update.where(cb.equal(root.get("contractNo"), args[43]),
-				     cb.equal(root.get("requestNo"), args[44]));
+		update.where(cb.equal(root.get("contractNo"), args[46]),
+				     cb.equal(root.get("requestNo"), args[47]));
 
 		Query q = em.createQuery(update);
 		return q.executeUpdate();
 		
 	}
 
-	@Override
-	public Integer premiumUpdateXolUpdatePre(String[] args) {
+	@Transactional
+	public Integer premiumUpdateXolUpdatePre(String[] args) throws ParseException {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaUpdate<RskPremiumDetails> update = cb.createCriteriaUpdate(RskPremiumDetails.class);
 		Root<RskPremiumDetails> root = update.from(RskPremiumDetails.class);
 
-		update.set(root.get("transactionMonthYear"), args[0])
-		.set(root.get("transactionMonthYear"), args[1])
-		.set(root.get("currencyId"), args[2])
-		.set(root.get("exchangeRate"), args[3])
-		.set(root.get("brokerage"), args[4])
-		.set(root.get("brokerageAmtOc"), args[5])
-		.set(root.get("tax"), args[6])
-		.set(root.get("taxAmtOc"), args[7])
-		.set(root.get("entryDateTime"), args[8])
-		.set(root.get("commission"), args[9])
-		.set(root.get("mDpremiumOc"), args[10])
-		.set(root.get("adjustmentPremiumOc"), args[11])
-		.set(root.get("recPremiumOc"), args[12])
-		.set(root.get("netdueOc"), args[13])
-		.set(root.get("enteringMode"), args[14])
-		.set(root.get("receiptNo"), args[15])
-		.set(root.get("otherCostOc"), args[16])
-		.set(root.get("brokerageAmtDc"), args[17])
-		.set(root.get("taxAmtDc"), args[18])
-		.set(root.get("mDpremiumDc"), args[19])
-		.set(root.get("adjustmentPremiumDc"), args[20])
-		.set(root.get("recPremiumDc"), args[21])
-		.set(root.get("netdueDc"), args[22])
-		.set(root.get("otherCostDc"), args[23])
-		.set(root.get("cedantReference"), args[24])
-		.set(root.get("remarks"), args[25])
-		.set(root.get("totalCrOc"), args[26])
-		.set(root.get("totalCrDc"), args[27])
-		.set(root.get("totalDrOc"), args[28])
-		.set(root.get("totalDrDc"), args[29])
-		.set(root.get("amendmentDate"), args[30])
+		update.set(root.get("transactionMonthYear"), present(args[0]))
+		.set(root.get("currencyId"), Double.parseDouble(args[1]))
+		.set(root.get("exchangeRate"), Double.parseDouble(args[2]))
+		.set(root.get("brokerage"), Double.parseDouble(args[3]))
+		.set(root.get("brokerageAmtOc"), Double.parseDouble(args[4]))
+		.set(root.get("tax"), Double.parseDouble(args[5]))
+		.set(root.get("taxAmtOc"), Double.parseDouble(args[6]))
+		.set(root.get("entryDateTime"), present(args[7]))
+		.set(root.get("commission"), Double.parseDouble(args[8]))
+		.set(root.get("mDpremiumOc"), Double.parseDouble(args[9]))
+		.set(root.get("adjustmentPremiumOc"), Double.parseDouble(args[10]))
+		.set(root.get("recPremiumOc"), Double.parseDouble(args[11]))
+		.set(root.get("netdueOc"), Double.parseDouble(args[12]))
+		.set(root.get("enteringMode"), args[13])
+		.set(root.get("receiptNo"), Integer.parseInt(args[14]))
+		.set(root.get("otherCostOc"), Double.parseDouble(args[15]))
+		.set(root.get("brokerageAmtDc"), Double.parseDouble(args[16]))
+		.set(root.get("taxAmtDc"), Double.parseDouble(args[17]))
+		.set(root.get("mDpremiumDc"), Double.parseDouble(args[18]))
+		.set(root.get("adjustmentPremiumDc"), Double.parseDouble(args[19]))
+		.set(root.get("recPremiumDc"), Double.parseDouble(args[20]))
+		.set(root.get("netdueDc"), Double.parseDouble(args[21]))
+		.set(root.get("otherCostDc"), Double.parseDouble(args[22]))
+		.set(root.get("cedantReference"), args[23])
+		.set(root.get("remarks"), args[24])
+		.set(root.get("totalCrOc"), Double.parseDouble(args[25]))
+		.set(root.get("totalCrDc"), Double.parseDouble(args[26]))
+		.set(root.get("totalDrOc"), Double.parseDouble(args[27]))
+		.set(root.get("totalDrDc"), Double.parseDouble(args[28]))
+		.set(root.get("amendmentDate"), StringUtils.isEmpty(args[29]) ?null :sdf.parse(args[29]))
 		.set(root.get("entryDate"), new java.sql.Date(Calendar.getInstance().getTime().getTime()))
-		.set(root.get("withHoldingTaxOc"), args[31])
-		.set(root.get("withHoldingTaxDc"), args[32])
-		.set(root.get("ricession"), args[33])
-		.set(root.get("subClass"), args[34])
-		.set(root.get("tdsOc"), args[35])
-		.set(root.get("tdsDc"), args[36])
-		.set(root.get("stOc"), args[37])
-		.set(root.get("stDc"), args[38])
-		.set(root.get("bonusOc"),args[39])
-		.set(root.get("bonusDc"), args[40])
-		.set(root.get("gnpiEndtNo"), args[41])
-		.set(root.get("premiumClass"), args[42])
-		.set(root.get("statementDate"), args[43]);
+		.set(root.get("withHoldingTaxOc"), Double.parseDouble(args[30]))
+		.set(root.get("withHoldingTaxDc"), Double.parseDouble(args[31]))
+		.set(root.get("riCession"), args[32])
+		.set(root.get("subClass"), Integer.parseInt(args[33]))
+		.set(root.get("tdsOc"), Double.parseDouble(args[34]))
+		.set(root.get("tdsDc"), Double.parseDouble(args[35]))
+		.set(root.get("vatPremiumOc"), Double.parseDouble(args[36]))
+		.set(root.get("vatPremiumDc"), Double.parseDouble(args[37]))
+		.set(root.get("bonusOc"), Double.parseDouble(args[38]))
+		.set(root.get("bonusDc"), Double.parseDouble(args[39]))
+		.set(root.get("gnpiEndtNo"), args[40])
+		.set(root.get("premiumClass"), args[41])
+		.set(root.get("statementDate"), present(args[42]))
+		.set(root.get("brokerageVatOc"), Double.parseDouble(args[43]))
+		.set(root.get("brokerageVatDc"), Double.parseDouble(args[44]))
+		.set(root.get("documentType"), args[45]);
 
-		update.where(cb.equal(root.get("contractNo"), args[44]),
-				     cb.equal(root.get("transactionNo"), args[45]));
+		update.where(cb.equal(root.get("contractNo"), args[46]),
+				     cb.equal(root.get("requestNo"), args[47]));
 
 		Query q = em.createQuery(update);
 		return q.executeUpdate();
@@ -1904,59 +1911,62 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 	}
 
 	@Override
-	public Integer premiumUpdateRetroxolUpdatePre(String[] args) {
+	@Transactional
+	public Integer premiumUpdateRetroxolUpdatePre(String[] args) throws ParseException {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaUpdate<RskXLPremiumDetails> update = cb.createCriteriaUpdate(RskXLPremiumDetails.class);
 		Root<RskXLPremiumDetails> root = update.from(RskXLPremiumDetails.class);
 
-		update.set(root.get("transactionMonthYear"), args[0])
-		.set(root.get("transactionMonthYear"), args[1])
-		.set(root.get("currencyId"), args[2])
-		.set(root.get("exchangeRate"), args[3])
-		.set(root.get("brokerage"), args[4])
-		.set(root.get("brokerageAmtOc"), args[5])
-		.set(root.get("tax"), args[6])
-		.set(root.get("taxAmtOc"), args[7])
-		.set(root.get("entryDateTime"), args[8])
-		.set(root.get("commission"), args[9])
-		.set(root.get("mDpremiumOc"), args[10])
-		.set(root.get("adjustmentPremiumOc"), args[11])
-		.set(root.get("recPremiumOc"), args[12])
-		.set(root.get("netdueOc"), args[13])
-		.set(root.get("enteringMode"), args[14])
-		.set(root.get("receiptNo"), args[15])
-		.set(root.get("otherCostOc"), args[16])
-		.set(root.get("brokerageAmtDc"), args[17])
-		.set(root.get("taxAmtDc"), args[18])
-		.set(root.get("mDpremiumDc"), args[19])
-		.set(root.get("adjustmentPremiumDc"), args[20])
-		.set(root.get("recPremiumDc"), args[21])
-		.set(root.get("netdueDc"), args[22])
-		.set(root.get("otherCostDc"), args[23])
-		.set(root.get("cedantReference"), args[24])
-		.set(root.get("remarks"), args[25])
-		.set(root.get("totalCrOc"), args[26])
-		.set(root.get("totalCrDc"), args[27])
-		.set(root.get("totalDrOc"), args[28])
-		.set(root.get("totalDrDc"), args[29])
-		.set(root.get("amendmentDate"), args[30])
+		update.set(root.get("transactionMonthYear"), present(args[0]))
+		.set(root.get("currencyId"), Double.parseDouble(args[1]))
+		.set(root.get("exchangeRate"), Double.parseDouble(args[2]))
+		.set(root.get("brokerage"), Double.parseDouble(args[3]))
+		.set(root.get("brokerageAmtOc"), Double.parseDouble(args[4]))
+		.set(root.get("tax"), Double.parseDouble(args[5]))
+		.set(root.get("taxAmtOc"), Double.parseDouble(args[6]))
+		.set(root.get("entryDateTime"), present(args[7]))
+		.set(root.get("commission"), Double.parseDouble(args[8]))
+		.set(root.get("mDpremiumOc"), Double.parseDouble(args[9]))
+		.set(root.get("adjustmentPremiumOc"), Double.parseDouble(args[10]))
+		.set(root.get("recPremiumOc"), Double.parseDouble(args[11]))
+		.set(root.get("netdueOc"), Double.parseDouble(args[12]))
+		.set(root.get("enteringMode"), args[13])
+		.set(root.get("receiptNo"), Integer.parseInt(args[14]))
+		.set(root.get("otherCostOc"), Double.parseDouble(args[15]))
+		.set(root.get("brokerageAmtDc"), Double.parseDouble(args[16]))
+		.set(root.get("taxAmtDc"), Double.parseDouble(args[17]))
+		.set(root.get("mDpremiumDc"), Double.parseDouble(args[18]))
+		.set(root.get("adjustmentPremiumDc"), Double.parseDouble(args[19]))
+		.set(root.get("recPremiumDc"), Double.parseDouble(args[20]))
+		.set(root.get("netdueDc"), Double.parseDouble(args[21]))
+		.set(root.get("otherCostDc"), Double.parseDouble(args[22]))
+		.set(root.get("cedantReference"), args[23])
+		.set(root.get("remarks"), args[24])
+		.set(root.get("totalCrOc"), Double.parseDouble(args[25]))
+		.set(root.get("totalCrDc"), Double.parseDouble(args[26]))
+		.set(root.get("totalDrOc"), Double.parseDouble(args[27]))
+		.set(root.get("totalDrDc"), Double.parseDouble(args[28]))
+		.set(root.get("amendmentDate"), StringUtils.isEmpty(args[29]) ?null :sdf.parse(args[29]))
 		.set(root.get("entryDate"), new java.sql.Date(Calendar.getInstance().getTime().getTime()))
-		.set(root.get("withHoldingTaxOc"), args[31])
-		.set(root.get("withHoldingTaxDc"), args[32])
-		.set(root.get("ricession"), args[33])
-		.set(root.get("subClass"), args[34])
-		.set(root.get("tdsOc"), args[35])
-		.set(root.get("tdsDc"), args[36])
-		.set(root.get("stOc"), args[37])
-		.set(root.get("stDc"), args[38])
-		.set(root.get("bonusOc"),args[39])
-		.set(root.get("bonusDc"), args[40])
-		.set(root.get("gnpiEndtNo"), args[41])
-		.set(root.get("premiumClass"), args[42])
-		.set(root.get("statementDate"), args[43]);
+		.set(root.get("withHoldingTaxOc"), Double.parseDouble(args[30]))
+		.set(root.get("withHoldingTaxDc"), Double.parseDouble(args[31]))
+		.set(root.get("riCession"), args[32])
+		.set(root.get("subClass"), Integer.parseInt(args[33]))
+		.set(root.get("tdsOc"), Double.parseDouble(args[34]))
+		.set(root.get("tdsDc"), Double.parseDouble(args[35]))
+		.set(root.get("vatPremiumOc"), Double.parseDouble(args[36]))
+		.set(root.get("vatPremiumDc"), Double.parseDouble(args[37]))
+		.set(root.get("bonusOc"), Double.parseDouble(args[38]))
+		.set(root.get("bonusDc"), Double.parseDouble(args[39]))
+		.set(root.get("gnpiEndtNo"), args[40])
+		.set(root.get("premiumClass"), args[41])
+		.set(root.get("statementDate"), present(args[42]))
+		.set(root.get("brokerageVatOc"), Double.parseDouble(args[43]))
+		.set(root.get("brokerageVatDc"), Double.parseDouble(args[44]))
+		.set(root.get("documentType"), args[45]);
 
-		update.where(cb.equal(root.get("contractNo"), args[44]),
-				     cb.equal(root.get("transactionNo"), args[45]));
+		update.where(cb.equal(root.get("contractNo"), args[46]),
+				     cb.equal(root.get("requestNo"), args[47]));
 
 		Query q = em.createQuery(update);
 		return q.executeUpdate();
@@ -2221,6 +2231,27 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 			e.printStackTrace();
 		}
 		return Timestamp.valueOf(newDateString);
+	}
+	@Override
+	public void premiumRiSplit(PremiumInsertMethodReq req) {
+		StoredProcedureQuery storedProcedure = em.createStoredProcedureQuery("RI_SPLIT_INSERT");
+
+		// Assign parameters
+		storedProcedure.registerStoredProcedureParameter("V_CONTRACT_NO", String.class, ParameterMode.IN);
+		storedProcedure.registerStoredProcedureParameter("V_LAYER_NO", String.class, ParameterMode.IN);
+		storedProcedure.registerStoredProcedureParameter("V_PRODUCT_ID", String.class, ParameterMode.IN);
+		storedProcedure.registerStoredProcedureParameter("V_TRANSACTION_NO", String.class, ParameterMode.IN);
+		storedProcedure.registerStoredProcedureParameter("V_BRANCH_CODE", String.class, ParameterMode.IN);
+	
+		// Set parameters
+		storedProcedure.setParameter("V_CONTRACT_NO", req.getContNo());
+		storedProcedure.setParameter("V_LAYER_NO", StringUtils.isBlank(req.getLayerno())?"0":req.getLayerno());
+		storedProcedure.setParameter("V_PRODUCT_ID", req.getProductId());
+		storedProcedure.setParameter("V_TRANSACTION_NO", req.getTransactionNo());
+		storedProcedure.setParameter("V_BRANCH_CODE", req.getBranchCode());
+		
+		// execute SP
+		storedProcedure.execute();
 	}
 
 }

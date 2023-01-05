@@ -290,10 +290,10 @@ public class XolPremiumValidation {
 					{
 						list.add(new ErrorCheck(prop.getProperty("errors.premium.transaction.statement"),"transaction","01")); 
 					}
-					else if(dateflag && Validation.ValidateTwo(bean.getAcceptenceDate(),bean.getTransaction()).equalsIgnoreCase("invalid"))
+					/*else if(dateflag && Validation.ValidateTwo(bean.getAcceptenceDate(),bean.getTransaction()).equalsIgnoreCase("invalid"))
 					{
 						list.add(new ErrorCheck(prop.getProperty("errors.premium.acDate")+bean.getAcceptenceDate(),"premium","01"));
-					}
+					}*/
 					else if(!"superuser".equalsIgnoreCase(bean.getUserType()))
 					{
 						String morRepMaxDate = xolPreImpl.getMovementReportMaxDate(bean.getBranchCode());

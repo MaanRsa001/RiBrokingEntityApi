@@ -357,8 +357,11 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 		CommonSaveRes response = new CommonSaveRes();
 		String premium = "";
 		try {
+			int count=rskPremiumDetailsRepository.countByContractNo(new BigDecimal(contractNo));
 			// query -- select_Previous_premium
-			premium = xolPremiumCustomRepository.selectPreviousPremium(contractNo);
+			if(count>0) {
+				premium = xolPremiumCustomRepository.selectPreviousPremium(contractNo);
+			}
 			premium = premium == null ? "" : premium;
 			response.setResponse(premium);
 			response.setMessage("Success");
@@ -425,7 +428,7 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 				list.add(tempMap3);
 				//tempMap4.put("KEY1", "RVP");
 				//tempMap4.put("VALUE", "Reversal Premium");
-				list.add(tempMap4);
+				//list.add(tempMap4);
 			} else {
 				tempMap1.put("KEY1", "RP");
 				tempMap1.put("VALUE", "Reinstatement Premium");
@@ -435,7 +438,7 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 				list.add(tempMap3);
 				//tempMap4.put("KEY1", "RVP");
 				//tempMap4.put("VALUE", "Reversal Premium");
-				list.add(tempMap4);
+				//list.add(tempMap4);
 			}
 			if (list.size() > 0)
 				for (int i = 0; i < list.size(); i++) {
@@ -621,16 +624,14 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 		 List<Tuple> transList=new ArrayList<>();
 		 try {
 			 String input = null;
-				if("Temp".equalsIgnoreCase(req.getTableType()) && "3".equalsIgnoreCase(req.getProductId())){
+			 	if( "transEdit".equalsIgnoreCase(req.getMode())) {
+					input = req.getTransDropDownVal();
+					transList = xolPremiumCustomRepository.selectTreetyXOLPremiumEdit(req.getContNo(),input);
+			 	}else if("Temp".equalsIgnoreCase(req.getTableType()) && "3".equalsIgnoreCase(req.getProductId())){
 					input = req.getRequestNo();
-					if( "transEdit".equalsIgnoreCase(req.getMode()))
-						input = req.getTransDropDownVal();
 					transList = xolPremiumCustomRepository.getXolPremiumEditRTemp(req.getContNo(), input);
 				}else{
-					input = req.getTransactionNo();
-					if( "transEdit".equalsIgnoreCase(req.getMode()))
-						input = req.getTransDropDownVal();
-					
+					input = req.getTransactionNo();					
 					if("3".equalsIgnoreCase(req.getProductId())){
 						transList = xolPremiumCustomRepository.selectTreetyXOLPremiumEdit(req.getContNo(),input);
 					}
@@ -1033,9 +1034,9 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
                             bean.setWithHoldingTaxDC(xolView.get("WITH_HOLDING_TAX_DC")==null?"":fm.formatter(xolView.get("WITH_HOLDING_TAX_DC").toString()));
 		                   
                             if ("Temp".equalsIgnoreCase(req.getTableType()) && "3".equalsIgnoreCase(req.getProductId())|| "".equalsIgnoreCase(req.getTransactionNo())) {
-		                            bean.setDueDate(xolView.get("TRANS_DATE")==null?"":Transadded(xolView.get("TRANS_DATE")).toString());
+		                            bean.setDueDate(xolView.get("TRANS_DATE")==null?"":fm.Transadded(xolView.get("TRANS_DATE")).toString());
 		                    }else {
-		                    	bean.setDueDate(xolView.get("ACCOUNT_PERIOD_QTR")==null?"":Transadded(xolView.get("ACCOUNT_PERIOD_QTR")).toString());
+		                    	bean.setDueDate(xolView.get("ACCOUNT_PERIOD_QTR")==null?"":fm.Transadded(xolView.get("ACCOUNT_PERIOD_QTR")).toString());
 		                    }
                             
                             bean.setCreditsign(xolView.get("NETDUE_OC")==null?"":xolView.get("NETDUE_OC").toString());
@@ -1101,39 +1102,37 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 		return response;
 	}
 	
-	public CommonResponse premiumUpdateMethod(PremiumInsertMethodReq beanObj) {
-		CommonResponse response = new CommonResponse();
+	public premiumInsertMethodRes premiumUpdateMethod(PremiumInsertMethodReq beanObj) {
+		premiumInsertMethodRes response = new premiumInsertMethodRes();
+		PremiumInsertRes res = new PremiumInsertRes();
 		try {
 			String[] args = updateAruguments(beanObj);
 			String netDueOc = "0";
 			if ("Temp".equalsIgnoreCase(beanObj.getTableType()) && "3".equalsIgnoreCase(beanObj.getProductId())) {
-				// query -- XOL_PREMIUM_UPDATE_UPDATE_TEMP
 				xolPremiumCustomRepository.xolPremiumUpdateUpdateTemp(args);
+				beanObj.setRequestNo(args[47]);
 			} else {
 				if ("3".equalsIgnoreCase(beanObj.getProductId())) {
-					// query -- premium.update.xolUpdatePre
 					xolPremiumCustomRepository.premiumUpdateXolUpdatePre(args);
 				} else {
-					// query -- premium.update.retroxolUpdatePre
 					xolPremiumCustomRepository.premiumUpdateRetroxolUpdatePre(args);
 				}
+				beanObj.setTransactionNo(args[47]);
 			}
 			netDueOc = args[12];
-			if ("Submit".equalsIgnoreCase(beanObj.getButtonStatus()) && "Temp".equalsIgnoreCase(beanObj.getTableType())
-					&& "3".equalsIgnoreCase(beanObj.getProductId())) {
+			if ("Submit".equalsIgnoreCase(beanObj.getButtonStatus()) && "Temp".equalsIgnoreCase(beanObj.getTableType())	&& "3".equalsIgnoreCase(beanObj.getProductId())) {
 				if ("3".equalsIgnoreCase(beanObj.getProductId())) {
-					beanObj.setTransactionNo(fm.getSequence("Premium", beanObj.getProductId(),
-							beanObj.getDepartmentId(), beanObj.getBranchCode(), "", beanObj.getTransaction()));
-					// query -- FAC_TEMP_STATUS_UPDATE
+					beanObj.setTransactionNo(fm.getSequence("Premium", beanObj.getProductId(),beanObj.getDepartmentId(), beanObj.getBranchCode(), "", beanObj.getTransaction()));
 					xolPremiumCustomRepository.facTempStatusUpdate(beanObj);
 					getTempToMainMove(beanObj, netDueOc);
 				}
-				// query -- premium.detail.archive
 				xolPremiumCustomRepository.premiumDetailArchive(beanObj, netDueOc);
 
-				// query -- FAC_TEMP_STATUS_UPDATE
 				xolPremiumCustomRepository.facTempStatusUpdate(beanObj);
 			}
+			res.setRequestNo(beanObj.getRequestNo());
+			res.setTransactionNo(beanObj.getTransactionNo());
+			response.setInsertRes(res);
 			response.setMessage("Success");
 			response.setIsError(false);
 		} catch (Exception e) {
@@ -1272,11 +1271,11 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
         args[37] =  dropDowmImpl.GetDesginationCountry(args[36], beanObj.getExchRate());
 		args[38] = getModeOfTransaction(beanObj.getBonus(),beanObj.getEnteringMode(), beanObj.getShareSigned());
 		args[39] =  dropDowmImpl.GetDesginationCountry(args[38], beanObj.getExchRate());
-		args[43]=beanObj.getContNo();
+		args[46]=beanObj.getContNo();
 		if("Temp".equalsIgnoreCase(beanObj.getTableType()) &&"3".equalsIgnoreCase(beanObj.getProductId())){
-			args[44]=beanObj.getRequestNo();
+			args[47]=beanObj.getRequestNo();
 		}else{
-			args[44]=beanObj.getTransactionNo();
+			args[47]=beanObj.getTransactionNo();
 		}
 		
 		args[40]=StringUtils.isEmpty(beanObj.getGnpiDate()) ?"" :beanObj.getGnpiDate();
@@ -1323,9 +1322,7 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 				RskPremiumDetailsTemp entity = rskPremiumDetailsTempMapper.toEntity(args);
 				dbResponse = rskPremiumDetailsTempRepository.save(entity);
 				beanObj.setRequestNo(args[1]);
-				res.setRequestNo(beanObj.getRequestNo());;
 			} else {
-				// query -- premium.insert.retoxolpremium
 				RskXLPremiumDetails entity = rskXLPremiumDetailsMapper.toEntity(args);
 				dbResponse = rskXLPremiumDetailsRepository.save(entity);
 				beanObj.setTransactionNo(args[1]);
@@ -1378,6 +1375,8 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 					xolPremiumCustomRepository.updateMndInstal(beanObj.getProposalNo(), beanObj.getTransDropDownVal());
 				}
 			}
+			res.setRequestNo(beanObj.getRequestNo());
+			res.setTransactionNo(beanObj.getTransactionNo());
 			response.setInsertRes(res);
 			response.setMessage("Success");
 			response.setIsError(false);
@@ -1600,6 +1599,8 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 			if ("3".equalsIgnoreCase(beanObj.getProductId())) {
 				// query -- premium.sp.retroSplit
 				xolPremiumCustomRepository.premiumSpRetroSplit(beanObj);
+				xolPremiumCustomRepository.premiumRiSplit(beanObj);
+				
 			} else {
 				// query -- PRCL_DELETE
 				xolPremiumCustomRepository.prclDelete(beanObj);
@@ -1686,8 +1687,7 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 						contDet.get("RSK_ORIGINAL_CURR") == null ? "" : contDet.get("RSK_ORIGINAL_CURR").toString());
 				bean.setBaseCurrencyName(
 						contDet.get("CURRENCY_NAME") == null ? "" : contDet.get("CURRENCY_NAME").toString());
-				bean.setPolicyBranch(contDet.get("TMAS_POL_BRANCH_NAME") == null ? ""
-						: contDet.get("TMAS_POL_BRANCH_NAME").toString());
+				//bean.setPolicyBranch(contDet.get("TMAS_POL_BRANCH_NAME") == null ? "": contDet.get("TMAS_POL_BRANCH_NAME").toString());
 				bean.setAddress(contDet.get("Address") == null ? "" : contDet.get("Address").toString());
 				bean.setDepartmentId(contDet.get("RSK_DEPTID") == null ? "" : contDet.get("RSK_DEPTID").toString());
 				bean.setDepartmentName(contDet.get("TMAS_DEPARTMENT_NAME") == null ? ""
@@ -1760,22 +1760,7 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 		}
 		return response;
 	}
-	
-	public String Transadded(Object date) throws ParseException {
-		String dates = "";
-		try {
-			String format = "yyyy-MM-dd hh:mm:ss"; 
-			SimpleDateFormat sdf = new SimpleDateFormat(format);
-			java.util.Date Date = sdf.parse(date.toString());
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(Date);
-			cal.add(Calendar.DATE, 30);
-			dates = cal.getTime().toString();
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-		return dates;
-	}
+
 	@Override
 	public GetRIPremiumListRes getRIPremiumList(GetRIPremiumListReq req) {
 		GetRIPremiumListRes response = new GetRIPremiumListRes();

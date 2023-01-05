@@ -253,11 +253,11 @@ private static final long serialVersionUID = 1L;
     @Column(name="LOSS_ESTIMATE_DC", length=100)
     private String     lossEstimateDc ;
 
-    @Column(name="LOSS_ESTIMATE_LAYER_OC")
-    private BigDecimal lossEstimateLayerOc ;
+    //@Column(name="LOSS_ESTIMATE_LAYER_OC")
+   // private BigDecimal lossEstimateLayerOc ;
 
-    @Column(name="LOSS_ESTIMATE_LAYER_OS_OC")
-    private BigDecimal lossEstimateLayerOsOc ;
+    //@Column(name="LOSS_ESTIMATE_LAYER_OS_OC")
+    //private BigDecimal lossEstimateLayerOsOc ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="REOPENED_DATE")

@@ -9,8 +9,8 @@ public class GetPreListRes1 {
 	@JsonProperty("UwYear")
 	private String uwYear;
 	
-//	@JsonProperty("ProposalNo")
-//	private String proposalNo;
+	@JsonProperty("ProposalNo")
+	private String proposalNo;
 	
 	@JsonProperty("ContNo")
 	private String contNo;
@@ -21,8 +21,8 @@ public class GetPreListRes1 {
 	@JsonProperty("DepartmentName")
 	private String departmentName;
 	
-//	@JsonProperty("Layerno")
-//	private String layerno;
+	@JsonProperty("Layerno")
+	private String layerno;
 	
 	@JsonProperty("BrokerName")
 	private String brokerName;

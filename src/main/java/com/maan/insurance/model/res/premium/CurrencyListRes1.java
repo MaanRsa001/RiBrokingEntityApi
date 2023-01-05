@@ -8,8 +8,8 @@ import lombok.Data;
 
 @Data
 public class CurrencyListRes1 {
-	@JsonProperty("CurrencyId")
+	@JsonProperty("Code")
 	private String currencyId;
-	@JsonProperty("ShortName")
+	@JsonProperty("CodeDescription")
 	private String shortName;
 }

@@ -108,9 +108,9 @@ public interface XolPremiumCustomRepository {
 	
 	public Integer xolPremiumUpdateUpdateTemp(String[] args) throws ParseException;
 	
-	public Integer premiumUpdateXolUpdatePre(String[] args);
+	public Integer premiumUpdateXolUpdatePre(String[] args) throws ParseException, ParseException;
 	
-	public Integer premiumUpdateRetroxolUpdatePre(String[] args);
+	public Integer premiumUpdateRetroxolUpdatePre(String[] args) throws ParseException;
 	
 	public void premiumDetailArchive(PremiumInsertMethodReq beanObj, String netdueOc);
 	
@@ -119,6 +119,8 @@ public interface XolPremiumCustomRepository {
 	public void premiumSpRetroSplit(PremiumInsertMethodReq beanObj);
 	
 	public Integer prclDelete(PremiumInsertMethodReq beanObj);
+
+	public void premiumRiSplit(PremiumInsertMethodReq beanObj);
 	
 	
 }

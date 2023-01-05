@@ -140,7 +140,7 @@ public class PropPremiumValidation {
 			list.add(new ErrorCheck("Please Enter ContractNo","ContractNo", "02"));
 			}
 		if(StringUtils.isBlank(req.getSectionNo())) {
-			list.add(new ErrorCheck(prop.getProperty("Please Enter SectionNo"),"DepartmentId", "03"));
+			list.add(new ErrorCheck("Please Enter SectionNo","SectionNo", "03"));
 			}
 		if(StringUtils.isBlank(req.getProposalNo())) {
 			//list.add(new ErrorCheck("Please Enter ProposalNo","ProposalNo", "04"));
@@ -309,7 +309,7 @@ public class PropPremiumValidation {
 						 list.add(new ErrorCheck(prop.getProperty("errors.amendmentDate.invalid"),"AmendmentDate","11"));
 							dateflag=false;
 							statDate=false;
-					}else if(Validation.ValidateTwo(req.getMaxDate(),req.getAmendmentDate()).equalsIgnoreCase("invalid"))
+					}else if(StringUtils.isNotBlank(req.getMaxDate()) && Validation.ValidateTwo(req.getMaxDate(),req.getAmendmentDate()).equalsIgnoreCase("invalid"))
 					{
 						 list.add(new ErrorCheck(prop.getProperty("errors.premium.amendDate"),"MaxDate,AmendmentDate","12"));
 						
@@ -564,7 +564,7 @@ public class PropPremiumValidation {
 					 {
 						  list.add(new ErrorCheck(prop.getProperty("errors.PremiumReserveQuotaShare1.Error"),"PremiumReserveQuotaShare","01"));
 					 }else if(Double.parseDouble(req.getPremiumReserveQuotaShare())<0){
-						  list.add(new ErrorCheck(prop.getProperty("errors.PremiumReserveQuotaShare1.less"),"PremiumReserveQuotaShare1","01"));
+						  //list.add(new ErrorCheck(prop.getProperty("errors.PremiumReserveQuotaShare1.less"),"PremiumReserveQuotaShare1","01"));
 						 
 					 }
 			 	 }
@@ -630,7 +630,7 @@ public class PropPremiumValidation {
 					 {
 						  list.add(new ErrorCheck(prop.getProperty("errors.LossReserveRetained.Error"),"LossReserveRetained","01")); 
 					 }else if(Double.parseDouble(req.getLossReserveRetained())<0){
-						  list.add(new ErrorCheck(prop.getProperty("errors.LossReserveRetained.Error.less"),"LossReserveRetained","01"));
+						  //list.add(new ErrorCheck(prop.getProperty("errors.LossReserveRetained.Error.less"),"LossReserveRetained","01"));
 					 }
 					 
 				 }

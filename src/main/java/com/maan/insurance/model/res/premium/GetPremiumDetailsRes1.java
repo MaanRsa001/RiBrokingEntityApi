@@ -150,10 +150,16 @@ public class GetPremiumDetailsRes1 {
 	private String taxDedectSource;
 	@JsonProperty("TaxDedectSourceDc")
 	private String taxDedectSourceDc;
-	@JsonProperty("ServiceTax")
-	private String serviceTax;
-	@JsonProperty("ServiceTaxDc")
-	private String serviceTaxDc;
+	@JsonProperty("VatPremium")
+	private String vatPremium;
+	@JsonProperty("VatPremiumDc")
+	private String vatPremiumDc;
+	@JsonProperty("BrokerageVat")
+	private String brokerageVat;
+	@JsonProperty("BrokerageVatDc")
+	private String brokerageVatDc;
+	@JsonProperty("DocumentType")
+	private String documentType;
 	
 	@JsonProperty("LossParticipation")
 	private String lossParticipation;

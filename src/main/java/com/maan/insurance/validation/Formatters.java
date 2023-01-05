@@ -4,6 +4,7 @@ import java.sql.Date;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
@@ -131,6 +132,20 @@ public class Formatters {
 
 		return noFmt;
 	}
-
+	public Object Transadded(Object date) throws ParseException {
+		Object dates = "";
+		try {
+			String format = "yyyy-MM-dd hh:mm:ss"; 
+			SimpleDateFormat sdf = new SimpleDateFormat(format);
+			java.util.Date Date = sdf.parse(date.toString());
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(Date);
+			cal.add(Calendar.DATE, 30);
+			dates = cal.getTime();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return dates;
+	}
 
 }

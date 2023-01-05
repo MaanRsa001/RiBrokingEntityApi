@@ -82,6 +82,7 @@ public class RskPremiumDetailsTempMapper extends AbstractEntityMapper<RskPremium
 			rskPremiumDetailsTemp.setBrokerageVatOc(formatBigDecimal(input[58]));
 			rskPremiumDetailsTemp.setBrokerageVatDc(formatBigDecimal(input[59]));
 			rskPremiumDetailsTemp.setDocumentType(input[60]);
+			rskPremiumDetailsTemp.setAmendId(BigDecimal.ZERO);
 		}
 		return rskPremiumDetailsTemp;
 	}
@@ -190,9 +191,13 @@ public class RskPremiumDetailsTempMapper extends AbstractEntityMapper<RskPremium
 			rskPremiumDetailsTemp.setProductId(formatBigDecimal(input[91]));
 			rskPremiumDetailsTemp.setTransStatus(input[92]);
 			rskPremiumDetailsTemp.setTransType(input[93]);
-			rskPremiumDetailsTemp.setBrokerageVatOc(formatBigDecimal(input[58]));
-			rskPremiumDetailsTemp.setBrokerageVatDc(formatBigDecimal(input[59]));
-			rskPremiumDetailsTemp.setDocumentType(input[60]);
+			rskPremiumDetailsTemp.setBrokerageVatOc(formatBigDecimal(input[94]));
+			rskPremiumDetailsTemp.setBrokerageVatDc(formatBigDecimal(input[95]));
+			rskPremiumDetailsTemp.setDocumentType(input[96]);
+			rskPremiumDetailsTemp.setM1Oc(formatBigDecimal(input[97]));
+			rskPremiumDetailsTemp.setM2Oc(formatBigDecimal(input[98]));
+			rskPremiumDetailsTemp.setM3Oc(formatBigDecimal(input[99]));
+			rskPremiumDetailsTemp.setAmendId(BigDecimal.ZERO);
 		}
 		return rskPremiumDetailsTemp;
 	}

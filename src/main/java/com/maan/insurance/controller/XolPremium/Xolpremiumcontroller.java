@@ -108,7 +108,7 @@ public class Xolpremiumcontroller {
 	 	return xps.premiumInsertMethod(req); 
 	}
 	@PostMapping("/premiumUpdateMethod")
-	public CommonResponse premiumUpdateMethod(@RequestBody PremiumInsertMethodReq req) throws CommonValidationException {
+	public premiumInsertMethodRes premiumUpdateMethod(@RequestBody PremiumInsertMethodReq req) throws CommonValidationException {
 	List<ErrorCheck> error= XolPremVali.validateXolPremium(req);
 	if(error!=null && error.size()>0) {
 		throw new CommonValidationException("error",error);

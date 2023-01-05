@@ -79,11 +79,11 @@ private static final long serialVersionUID = 1L;
     @Column(name="COUNTRY_SHORT_NAME", length=10)
     private String     countryShortName ;
 
-    @Column(name="VAT_YN", length=10)
-    private String     vatYn ;
+   // @Column(name="VAT_YN", length=10)
+    //private String     vatYn ;
 
-    @Column(name="VAT_PERCENT", length=10)
-    private String     vatPercent ;
+  //  @Column(name="VAT_PERCENT", length=10)
+   // private String     vatPercent ;
 
 
     //--- ENTITY LINKS ( RELATIONSHIP )

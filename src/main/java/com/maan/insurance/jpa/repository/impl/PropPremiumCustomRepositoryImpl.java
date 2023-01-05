@@ -26,7 +26,9 @@ import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
+import javax.transaction.Transactional;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -53,6 +55,7 @@ import com.maan.insurance.model.entity.TmasPfcMaster;
 import com.maan.insurance.model.entity.TmasPolicyBranch;
 import com.maan.insurance.model.entity.TtrnClaimDetails;
 import com.maan.insurance.model.entity.TtrnClaimPayment;
+import com.maan.insurance.model.entity.TtrnPttySection;
 import com.maan.insurance.model.entity.TtrnRiskCommission;
 import com.maan.insurance.model.entity.TtrnRiskDetails;
 import com.maan.insurance.model.entity.TtrnRiskProposal;
@@ -284,7 +287,7 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 				cRoot.get("companyName").alias("COMPANY_NAME"),
 				aRoot.get("layerNo").alias("LAYER_NO"),
 				aRoot.get("deptId").alias("DEPT_ID"),
-				fNameSq.alias("Broker_name"))
+				fNameSq.alias("BROKER_NAME"))
 		
 		.where(cb.equal(aRoot.get("contractNo"), contNo),
 				cb.equal(aRoot.get("deptId"), deptId),
@@ -751,7 +754,7 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 				tcdRoot.get("currency").alias("CURRENCY_ID"))
 		.where(cb.greaterThan(exp, cb.literal(0.0)),
 			   cb.equal(tcpRoot.get("contractNo"), contNo),
-			   cb.equal(tcpRoot.get("subClass"), departmentId),
+			   cb.equal(tcdRoot.get("subClass"), departmentId),
 			   cb.equal(tcdRoot.get("contractNo"), tcpRoot.get("contractNo")),
 			   cb.equal(tcdRoot.get("claimNo"), tcpRoot.get("claimNo")),
 			   cb.equal(tcpRoot.get("claimPaymentNo"), claimPayNo));
@@ -1246,8 +1249,10 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		int val = 0;
 		try{
 		List<TtrnDepositRelease> list = ttrnrepos.findTop1ByBranchCodeOrderByRlNoDesc(branchCode);
-		if(list!=null) {
+		if(!CollectionUtils.isEmpty(list)) {
 		 val = (list.get(0).getRlNo()==null?5001: Integer.valueOf(list.get(0).getRlNo().toString()))+1;
+		}else {
+			val=5001;
 		}
 		}catch(Exception e){
 		e.printStackTrace();
@@ -1255,7 +1260,7 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 
 		return String.valueOf(val);	
 	}
-
+	@Transactional
 	@Override
 	public Integer updateLossReserve(String contractNo ,String requestNo, String transactionNo, String tableMoveStatus) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -1265,8 +1270,8 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		Subquery<Double> sq = update.subquery(Double.class);
 		Root<TtrnDepositRelease> subRoot = sq.from(TtrnDepositRelease.class);
 
-		sq.select(cb.<Double>selectCase().when(cb.isNull(cb.sum(root.get("rlAmountInRtCurr"))), 0.0)
-				.otherwise(cb.sum(root.get("rlAmountInRtCurr"))))
+		sq.select(cb.<Double>selectCase().when(cb.isNull(cb.sum(subRoot.get("rlAmountInRtCurr"))), 0.0)
+				.otherwise(cb.sum(subRoot.get("rlAmountInRtCurr"))))
 		
 		.where(cb.equal(subRoot.get("contractNo"), contractNo), 
 				cb.equal(subRoot.get("tempRequestNo"), requestNo), 
@@ -1283,7 +1288,7 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		Query q = em.createQuery(update);
 		return q.executeUpdate();
 	}
-
+	@Transactional
 	@Override
 	public Integer updatePremiumReserve(String contractNo ,String requestNo, String transactionNo, String tableMoveStatus) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -1293,8 +1298,8 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		Subquery<Double> sq = update.subquery(Double.class);
 		Root<TtrnDepositRelease> subRoot = sq.from(TtrnDepositRelease.class);
 
-		sq.select(cb.<Double>selectCase().when(cb.isNull(cb.sum(root.get("rlAmountInRtCurr"))), 0.0)
-				.otherwise(cb.sum(root.get("rlAmountInRtCurr"))))
+		sq.select(cb.<Double>selectCase().when(cb.isNull(cb.sum(subRoot.get("rlAmountInRtCurr"))), 0.0)
+				.otherwise(cb.sum(subRoot.get("rlAmountInRtCurr"))))
 		
 		.where(cb.equal(subRoot.get("contractNo"), contractNo), 
 				cb.equal(subRoot.get("tempRequestNo"), requestNo), 
@@ -1394,7 +1399,7 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		cq.multiselect(expressionToGetPaddedId);
 		return em.createQuery(cq).getSingleResult();
 	}
-
+	@Transactional
 	@Override
 	public Integer facTempStatusUpdate(InsertPremiumReq req) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -1421,7 +1426,7 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		Root<TtrnRiskDetails> rkRoot = cq.from(TtrnRiskDetails.class);
 		Root<TmasPfcMaster> pfcRoot = cq.from(TmasPfcMaster.class);
 		Root<PersonalInfo> personalRoot = cq.from(PersonalInfo.class);
-		Root<TmasPolicyBranch> branchRoot = cq.from(TmasPolicyBranch.class);
+		//Root<TmasPolicyBranch> branchRoot = cq.from(TmasPolicyBranch.class);
 		Root<PersonalInfo> piRoot = cq.from(PersonalInfo.class);
 		Root<CurrencyMaster> cmRoot = cq.from(CurrencyMaster.class);
 		Root<PositionMaster> pmroot = cq.from(PositionMaster.class);
@@ -1455,7 +1460,7 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 				rkRoot.get("rskAccountDate").alias("RSK_ACCOUNT_DATE"),
 				rkRoot.get("rskExpiryDate").alias("EXP_DATE"),
 				rkRoot.get("rskMonth").alias("MONTH"),
-				branchRoot.get("tmasPolBranchName").alias("TMAS_POL_BRANCH_NAME"),	
+				//branchRoot.get("tmasPolBranchName").alias("TMAS_POL_BRANCH_NAME"),	
 				rkRoot.get("rskProposalNumber").alias("RSK_PROPOSAL_NUMBER"),
 				rkRoot.get("rskUwyear").alias("RSK_UWYEAR"),
 				rkRoot.get("rskLayerNo").alias("RSK_LAYER_NO"),
@@ -1509,7 +1514,7 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 			   cb.equal(piRoot.get("branchCode"), req.getBranchCode()),
 			   cb.equal(piRoot.get("amendId"), piAmendSq),
 			   cb.equal(rkRoot.get("rskEndorsementNo"), endoSq),
-			   cb.equal(rkRoot.get("rskPolbranch"), branchRoot.get("tmasPolBranchId")),
+			  // cb.equal(rkRoot.get("rskPolbranch"), branchRoot.get("tmasPolBranchId")),
 			   cb.equal(rkRoot.get("branchCode"), req.getBranchCode()),
 			   cb.equal(cmRoot.get("currencyId"), rkRoot.get("rskOriginalCurr")),
 			   cb.equal(cmRoot.get("branchCode"), piRoot.get("branchCode")),
@@ -1688,6 +1693,22 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 				cb.equal(pDeptSubRoot.get("tmasStatus"), "Y"),
 				cb.equal(pDeptSubRoot.get("tmasDepartmentId"), root.get("premiumClass")));
 		
+		Subquery<String> sectionSq = cq.subquery(String.class);
+		Root<TtrnPttySection> seSubRoot = sectionSq.from(TtrnPttySection.class);
+		
+		Subquery<BigDecimal> psectionSq = cq.subquery(BigDecimal.class);
+		Root<TtrnPttySection> pseSubRoot = psectionSq.from(TtrnPttySection.class);
+
+		psectionSq.select(cb.max(pseSubRoot.get("amendId"))).where(
+				cb.equal(seSubRoot.get("contractNo"), pseSubRoot.get("contractNo")),
+				cb.equal(seSubRoot.get("deptId"), pseSubRoot.get("deptId")));
+		
+		sectionSq.select(seSubRoot.get("sectionName")).where(
+				cb.equal(seSubRoot.get("contractNo"), root.get("contractNo")),
+				cb.equal(seSubRoot.get("deptId"), root.get("subClass")),
+				cb.equal(seSubRoot.get("sectionNo"), root.get("sectionName")),
+				cb.equal(seSubRoot.get("amendId"), psectionSq));
+		
 		//ACCOUNT_PERIOD_QTR
 				Subquery<String> act = cq.subquery(String.class); 
 				Root<ConstantDetail> name = act.from(ConstantDetail.class);
@@ -1737,8 +1758,13 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 				deptSq.alias("SUB_CLASS"),//sq
 				root.get("tdsOc").alias("TDS_OC"),
 				root.get("tdsDc").alias("TDS_DC"),
-				root.get("stOc").alias("ST_OC"),
-				root.get("stDc").alias("ST_DC"),
+				//root.get("stOc").alias("ST_OC"),
+				//root.get("stDc").alias("ST_DC"),
+				root.get("vatPremiumOc").alias("VAT_PREMIUM_OC"),
+				root.get("vatPremiumDc").alias("VAT_PREMIUM_DC"),
+				root.get("brokerageVatOc").alias("BROKERAGE_VAT_OC"),
+				root.get("brokerageVatDc").alias("BROKERAGE_VAT_DC"),
+				root.get("documentType").alias("DOCUMENT_TYPE"),
 				root.get("bonusOc").alias("BONUS_OC"),
 				root.get("bonusDc").alias("BONUS_DC"),
 				pDeptSq.alias("TMAS_DEPARTMENT_NAME"),//sq
@@ -1793,6 +1819,8 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 				root.get("riCession").alias("RI_CESSION"),
 				root.get("lpcOc").alias("LPC_OC"),
 				root.get("lpcDc").alias("LPC_DC"),
+				root.get("premiumSubclass").alias("PREMIUM_SUBCLASS"),
+				sectionSq.alias("SECTION_NAME"),
 				root.get("scCommOc").alias("SC_COMM_OC"),
 				root.get("scCommDc").alias("SC_COMM_DC"))
 				
@@ -1825,6 +1853,24 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 				cb.equal(pDeptSubRoot.get("tmasProductId"), productId),
 				cb.equal(pDeptSubRoot.get("tmasStatus"), "Y"),
 				cb.equal(pDeptSubRoot.get("tmasDepartmentId"), root.get("premiumClass")));
+		Subquery<String> sectionSq = cq.subquery(String.class);
+		Root<TtrnPttySection> seSubRoot = sectionSq.from(TtrnPttySection.class);
+		
+		Subquery<BigDecimal> psectionSq = cq.subquery(BigDecimal.class);
+		Root<TtrnPttySection> pseSubRoot = psectionSq.from(TtrnPttySection.class);
+
+		psectionSq.select(cb.max(pseSubRoot.get("amendId"))).where(
+				cb.equal(seSubRoot.get("contractNo"), pseSubRoot.get("contractNo")),
+				cb.equal(seSubRoot.get("deptId"), pseSubRoot.get("deptId")));
+		
+		sectionSq.select(seSubRoot.get("sectionName")).where(
+				cb.equal(seSubRoot.get("contractNo"), root.get("contractNo")),
+				cb.equal(seSubRoot.get("deptId"), root.get("subClass")),
+				cb.equal(seSubRoot.get("sectionNo"), root.get("sectionName")),
+				cb.equal(seSubRoot.get("amendId"), psectionSq));
+		
+		
+		
 		//ACCOUNT_PERIOD_QTR
 		Subquery<String> act = cq.subquery(String.class); 
 		Root<ConstantDetail> name = act.from(ConstantDetail.class);
@@ -1874,8 +1920,13 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 				deptSq.alias("SUB_CLASS"),//sq
 				root.get("tdsOc").alias("TDS_OC"),
 				root.get("tdsDc").alias("TDS_DC"),
-				root.get("stOc").alias("ST_OC"),
-				root.get("stDc").alias("ST_DC"),
+				//root.get("stOc").alias("ST_OC"),
+				//root.get("stDc").alias("ST_DC"),
+				root.get("vatPremiumOc").alias("VAT_PREMIUM_OC"),
+				root.get("vatPremiumDc").alias("VAT_PREMIUM_DC"),
+				root.get("brokerageVatOc").alias("BROKERAGE_VAT_OC"),
+				root.get("brokerageVatDc").alias("BROKERAGE_VAT_DC"),
+				root.get("documentType").alias("DOCUMENT_TYPE"),
 				root.get("bonusOc").alias("BONUS_OC"),
 				root.get("bonusDc").alias("BONUS_DC"),
 				pDeptSq.alias("TMAS_DEPARTMENT_NAME"),//sq
@@ -1930,6 +1981,8 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 				root.get("riCession").alias("RI_CESSION"),
 				root.get("lpcOc").alias("LPC_OC"),
 				root.get("lpcDc").alias("LPC_DC"),
+				root.get("premiumSubclass").alias("PREMIUM_SUBCLASS"),
+				sectionSq.alias("SECTION_NAME"),
 				root.get("scCommOc").alias("SC_COMM_OC"),
 				root.get("scCommDc").alias("SC_COMM_DC")
 				
@@ -1988,8 +2041,13 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 				root.get("withHoldingTaxDc").alias("WITH_HOLDING_TAX_DC"),
 				root.get("tdsOc").alias("TDS_OC"),
 				root.get("tdsDc").alias("TDS_DC"),
-				root.get("stOc").alias("ST_OC"),
-				root.get("stDc").alias("ST_DC"),
+				//root.get("stOc").alias("ST_OC"),
+				//root.get("stDc").alias("ST_DC"),
+				root.get("vatPremiumOc").alias("VAT_PREMIUM_OC"),
+				root.get("vatPremiumDc").alias("VAT_PREMIUM_DC"),
+				root.get("brokerageVatOc").alias("BROKERAGE_VAT_OC"),
+				root.get("brokerageVatDc").alias("BROKERAGE_VAT_DC"),
+				root.get("documentType").alias("DOCUMENT_TYPE"),
 				root.get("bonusOc").alias("BONUS_OC"),
 				root.get("bonusDc").alias("BONUS_DC"),
 				root.get("reverselStatus").alias("REVERSEL_STATUS"),
@@ -2107,8 +2165,13 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 				root.get("withHoldingTaxDc").alias("WITH_HOLDING_TAX_DC"),
 				root.get("tdsOc").alias("TDS_OC"),
 				root.get("tdsDc").alias("TDS_DC"),
-				root.get("stOc").alias("ST_OC"),
-				root.get("stDc").alias("ST_DC"),
+				//root.get("stOc").alias("ST_OC"),
+				//root.get("stDc").alias("ST_DC"),
+				root.get("vatPremiumOc").alias("VAT_PREMIUM_OC"),
+				root.get("vatPremiumDc").alias("VAT_PREMIUM_DC"),
+				root.get("brokerageVatOc").alias("BROKERAGE_VAT_OC"),
+				root.get("brokerageVatDc").alias("BROKERAGE_VAT_DC"),
+				root.get("documentType").alias("DOCUMENT_TYPE"),
 				root.get("bonusOc").alias("BONUS_OC"),
 				root.get("bonusDc").alias("BONUS_DC"),
 				root.get("reverselStatus").alias("REVERSEL_STATUS"),
@@ -2179,7 +2242,7 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		
 		return em.createQuery(cq).getResultList();  
 	}
-
+	@Transactional
 	@Override
 	public Integer updateDepositRelease(String contractNo, String requestNo, String transactionNo, String tableMoveStatus) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -2195,7 +2258,7 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		Query q = em.createQuery(update);
 		return q.executeUpdate();
 	}
-
+	@Transactional
 	@Override
 	public Integer updateCashLossStatus(String contractNo, String requestNo, String transactionNo, String tableMoveStatus) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -2211,7 +2274,7 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		Query q = em.createQuery(update);
 		return q.executeUpdate();
 	}
-
+	@Transactional
 	@Override
 	public Integer updateClaimPayment(String contNo, String branchCode, String requestNo, String tableMoveStatus,
 			String claimNumber, String claimPaymentNo, String contNo2, String claimNumber2, String claimPaymentNo2) {
@@ -2253,21 +2316,21 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		storedProcedure.registerStoredProcedureParameter("pnContractNo", String.class, ParameterMode.IN);
 		storedProcedure.registerStoredProcedureParameter("pnLayerNo", Integer.class, ParameterMode.IN);
 		storedProcedure.registerStoredProcedureParameter("pnTranNno", Integer.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pnCurrency", Double.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pnExchange", String.class, ParameterMode.IN);
+		storedProcedure.registerStoredProcedureParameter("pnCurrency", String.class, ParameterMode.IN);
+		storedProcedure.registerStoredProcedureParameter("pnExchange", Double.class, ParameterMode.IN);
 		storedProcedure.registerStoredProcedureParameter("pnPrmAmount", Double.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pnDeptId", Double.class, ParameterMode.IN);
+		storedProcedure.registerStoredProcedureParameter("pnDeptId", String.class, ParameterMode.IN);
 		storedProcedure.registerStoredProcedureParameter("pnProducttId", String.class, ParameterMode.IN);
 		// Set parameters
 		storedProcedure.setParameter("pnContractNo", contNo);
-		storedProcedure.setParameter("pnLayerNo", layerNo);
-		storedProcedure.setParameter("pnTranNno", transactionNo);
-		storedProcedure.setParameter("currencyId", Double.parseDouble(currencyId));
+		storedProcedure.setParameter("pnLayerNo", Integer.parseInt(layerNo));
+		storedProcedure.setParameter("pnTranNno", Integer.parseInt(transactionNo));
+		storedProcedure.setParameter("pnCurrency", currencyId);
 		storedProcedure.setParameter("pnExchange", Double.parseDouble(exchRate));
 		storedProcedure.setParameter("pnPrmAmount", Double.parseDouble(netDueOc));
 
-		storedProcedure.setParameter("departmentId", departmentId);
-		storedProcedure.setParameter("productId", productId);
+		storedProcedure.setParameter("pnDeptId", departmentId);
+		storedProcedure.setParameter("pnProducttId", productId);
 		// execute SP
 		storedProcedure.execute();
 		
@@ -2283,14 +2346,14 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 
 		// Assign parameters
 		storedProcedure.registerStoredProcedureParameter("V_CONTRACT_NO", String.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("V_LAYER_NO", Integer.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("V_PRODUCT_ID", Integer.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("V_TRANSACTION_NO", Double.class, ParameterMode.IN);
+		storedProcedure.registerStoredProcedureParameter("V_LAYER_NO", String.class, ParameterMode.IN);
+		storedProcedure.registerStoredProcedureParameter("V_PRODUCT_ID", String.class, ParameterMode.IN);
+		storedProcedure.registerStoredProcedureParameter("V_TRANSACTION_NO", String.class, ParameterMode.IN);
 		storedProcedure.registerStoredProcedureParameter("V_BRANCH_CODE", String.class, ParameterMode.IN);
 	
 		// Set parameters
 		storedProcedure.setParameter("V_CONTRACT_NO", req.getContNo());
-		storedProcedure.setParameter("V_LAYER_NO", req.getLayerno());
+		storedProcedure.setParameter("V_LAYER_NO", StringUtils.isBlank(req.getLayerno())?"0":req.getLayerno());
 		storedProcedure.setParameter("V_PRODUCT_ID", req.getProductId());
 		storedProcedure.setParameter("V_TRANSACTION_NO", req.getTransactionNo());
 		storedProcedure.setParameter("V_BRANCH_CODE", req.getBranchCode());

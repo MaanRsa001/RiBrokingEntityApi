@@ -260,6 +260,7 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 				}
 				tempreq.setTransDropDownVal(tempMap.get("REVERSE_TRANSACTION_NO")==null?"":tempMap.get("REVERSE_TRANSACTION_NO").toString());
 				tempreq.setSectionNo(tempMap.get("SECTION_NO")==null?"":tempMap.get("SECTION_NO").toString());
+				tempreq.setProposalNo(tempMap.get("RSK_PROPOSAL_NUMBER")==null?"":tempMap.get("RSK_PROPOSAL_NUMBER").toString());
 				finalList.add(tempreq);
 
 			}
@@ -292,8 +293,9 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 				res.setUwYear(tempMap.get("UW_YEAR") == null ? "" : tempMap.get("UW_YEAR").toString());
 				res.setCedingCompanyName(
 						tempMap.get("COMPANY_NAME") == null ? "" : tempMap.get("COMPANY_NAME").toString());
-				res.setBrokerName(tempMap.get("Broker_name") == null ? "" : tempMap.get("Broker_name").toString());
-
+				res.setBrokerName(tempMap.get("BROKER_NAME") == null ? "" : tempMap.get("BROKER_NAME").toString());
+				res.setProposalNo(tempMap.get("PROPOSAL_NO")==null?"":tempMap.get("PROPOSAL_NO").toString());
+				res.setLayerno(tempMap.get("LAYER_NO")==null?"":tempMap.get("LAYER_NO").toString());
 				response.setCommonResponse(res);
 				response.setMessage("Success");
 				response.setIsError(false);
@@ -393,7 +395,7 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 			else{
 				
 				// query  -- GET_DEPT_ID
-				if(!"0".equals(base)) {
+				if(!"0".equals(base) && StringUtils.isNotBlank(base)) {
 					output = propPremiumCustomRepository.getDeptId(base);
 	                DeptNo  = output ==null?"":output;
 	                
@@ -674,7 +676,9 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 		String deptNo = "";
 		try {
 			// Criteria
+			if(StringUtils.isNotBlank(contractNo)) {
 			deptNo = propPremiumCustomRepository.getDepartmentNo(contractNo);
+			}
 			response.setCommonResponse(deptNo);
 			response.setMessage("Success");
 			response.setIsError(false);
@@ -1804,8 +1808,7 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 						tempMap.get("RSK_ORIGINAL_CURR") == null ? "" : tempMap.get("RSK_ORIGINAL_CURR").toString());
 				res.setBaseCurrencyName(
 						tempMap.get("CURRENCY_NAME") == null ? "" : tempMap.get("CURRENCY_NAME").toString());
-				res.setPolicyBranch(tempMap.get("TMAS_POL_BRANCH_NAME") == null ? ""
-						: tempMap.get("TMAS_POL_BRANCH_NAME").toString());
+				//res.setPolicyBranch(tempMap.get("TMAS_POL_BRANCH_NAME") == null ? "": tempMap.get("TMAS_POL_BRANCH_NAME").toString());
 				res.setAddress(tempMap.get("Address") == null ? "" : tempMap.get("Address").toString());
 				res.setDepartmentId(tempMap.get("RSK_DEPTID") == null ? "" : tempMap.get("RSK_DEPTID").toString());
 				String count = "";
@@ -1971,30 +1974,26 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 		   	for (int i = 0; i < list.size(); i++) {
 		   		Tuple tempMap=list.get(i);
 				GetPremiumDetailsRes1 res = new GetPremiumDetailsRes1();
-				res.setContNo(tempMap.get("CONTRACT_NO")==null?"":tempMap.get("CONTRACT_NO").toString());
-				res.setTransactionNo(tempMap.get("TRANSACTION_NO")==null?"":tempMap.get("TRANSACTION_NO").toString());
-				res.setTransaction(tempMap.get("TRANS_DATE")==null?"":formatDate(tempMap.get("TRANS_DATE")));
-				res.setBrokerage(tempMap.get("BROKERAGE_AMT_OC")==null?"":fm.formatter(tempMap.get("BROKERAGE_AMT_OC").toString()));
-				res.setTax(tempMap.get("TAX_AMT_OC")==null?"":fm.formatter(tempMap.get("TAX_AMT_OC").toString()));
-				res.setPremiumQuotaShare(tempMap.get("PREMIUM_QUOTASHARE_OC")==null?"":fm.formatter(tempMap.get("PREMIUM_QUOTASHARE_OC").toString()));
-				res.setCommissionQuotaShare(tempMap.get("COMMISSION_QUOTASHARE_OC")==null?"":fm.formatter(tempMap.get("COMMISSION_QUOTASHARE_OC").toString()));
-				res.setPremiumSurplus(tempMap.get("PREMIUM_SURPLUS_OC")==null?"":fm.formatter(tempMap.get("PREMIUM_SURPLUS_OC").toString()));
-				res.setCommissionSurplus(tempMap.get("COMMISSION_SURPLUS_OC")==null?"":fm.formatter(tempMap.get("COMMISSION_SURPLUS_OC").toString()));
-				res.setPremiumportifolioIn(tempMap.get("PREMIUM_PORTFOLIOIN_OC")==null?"":fm.formatter(tempMap.get("PREMIUM_PORTFOLIOIN_OC").toString()));
-				res.setCliamPortfolioin(tempMap.get("CLAIM_PORTFOLIOIN_OC")==null?"":fm.formatter(tempMap.get("CLAIM_PORTFOLIOIN_OC").toString()));
-				res.setPremiumportifolioout(tempMap.get("PREMIUM_PORTFOLIOOUT_OC")==null?"":fm.formatter(tempMap.get("PREMIUM_PORTFOLIOOUT_OC").toString()));
-					
-		
+					res.setContNo(tempMap.get("CONTRACT_NO")==null?"":tempMap.get("CONTRACT_NO").toString());
+					res.setTransactionNo(tempMap.get("TRANSACTION_NO")==null?"":tempMap.get("TRANSACTION_NO").toString());
+					res.setTransaction(tempMap.get("TRANS_DATE")==null?"":formatDate(tempMap.get("TRANS_DATE")));
+					res.setBrokerage(tempMap.get("BROKERAGE_AMT_OC")==null?"":fm.formatter(tempMap.get("BROKERAGE_AMT_OC").toString()));
+					res.setTax(tempMap.get("TAX_AMT_OC")==null?"":fm.formatter(tempMap.get("TAX_AMT_OC").toString()));
+					res.setPremiumQuotaShare(tempMap.get("PREMIUM_QUOTASHARE_OC")==null?"":fm.formatter(tempMap.get("PREMIUM_QUOTASHARE_OC").toString()));
+					res.setCommissionQuotaShare(tempMap.get("COMMISSION_QUOTASHARE_OC")==null?"":fm.formatter(tempMap.get("COMMISSION_QUOTASHARE_OC").toString()));
+					res.setPremiumSurplus(tempMap.get("PREMIUM_SURPLUS_OC")==null?"":fm.formatter(tempMap.get("PREMIUM_SURPLUS_OC").toString()));
+					res.setCommissionSurplus(tempMap.get("COMMISSION_SURPLUS_OC")==null?"":fm.formatter(tempMap.get("COMMISSION_SURPLUS_OC").toString()));
+					res.setPremiumportifolioIn(tempMap.get("PREMIUM_PORTFOLIOIN_OC")==null?"":fm.formatter(tempMap.get("PREMIUM_PORTFOLIOIN_OC").toString()));
+					res.setCliamPortfolioin(tempMap.get("CLAIM_PORTFOLIOIN_OC")==null?"":fm.formatter(tempMap.get("CLAIM_PORTFOLIOIN_OC").toString()));
+					res.setPremiumportifolioout(tempMap.get("PREMIUM_PORTFOLIOOUT_OC")==null?"":fm.formatter(tempMap.get("PREMIUM_PORTFOLIOOUT_OC").toString()));
 					res.setLossReserveReleased(tempMap.get("LOSS_RESERVE_RELEASED_OC")==null?"":fm.formatter(tempMap.get("LOSS_RESERVE_RELEASED_OC").toString()));
 					res.setPremiumReserveQuotaShare(tempMap.get("PREMIUMRESERVE_QUOTASHARE_OC")==null?"":fm.formatter(tempMap.get("PREMIUMRESERVE_QUOTASHARE_OC").toString()));
 					res.setCashLossCredit(tempMap.get("CASH_LOSS_CREDIT_OC")==null?"":fm.formatter(tempMap.get("CASH_LOSS_CREDIT_OC").toString()));
 					res.setLossReserveRetained(tempMap.get("LOSS_RESERVERETAINED_OC")==null?"":fm.formatter(tempMap.get("LOSS_RESERVERETAINED_OC").toString()));
-					
 					res.setProfitCommission(tempMap.get("PROFIT_COMMISSION_OC")==null?"":fm.formatter(tempMap.get("PROFIT_COMMISSION_OC").toString()));
 					res.setCashLossPaid(tempMap.get("CASH_LOSSPAID_OC")==null?"":fm.formatter(tempMap.get("CASH_LOSSPAID_OC").toString()));
 					res.setNetDue(tempMap.get("NETDUE_OC")==null?"":fm.formatter(tempMap.get("NETDUE_OC").toString()));
 					res.setReceiptno(tempMap.get("RECEIPT_NO")==null?"":tempMap.get("RECEIPT_NO").toString());
-				
 					res.setClaimsPaid(tempMap.get("CLAIMS_PAID_OC")==null?"":fm.formatter(tempMap.get("CLAIMS_PAID_OC").toString()));
 					res.setInceptionDate(tempMap.get("ENTRY_DATE")==null?"":formatDate(tempMap.get("ENTRY_DATE")));
 					res.setXlCost(tempMap.get("XL_COST_OC")==null?"":fm.formatter(fm.formatter(tempMap.get("XL_COST_OC").toString())));
@@ -2040,32 +2039,36 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 					res.setAmendmentDate(tempMap.get("AMENDMENT_DATE")==null?"":formatDate(tempMap.get("AMENDMENT_DATE")));
 	                res.setWithHoldingTaxOC(tempMap.get("WITH_HOLDING_TAX_OC")==null?"":fm.formatter(tempMap.get("WITH_HOLDING_TAX_OC").toString()));
 	                res.setWithHoldingTaxDC(tempMap.get("WITH_HOLDING_TAX_DC")==null?"":fm.formatter(tempMap.get("WITH_HOLDING_TAX_DC").toString()));
-	                //res.setDueDate(tempMap.get("DUE_DATE")==null?"":tempMap.get("DUE_DATE").toString());
+	                res.setDueDate(tempMap.get("ACCOUNTING_PERIOD_DATE")==null?"":formatDate(fm.Transadded(tempMap.get("ACCOUNTING_PERIOD_DATE"))));
 	                res.setCreditsign(tempMap.get("NETDUE_OC")==null?"":tempMap.get("NETDUE_OC").toString());
 	                res.setRiCession(tempMap.get("RI_CESSION")==null?"":tempMap.get("RI_CESSION").toString());
 	                res.setTaxDedectSource(tempMap.get("TDS_OC")==null?"":fm.formatter(tempMap.get("TDS_OC").toString()));
 					res.setTaxDedectSourceDc(tempMap.get("TDS_DC")==null?"":fm.formatter(tempMap.get("TDS_DC").toString()));
-					res.setServiceTax(tempMap.get("ST_OC")==null?"":fm.formatter(tempMap.get("ST_OC").toString()));
-					res.setServiceTaxDc(tempMap.get("ST_DC")==null?"":fm.formatter(tempMap.get("ST_DC").toString()));
+					res.setVatPremium(tempMap.get("VAT_PREMIUM_OC")==null?"":fm.formatter(tempMap.get("VAT_PREMIUM_OC").toString()));
+					res.setVatPremiumDc(tempMap.get("VAT_PREMIUM_DC")==null?"":fm.formatter(tempMap.get("VAT_PREMIUM_DC").toString()));
+					res.setBrokerageVat(tempMap.get("BROKERAGE_VAT_OC")==null?"":fm.formatter(tempMap.get("BROKERAGE_VAT_OC").toString()));
+					res.setBrokerageVatDc(tempMap.get("BROKERAGE_VAT_DC")==null?"":fm.formatter(tempMap.get("BROKERAGE_VAT_DC").toString()));
+					res.setDocumentType(tempMap.get("DOCUMENT_TYPE")==null?"":tempMap.get("DOCUMENT_TYPE").toString());
 					res.setLossParticipation(tempMap.get("LPC_OC")==null?"":fm.formatter(tempMap.get("LPC_OC").toString()));
 					res.setLossParticipationDC(tempMap.get("LPC_DC")==null?"":fm.formatter(tempMap.get("LPC_DC").toString()));
 					res.setSlideScaleCom(tempMap.get("SC_COMM_OC")==null?"":fm.formatter(tempMap.get("SC_COMM_OC").toString()));
 					res.setSlideScaleComDC(tempMap.get("SC_COMM_DC")==null?"":fm.formatter(tempMap.get("SC_COMM_DC").toString()));
-					/*res.setSubProfitId(tempMap.get("PREMIUM_SUBCLASS")==null?"":tempMap.get("PREMIUM_SUBCLASS").toString());
+					res.setSubProfitId(tempMap.get("PREMIUM_SUBCLASS")==null?"":tempMap.get("PREMIUM_SUBCLASS").toString());
 					if(!"ALL".equalsIgnoreCase(res.getSubProfitId())){
 					res.setSubProfitId(tempMap.get("PREMIUM_SUBCLASS")==null?"":tempMap.get("PREMIUM_SUBCLASS").toString());
-					}*/
-					res.setExchRate(tempMap.get("EXCHANGE_RATE")==null?"":fm.formatter(tempMap.get("EXCHANGE_RATE").toString()));
+					}
+					res.setExchRate(dropDownImple.exchRateFormat(tempMap.get("EXCHANGE_RATE")==null?"":fm.formatter(tempMap.get("EXCHANGE_RATE").toString())));
 					res.setStatementDate(tempMap.get("STATEMENT_DATE")==null?"":formatDate(tempMap.get("STATEMENT_DATE")));
-					 res.setPremiumClass(tempMap.get("TMAS_DEPARTMENT_NAME")==null?"":tempMap.get("TMAS_DEPARTMENT_NAME").toString());
-		                /*res.setPremiumSubClass(tempMap.get("SUB")==null?"":tempMap.get("SUB").toString());
+					res.setPremiumClass(tempMap.get("TMAS_DEPARTMENT_NAME")==null?"":tempMap.get("TMAS_DEPARTMENT_NAME").toString());
+		            res.setPremiumSubClass(tempMap.get("PREMIUM_SUBCLASS")==null?"":tempMap.get("PREMIUM_SUBCLASS").toString());
 		                if(!"ALL".equalsIgnoreCase(res.getPremiumSubClass())){
 		                	res.setPremiumSubClass(tempMap.get("PREMIUM_SUBCLASS")==null?"":tempMap.get("PREMIUM_SUBCLASS").toString());
-		                }*/
+		                }
 		                res.setOsbYN(tempMap.get("OSBYN")==null?"":tempMap.get("OSBYN").toString());
-		                //res.setSectionName(tempMap.get("SECTION_NAME")==null?"":tempMap.get("SECTION_NAME").toString());
+		                res.setSectionName(tempMap.get("SECTION_NAME")==null?"":tempMap.get("SECTION_NAME").toString());
 		                res.setAccDate(tempMap.get("ACCOUNTING_PERIOD_DATE")==null?"":formatDate(tempMap.get("ACCOUNTING_PERIOD_DATE"))) ;
 			
+		
 				
 				String output="";
 				output=propPremiumCustomRepository.premiumSelectSumOfPaidPremium(req.getContractNo());
@@ -2105,6 +2108,85 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 		   	}else{
 		   		list=propPremiumCustomRepository.getPremiumEdit(req.getContNo(),req.getTransactionNo());
 		   	}
+			if( "transEdit".equalsIgnoreCase(req.getMode())){
+				list=propPremiumCustomRepository.getPremiumEdit(req.getContNo(),req.getTransDropDownVal());
+			if(!CollectionUtils.isEmpty(list)) {
+				for(int i=0;i<list.size();i++) {
+					Tuple editpremium = list.get(i);
+							//res.setTransaction(editpremium.get("TRANS_DATE")==null?"":editpremium.get("TRANS_DATE").toString());
+							//res.setAccountPeriod(editpremium.get("ACCOUNT_PERIOD_QTR")==null?"":editpremium.get("ACCOUNT_PERIOD_QTR").toString());
+							//res.setAccountPeriodyear(editpremium.get("ACCOUNT_PERIOD_YEAR")==null?"":editpremium.get("ACCOUNT_PERIOD_YEAR").toString());
+							res.setCurrencyId(editpremium.get("CURRENCY_ID")==null?"":editpremium.get("CURRENCY_ID").toString());
+							res.setCurrency(editpremium.get("CURRENCY_ID")==null?"":editpremium.get("CURRENCY_ID").toString());
+							if(null==editpremium.get("EXCHANGE_RATE")){
+								GetCommonValueRes res1 = dropDownImple.GetExchangeRate(req.getCurrencyId(),req.getTransaction(),req.getCountryId(),req.getBranchCode());
+							res.setExchRate(res1.getCommonResponse());
+							}
+							else{
+								res.setExchRate(dropDownImple.exchRateFormat(editpremium.get("EXCHANGE_RATE")==null?"":editpremium.get("EXCHANGE_RATE").toString()));
+							}
+							res.setBrokerage(getMultipleVal(editpremium.get("BROKERAGE_AMT_OC")==null?"":editpremium.get("BROKERAGE_AMT_OC").toString()));
+							res.setTax(getMultipleVal(editpremium.get("TAX_AMT_OC")==null?"":editpremium.get("TAX_AMT_OC").toString()));
+							res.setPremiumQuotaShare(getMultipleVal(editpremium.get("PREMIUM_QUOTASHARE_OC")==null?"":editpremium.get("PREMIUM_QUOTASHARE_OC").toString()));
+							res.setCommissionQuotaShare(getMultipleVal(editpremium.get("COMMISSION_QUOTASHARE_OC")==null?"":editpremium.get("COMMISSION_QUOTASHARE_OC").toString()));
+							res.setPremiumSurplus(getMultipleVal(editpremium.get("PREMIUM_SURPLUS_OC")==null?"":editpremium.get("PREMIUM_SURPLUS_OC").toString()));
+							res.setCommissionSurplus(getMultipleVal(editpremium.get("COMMISSION_SURPLUS_OC")==null?"":editpremium.get("COMMISSION_SURPLUS_OC").toString()));
+							res.setPremiumportifolioIn(getMultipleVal(editpremium.get("PREMIUM_PORTFOLIOIN_OC")==null?"":editpremium.get("PREMIUM_PORTFOLIOIN_OC").toString()));
+							res.setCliamPortfolioin(getMultipleVal(editpremium.get("CLAIM_PORTFOLIOIN_OC")==null?"":editpremium.get("CLAIM_PORTFOLIOIN_OC").toString()));
+							res.setPremiumportifolioout(getMultipleVal(editpremium.get("PREMIUM_PORTFOLIOOUT_OC")==null?"":editpremium.get("PREMIUM_PORTFOLIOOUT_OC").toString()));
+							res.setLossReserveReleased(getMultipleVal(editpremium.get("LOSS_RESERVE_RELEASED_OC")==null?"":editpremium.get("LOSS_RESERVE_RELEASED_OC").toString()));
+							res.setPremiumReserveQuotaShare(getMultipleVal(editpremium.get("PREMIUMRESERVE_QUOTASHARE_OC")==null?"":editpremium.get("PREMIUMRESERVE_QUOTASHARE_OC").toString()));
+							res.setCashLossCredit(getMultipleVal(editpremium.get("CASH_LOSS_CREDIT_OC")==null?"":editpremium.get("CASH_LOSS_CREDIT_OC").toString()));
+							res.setLossReserveRetained(getMultipleVal(editpremium.get("LOSS_RESERVERETAINED_OC")==null?"":editpremium.get("LOSS_RESERVERETAINED_OC").toString()));
+							res.setProfitCommission(getMultipleVal(editpremium.get("PROFIT_COMMISSION_OC")==null?"":editpremium.get("PROFIT_COMMISSION_OC").toString()));
+							res.setCashLossPaid(getMultipleVal(editpremium.get("CASH_LOSSPAID_OC")==null?"":editpremium.get("CASH_LOSSPAID_OC").toString()));
+							//res.setStatus(editpremium.get("STATUS")==null?"":editpremium.get("STATUS").toString());
+							res.setNetDue(getMultipleVal(editpremium.get("NETDUE_OC")==null?"":editpremium.get("NETDUE_OC").toString()));
+							//res.setEnteringMode(editpremium.get("ENTERING_MODE")==null?"":editpremium.get("ENTERING_MODE").toString());
+							//res.setReceiptno(editpremium.get("RECEIPT_NO")==null?"":editpremium.get("RECEIPT_NO").toString());
+							res.setClaimspaid(getMultipleVal(editpremium.get("CLAIMS_PAID_OC")==null?"":editpremium.get("CLAIMS_PAID_OC").toString()));
+							//bean.setSettlement_status(editPremium.get("SETTLEMENT_STATUS"));
+							res.setMdpremium(getMultipleVal(editpremium.get("M_DPREMIUM_OC")==null?"":editpremium.get("M_DPREMIUM_OC").toString()));
+							res.setAdjustmentpremium(getMultipleVal(editpremium.get("ADJUSTMENT_PREMIUM_OC")==null?"":editpremium.get("ADJUSTMENT_PREMIUM_OC").toString()));
+							res.setRecuirementpremium(getMultipleVal(editpremium.get("REC_PREMIUM_OC")==null?"":editpremium.get("REC_PREMIUM_OC").toString()));
+							res.setCommission(getMultipleVal(editpremium.get("COMMISSION")==null?"":editpremium.get("COMMISSION").toString()));
+							//res.setInstlmentNo(editpremium.get("INSTALMENT_NUMBER")==null?"":editpremium.get("INSTALMENT_NUMBER").toString());
+							//res.setInceptionDate(editpremium.get("INS_DATE")==null?"":editpremium.get("INS_DATE").toString());
+							res.setXlCost(getMultipleVal(editpremium.get("XL_COST_OC")==null?"":editpremium.get("XL_COST_OC").toString()));
+							res.setCliamportfolioout(getMultipleVal(editpremium.get("CLAIM_PORTFOLIO_OUT_OC")==null?"":editpremium.get("CLAIM_PORTFOLIO_OUT_OC").toString()));
+							res.setPremiumReserveReleased(getMultipleVal(editpremium.get("PREMIUM_RESERVE_REALSED_OC")==null?"":editpremium.get("PREMIUM_RESERVE_REALSED_OC").toString()));
+							res.setOtherCost(getMultipleVal(editpremium.get("OTHER_COST_OC")==null?"":editpremium.get("OTHER_COST_OC").toString()));
+							//res.setCedentRef(editpremium.get("CEDANT_REFERENCE")==null?"":editpremium.get("CEDANT_REFERENCE").toString());
+							//res.setRemarks(editpremium.get("REMARKS")==null?"":editpremium.get("REMARKS").toString());
+							res.setInterest(getMultipleVal(editpremium.get("INTEREST_OC")==null?"":fm.formatter(editpremium.get("INTEREST_OC").toString())));
+							res.setOsClaimsLossUpdateOC(fm.formatter(getMultipleVal(editpremium.get("OSCLAIM_LOSSUPDATE_OC")==null?"":editpremium.get("OSCLAIM_LOSSUPDATE_OC").toString())));
+							res.setOverrider(getMultipleVal(editpremium.get("OVERRIDER_AMT_OC")==null?"":editpremium.get("OVERRIDER_AMT_OC").toString()));
+							res.setOverriderUSD(getMultipleVal(editpremium.get("OVERRIDER_AMT_DC")==null?"":editpremium.get("OVERRIDER_AMT_DC").toString()));
+							res.setAmendmentDate(getMultipleVal(editpremium.get("AMENDMENT_DATE")==null?"":editpremium.get("AMENDMENT_DATE").toString()));
+							res.setWithHoldingTaxOC(fm.formatter(getMultipleVal(editpremium.get("WITH_HOLDING_TAX_OC")==null?"":editpremium.get("WITH_HOLDING_TAX_OC").toString())));
+					        res.setWithHoldingTaxDC(fm.formatter(getMultipleVal(editpremium.get("WITH_HOLDING_TAX_DC")==null?"":editpremium.get("WITH_HOLDING_TAX_DC").toString())));
+					     //   res.setRicession(editpremium.get("RI_CESSION")==null?"":editpremium.get("RI_CESSION").toString());
+					        res.setTaxDedectSource(fm.formatter(getMultipleVal(editpremium.get("TDS_OC")==null?"":editpremium.get("TDS_OC").toString())));
+							res.setTaxDedectSourceDc(fm.formatter(getMultipleVal(editpremium.get("TDS_DC")==null?"":editpremium.get("TDS_DC").toString())));
+							res.setVatPremium(getMultipleVal(editpremium.get("VAT_PREMIUM_OC")==null?"":fm.formatter(editpremium.get("VAT_PREMIUM_OC").toString())));
+							res.setVatPremiumDc(getMultipleVal(editpremium.get("VAT_PREMIUM_DC")==null?"":fm.formatter(editpremium.get("VAT_PREMIUM_DC").toString())));
+							res.setBrokerageVat(getMultipleVal(editpremium.get("BROKERAGE_VAT_OC")==null?"":fm.formatter(editpremium.get("BROKERAGE_VAT_OC").toString())));
+							res.setBrokerageVatDc(getMultipleVal(editpremium.get("BROKERAGE_VAT_DC")==null?"":fm.formatter(editpremium.get("BROKERAGE_VAT_DC").toString())));
+							res.setLossParticipation(fm.formatter(getMultipleVal(editpremium.get("LPC_OC")==null?"":editpremium.get("LPC_OC").toString())));
+							res.setLossParticipationDC(fm.formatter(getMultipleVal(editpremium.get("LPC_DC")==null?"":editpremium.get("LPC_DC").toString())));
+							res.setSlideScaleCom(fm.formatter(getMultipleVal(editpremium.get("SC_COMM_OC")==null?"":editpremium.get("SC_COMM_OC").toString())));
+							res.setSlideScaleComDC(fm.formatter(getMultipleVal(editpremium.get("SC_COMM_DC")==null?"":editpremium.get("SC_COMM_DC").toString())));
+							res.setPrAllocatedAmount(getMultipleVal(editpremium.get("PRD_ALLOCATED_TILL_DATE")==null?"":editpremium.get("PRD_ALLOCATED_TILL_DATE").toString()));
+							res.setLrAllocatedAmount(getMultipleVal(editpremium.get("LRD_ALLOCATED_TILL_DATE")==null?"":editpremium.get("LRD_ALLOCATED_TILL_DATE").toString()));
+							//res.setStatementDate(editpremium.get("STATEMENT_DATE")==null?"":editpremium.get("STATEMENT_DATE").toString());
+							//res.setOsbYN(editpremium.get("OSBYN")==null?"":editpremium.get("OSBYN").toString());
+							//res.setSectionName(editpremium.get("SECTION_NAME")==null?"":editpremium.get("SECTION_NAME").toString());
+//								res.setSectionType(editpremium.get("2")==null?"":editpremium.get("TRANS_DATE").toString());
+							//res.setAccountPeriodDate(editpremium.get("ACCOUNTING_PERIOD_DATE")==null?"":editpremium.get("ACCOUNTING_PERIOD_DATE").toString());
+							//res.setPredepartment(editpremium.get("PREMIUM_CLASS")==null?"":editpremium.get("PREMIUM_CLASS").toString());
+						}
+			}
+			}else {	
 			for(int i=0;i<list.size();i++) {
 				Tuple editpremium = list.get(i);
 					res.setTransaction(editpremium.get("TRANS_DATE")==null?"":formatDate(editpremium.get("TRANS_DATE")));
@@ -2162,8 +2244,11 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 			        res.setRicession(editpremium.get("RI_CESSION")==null?"":editpremium.get("RI_CESSION").toString());
 			        res.setTaxDedectSource(fm.formatter(editpremium.get("TDS_OC")==null?"":editpremium.get("TDS_OC").toString()));
 					res.setTaxDedectSourceDc(fm.formatter(editpremium.get("TDS_DC")==null?"":editpremium.get("TDS_DC").toString()));
-					res.setServiceTax(fm.formatter(editpremium.get("ST_OC")==null?"":editpremium.get("ST_OC").toString()));
-					res.setServiceTaxDc(fm.formatter(editpremium.get("ST_DC")==null?"":editpremium.get("ST_DC").toString()));
+					res.setVatPremium(editpremium.get("VAT_PREMIUM_OC")==null?"":fm.formatter(editpremium.get("VAT_PREMIUM_OC").toString()));
+					res.setVatPremiumDc(editpremium.get("VAT_PREMIUM_DC")==null?"":fm.formatter(editpremium.get("VAT_PREMIUM_DC").toString()));
+					res.setBrokerageVat(editpremium.get("BROKERAGE_VAT_OC")==null?"":fm.formatter(editpremium.get("BROKERAGE_VAT_OC").toString()));
+					res.setBrokerageVatDc(editpremium.get("BROKERAGE_VAT_DC")==null?"":fm.formatter(editpremium.get("BROKERAGE_VAT_DC").toString()));
+					res.setDocumentType(editpremium.get("DOCUMENT_TYPE")==null?"":editpremium.get("DOCUMENT_TYPE").toString());
 					res.setLossParticipation(fm.formatter(editpremium.get("LPC_OC")==null?"":editpremium.get("LPC_OC").toString()));
 					res.setLossParticipationDC(fm.formatter(editpremium.get("LPC_DC")==null?"":editpremium.get("LPC_DC").toString()));
 					res.setSlideScaleCom(fm.formatter(editpremium.get("SC_COMM_OC")==null?"":editpremium.get("SC_COMM_OC").toString()));
@@ -2178,7 +2263,7 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 					res.setAccountPeriodDate(editpremium.get("ACCOUNTING_PERIOD_DATE")==null?"":formatDate(editpremium.get("ACCOUNTING_PERIOD_DATE")));
 					res.setPredepartment(editpremium.get("PREMIUM_CLASS")==null?"":editpremium.get("PREMIUM_CLASS").toString());
 				}
-			
+			}
 			response.setCommonResponse(res);
 			response.setMessage("Success");
 			response.setIsError(false);
@@ -2193,25 +2278,24 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 	public premiumUpdateMethodRes premiumUpdateMethod(InsertPremiumReq beanObj) {
 		premiumUpdateMethodRes response = new premiumUpdateMethodRes();
 		premiumUpdateMethodRes1 res = new premiumUpdateMethodRes1();
-		String query="";
-		boolean saveFlag = false;
+		
 		try {
 			updateAruguments(beanObj);
 			String netDueOc="0";
-			RskPremiumDetails entity = null;
+			
 			if("Temp".equalsIgnoreCase(beanObj.getTableType())){
-				//PREMIUM_UPDATE_TREATYUPDATEPRE_TEMP
-				 entity = pdRepo.findByContractNoAndRequestNo(new BigDecimal(beanObj.getContNo()),new BigDecimal(beanObj.getRequestNo()));	
+				RskPremiumDetailsTemp entity = pdTempRepo.findByContractNoAndRequestNo(new BigDecimal(beanObj.getContNo()),new BigDecimal(beanObj.getRequestNo()));
+				 netDueOc= entity.getNetdueOc()==null?"0":entity.getNetdueOc().toString();
 			}else{
-				//PREMIUM_UPDATE_TREATYUPDATEPRE
-				 entity = pdRepo.findByContractNoAndTransactionNo(new BigDecimal(beanObj.getContNo()),new BigDecimal(beanObj.getTransactionNo()));
+				RskPremiumDetails entity =  pdRepo.findByContractNoAndTransactionNo(new BigDecimal(beanObj.getContNo()),new BigDecimal(beanObj.getTransactionNo()));
+				 netDueOc= entity.getNetdueOc()==null?"0":entity.getNetdueOc().toString();
 			}
-			netDueOc= entity.getNetdueOc()==null?"0":entity.getNetdueOc().toString();
+			
 			
 			if("Submit".equalsIgnoreCase(beanObj.getButtonStatus()) && "Temp".equalsIgnoreCase(beanObj.getTableType())){
-				propPremiumCustomRepository.facTempStatusUpdate(beanObj);
+				
 				beanObj.setTransactionNo(fm.getSequence("Premium",beanObj.getProductId(),beanObj.getDepartmentId(), beanObj.getBranchCode(),"",beanObj.getTransaction()));
-		 		
+				propPremiumCustomRepository.facTempStatusUpdate(beanObj);
 		 		getTempToMainMove(beanObj);
 		 		
 		 		propPremiumCustomRepository.updateDepositRelease(beanObj.getContNo(),beanObj.getRequestNo(),beanObj.getTransactionNo(),"A");
@@ -2256,15 +2340,14 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 			 	 }
 			 	propPremiumCustomRepository.premiumarchive(beanObj.getContNo(),(StringUtils.isBlank(beanObj.getLayerno())?"0":beanObj.getLayerno()),beanObj.getTransactionNo(),beanObj.getCurrencyId(),beanObj.getExchRate(),netDueOc,beanObj.getDepartmentId(),beanObj.getProductId());
 		
-			saveFlag=true;
 			}
+		 res.setRequestNo(beanObj.getRequestNo());
 		 res.setTransactionNo(beanObj.getTransactionNo());
 		 response.setResponse(res);
 		 response.setMessage("Success");
 		 response.setIsError(false);
 		 }catch (Exception e) {
 			log.error(e);
-			saveFlag=false;
 			e.printStackTrace();
 			response.setResponse(res);
 			response.setMessage("Failed");
@@ -2602,9 +2685,9 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 					entity.setNetdueDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getNetdueOc().toString(), beanObj.getExchRate())));
 					 entity.setMovementYn(null);
 					 entity.setEntryDate(new Date());
-					 entity.setM1Oc(new BigDecimal(beanObj.getM1oc()));	
-					 entity.setM2Oc(new BigDecimal(beanObj.getM2oc()));	
-					 entity.setM3Oc(new BigDecimal(beanObj.getM3oc()));	
+					 entity.setM1Oc(StringUtils.isBlank(beanObj.getM1oc())?BigDecimal.ZERO:new BigDecimal(beanObj.getM1oc()));	
+					 entity.setM2Oc(StringUtils.isBlank(beanObj.getM2oc())?BigDecimal.ZERO:new BigDecimal(beanObj.getM2oc()));	
+					 entity.setM3Oc(StringUtils.isBlank(beanObj.getM3oc())?BigDecimal.ZERO:new BigDecimal(beanObj.getM3oc()));	
 					 pdRepo.save(entity);
 
 		}
@@ -2857,9 +2940,9 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 			List<Map<String,Object>> list = queryImpl.selectList("Select.premium.vatInfo",new String[] {req.getPremiumAmount(),req.getProposalNo(),req.getBranchCode()});			
 			if(list.size()>0){
 				Map<String,Object> tempMap = (Map<String,Object>) list.get(0);
-				res.setBrokerageAmt(tempMap.get("BROKERAGE_AMT")==null?"":tempMap.get("BROKERAGE_AMT").toString());
-				res.setBrokerageVat(tempMap.get("BROKERAGE_VAT")==null?"":tempMap.get("BROKERAGE_VAT").toString());		
-				res.setPremiumVat(tempMap.get("PREMIUM_VAT")==null?"":tempMap.get("PREMIUM_VAT").toString());
+				res.setBrokerageAmt(tempMap.get("BROKERAGE_AMT")==null?"0":tempMap.get("BROKERAGE_AMT").toString());
+				res.setBrokerageVat(tempMap.get("BROKERAGE_VAT")==null?"0":tempMap.get("BROKERAGE_VAT").toString());		
+				res.setPremiumVat(tempMap.get("PREMIUM_VAT")==null?"0":tempMap.get("PREMIUM_VAT").toString());
 				res.setProposalNo(tempMap.get("PROPOSAL_NO")==null?"":tempMap.get("PROPOSAL_NO").toString());
 				response.setCommonResponse(res);	
 			}			
@@ -2984,102 +3067,94 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 					res.setPremiumportifolioout(data.getPremiumPortfoliooutOc()==null?"":fm.formatter(data.getPremiumPortfoliooutOc().toString()));
 						
 			
-						res.setLossReserveReleased(data.getLossReserveReleasedOc()==null?"":fm.formatter(data.getLossReserveReleasedOc().toString()));
-						res.setPremiumReserveQuotaShare(data.getPremiumreserveQuotashareOc()==null?"":fm.formatter(data.getPremiumreserveQuotashareOc().toString()));
-						res.setCashLossCredit(data.getCashLossCreditOc()==null?"":fm.formatter(data.getCashLossCreditOc().toString()));
-						res.setLossReserveRetained(data.getLossReserveReleasedOc()==null?"":fm.formatter(data.getLossReserveReleasedOc().toString()));
-						
-						res.setProfitCommission(data.getProfitCommissionOc()==null?"":fm.formatter(data.getProfitCommissionOc().toString()));
-						res.setCashLossPaid(data.getCashLosspaidOc()==null?"":fm.formatter(data.getCashLosspaidOc().toString()));
-						res.setNetDue(data.getNetdueOc()==null?"":fm.formatter(data.getNetdueOc().toString()));
-						res.setReceiptno(data.getReceiptNo()==null?"":data.getReceiptNo().toString());
+					res.setLossReserveReleased(data.getLossReserveReleasedOc()==null?"":fm.formatter(data.getLossReserveReleasedOc().toString()));
+					res.setPremiumReserveQuotaShare(data.getPremiumreserveQuotashareOc()==null?"":fm.formatter(data.getPremiumreserveQuotashareOc().toString()));
+					res.setCashLossCredit(data.getCashLossCreditOc()==null?"":fm.formatter(data.getCashLossCreditOc().toString()));
+					res.setLossReserveRetained(data.getLossReserveReleasedOc()==null?"":fm.formatter(data.getLossReserveReleasedOc().toString()));
 					
-						res.setClaimsPaid(data.getClaimsPaidOc()==null?"":fm.formatter(data.getClaimsPaidOc().toString()));
-						res.setInceptionDate(data.getEntryDate()==null?"":sdf.format(data.getEntryDate()));
-
-						res.setXlCost(data.getXlCostOc()==null?"":fm.formatter(fm.formatter(data.getXlCostOc().toString())));
-						res.setCliamPortfolioOut(data.getClaimPortfolioOutOc()==null?"":fm.formatter(data.getClaimPortfolioOutOc().toString()));
-						res.setPremiumReserveReleased(data.getPremiumReserveRealsedOc()==null?"":fm.formatter(data.getPremiumReserveRealsedOc().toString()));
-						res.setAccountPeriod(data.getAccountPeriodQtr()==null?"":data.getAccountPeriodQtr().toString());
-
-						res.setXlCost(data.getXlCostOc()==null?"":dropDownImple.formatter(dropDownImple.formatter(data.getXlCostOc().toString())));
-						res.setCliamPortfolioOut(data.getClaimPortfolioOutOc()==null?"":dropDownImple.formatter(data.getClaimPortfolioOutOc().toString()));
-						res.setPremiumReserveReleased(data.getPremiumReserveRealsedOc()==null?"":dropDownImple.formatter(data.getPremiumReserveRealsedOc().toString()));
-
-						res.setAccountPeriodYear(data.getAccountPeriodYear()==null?"":data.getAccountPeriodYear().toString());
-						res.setCurrencyId(data.getCurrencyId()==null?"":data.getCurrencyId().toString());
-						res.setOtherCost(data.getOtherCostOc()==null?"":fm.formatter(data.getOtherCostOc().toString()));
-						res.setBrokerageUsd(data.getBrokerageAmtDc()==null?"":fm.formatter(data.getBrokerageAmtDc().toString()));
-						res.setTaxUsd(data.getTaxAmtDc()==null?"":fm.formatter(data.getTaxAmtDc().toString()));
-						res.setPremiumQuotaShareUsd(data.getPremiumreserveQuotashareDc()==null?"":fm.formatter(data.getPremiumreserveQuotashareDc().toString()));
-						res.setCommsissionQuotaShareUsd(data.getCommissionQuotashareDc()==null?"":fm.formatter(data.getCommissionQuotashareDc().toString()));
-						res.setPremiumSurplusUsd(data.getPremiumSurplusDc()==null?"":fm.formatter(data.getPremiumSurplusDc().toString()));
-						res.setComissionSurplusUsd(data.getCommissionSurplusDc()==null?"":fm.formatter(data.getCommissionSurplusDc().toString()));
-						res.setPremiumPortfolioInUsd(data.getPremiumPortfolioinDc()==null?"":fm.formatter(data.getPremiumPortfolioinDc().toString()));
-						res.setCliamPortfolioUsd(data.getClaimPortfolioinDc()==null?"":fm.formatter(data.getClaimPortfolioinDc().toString()));
-						res.setPremiumPortfolioOutUsd(data.getPremiumPortfoliooutDc()==null?"":fm.formatter(data.getPremiumPortfoliooutDc().toString()));
-						res.setLossReserveReleasedUsd(data.getLossReserveReleasedDc()==null?"":fm.formatter(data.getLossReserveReleasedDc().toString()));
-						res.setPremiumReserveQuotaShareUsd(data.getPremiumreserveQuotashareDc()==null?"":fm.formatter(data.getPremiumreserveQuotashareDc().toString()));
-						res.setCashLossCreditUsd(data.getCashLossCreditDc()==null?"":fm.formatter(data.getCashLossCreditDc().toString()));
-						res.setLossReserveRetainedUsd(data.getLossReserveretainedDc()==null?"":fm.formatter(data.getLossReserveretainedDc().toString()));
-						res.setProfitCommissionUsd(data.getProfitCommissionDc()==null?"":fm.formatter(data.getProfitCommissionDc().toString()));
-						res.setCashLossPaidUsd(data.getCashLosspaidDc()==null?"":fm.formatter(data.getCashLosspaidDc().toString()));
-						res.setClamsPaidUsd(data.getClaimsPaidDc()==null?"":fm.formatter(data.getClaimsPaidDc().toString()));
-						res.setXlCostUsd(data.getXlCostDc()==null?"":fm.formatter(data.getXlCostDc().toString()));
-						res.setCliamPortfolioOutUsd(data.getClaimPortfolioOutDc()==null?"":fm.formatter(data.getClaimPortfolioOutDc().toString()));
-						res.setPremiumReserveReleasedUsd(data.getPremiumReserveRealsedDc()==null?"":fm.formatter(data.getPremiumReserveRealsedDc().toString()));
-						res.setNetDueUsd(data.getNetdueDc()==null?"":fm.formatter(data.getNetdueDc().toString()));
-						res.setOtherCostUSD(data.getOtherCostDc()==null?"":fm.formatter(data.getOtherCostDc().toString()));
-						res.setCedentRef(data.getCedantReference()==null?"":data.getCedantReference().toString());
-						res.setRemarks(data.getRemarks()==null?"":data.getRemarks().toString());
-						res.setTotalCredit(data.getTotalCrOc()==null?"":fm.formatter(data.getTotalCrOc().toString()));
-						res.setTotalCreditDC(data.getTotalCrDc()==null?"":fm.formatter(data.getTotalCrDc().toString()));
-						res.setTotalDebit(data.getTotalDrOc()==null?"":fm.formatter(data.getTotalDrOc().toString()));
-						res.setTotalDebitDC(data.getTotalDrDc()==null?"":fm.formatter(data.getTotalDrDc().toString()));
-						res.setInterest(data.getInterestOc()==null?"":fm.formatter(data.getInterestOc().toString()));
-						res.setInterestDC(data.getInterestDc()==null?"":fm.formatter(data.getInterestDc().toString()));
-						res.setOsClaimsLossUpdateOC(data.getOsclaimLossupdateOc()==null?"":fm.formatter(data.getOsclaimLossupdateOc().toString()));
-						res.setOsClaimsLossUpdateDC(data.getOsclaimLossupdateDc()==null?"":fm.formatter(data.getOsclaimLossupdateDc().toString()));
-						res.setOverrider(data.getOverriderAmtOc()==null?"":fm.formatter(data.getOverriderAmtOc().toString()));
-						res.setOverriderUSD(data.getOverriderAmtDc()==null?"":fm.formatter(data.getOverriderAmtDc().toString()));
-						res.setAmendmentDate(data.getAmendmentDate()==null?"":sdf.format(data.getAmendmentDate()));
-		                res.setWithHoldingTaxOC(data.getWithHoldingTaxOc()==null?"":fm.formatter(data.getWithHoldingTaxOc().toString()));
-		                res.setWithHoldingTaxDC(data.getWithHoldingTaxDc()==null?"":fm.formatter(data.getWithHoldingTaxDc().toString()));
-		               // res.setDueDate(data.getdutempMap.get("DUE_DATE")==null?"":tempMap.get("DUE_DATE").toString());
-		                res.setCreditsign(data.getNetdueOc()==null?"":data.getNetdueOc().toString());
-		                res.setRiCession(data.getRiCession()==null?"":data.getRiCession().toString());
-		                res.setTaxDedectSource(data.getTdsOc()==null?"":fm.formatter(data.getTdsOc().toString()));
-						res.setTaxDedectSourceDc(data.getTdsDc()==null?"":fm.formatter(data.getTdsDc().toString()));
-						res.setVatPremiumOc(data.getVatPremiumOc()==null?"":fm.formatter(data.getVatPremiumOc().toString()));
-						res.setVatPremiumDc(data.getVatPremiumDc()==null?"":fm.formatter(data.getVatPremiumDc().toString()));
-						res.setBrokerageVatOc(data.getBrokerageVatOc()==null?"":fm.formatter(data.getBrokerageVatOc().toString()));
-						res.setBrokerageVatDc(data.getBrokerageVatDc()==null?"":fm.formatter(data.getBrokerageVatDc().toString()));
-						res.setDocumentType(data.getDocumentType()==null?"":data.getDocumentType().toString());
-						res.setLossParticipation(data.getLpcOc()==null?"":fm.formatter(data.getLpcOc().toString()));
-						res.setLossParticipationDC(data.getLpcDc()==null?"":fm.formatter(data.getLpcDc().toString()));
-						res.setSlideScaleCom(data.getScCommOc()==null?"":fm.formatter(data.getScCommOc().toString()));
-						res.setSlideScaleComDC(data.getScCommDc()==null?"":fm.formatter(data.getScCommDc().toString()));
-					//	res.setSubProfitId(data.gettempMap.get("SUB")==null?"":tempMap.get("SUB").toString());
-//						if(!"ALL".equalsIgnoreCase(res.getSubProfitId())){
-//						res.setSubProfitId(data.getPremiumSubclass()==null?"":data.getPremiumSubclass().toString());
-//						}
-
-						res.setExchRate(dropDownImple.exchRateFormat(data.getExchangeRate()==null?"":fm.formatter(data.getExchangeRate().toString())));
-						res.setStatementDate(data.getStatementDate()==null?"":data.getStatementDate().toString());
-						// res.setPremiumClass(data.getdeptempMap.get("TMAS_DEPARTMENT_NAME")==null?"":tempMap.get("TMAS_DEPARTMENT_NAME").toString());
-
-						res.setExchRate(dropDownImple.exchRateFormat(data.getExchangeRate()==null?"":dropDownImple.formatter(data.getExchangeRate().toString())));
-						res.setStatementDate(data.getStatementDate()==null?"":sdf.format(data.getStatementDate()));
-						
-
-//			                res.setPremiumSubClass(tempMap.get("SUB")==null?"":tempMap.get("SUB").toString());
-//			                if(!"ALL".equalsIgnoreCase(res.getPremiumSubClass())){
-//			                	res.setPremiumSubClass(tempMap.get("PREMIUM_SUBCLASS")==null?"":tempMap.get("PREMIUM_SUBCLASS").toString());
-//			                }
-			                res.setOsbYN(data.getOsbyn()==null?"":data.getOsbyn().toString());
-			                res.setSectionName(data.getSectionName()==null?"":data.getSectionName().toString());
-			                res.setAccDate(data.getAccountingPeriodDate()==null?"":sdf.format(data.getAccountingPeriodDate())) ;
+					res.setProfitCommission(data.getProfitCommissionOc()==null?"":fm.formatter(data.getProfitCommissionOc().toString()));
+					res.setCashLossPaid(data.getCashLosspaidOc()==null?"":fm.formatter(data.getCashLosspaidOc().toString()));
+					res.setNetDue(data.getNetdueOc()==null?"":fm.formatter(data.getNetdueOc().toString()));
+					res.setReceiptno(data.getReceiptNo()==null?"":data.getReceiptNo().toString());
 				
+					res.setClaimsPaid(data.getClaimsPaidOc()==null?"":fm.formatter(data.getClaimsPaidOc().toString()));
+					res.setInceptionDate(data.getEntryDate()==null?"":sdf.format(data.getEntryDate()));
+
+					res.setXlCost(data.getXlCostOc()==null?"":fm.formatter(fm.formatter(data.getXlCostOc().toString())));
+					res.setCliamPortfolioOut(data.getClaimPortfolioOutOc()==null?"":fm.formatter(data.getClaimPortfolioOutOc().toString()));
+					res.setPremiumReserveReleased(data.getPremiumReserveRealsedOc()==null?"":fm.formatter(data.getPremiumReserveRealsedOc().toString()));
+					res.setAccountPeriod(data.getAccountPeriodQtr()==null?"":data.getAccountPeriodQtr().toString());
+
+					res.setAccountPeriodYear(data.getAccountPeriodYear()==null?"":data.getAccountPeriodYear().toString());
+					res.setCurrencyId(data.getCurrencyId()==null?"":data.getCurrencyId().toString());
+					res.setOtherCost(data.getOtherCostOc()==null?"":fm.formatter(data.getOtherCostOc().toString()));
+					res.setBrokerageUsd(data.getBrokerageAmtDc()==null?"":fm.formatter(data.getBrokerageAmtDc().toString()));
+					res.setTaxUsd(data.getTaxAmtDc()==null?"":fm.formatter(data.getTaxAmtDc().toString()));
+					res.setPremiumQuotaShareUsd(data.getPremiumreserveQuotashareDc()==null?"":fm.formatter(data.getPremiumreserveQuotashareDc().toString()));
+					res.setCommsissionQuotaShareUsd(data.getCommissionQuotashareDc()==null?"":fm.formatter(data.getCommissionQuotashareDc().toString()));
+					res.setPremiumSurplusUsd(data.getPremiumSurplusDc()==null?"":fm.formatter(data.getPremiumSurplusDc().toString()));
+					res.setComissionSurplusUsd(data.getCommissionSurplusDc()==null?"":fm.formatter(data.getCommissionSurplusDc().toString()));
+					res.setPremiumPortfolioInUsd(data.getPremiumPortfolioinDc()==null?"":fm.formatter(data.getPremiumPortfolioinDc().toString()));
+					res.setCliamPortfolioUsd(data.getClaimPortfolioinDc()==null?"":fm.formatter(data.getClaimPortfolioinDc().toString()));
+					res.setPremiumPortfolioOutUsd(data.getPremiumPortfoliooutDc()==null?"":fm.formatter(data.getPremiumPortfoliooutDc().toString()));
+					res.setLossReserveReleasedUsd(data.getLossReserveReleasedDc()==null?"":fm.formatter(data.getLossReserveReleasedDc().toString()));
+					res.setPremiumReserveQuotaShareUsd(data.getPremiumreserveQuotashareDc()==null?"":fm.formatter(data.getPremiumreserveQuotashareDc().toString()));
+					res.setCashLossCreditUsd(data.getCashLossCreditDc()==null?"":fm.formatter(data.getCashLossCreditDc().toString()));
+					res.setLossReserveRetainedUsd(data.getLossReserveretainedDc()==null?"":fm.formatter(data.getLossReserveretainedDc().toString()));
+					res.setProfitCommissionUsd(data.getProfitCommissionDc()==null?"":fm.formatter(data.getProfitCommissionDc().toString()));
+					res.setCashLossPaidUsd(data.getCashLosspaidDc()==null?"":fm.formatter(data.getCashLosspaidDc().toString()));
+					res.setClamsPaidUsd(data.getClaimsPaidDc()==null?"":fm.formatter(data.getClaimsPaidDc().toString()));
+					res.setXlCostUsd(data.getXlCostDc()==null?"":fm.formatter(data.getXlCostDc().toString()));
+					res.setCliamPortfolioOutUsd(data.getClaimPortfolioOutDc()==null?"":fm.formatter(data.getClaimPortfolioOutDc().toString()));
+					res.setPremiumReserveReleasedUsd(data.getPremiumReserveRealsedDc()==null?"":fm.formatter(data.getPremiumReserveRealsedDc().toString()));
+					res.setNetDueUsd(data.getNetdueDc()==null?"":fm.formatter(data.getNetdueDc().toString()));
+					res.setOtherCostUSD(data.getOtherCostDc()==null?"":fm.formatter(data.getOtherCostDc().toString()));
+					res.setCedentRef(data.getCedantReference()==null?"":data.getCedantReference().toString());
+					res.setRemarks(data.getRemarks()==null?"":data.getRemarks().toString());
+					res.setTotalCredit(data.getTotalCrOc()==null?"":fm.formatter(data.getTotalCrOc().toString()));
+					res.setTotalCreditDC(data.getTotalCrDc()==null?"":fm.formatter(data.getTotalCrDc().toString()));
+					res.setTotalDebit(data.getTotalDrOc()==null?"":fm.formatter(data.getTotalDrOc().toString()));
+					res.setTotalDebitDC(data.getTotalDrDc()==null?"":fm.formatter(data.getTotalDrDc().toString()));
+					res.setInterest(data.getInterestOc()==null?"":fm.formatter(data.getInterestOc().toString()));
+					res.setInterestDC(data.getInterestDc()==null?"":fm.formatter(data.getInterestDc().toString()));
+					res.setOsClaimsLossUpdateOC(data.getOsclaimLossupdateOc()==null?"":fm.formatter(data.getOsclaimLossupdateOc().toString()));
+					res.setOsClaimsLossUpdateDC(data.getOsclaimLossupdateDc()==null?"":fm.formatter(data.getOsclaimLossupdateDc().toString()));
+					res.setOverrider(data.getOverriderAmtOc()==null?"":fm.formatter(data.getOverriderAmtOc().toString()));
+					res.setOverriderUSD(data.getOverriderAmtDc()==null?"":fm.formatter(data.getOverriderAmtDc().toString()));
+					res.setAmendmentDate(data.getAmendmentDate()==null?"":sdf.format(data.getAmendmentDate()));
+	                res.setWithHoldingTaxOC(data.getWithHoldingTaxOc()==null?"":fm.formatter(data.getWithHoldingTaxOc().toString()));
+	                res.setWithHoldingTaxDC(data.getWithHoldingTaxDc()==null?"":fm.formatter(data.getWithHoldingTaxDc().toString()));
+	               // res.setDueDate(data.getdutempMap.get("DUE_DATE")==null?"":tempMap.get("DUE_DATE").toString());
+	                res.setCreditsign(data.getNetdueOc()==null?"":data.getNetdueOc().toString());
+	                res.setRiCession(data.getRiCession()==null?"":data.getRiCession().toString());
+	                res.setTaxDedectSource(data.getTdsOc()==null?"":fm.formatter(data.getTdsOc().toString()));
+					res.setTaxDedectSourceDc(data.getTdsDc()==null?"":fm.formatter(data.getTdsDc().toString()));
+					res.setVatPremiumOc(data.getVatPremiumOc()==null?"":fm.formatter(data.getVatPremiumOc().toString()));
+					res.setVatPremiumDc(data.getVatPremiumDc()==null?"":fm.formatter(data.getVatPremiumDc().toString()));
+					res.setBrokerageVatOc(data.getBrokerageVatOc()==null?"":fm.formatter(data.getBrokerageVatOc().toString()));
+					res.setBrokerageVatDc(data.getBrokerageVatDc()==null?"":fm.formatter(data.getBrokerageVatDc().toString()));
+					res.setDocumentType(data.getDocumentType()==null?"":data.getDocumentType().toString());
+					res.setLossParticipation(data.getLpcOc()==null?"":fm.formatter(data.getLpcOc().toString()));
+					res.setLossParticipationDC(data.getLpcDc()==null?"":fm.formatter(data.getLpcDc().toString()));
+					res.setSlideScaleCom(data.getScCommOc()==null?"":fm.formatter(data.getScCommOc().toString()));
+					res.setSlideScaleComDC(data.getScCommDc()==null?"":fm.formatter(data.getScCommDc().toString()));
+					res.setSubProfitId(data.getPremiumSubclass()==null?"":data.getPremiumSubclass().toString());
+					if(!"ALL".equalsIgnoreCase(res.getSubProfitId())){
+					res.setSubProfitId(data.getPremiumSubclass()==null?"":data.getPremiumSubclass().toString());
+					}
+
+					res.setExchRate(dropDownImple.exchRateFormat(data.getExchangeRate()==null?"":fm.formatter(data.getExchangeRate().toString())));
+					res.setStatementDate(data.getStatementDate()==null?"":sdf.format(data.getStatementDate()));
+					
+
+	                res.setPremiumSubClass(data.getPremiumSubclass()==null?"":data.getPremiumSubclass().toString());
+	                if(!"ALL".equalsIgnoreCase(res.getPremiumSubClass())){
+	                	res.setPremiumSubClass(data.getPremiumSubclass()==null?"":data.getPremiumSubclass().toString());
+	                }
+	                res.setOsbYN(data.getOsbyn()==null?"":data.getOsbyn().toString());
+	                res.setSectionName(data.getSectionName()==null?"":data.getSectionName().toString());
+	                res.setAccDate(data.getAccountingPeriodDate()==null?"":sdf.format(data.getAccountingPeriodDate())) ;
+			
 				 	//premium.select.sumOfPaidPremium
 				 	List<RskPremiumDetailsRi> list1 =	pdRIRepo.findByContractNo(new BigDecimal(req.getContractNo()));
 				 	int sum =0;

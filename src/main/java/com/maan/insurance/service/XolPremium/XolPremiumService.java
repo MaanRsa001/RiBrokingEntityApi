@@ -58,7 +58,7 @@ public interface XolPremiumService {
 
 	premiumInsertMethodRes premiumInsertMethod(PremiumInsertMethodReq req);
 
-	CommonResponse premiumUpdateMethod(PremiumInsertMethodReq req);
+	premiumInsertMethodRes premiumUpdateMethod(PremiumInsertMethodReq req);
 
 	GetPremiumDetailsRes getPremiumDetails(GetPremiumDetailsReq req);
 
