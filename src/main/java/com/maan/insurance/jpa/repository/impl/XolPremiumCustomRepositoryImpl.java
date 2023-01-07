@@ -798,7 +798,7 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<Tuple> cq = cb.createTupleQuery();
 		Root<TtrnRiskDetails> rkRoot = cq.from(TtrnRiskDetails.class);
-		Root<TmasPfcMaster> pfcRoot = cq.from(TmasPfcMaster.class);
+		//Root<TmasPfcMaster> pfcRoot = cq.from(TmasPfcMaster.class);
 		Root<PersonalInfo> personalRoot = cq.from(PersonalInfo.class);
 		//Root<TmasPolicyBranch> branchRoot = cq.from(TmasPolicyBranch.class);
 		Root<PersonalInfo> piRoot = cq.from(PersonalInfo.class);
@@ -825,7 +825,7 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 				rkRoot.get("rskSpfcid").alias("RSK_SPFCID"),
 				rkRoot.get("rskContractNo").alias("RSK_CONTRACT_NO"),
 				rkRoot.get("rskEndorsementNo").alias("RSK_ENDORSEMENT_NO"),
-				pfcRoot.get("tmasPfcName").alias("TMAS_PFC_NAME"),
+				cb.literal("RTRIM").alias("TMAS_PFC_NAME"),
 				cb.literal("RTRIM").alias("TMAS_SPFC_NAME"), // need to be replaced
 				personalRoot.get("companyName").alias("COMPANY"),
 				rkRoot.get("rskTreatyid").alias("RSK_TREATYID"),
@@ -875,8 +875,8 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 		
 		cq.where(cb.equal(rkRoot.get("rskContractNo"), req.getContNo()),
 			   cb.equal(rkRoot.get("rskLayerNo"), req.getLayerno()),
-			   cb.equal(pfcRoot.get("tmasPfcId"), rkRoot.get("rskPfcid")),
-			   cb.equal(pfcRoot.get("branchCode"), req.getBranchCode()),
+			   //cb.equal(pfcRoot.get("tmasPfcId"), rkRoot.get("rskPfcid")),
+			   //cb.equal(pfcRoot.get("branchCode"), req.getBranchCode()),
 			   cb.equal(rkRoot.get("branchCode"), req.getBranchCode()),
 			   cb.equal(rkRoot.get("rskProductid"), req.getProductId()),
 			   cb.equal(rkRoot.get("rskCedingid"), personalRoot.get("customerId")),
@@ -1974,31 +1974,39 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 
 	@Override
 	public void premiumDetailArchive(PremiumInsertMethodReq beanObj, String netdueOc) {
-		StoredProcedureQuery storedProcedure = em.createStoredProcedureQuery("PREMIUM_DETAIL_ARCHIVE");
+		StoredProcedureQuery sp = em.createStoredProcedureQuery("PREMIUM_DETAIL_ARCHIVE");
 
 		// Assign parameters
-		storedProcedure.registerStoredProcedureParameter("pnContractNo", String.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pnLayerNo", Integer.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pnTranNno", Integer.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pnCurrency", Double.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pnExchange", Double.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pnPrmAmount", Double.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pnDeptId", Integer.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pnProducttId", Integer.class, ParameterMode.IN);
+		sp.registerStoredProcedureParameter("pnContractNo", String.class, ParameterMode.IN);
+		sp.registerStoredProcedureParameter("pnLayerNo", Integer.class, ParameterMode.IN);
+		sp.registerStoredProcedureParameter("pnTranNno", Integer.class, ParameterMode.IN);
+		sp.registerStoredProcedureParameter("pnCurrency", Integer.class, ParameterMode.IN);
+		sp.registerStoredProcedureParameter("pnExchange", Double.class, ParameterMode.IN);
+		sp.registerStoredProcedureParameter("pnPrmAmount", Double.class, ParameterMode.IN);
+		sp.registerStoredProcedureParameter("pnDeptId", Integer.class, ParameterMode.IN);
+		sp.registerStoredProcedureParameter("pnProducttId", Integer.class, ParameterMode.IN);
 
 		// Set parameters
-		storedProcedure.setParameter("pnContractNo", beanObj.getContNo());
-		storedProcedure.setParameter("pnLayerNo",
+		sp.setParameter("pnContractNo", beanObj.getContNo());
+		sp.setParameter("pnLayerNo",
 				Integer.parseInt(StringUtils.isBlank(beanObj.getLayerno()) ? "0" : beanObj.getLayerno()));
-		storedProcedure.setParameter("pnTranNno", Integer.parseInt(beanObj.getTransactionNo()));
-		storedProcedure.setParameter("pnCurrency", Double.parseDouble(beanObj.getCurrencyId()));
-		storedProcedure.setParameter("pnExchange", Double.parseDouble(beanObj.getExchRate()));
-		storedProcedure.setParameter("pnPrmAmount", Double.parseDouble(netdueOc));
-		storedProcedure.setParameter("pnDeptId", Integer.parseInt(beanObj.getDepartmentId()));
-		storedProcedure.setParameter("pnProducttId", Integer.parseInt(beanObj.getProductId()));
-
+		sp.setParameter("pnTranNno", Integer.parseInt(beanObj.getTransactionNo()));
+		sp.setParameter("pnCurrency", Integer.parseInt(beanObj.getCurrencyId()));
+		sp.setParameter("pnExchange", Double.parseDouble(beanObj.getExchRate()));
+		sp.setParameter("pnPrmAmount", Double.parseDouble(netdueOc));
+		sp.setParameter("pnDeptId", Integer.parseInt(beanObj.getDepartmentId()));
+		sp.setParameter("pnProducttId", Integer.parseInt(beanObj.getProductId()));
+		
+		System.out.println("pnContractNo: "+sp.getParameterValue("pnContractNo"));
+		System.out.println("pnLayerNo: "+sp.getParameterValue("pnLayerNo"));
+		System.out.println("pnTranNno: "+sp.getParameterValue("pnTranNno"));
+		System.out.println("pnCurrency: "+sp.getParameterValue("pnCurrency"));
+		System.out.println("pnExchange: "+sp.getParameterValue("pnExchange"));
+		System.out.println("pnPrmAmount: "+sp.getParameterValue("pnPrmAmount"));
+		System.out.println("pnDeptId: "+sp.getParameterValue("pnDeptId"));
+		System.out.println("pnProducttId: "+sp.getParameterValue("pnProducttId"));
 		// execute SP
-		storedProcedure.execute();
+		sp.execute();
 
 	}
 
@@ -2017,47 +2025,68 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 
 	@Override
 	public void premiumSpRetroSplit(PremiumInsertMethodReq beanObj) {
-		StoredProcedureQuery storedProcedure = em.createStoredProcedureQuery("RetroPremium_Split_claim");
+		try {
+			StoredProcedureQuery sp = em.createStoredProcedureQuery("RetroPremium_Split_claim");
 
-		// Assign parameters
-		storedProcedure.registerStoredProcedureParameter("pvContractNo", String.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pnLayerNo", String.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pnProductId", Integer.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pnPremiumTranNo", Double.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pdPremTranDate", String.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pnCurrencyId", Double.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pnExchange", Double.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pnBranchCode", String.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pvtransactionType", String.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pdAmendDate", String.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pnReference", String.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pnTreatyName", String.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pnRemarks", String.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pnUwYear", String.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pnSubClass", String.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("retroCession", String.class, ParameterMode.IN);
-		
+			// Assign parameters
+			sp.registerStoredProcedureParameter("pvContractNo", String.class, ParameterMode.IN);
+			sp.registerStoredProcedureParameter("pnLayerNo", String.class, ParameterMode.IN);
+			sp.registerStoredProcedureParameter("pnProductId", Integer.class, ParameterMode.IN);
+			sp.registerStoredProcedureParameter("pnPremiumTranNo", Double.class, ParameterMode.IN);
+			sp.registerStoredProcedureParameter("pdPremTranDate", Date.class, ParameterMode.IN);
+			sp.registerStoredProcedureParameter("pnCurrencyId", Integer.class, ParameterMode.IN);
+			sp.registerStoredProcedureParameter("pnExchange", Double.class, ParameterMode.IN);
+			sp.registerStoredProcedureParameter("pnBranchCode", String.class, ParameterMode.IN);
+			sp.registerStoredProcedureParameter("pvtransactionType", String.class, ParameterMode.IN);
+			sp.registerStoredProcedureParameter("pdAmendDate", String.class, ParameterMode.IN);
+			sp.registerStoredProcedureParameter("pnReference", String.class, ParameterMode.IN);
+			sp.registerStoredProcedureParameter("pnTreatyName", String.class, ParameterMode.IN);
+			sp.registerStoredProcedureParameter("pnRemarks", String.class, ParameterMode.IN);
+			sp.registerStoredProcedureParameter("pnUwYear", String.class, ParameterMode.IN);
+			sp.registerStoredProcedureParameter("pnSubClass", String.class, ParameterMode.IN);
+			sp.registerStoredProcedureParameter("retroCession", String.class, ParameterMode.IN);
+			
 
-		// Set parameters
-		storedProcedure.setParameter("pvContractNo", beanObj.getContNo());
-		storedProcedure.setParameter("pnLayerNo", StringUtils.isEmpty(beanObj.getLayerno())? "0" :beanObj.getLayerno());
-		storedProcedure.setParameter("pnProductId", Integer.parseInt(beanObj.getProductId()));
-		storedProcedure.setParameter("pnPremiumTranNo", Double.parseDouble(beanObj.getTransactionNo()));
-		storedProcedure.setParameter("pdPremTranDate", StringUtils.isEmpty(beanObj.getTransaction())? "" :beanObj.getTransaction());
-		storedProcedure.setParameter("pnCurrencyId", Double.parseDouble("3".equalsIgnoreCase(beanObj.getProductId()) ? beanObj.getCurrencyId() : beanObj.getCurrency()));
-		storedProcedure.setParameter("pnExchange", Double.parseDouble(beanObj.getExchRate()));
-		storedProcedure.setParameter("pnBranchCode", beanObj.getBranchCode());
+			// Set parameters
+			sp.setParameter("pvContractNo", beanObj.getContNo());
+			sp.setParameter("pnLayerNo", StringUtils.isEmpty(beanObj.getLayerno())? "0" :beanObj.getLayerno());
+			sp.setParameter("pnProductId", Integer.parseInt(beanObj.getProductId()));
+			sp.setParameter("pnPremiumTranNo", Double.parseDouble(beanObj.getTransactionNo()));
+			sp.setParameter("pdPremTranDate", formatDate(beanObj.getTransaction()));
+			sp.setParameter("pnCurrencyId", Integer.parseInt("3".equalsIgnoreCase(beanObj.getProductId()) ? beanObj.getCurrencyId() : beanObj.getCurrency()));
+			sp.setParameter("pnExchange", Double.parseDouble(beanObj.getExchRate()));
+			sp.setParameter("pnBranchCode", beanObj.getBranchCode());
 
-		storedProcedure.setParameter("pvtransactionType", "P");
-		storedProcedure.setParameter("pdAmendDate", beanObj.getAmendmentDate()==null?"":beanObj.getAmendmentDate());
-		storedProcedure.setParameter("pnReference", "");
-		storedProcedure.setParameter("pnTreatyName", "");
-		storedProcedure.setParameter("pnRemarks", "");
-		storedProcedure.setParameter("pnUwYear", "");
-		storedProcedure.setParameter("pnSubClass", "");
-		storedProcedure.setParameter("retroCession", beanObj.getRicession());
-		// execute SP
-		storedProcedure.execute();
+			sp.setParameter("pvtransactionType", "P");
+			sp.setParameter("pdAmendDate", beanObj.getAmendmentDate()==null?"":beanObj.getAmendmentDate());
+			sp.setParameter("pnReference", "");
+			sp.setParameter("pnTreatyName", "");
+			sp.setParameter("pnRemarks", "");
+			sp.setParameter("pnUwYear", "");
+			sp.setParameter("pnSubClass", "");
+			sp.setParameter("retroCession", beanObj.getRicession());
+			// execute SP
+			
+			System.out.println("pvContractNo: "+sp.getParameterValue("pvContractNo"));
+			System.out.println("pnLayerNo: "+sp.getParameterValue("pnLayerNo"));
+			System.out.println("pnProductId: "+sp.getParameterValue("pnProductId"));
+			System.out.println("pnPremiumTranNo: "+sp.getParameterValue("pnPremiumTranNo"));
+			System.out.println("pdPremTranDate: "+sp.getParameterValue("pdPremTranDate"));
+			System.out.println("pnCurrencyId: "+sp.getParameterValue("pnCurrencyId"));
+			System.out.println("pnExchange: "+sp.getParameterValue("pnExchange"));
+			System.out.println("pnBranchCode: "+sp.getParameterValue("pnBranchCode"));
+			System.out.println("pvtransactionType: "+sp.getParameterValue("pvtransactionType"));
+			System.out.println("pdAmendDate: "+sp.getParameterValue("pdAmendDate"));
+			System.out.println("pnReference: "+sp.getParameterValue("pnReference"));
+			System.out.println("pnTreatyName: "+sp.getParameterValue("pnTreatyName"));
+			System.out.println("pnRemarks: "+sp.getParameterValue("pnRemarks"));
+			System.out.println("pnUwYear: "+sp.getParameterValue("pnUwYear"));
+			System.out.println("pnSubClass: "+sp.getParameterValue("pnSubClass"));
+			System.out.println("retroCession: "+sp.getParameterValue("retroCession"));
+			sp.execute();
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
 		
 	}
 
@@ -2234,24 +2263,34 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 	}
 	@Override
 	public void premiumRiSplit(PremiumInsertMethodReq req) {
-		StoredProcedureQuery storedProcedure = em.createStoredProcedureQuery("RI_SPLIT_INSERT");
+		StoredProcedureQuery sp = em.createStoredProcedureQuery("RI_SPLIT_INSERT");
 
 		// Assign parameters
-		storedProcedure.registerStoredProcedureParameter("V_CONTRACT_NO", String.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("V_LAYER_NO", String.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("V_PRODUCT_ID", String.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("V_TRANSACTION_NO", String.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("V_BRANCH_CODE", String.class, ParameterMode.IN);
+		sp.registerStoredProcedureParameter("V_CONTRACT_NO", String.class, ParameterMode.IN);
+		sp.registerStoredProcedureParameter("V_LAYER_NO", String.class, ParameterMode.IN);
+		sp.registerStoredProcedureParameter("V_PRODUCT_ID", String.class, ParameterMode.IN);
+		sp.registerStoredProcedureParameter("V_TRANSACTION_NO", String.class, ParameterMode.IN);
+		sp.registerStoredProcedureParameter("V_BRANCH_CODE", String.class, ParameterMode.IN);
 	
 		// Set parameters
-		storedProcedure.setParameter("V_CONTRACT_NO", req.getContNo());
-		storedProcedure.setParameter("V_LAYER_NO", StringUtils.isBlank(req.getLayerno())?"0":req.getLayerno());
-		storedProcedure.setParameter("V_PRODUCT_ID", req.getProductId());
-		storedProcedure.setParameter("V_TRANSACTION_NO", req.getTransactionNo());
-		storedProcedure.setParameter("V_BRANCH_CODE", req.getBranchCode());
+		sp.setParameter("V_CONTRACT_NO", req.getContNo());
+		sp.setParameter("V_LAYER_NO", StringUtils.isBlank(req.getLayerno())?"0":req.getLayerno());
+		sp.setParameter("V_PRODUCT_ID", req.getProductId());
+		sp.setParameter("V_TRANSACTION_NO", req.getTransactionNo());
+		sp.setParameter("V_BRANCH_CODE", req.getBranchCode());
+		
+		System.out.println("V_CONTRACT_NO: "+sp.getParameterValue("V_CONTRACT_NO"));
+		System.out.println("V_LAYER_NO: "+sp.getParameterValue("V_LAYER_NO"));
+		System.out.println("V_PRODUCT_ID: "+sp.getParameterValue("V_PRODUCT_ID"));
+		System.out.println("V_TRANSACTION_NO: "+sp.getParameterValue("V_TRANSACTION_NO"));
+		System.out.println("V_BRANCH_CODE: "+sp.getParameterValue("V_BRANCH_CODE"));
 		
 		// execute SP
-		storedProcedure.execute();
+		sp.execute();
 	}
-
+	public Date formatDate(String input) throws ParseException {
+		SimpleDateFormat sdf1 = new SimpleDateFormat("dd/MM/yyyy");
+		java.util.Date date = sdf1.parse(input);
+		return new java.sql.Date(date.getTime());
+	}
 }

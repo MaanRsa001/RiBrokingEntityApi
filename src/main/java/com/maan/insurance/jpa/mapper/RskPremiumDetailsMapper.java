@@ -107,7 +107,7 @@ public class RskPremiumDetailsMapper extends AbstractEntityMapper<RskPremiumDeta
 				rskPremiumDetails.setTax(input.getTax());
 				rskPremiumDetails.setTaxAmtOc(input.getTaxAmtOc());
 				rskPremiumDetails.setEntryDateTime(input.getEntryDateTime());
-				
+				rskPremiumDetails.setLayerNo(input.getLayerNo());
 				rskPremiumDetails.setPremiumQuotashareOc(input.getPremiumQuotashareOc());
 				rskPremiumDetails.setCommissionQuotashareOc(input.getCommissionQuotashareOc());
 				rskPremiumDetails.setPremiumSurplusOc(input.getPremiumSurplusOc());
@@ -125,6 +125,7 @@ public class RskPremiumDetailsMapper extends AbstractEntityMapper<RskPremiumDeta
 				rskPremiumDetails.setStatus(input.getStatus());
 				rskPremiumDetails.setEnteringMode(input.getEnteringMode());
 				rskPremiumDetails.setReceiptNo(input.getReceiptNo());
+				rskPremiumDetails.setInstalmentNumber(input.getInstalmentNumber());
 				rskPremiumDetails.setClaimsPaidOc(input.getClaimsPaidOc());
 				rskPremiumDetails.setSettlementStatus(input.getSettlementStatus());
 				rskPremiumDetails.setXlCostOc(input.getXlCostOc());
@@ -134,6 +135,9 @@ public class RskPremiumDetailsMapper extends AbstractEntityMapper<RskPremiumDeta
 				rskPremiumDetails.setOtherCostOc(input.getOtherCostOc());
 				rskPremiumDetails.setBrokerageAmtDc(input.getBrokerageAmtDc());
 				rskPremiumDetails.setTaxAmtDc(input.getTaxAmtDc());
+				rskPremiumDetails.setMDpremiumDc(input.getMDpremiumDc());
+				rskPremiumDetails.setAdjustmentPremiumDc(input.getAdjustmentPremiumDc());
+				rskPremiumDetails.setRecPremiumDc(input.getRecPremiumDc());
 				rskPremiumDetails.setPremiumQuotashareDc(input.getPremiumQuotashareDc());
 				rskPremiumDetails.setCommissionQuotashareDc(input.getCommissionQuotashareDc());
 				rskPremiumDetails.setPremiumSurplusDc(input.getPremiumSurplusDc());
@@ -156,6 +160,9 @@ public class RskPremiumDetailsMapper extends AbstractEntityMapper<RskPremiumDeta
 				rskPremiumDetails.setNetdueDc(input.getNetdueDc());
 				rskPremiumDetails.setOtherCostDc(input.getOtherCostDc());
 				rskPremiumDetails.setCommission(input.getCommission());
+				rskPremiumDetails.setMDpremiumOc(input.getMDpremiumOc());
+				rskPremiumDetails.setAdjustmentPremiumOc(input.getAdjustmentPremiumOc());
+				rskPremiumDetails.setRecPremiumOc(input.getRecPremiumOc());
 				rskPremiumDetails.setCedantReference(input.getCedantReference());
 				rskPremiumDetails.setRemarks(input.getRemarks());
 				rskPremiumDetails.setTotalCrOc(input.getTotalCrOc());

@@ -1516,7 +1516,7 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 				if (rskTemp != null) {
 					RskPremiumDetails detailsEntity = rskPremiumDetailsMapper.toProEntity(rskTemp);
 					detailsEntity.setTransactionNo(new BigDecimal(req.getTransactionNo()));
-					rskPremiumDetailsRepository.save(detailsEntity);
+					rskPremiumDetailsRepository.saveAndFlush(detailsEntity);
 				}
 
 				// query -- premium.sp.retroSplit

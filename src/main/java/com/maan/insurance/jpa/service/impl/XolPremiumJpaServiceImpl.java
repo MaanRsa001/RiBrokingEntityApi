@@ -393,7 +393,7 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 				Map<String, Object> tempMap = new HashMap<>();
 				tempMap.put("KEY1", element.get("INSTALLMENT_NO") + "_"
 						+ new SimpleDateFormat("dd/MM/yyyy").format(element.get("INSTALLMENT_DATE")).toString());
-				tempMap.put("VALUE", element.get("INSTALLMENT_NO") + "\\:"
+				tempMap.put("VALUE", element.get("INSTALLMENT_NO") + ":"
 						+ new SimpleDateFormat("dd/MM/yyyy").format(element.get("INSTALLMENT_DATE")).toString());
 				tempMap.put("INSTALLMENT_NO", element.get("INSTALLMENT_NO"));
 
@@ -520,7 +520,8 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 		String string = null;
 		try {
 			// query -- premium.select.mndPremiumOC
-			string = xolPremiumCustomRepository.selectMndPremiumOC(contNo, layerNo, instalmentno);
+			final String[] Instalmentno=instalmentno.split("_");
+			string = xolPremiumCustomRepository.selectMndPremiumOC(contNo, layerNo, Instalmentno[0]);
 			string = string == null ? "" : string;
 			response.setResponse(string);
 			response.setMessage("Success");
