@@ -1030,10 +1030,10 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 				// query -- claim.select.sumPaidAmt
 				String output = claimCustomRepository.selectSumPaidAmt(req.getClaimNo(), req.getPolicyContractNo());
 				amt = output == null ? "" : output;
-
-				// query -- claim.update.totalAmtPaidTillDate
-				claimCustomRepository.updateTotalAmtPaidTillDate(amt, req.getClaimNo(), req.getPolicyContractNo());
-
+				
+				if(StringUtils.isNotBlank(amt)) {
+					claimCustomRepository.updateTotalAmtPaidTillDate(amt, req.getClaimNo(), req.getPolicyContractNo());
+				}
 				// query -- claim.select.Ri_recovery
 				String ri = claimCustomRepository.selectRiRecovery(req.getClaimNo(), req.getPolicyContractNo());
 				req.setRiRecovery(ri == null ? "" : ri);
@@ -1484,34 +1484,67 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 
 			if (list.size() > 0) {
 				for (int i = 0; i < list.size(); i++) {
-					Map<String, Object> contractDetails = (Map<String, Object>) list.get(i);
-					res.setPolicyContractNo(contractDetails.get("RSK_CONTRACT_NO") == null ? "": contractDetails.get("RSK_CONTRACT_NO").toString());
-					String DepartmentId = (contractDetails.get("RSK_DEPTID") == null ? "": contractDetails.get("RSK_DEPTID").toString());
-
-					if ("1".equalsIgnoreCase(req.getProductId())) {
-						res.setSignedShare(contractDetails.get("SHARE_SIGNED") == null ? "":contractDetails.get("SHARE_SIGNED").toString());
-						res.setSumInsOSOC(contractDetails.get("SUM_INSURED_OUR_SHARE_OC") == null ? "": fm.formatter(contractDetails.get("SUM_INSURED_OUR_SHARE_OC").toString()));
-						res.setSumInsOSDC(contractDetails.get("SUM_INSURED_OUR_SHARE_DC") == null ? "": fm.formatter(contractDetails.get("SUM_INSURED_OUR_SHARE_DC").toString()));
-						res.setDepartmentName(contractDetails.get("TMAS_DEPARTMENT_NAME") == null ? "": contractDetails.get("TMAS_DEPARTMENT_NAME").toString());
-						/*
-						 * list = queryImpl.selectList("claim.select.tmasDeptName",new String[] {
-						 * DepartmentId, req.getProductId(), req.getBranchCode() }); if
-						 * (!CollectionUtils.isEmpty(list)) {
-						 * res.setDepartmentName(fm.formatter(list.get(0).get("TMAS_NAME") == null ? "":
-						 * list.get(0).get("TMAS_NAME").toString())); }
-						 */
-					} else {
-						res.setSignedShare(contractDetails.get("RSK_SHARE_SIGNED") == null ? "": contractDetails.get("RSK_SHARE_SIGNED").toString());
-						res.setSumInsOSOC(contractDetails.get("RSK_LIMIT_OS_OC") == null ? "": fm.formatter(contractDetails.get("RSK_LIMIT_OS_OC").toString()));
-						res.setSumInsOSDC(contractDetails.get("RSK_LIMIT_OS_DC") == null ? "": fm.formatter(contractDetails.get("RSK_LIMIT_OS_DC").toString()));
-						res.setDepartmentName(contractDetails.get("TMAS_DEPARTMENT_NAME") == null ? "": contractDetails.get("TMAS_DEPARTMENT_NAME").toString());
+					Map<String,Object> contractDetails=(Map<String,Object>) list.get(i);
+					res.setPolicyContractNo(contractDetails.get("RSK_CONTRACT_NO")==null?"":contractDetails.get("RSK_CONTRACT_NO").toString());
+					res.setAmendId(contractDetails.get("RSK_ENDORSEMENT_NO")==null?"":contractDetails.get("RSK_ENDORSEMENT_NO").toString());
+					res.setCedingcompanyName(contractDetails.get("CEDING_COMPANY")==null?"":contractDetails.get("CEDING_COMPANY").toString());
+					res.setCedingCompanyCode(contractDetails.get("RSK_CEDINGID")==null?"":contractDetails.get("RSK_CEDINGID").toString());
+					res.setProposalNo(contractDetails.get("RSK_PROPOSAL_NUMBER")==null?"":contractDetails.get("RSK_PROPOSAL_NUMBER").toString());
+					res.setDepartmentId(contractDetails.get("RSK_DEPTID")==null?"":contractDetails.get("RSK_DEPTID").toString());
+					res.setDepartmentClass(contractDetails.get("RSK_DEPTID")==null?"":contractDetails.get("RSK_DEPTID").toString());
+					res.setUwYear(contractDetails.get("RSK_UWYEAR")==null?"":contractDetails.get("RSK_UWYEAR").toString());
+					res.setCurrecny(contractDetails.get("RSK_ORIGINAL_CURR")==null?"":contractDetails.get("RSK_ORIGINAL_CURR").toString());
+					if("1".equalsIgnoreCase(req.getProductId())){
+					res.setSignedShare(contractDetails.get("SHARE_SIGNED")==null?"":contractDetails.get("SHARE_SIGNED").toString());
+					res.setLimitOurshareUSD(contractDetails.get("SUM_INSURED_OUR_SHARE_DC")==null?"":fm.formatter(contractDetails.get("SUM_INSURED_OUR_SHARE_DC").toString()));
+					res.setSumInsOSOC(contractDetails.get("SUM_INSURED_OUR_SHARE_OC")==null?"":fm.formatter(contractDetails.get("SUM_INSURED_OUR_SHARE_OC").toString()));
+					res.setSumInsOSDC(contractDetails.get("SUM_INSURED_OUR_SHARE_DC")==null?"":fm.formatter(contractDetails.get("SUM_INSURED_OUR_SHARE_DC").toString()));
+					list =queryImpl.selectList("claim.select.tmasDeptName",new String[]{res.getDepartmentId(),req.getProductId(),req.getBranchCode()});
+					if (!CollectionUtils.isEmpty(list)) {
+						res.setDepartmentName(list.get(0).get("TMAS_NAME") == null ? ""
+								: list.get(0).get("TMAS_NAME").toString());
 					}
-					res.setFrom(contractDetails.get("INCP_DATE") == null ? "": contractDetails.get("INCP_DATE").toString());
-					res.setTo(
-							contractDetails.get("EXP_DATE") == null ? "" : contractDetails.get("EXP_DATE").toString());
-					res.setAcceptenceDate(contractDetails.get("RSK_ACCOUNT_DATE") == null ? "": contractDetails.get("RSK_ACCOUNT_DATE").toString());
 
-				}
+					}else
+					{
+					res.setSignedShare(contractDetails.get("RSK_SHARE_SIGNED")==null?"":contractDetails.get("RSK_SHARE_SIGNED").toString());
+					res.setLimitOrigCurr(contractDetails.get("RSK_LIMIT_OC")==null?"":fm.formatter(contractDetails.get("RSK_LIMIT_OC").toString()));
+					res.setLimitOurshareUSD(contractDetails.get("RSK_LIMIT_DC")==null?"":fm.formatter(contractDetails.get("RSK_LIMIT_DC").toString()));
+					res.setSumInsOSOC(contractDetails.get("RSK_LIMIT_OS_OC")==null?"":fm.formatter(contractDetails.get("RSK_LIMIT_OS_OC").toString()));
+					res.setSumInsOSDC(contractDetails.get("RSK_LIMIT_OS_DC")==null?"":fm.formatter(contractDetails.get("RSK_LIMIT_OS_DC").toString()));
+					res.setDepartmentName(contractDetails.get("TMAS_DEPARTMENT_NAME")==null?"":contractDetails.get("TMAS_DEPARTMENT_NAME").toString());
+					}
+					res.setSubProfitCenter(contractDetails.get("TMAS_SPFC_NAME")==null?"":contractDetails.get("TMAS_SPFC_NAME").toString());
+					res.setRetention(contractDetails.get("RSK_CEDANT_RETENTION")==null?"":fm.formatter(contractDetails.get("RSK_CEDANT_RETENTION").toString()));
+					res.setFrom(contractDetails.get("INCP_DATE")==null?"":contractDetails.get("INCP_DATE").toString());
+					res.setTo(contractDetails.get("EXP_DATE")==null?"":contractDetails.get("EXP_DATE").toString());
+					res.setTreatyName(contractDetails.get("RSK_TREATYID")==null?"":contractDetails.get("RSK_TREATYID").toString());
+					res.setBrokercode(contractDetails.get("RSK_BROKERID")==null?"":contractDetails.get("RSK_BROKERID").toString());
+					res.setBrokerName(contractDetails.get("BROKER_NAME")==null?"":contractDetails.get("BROKER_NAME").toString());
+					res.setAcceptenceDate(contractDetails.get("RSK_ACCOUNT_DATE")==null?"":contractDetails.get("RSK_ACCOUNT_DATE").toString());
+					String count="";
+					if("2".equals(req.getProductId())){
+					count= dropDowmImpl.getCombinedClass(req.getBranchCode(),req.getProductId(),res.getDepartmentId());
+					}
+					res.setClaimdepartId(contractDetails.get("RSK_DEPTID")==null?"":contractDetails.get("RSK_DEPTID").toString());
+					res.setConsubProfitId(contractDetails.get("RSK_SPFCID")==null?"":contractDetails.get("RSK_SPFCID").toString());
+					res.setInsuredName(contractDetails.get("RSK_INSURED_NAME")==null?"":contractDetails.get("RSK_INSURED_NAME").toString());
+					res.setProposalType(contractDetails.get("RSK_PROPOSAL_TYPE")==null?"":contractDetails.get("RSK_PROPOSAL_TYPE").toString());
+					res.setBasis(contractDetails.get("RSK_BASIS")==null?"":contractDetails.get("RSK_BASIS").toString());
+
+					if("3".equalsIgnoreCase(req.getProductId()))
+					{
+					res.setNatureofCoverage(contractDetails.get("RSK_PF_COVERED")==null?"":contractDetails.get("RSK_PF_COVERED").toString());
+					res.setReinstatementPremium(contractDetails.get("RSK_REINSTATEMENT_PREMIUM")==null?"":contractDetails.get("RSK_REINSTATEMENT_PREMIUM").toString());
+					}
+					if("2".equalsIgnoreCase(req.getProductId()))
+					{
+					res.setNatureofCoverage(contractDetails.get("RSK_RISK_COVERED")==null?"":contractDetails.get("RSK_RISK_COVERED").toString());
+					res.setCashLossOSOC(fm.formatter(((Double.parseDouble(contractDetails.get("RSK_CASHLOSS_LMT_OC").toString()==null?"0":contractDetails.get("RSK_CASHLOSS_LMT_OC").toString())*Double.parseDouble(contractDetails.get("RSK_SHARE_SIGNED")==null?"0":contractDetails.get("RSK_SHARE_SIGNED").toString()))/100.0)+""));
+					res.setCashLossOSDC(fm.formatter(((Double.parseDouble(contractDetails.get("RSK_CASHLOSS_LMT_DC").toString()==null?"0":contractDetails.get("RSK_CASHLOSS_LMT_DC").toString())*Double.parseDouble(contractDetails.get("RSK_SHARE_SIGNED").toString()==null?"0":contractDetails.get("RSK_SHARE_SIGNED").toString()))/100.0)+""));
+					}
+
+					}
 				finalList.add(res);
 				response.setCommonResponse(finalList);
 				response.setMessage("Success");
@@ -1876,8 +1909,8 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 					query="claim.saf.os.sum.difference";
 					list=queryImpl.selectList(query, new String[]{formObj.getPolicyContractNo(),formObj.getClaimNo(),formObj.getPolicyContractNo(),formObj.getClaimNo(),formObj.getPolicyContractNo(),formObj.getClaimNo()});
 					if (!CollectionUtils.isEmpty(list)) {
-						amount =Double.parseDouble(list.get(0).get("OTH_FEE_DIFF") == null ? ""
-								: list.get(0).get("OTH_FEE_DIFF").toString());
+						amount =Double.parseDouble(list.get(0).get("SAF_OS_DIFF") == null ? ""
+								: list.get(0).get("SAF_OS_DIFF").toString());
 					}
 					
 					}
@@ -1888,8 +1921,8 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 					query="CLAIM_OTHER_FEE_OS_SUM_EDIT";
 					list=queryImpl.selectList(query, new String[]{formObj.getPolicyContractNo(),formObj.getClaimNo(),formObj.getClaimPaymentNo(),formObj.getPolicyContractNo(),formObj.getClaimNo(),formObj.getPolicyContractNo(),formObj.getClaimNo()});
 					if (!CollectionUtils.isEmpty(list)) {
-						amount =Double.parseDouble(list.get(0).get("SAF_OS_DIFF") == null ? ""
-								: list.get(0).get("SAF_OS_DIFF").toString());
+						amount =Double.parseDouble(list.get(0).get("OTH_FEE_DIFF") == null ? ""
+								: list.get(0).get("OTH_FEE_DIFF").toString());
 					}
 				
 

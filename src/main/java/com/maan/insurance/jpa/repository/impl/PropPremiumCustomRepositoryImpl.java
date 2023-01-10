@@ -332,19 +332,19 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		cq.multiselect(root.get("type").alias("TYPE"), 
 				root.get("detailName").alias("DETAIL_NAME")).distinct(true);  
 		
-		if("1".equalsIgnoreCase(accPeriod)){
+		if("2".equalsIgnoreCase(accPeriod)){
 			cq.where(cb.equal(root.get("categoryId"), categoryId),
 					   cb.equal(root.get("status"), status),
 					   root.get("remarks").in(Arrays.asList(new String[]{"P","Q"})));
 			cq.orderBy(cb.asc(root.get("detailName")));
 			
-		}else if("2".equalsIgnoreCase(accPeriod)){
+		}else if("3".equalsIgnoreCase(accPeriod)){
 			cq.where(cb.equal(root.get("categoryId"), categoryId),
 					   cb.equal(root.get("status"), status),
 					   root.get("remarks").in(Arrays.asList(new String[]{"P","H"})));
 			cq.orderBy(cb.asc(root.get("detailName")));
 			
-		}else if("3".equalsIgnoreCase(accPeriod)){
+		}else if("4".equalsIgnoreCase(accPeriod)){
 			cq.where(cb.equal(root.get("categoryId"), categoryId),
 					   cb.equal(root.get("status"), status),
 					   root.get("remarks").in(Arrays.asList(new String[]{"P","Y"})));

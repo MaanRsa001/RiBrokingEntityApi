@@ -437,10 +437,12 @@ public ClaimValidation() {
 			{ 
 				list.add(new ErrorCheck(prop.getProperty("errors.reservepositionDate.Error2"), "CreatedDate,ReservePositionDate", "01"));
 			}
-			 else if(Validation.ValidateTwo(req.getAcceptenceDate(),req.getCreatedDate()).equalsIgnoreCase("invalid"))
-				{
-					list.add(new ErrorCheck(prop.getProperty("errors.claim.acDate"), "AcceptenceDate,CreatedDate", "01"));
-				}
+			/*
+			 * else if(Validation.ValidateTwo(req.getAcceptenceDate(),req.getCreatedDate()).
+			 * equalsIgnoreCase("invalid")) { list.add(new
+			 * ErrorCheck(prop.getProperty("errors.claim.acDate"),
+			 * "AcceptenceDate,CreatedDate", "01")); }
+			 */
 			 if(!"Reopened".equalsIgnoreCase(req.getStatusofClaim()) && !"Repudiate".equalsIgnoreCase(req.getStatusofClaim())){
 			if(!val.isNull(openPeriodRes.getOpenPeriodDate()).equalsIgnoreCase("") && !val.isNull(req.getCreatedDate()).equalsIgnoreCase("")){
 				if(dropDowmImpl.Validatethree(req.getBranchCode(), req.getCreatedDate())==0){

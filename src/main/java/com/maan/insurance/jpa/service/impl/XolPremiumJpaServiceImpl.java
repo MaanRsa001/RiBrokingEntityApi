@@ -1534,7 +1534,6 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 		args[47] = getModeOfTransaction(beanObj.getBonus()==null?"0":beanObj.getBonus().replaceAll(",", ""),beanObj.getEnteringMode(), beanObj.getShareSigned());
 		args[48] = dropDowmImpl.GetDesginationCountry(args[47], beanObj.getExchRate());
 		
-		beanObj.setTransactionNo(args[1]);
 		args[49] = StringUtils.isEmpty(beanObj.getGnpiDate()) ?"" :beanObj.getGnpiDate();
 		args[50] ="D";
 		args[51]=beanObj.getPredepartment();

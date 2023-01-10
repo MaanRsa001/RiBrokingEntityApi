@@ -3,6 +3,8 @@ package com.maan.insurance.jpa.repository.impl;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -24,6 +26,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.query.internal.NativeQueryImpl;
 import org.hibernate.transform.AliasToEntityMapResultTransformer;
@@ -133,15 +136,19 @@ public class ClaimCustomRepositoryImpl implements ClaimCustomRepository{
 
 	@Override
 	public String selectSumPaidAmt(String claimNo, String contractNo) {
+		String paidamount="";
 		CriteriaBuilder cb = em.getCriteriaBuilder();
-		CriteriaQuery<String> cq = cb.createQuery(String.class);
+		CriteriaQuery<Tuple> cq = cb.createTupleQuery();
 		Root<TtrnClaimPayment> root = cq.from(TtrnClaimPayment.class);
 		
-		cq.multiselect(cb.sum(root.get("paidAmountOc")).as(String.class).alias("PAID_AMOUNT_OC"))
+		cq.multiselect(cb.sum(root.get("paidAmountOc")).alias("PAID_AMOUNT_OC"))
 		.where(cb.equal(root.get("claimNo"), claimNo),
 				cb.equal(root.get("contractNo"), contractNo));
-		
-		return em.createQuery(cq).getSingleResult();
+		List<Tuple> ulist = em.createQuery(cq).getResultList();
+		if(CollectionUtils.isEmpty(ulist)) {
+			paidamount=ulist.get(0).get("PAID_AMOUNT_OC")==null?"":ulist.get(0).get("PAID_AMOUNT_OC").toString();
+		}
+		return paidamount;
 	}
 
 	@Override
@@ -771,7 +778,7 @@ public class ClaimCustomRepositoryImpl implements ClaimCustomRepository{
 		CriteriaUpdate<TtrnClaimDetails> update = cb.createCriteriaUpdate(TtrnClaimDetails.class);
 		Root<TtrnClaimDetails> root = update.from(TtrnClaimDetails.class);
 
-		update.set(root.get("totalAmtPaidTillDate"), amt);
+		update.set(root.get("totalAmtPaidTillDate"), new BigDecimal(amt));
 				
 		update.where(cb.equal(root.get("claimNo"), claimNo),
 				     cb.equal(root.get("contractNo"), contractNo));
@@ -795,45 +802,49 @@ public class ClaimCustomRepositoryImpl implements ClaimCustomRepository{
 	@Override
 	public void getPremiumSpRetroSplit(InsertCliamDetailsMode3Req req) {
 		
-		StoredProcedureQuery storedProcedure = em.createStoredProcedureQuery("RetroPremium_Split_claim");
-		
-		// Assign parameters
-		storedProcedure.registerStoredProcedureParameter("pvContractNo", String.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pnLayerNo", Integer.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pnProductId", Integer.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pnPremiumTranNo", Integer.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pdPremTranDate", Date.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pnCurrencyId", Integer.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pnExchange", Integer.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pnBranchCode", String.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pvtransactionType", String.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pdAmendDate", Date.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pnReference", String.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pnTreatyName", String.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pnRemarks", String.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pnUwYear", String.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("pnSubClass", String.class, ParameterMode.IN);
-		storedProcedure.registerStoredProcedureParameter("retroCession", String.class, ParameterMode.IN);
-		
-		// Set parameters
-		storedProcedure.setParameter("pvContractNo", req.getPolicyContractNo());
-		storedProcedure.setParameter("pnLayerNo", Integer.parseInt(StringUtils.isEmpty(req.getLayerNo())?"0":req.getLayerNo()));
-		storedProcedure.setParameter("pnProductId", Integer.parseInt(req.getProductId()));
-		storedProcedure.setParameter("pnPremiumTranNo", Integer.parseInt(req.getClaimPaymentNo()));
-		storedProcedure.setParameter("pdPremTranDate", req.getDate());
-		storedProcedure.setParameter("pnCurrencyId", Integer.parseInt(req.getCurrecny()));
-		storedProcedure.setParameter("pnExchange", Integer.parseInt(req.getExcRate()));
-		storedProcedure.setParameter("pnBranchCode", Integer.parseInt(req.getBranchCode()));
-		storedProcedure.setParameter("pvtransactionType", "C");
-		storedProcedure.setParameter("pdAmendDate", "");
-		storedProcedure.setParameter("pnReference", "");
-		storedProcedure.setParameter("pnTreatyName", "");
-		storedProcedure.setParameter("pnRemarks", "");
-		storedProcedure.setParameter("pnUwYear", "");
-		storedProcedure.setParameter("pnSubClass", "");
-		storedProcedure.setParameter("retroCession", req.getRiRecovery());
-		// execute SP
-		storedProcedure.execute();
+		try {
+			StoredProcedureQuery sp = em.createStoredProcedureQuery("RetroPremium_Split_claim");
+			
+			// Assign parameters
+			sp.registerStoredProcedureParameter("pvContractNo", String.class, ParameterMode.IN);
+			sp.registerStoredProcedureParameter("pnLayerNo", Integer.class, ParameterMode.IN);
+			sp.registerStoredProcedureParameter("pnProductId", Integer.class, ParameterMode.IN);
+			sp.registerStoredProcedureParameter("pnPremiumTranNo", Double.class, ParameterMode.IN);
+			sp.registerStoredProcedureParameter("pdPremTranDate", Date.class, ParameterMode.IN);
+			sp.registerStoredProcedureParameter("pnCurrencyId", Integer.class, ParameterMode.IN);
+			sp.registerStoredProcedureParameter("pnExchange", Double.class, ParameterMode.IN);
+			sp.registerStoredProcedureParameter("pnBranchCode", String.class, ParameterMode.IN);
+			sp.registerStoredProcedureParameter("pvtransactionType", String.class, ParameterMode.IN);
+			sp.registerStoredProcedureParameter("pdAmendDate", String.class, ParameterMode.IN);
+			sp.registerStoredProcedureParameter("pnReference", String.class, ParameterMode.IN);
+			sp.registerStoredProcedureParameter("pnTreatyName", String.class, ParameterMode.IN);
+			sp.registerStoredProcedureParameter("pnRemarks", String.class, ParameterMode.IN);
+			sp.registerStoredProcedureParameter("pnUwYear", String.class, ParameterMode.IN);
+			sp.registerStoredProcedureParameter("pnSubClass", String.class, ParameterMode.IN);
+			sp.registerStoredProcedureParameter("retroCession", String.class, ParameterMode.IN);
+			
+			// Set parameters
+			sp.setParameter("pvContractNo", req.getPolicyContractNo());
+			sp.setParameter("pnLayerNo", Integer.parseInt(StringUtils.isEmpty(req.getLayerNo())?"0":req.getLayerNo()));
+			sp.setParameter("pnProductId", Integer.parseInt(req.getProductId()));
+			sp.setParameter("pnPremiumTranNo", Double.parseDouble(req.getClaimPaymentNo()));
+			sp.setParameter("pdPremTranDate", formatDate(req.getDate()));
+			sp.setParameter("pnCurrencyId", Integer.parseInt(req.getCurrecny()));
+			sp.setParameter("pnExchange", Double.parseDouble(req.getExcRate()));
+			sp.setParameter("pnBranchCode", req.getBranchCode());
+			sp.setParameter("pvtransactionType", "C");
+			sp.setParameter("pdAmendDate", "");
+			sp.setParameter("pnReference", "");
+			sp.setParameter("pnTreatyName", "");
+			sp.setParameter("pnRemarks", "");
+			sp.setParameter("pnUwYear", "");
+			sp.setParameter("pnSubClass", "");
+			sp.setParameter("retroCession", req.getRiRecovery());
+			// execute SP
+			sp.execute();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
 	}
 	
@@ -1507,5 +1518,9 @@ public class ClaimCustomRepositoryImpl implements ClaimCustomRepository{
 
 		return resultList;
 	}
-
+	public Date formatDate(String input) throws ParseException {
+		SimpleDateFormat sdf1 = new SimpleDateFormat("dd/MM/yyyy");
+		java.util.Date date = sdf1.parse(input);
+		return new java.sql.Date(date.getTime());
+	}
 }
