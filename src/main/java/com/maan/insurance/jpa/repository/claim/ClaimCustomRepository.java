@@ -28,7 +28,7 @@ public interface ClaimCustomRepository {
 
 	public List<Tuple> selectGetClaimReviewQuery(String claimNo, String policyContractNo);
 
-	public List<Tuple> selectClaimClaimmaster(ClaimListReq req, String searchCriteria);
+	public List<Tuple> selectClaimClaimmaster(ClaimListReq req);
 
 	public List<Tuple> selectDate(String branchCode);
 
@@ -89,8 +89,6 @@ public interface ClaimCustomRepository {
 	public String selectCurrecyName(String branchCode);
 
 	public List<Map<String, Object>> selectGetClaimReserveListModeFour(String claimNo, String contractNo);
-
-	public String selectMaxNo(String claimNo, String contractNo);
 
 	public List<Map<String, Object>> coverSumInsuredVal(GetReInsValueReq req);
 

@@ -158,7 +158,10 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 	
 	@Autowired
 	private TtrnClaimAccMapper ttrnClaimAccMapper;
-	// allocList(AllocListReq req) -- STARTS
+	
+	private String formatDate(Object input) {
+		return new SimpleDateFormat("dd/MM/yyyy").format(input).toString();
+	}
 	public AllocListRes1 allocList(AllocListReq req) {
 		List<AllocListRes> allocists = new ArrayList<AllocListRes>();
 		AllocListRes1 res = new AllocListRes1();
@@ -416,81 +419,30 @@ public class ClaimJpaServiceImpl implements ClaimService  {
   		}
   			return response;
 	}
-	//saveContractDetailsMode7(ContractDetailsModeReq req) -- ENDS
-	
-	//saveclaimlist(ClaimListReq req) -- STARTS
 	public ClaimListRes saveclaimlist(ClaimListReq req) {
 		ClaimListRes response = new ClaimListRes();
 		List<ClaimRes> finalList = new ArrayList<ClaimRes>();
 
 		List<Tuple> allocists=new ArrayList<>();
 		try{
-			if(req.getFlag().equalsIgnoreCase("claim")){
-				//query -- "partial.claim.select.claim.claimmaster"; not found
-			}
-			else{
-				//Query -- claim.select.claim.claimmaster
-				allocists = claimCustomRepository.selectClaimClaimmaster(req, null);
-			}
-			if("S".equalsIgnoreCase(req.getSearchType())){
-				if(StringUtils.isNotBlank(req.getCompanyNameSearch())){
-					//query +=" AND UPPER(CUSTOMER_NAME) LIKE UPPER('%"+req.getCompanyNameSearch()+"%')";
-					//Query -- claim.select.claim.claimmaster
-					allocists = claimCustomRepository.selectClaimClaimmaster(req, "CUSTOMER_NAME");
-				}
-				if(StringUtils.isNotBlank(req.getBrokerNameSearch())){
-					//query +=" AND UPPER(BROKER_NAME) LIKE UPPER('%"+req.getBrokerNameSearch()+"%')";
-					//Query -- claim.select.claim.claimmaster
-					allocists = claimCustomRepository.selectClaimClaimmaster(req, "BROKER_NAME");
-				}
-				if(StringUtils.isNotBlank(req.getContractNoSearch())){
-					//query +=" AND CONTRACT_NO LIKE ('%"+req.getContractNoSearch()+"%')";
-					//Query -- claim.select.claim.claimmaster
-					allocists = claimCustomRepository.selectClaimClaimmaster(req, "CONTRACT_NO");
-				}
-				if(StringUtils.isNotBlank(req.getClaimNoSearch())){
-					//query +=" AND CLAIM_NO LIKE ('%"+req.getClaimNoSearch()+"%')";
-					//Query -- claim.select.claim.claimmaster
-					allocists = claimCustomRepository.selectClaimClaimmaster(req, "CLAIM_NO");
-				}
-				if(StringUtils.isNotBlank(req.getDateOfLossSearch())){
-					//query +=" AND DATE_OF_LOSS LIKE ('%"+req.getDateOfLossSearch()+"%')";
-					//Query -- claim.select.claim.claimmaster
-					allocists = claimCustomRepository.selectClaimClaimmaster(req, "DATE_OF_LOSS");
-				}
-				if(StringUtils.isNotBlank(req.getClaimStatusSearch())){
-					//query +=" AND UPPER(STATUS_OF_CLAIM) LIKE UPPER('%"+req.getClaimStatusSearch()+"%')";
-					//Query -- claim.select.claim.claimmaster
-					allocists = claimCustomRepository.selectClaimClaimmaster(req, "STATUS_OF_CLAIM");
-				}
-				}else{
-					req.setCompanyNameSearch("");
-					req.setBrokerNameSearch("");
-					req.setDateOfLossSearch("");
-					req.setClaimStatusSearch("");
-					req.setContractNoSearch("");
-					req.setClaimNoSearch("");
-				}
-		
-		//query -- claim.select.date
-		allocists = claimCustomRepository.selectDate(req.getBranchCode());
+			allocists = claimCustomRepository.selectClaimClaimmaster(req);
 		
 		for(int i=0 ; i<allocists.size() ; i++) {
 			Tuple tempMap = allocists.get(i);
 			ClaimRes tempBean=new ClaimRes();
 			tempBean.setClaimNo(tempMap.get("CLAIM_NO")==null?"":tempMap.get("CLAIM_NO").toString());
-			tempBean.setDateofLoss(tempMap.get("DATE_OF_LOSS")==null?"":tempMap.get("DATE_OF_LOSS").toString());
-			tempBean.setCreatedDate(tempMap.get("CREATED_DATE")==null?"":tempMap.get("CREATED_DATE").toString());
+			tempBean.setDateofLoss(tempMap.get("DATE_OF_LOSS")==null?"":formatDate(tempMap.get("DATE_OF_LOSS")));
+			tempBean.setCreatedDate(tempMap.get("CREATED_DATE")==null?"":formatDate(tempMap.get("CREATED_DATE")));
 			tempBean.setStatusofclaim(tempMap.get("STATUS_OF_CLAIM")==null?"":tempMap.get("STATUS_OF_CLAIM").toString());
 			tempBean.setPolicyContractNo(tempMap.get("CONTRACT_NO")==null?"":tempMap.get("CONTRACT_NO").toString());
-			tempBean.setEditMode(tempMap.get("editview")==null?"":tempMap.get("editview").toString());
-			tempBean.setLayerNo(tempMap.get("layer_no")==null?"":tempMap.get("layer_no").toString());
-			tempBean.setProposalNo(tempMap.get("Proposal_no")==null?"":tempMap.get("Proposal_no").toString());
-			tempBean.setCedingcompanyName(tempMap.get("Customer_name")==null?"":tempMap.get("Customer_name").toString());
-			tempBean.setBrokerName(tempMap.get("Broker_name")==null?"":tempMap.get("Broker_name").toString());
-			tempBean.setInceptionDate(tempMap.get("INCEPTION_DATE")==null?"":tempMap.get("INCEPTION_DATE").toString());
-			tempBean.setExpiryDate(tempMap.get("Expiry_date")==null?"":tempMap.get("Expiry_date").toString());
-			tempBean.setProductId(tempMap.get("Product_id")==null?"":tempMap.get("Product_id").toString());
+			tempBean.setEditMode(tempMap.get("EDITVIEW")==null?"":tempMap.get("EDITVIEW").toString());
+			tempBean.setLayerNo(tempMap.get("LAYER_NO")==null?"":tempMap.get("LAYER_NO").toString());
+			tempBean.setProposalNo(tempMap.get("PROPOSAL_NO")==null?"":tempMap.get("PROPOSAL_NO").toString());
+			tempBean.setCedingcompanyName(tempMap.get("CUSTOMER_NAME")==null?"":tempMap.get("CUSTOMER_NAME").toString());
+			tempBean.setBrokerName(tempMap.get("BROKER_NAME")==null?"":tempMap.get("BROKER_NAME").toString());
+			tempBean.setInceptionDate(tempMap.get("INCEPTION_DATE")==null?"":formatDate(tempMap.get("INCEPTION_DATE")));
+			tempBean.setExpiryDate(tempMap.get("EXPIRY_DATE")==null?"":formatDate(tempMap.get("EXPIRY_DATE")));
+			tempBean.setProductId(tempMap.get("PRODUCT_ID")==null?"":tempMap.get("PRODUCT_ID").toString());
 			tempBean.setProductName(tempMap.get("TMAS_PRODUCT_NAME")==null?"":tempMap.get("TMAS_PRODUCT_NAME").toString());
 			tempBean.setDepartmentId(tempMap.get("DEPT_ID")==null?"":tempMap.get("DEPT_ID").toString());
 			int count= Integer.valueOf(dropDowmImpl.Validatethree(req.getBranchCode(), tempBean.getCreatedDate()));
@@ -501,7 +453,7 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 			}
 			finalList.add(tempBean);
 		}
-		
+		response.setCommonResponse(finalList);
 	}catch(Exception e){
 		log.error(e);
 			e.printStackTrace();
@@ -1291,7 +1243,7 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 			claimlist = claimCustomRepository.selectGetClaimReserveListModeFour(req.getClaimNo(), req.getContractNo());
 
 			// query -- payment.select.maxno
-			maxno = claimCustomRepository.selectMaxNo(req.getClaimNo(), req.getContractNo());
+			maxno = claimCustomRepository.selectMaxno(req.getClaimNo(), req.getContractNo());
 			maxno = maxno == null ? "" : maxno;
 
 			if (claimlist.size() > 0) {
@@ -1568,7 +1520,6 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 		ClaimPaymentListRes1 res = new ClaimPaymentListRes1();
 		List<Map<String, Object>> allocists = new ArrayList<Map<String, Object>>();
 		List<ClaimPaymentListRes> finalList = new ArrayList<ClaimPaymentListRes>();
-		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 		int count = 0;
 		try {
 			if (req.getFlag().equalsIgnoreCase("claim")) {
@@ -1621,7 +1572,7 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 					// query -- payment.select.count.allocatedYN
 					output = claimCustomRepository.selectCountAllocatedYN(tempBean.getPolicyContractNo(),
 							tempBean.getClaimNo(), tempBean.getLayerNo());
-					count = Integer.valueOf(output == null ? "" : list.get(0).get("ALLOCATEDYN").toString());
+					count = Integer.valueOf(output == null ? "0" : output);
 
 					if (count == 0) {
 						tempBean.setAllocatedYN("N");

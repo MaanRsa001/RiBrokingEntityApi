@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.maan.insurance.model.res.placement.InsertDocdetailsRes;
+
 import lombok.Data;
 
 @Data

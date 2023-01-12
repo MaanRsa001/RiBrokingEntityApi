@@ -1,14 +1,16 @@
-package com.maan.insurance.model.req.placement;
+package com.maan.insurance.model.res.placement;
+
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.maan.insurance.model.res.placement.EditPlacingDetailsRes1;
+import com.maan.insurance.error.ErrorCheck;
 
 import lombok.Data;
 
 @Data
-public class AttachFileReq {
-	@JsonProperty("BranchCode")
-	private String branchCode; 
+public class InsertMailDetailsRes1 {
+	@JsonProperty("Sno")
+	private String sno; 
 	@JsonProperty("EproposalNo")
 	private String eproposalNo; 
 	@JsonProperty("BouquetNo")
@@ -17,8 +19,9 @@ public class AttachFileReq {
 	private String reinsurerId; 
 	@JsonProperty("BrokerId")
 	private String brokerId;  
-	@JsonProperty("PlacementMode")
-	private String placementMode;  
+
 	@JsonProperty("BaseProposalNo")
 	private String baseProposalNo;
+
+	
 }

@@ -3,6 +3,8 @@ package com.maan.insurance.model.req.placement;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.maan.insurance.model.res.placement.GetPlacingInfoRes1;
+
 import lombok.Data;
 
 @Data

@@ -256,7 +256,8 @@ public class ClaimCustomRepositoryImpl implements ClaimCustomRepository{
 	}
 
 	@Override
-	public List<Tuple> selectClaimClaimmaster(ClaimListReq req, String searchCriteria) {
+	public List<Tuple> selectClaimClaimmaster(ClaimListReq req) {
+		List<Tuple>list=null;
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<Tuple> cq = cb.createTupleQuery();
 		Root<TtrnClaimDetails> tcdRoot = cq.from(TtrnClaimDetails.class);
@@ -305,18 +306,18 @@ public class ClaimCustomRepositoryImpl implements ClaimCustomRepository{
 				tcdRoot.get("statusOfClaim").alias("STATUS_OF_CLAIM"),
 				tcdRoot.get("contractNo").alias("CONTRACT_NO"),
 				cb.diff(tcdRoot.<BigDecimal>get("totalAmtPaidTillDate"), tcdRoot.<BigDecimal>get("lossEstimateOsOc")).alias("EDITVIEW"),
-				pmRoot.get("productId").alias("Product_id"),
+				pmRoot.get("productId").alias("PRODUCT_ID"),
 				tpmRoot.get("tmasProductName").alias("TMAS_PRODUCT_NAME"),
 				pmRoot.get("inceptionDate").alias("INCEPTION_DATE"),
-				pmRoot.get("expiryDate").alias("Expiry_date"),
-				cnSq.alias("Customer_name"),
-				bnSq.alias("Broker_name"),
-				pmRoot.get("proposalNo").alias("Proposal_no"),
-				pmRoot.get("layerNo").alias("layer_no"),
+				pmRoot.get("expiryDate").alias("EXPIRY_DATE"),
+				cnSq.alias("CUSTOMER_NAME"),
+				bnSq.alias("BROKER_NAME"),
+				pmRoot.get("proposalNo").alias("PROPOSAL_NO"),
+				pmRoot.get("layerNo").alias("LAYER_NO"),
 				pmRoot.get("deptId").alias("DEPT_ID")).distinct(true);
 		
 		Subquery<Integer> amSq = cq.subquery(Integer.class);
-		Root<PositionMaster> amSubRoot = cq.from(PositionMaster.class);
+		Root<PositionMaster> amSubRoot = amSq.from(PositionMaster.class);
 
 		amSq.select(cb.max(amSubRoot.get("amendId")))
 				.where( cb.equal(amSubRoot.get("contractNo"), pmRoot.get("contractNo")),
@@ -332,36 +333,38 @@ public class ClaimCustomRepositoryImpl implements ClaimCustomRepository{
 		predicates.add(cb.equal(tpmRoot.get("tmasProductId"), pmRoot.get("productId")));
 		predicates.add(cb.equal(pmRoot.get("amendId"), amSq));
 		
-		switch (searchCriteria) {
-		case "CUSTOMER_NAME":
-			predicates.add(cb.like(cb.upper(cnSq), "%" + req.getCompanyNameSearch().toUpperCase() + "%"));
-			break;
-
-		case "BROKER_NAME":
-			predicates.add(cb.like(cb.upper(bnSq), "%" + req.getBrokerNameSearch().toUpperCase() + "%"));
-			break;
-
-		case "CONTRACT_NO":
-			predicates.add(cb.like(tcdRoot.get("contractNo"), "%" + req.getContractNoSearch() + "%"));
-			break;
-
-		case "CLAIM_NO":
-			predicates.add(cb.like(tcdRoot.get("claimNo"), "%" + req.getClaimNoSearch() + "%"));
-			break;
-
-		case "DATE_OF_LOSS":
-			predicates.add(cb.like(tcdRoot.get("dateOfLoss"), "%" + req.getDateOfLossSearch() + "%"));
-			break;
-
-		case "STATUS_OF_CLAIM":
-			predicates.add(cb.like(cb.upper(tcdRoot.get("statusOfClaim")), "%" + req.getClaimStatusSearch() + "%"));
-			break;
+		if("S".equalsIgnoreCase(req.getSearchType())){
+			if(StringUtils.isNotBlank(req.getCompanyNameSearch())){
+				predicates.add(cb.like(cb.upper(cnSq), "%" + req.getCompanyNameSearch().toUpperCase() + "%"));
+			}
+			if(StringUtils.isNotBlank(req.getBrokerNameSearch())){
+				predicates.add(cb.like(cb.upper(bnSq), "%" + req.getBrokerNameSearch().toUpperCase() + "%"));
+			}
+			if(StringUtils.isNotBlank(req.getContractNoSearch())){
+				predicates.add(cb.like(tcdRoot.get("contractNo"), "%" + req.getContractNoSearch() + "%"));
+			}
+			if(StringUtils.isNotBlank(req.getClaimNoSearch())){
+				predicates.add(cb.like(tcdRoot.get("claimNo"), "%" + req.getClaimNoSearch() + "%"));
+			}
+			if(StringUtils.isNotBlank(req.getDateOfLossSearch())){
+				predicates.add(cb.like(tcdRoot.get("dateOfLoss"), "%" + req.getDateOfLossSearch() + "%"));
+			}
+			if(StringUtils.isNotBlank(req.getClaimStatusSearch())){
+				predicates.add(cb.like(cb.upper(tcdRoot.get("statusOfClaim")), "%" + req.getClaimStatusSearch() + "%"));
+			}
 		}
 		
 		cq.where(predicates.toArray(new Predicate[0]));
 		
 		cq.orderBy(cb.desc(tcdRoot.get("claimNo")));
-		return em.createQuery(cq).getResultList();
+		
+		TypedQuery<Tuple> result = em.createQuery(cq);
+		if(req.getFlag().equalsIgnoreCase("claim")){
+			result.setFirstResult(0 * 100);
+			result.setMaxResults(100);
+		}
+		list = result.getResultList();
+		return list;
 	}
 
 	@Override
@@ -1098,20 +1101,6 @@ public class ClaimCustomRepositoryImpl implements ClaimCustomRepository{
 	    resultList =  query.getResultList();
 		return resultList;
 	}
-
-	@Override
-	public String selectMaxNo(String claimNo, String contractNo) {
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-		CriteriaQuery<String> cq = cb.createQuery(String.class);
-		Root<TtrnClaimUpdation> root = cq.from(TtrnClaimUpdation.class);
-		
-		cq.multiselect(cb.max(root.get("slNo")).as(String.class).alias("MAX_NO"))
-		.where( cb.equal(root.get("claimNo"), claimNo),
-				cb.equal(root.get("contractNo"), contractNo));
-		
-		return em.createQuery(cq).getSingleResult();
-	}
-
 	@Override
 	public List<Map<String, Object>> coverSumInsuredVal(GetReInsValueReq req) {
 			
@@ -1429,7 +1418,7 @@ public class ClaimCustomRepositoryImpl implements ClaimCustomRepository{
 		CriteriaQuery<String> cq = cb.createQuery(String.class);
 		Root<TtrnClaimUpdation> root = cq.from(TtrnClaimUpdation.class);
 		
-		cq.multiselect(cb.max(root.get("slNo")))
+		cq.multiselect(cb.max(root.get("slNo")).as(String.class))
 		.where(cb.equal(root.get("claimNo"), claimNo),
 			   cb.equal(root.get("contractNo"), policyContractNo));
 		

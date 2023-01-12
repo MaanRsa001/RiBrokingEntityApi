@@ -27,6 +27,7 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -639,12 +640,14 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 
 	@Override
 	public List<Tuple> getBrokerCedingName(String contNo, String branchCode) {
+		List<Tuple> finalList=new ArrayList<Tuple>();
 		List<Tuple> resultList = ttrnBrokerCedingName(contNo, branchCode);
-			if(Objects.nonNull(resultList))
-				resultList.addAll(piBrokerCedingName(contNo, branchCode));
-			else
-				resultList = piBrokerCedingName(contNo, branchCode);
-		return Objects.isNull(resultList) ? new ArrayList<>() : resultList;
+		List<Tuple> resultList1 =piBrokerCedingName(contNo, branchCode);
+			if(!CollectionUtils.isEmpty(resultList))
+				finalList.addAll(resultList);
+			if(!CollectionUtils.isEmpty(resultList1))
+				finalList.addAll(resultList1);
+		return finalList;
 	}
 	
 	private List<Tuple> ttrnBrokerCedingName(String contNo, String branchCode){
@@ -737,7 +740,7 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 				.where(cb.equal(piSubRoot.get("paymentReceiptNo"), tprRoot.get("paymentReceiptNo")),
 					   cb.equal(piSubRoot.get("branchCode"), tprRoot.get("branchCode")));
 		
-		cq.multiselect(tatRoot.get("sNo").alias("SNO"), 
+		cq.multiselect(tatRoot.get("sno").alias("SNO"), 
 				tatRoot.get("inceptionDate").alias("INCEPTION_DATE"),
 				tatRoot.get("transactionNo").alias("TRANSACTION_NO"),
 				tatRoot.get("productName").alias("PRODUCT_NAME"),
@@ -772,7 +775,7 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 		sq.select(cb.max(subRoot.get("paymentReceiptNo")))
 				.where(cb.equal(tatRoot.get("receiptNo"), subRoot.get("paymentReceiptNo")));
 		
-		cq.multiselect(tatRoot.get("sNo").alias("SNO"), 
+		cq.multiselect(tatRoot.get("sno").alias("SNO"), 
 				tatRoot.get("inceptionDate").alias("INCEPTION_DATE"),
 				tatRoot.get("transactionNo").alias("TRANSACTION_NO"),
 				tatRoot.get("productName").alias("PRODUCT_NAME"),
