@@ -99,6 +99,14 @@ public class Xolpremiumcontroller {
 	}
 	 	return xps.premiumEdit(req);
 	}
+	@PostMapping("/PremiumEditRi")
+	public PremiumEditRes premiumEditRi(@RequestBody PremiumEditReq req) throws CommonValidationException {
+	List<ErrorCheck> error= XolPremVali.premiumEditVali(req);
+	if(error!=null && error.size()>0) {
+		throw new CommonValidationException("error",error);
+	}
+	 	return xps.premiumEditRi(req);
+	}
 	@PostMapping("/premiumInsertMethod")
 	public premiumInsertMethodRes premiumInsertMethod(@RequestBody PremiumInsertMethodReq req) throws CommonValidationException {
 	List<ErrorCheck> error= XolPremVali.validateXolPremium(req);
@@ -122,6 +130,14 @@ public class Xolpremiumcontroller {
 		throw new CommonValidationException("error",error);
 	}
 	 	return xps.getPremiumDetails(req); 
+	} 
+	@PostMapping("/getPremiumDetailsRi")
+	public GetPremiumDetailsRes getPremiumDetailsRi(@RequestBody GetPremiumDetailsReq req) throws CommonValidationException {
+	List<ErrorCheck> error= XolPremVali.getPremiumDetailsVali(req);
+	if(error!=null && error.size()>0) {
+		throw new CommonValidationException("error",error);
+	}
+	 	return xps.getPremiumDetailsRi(req); 
 	} 
 	@PostMapping("/getInstalmentAmount")
 	public CommonSaveRes getInstalmentAmount(@RequestBody GetInstallmentAmountReq req) throws CommonValidationException {

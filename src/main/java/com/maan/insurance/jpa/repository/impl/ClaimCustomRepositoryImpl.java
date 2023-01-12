@@ -18,10 +18,12 @@ import javax.persistence.ParameterMode;
 import javax.persistence.Query;
 import javax.persistence.StoredProcedureQuery;
 import javax.persistence.Tuple;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
@@ -44,10 +46,12 @@ import com.maan.insurance.model.entity.CurrencyMaster;
 import com.maan.insurance.model.entity.PersonalInfo;
 import com.maan.insurance.model.entity.PositionMaster;
 import com.maan.insurance.model.entity.TmasBranchMaster;
+import com.maan.insurance.model.entity.TmasDepartmentMaster;
 import com.maan.insurance.model.entity.TmasProductMaster;
 import com.maan.insurance.model.entity.TtrnClaimDetails;
 import com.maan.insurance.model.entity.TtrnClaimPayment;
 import com.maan.insurance.model.entity.TtrnRiskDetails;
+import com.maan.insurance.model.entity.UnderwritterMaster;
 import com.maan.insurance.model.req.claim.ClaimListReq;
 import com.maan.insurance.model.req.claim.ClaimPaymentEditReq;
 import com.maan.insurance.model.req.claim.ClaimPaymentListReq;
@@ -1433,90 +1437,120 @@ public class ClaimCustomRepositoryImpl implements ClaimCustomRepository{
 	}
 
 	@Override
-	public List<Map<String, Object>> contractIdentifierList(ContractidetifierlistReq req) {
-		List<String> columns = new ArrayList<String>(Arrays.asList("PROPOSAL_NO", "DEPT_ID", "CONTRACT_NO",
-				"CEDING_COMPANY_ID", "ACCOUNT_DATE", "TMAS_DEPARTMENT_NAME", "COMPANY_NAME", "BROKER_NAME",
-				"INCEPTION_DATE", "EXPIRY_DATE", "LAYER_NO", "BASE_LAYER", "OLD_CONTRACTNO", "RENEWAL_STATUS",
-				"RENWALDATE", "UW_YEAR", "UW_MONTH", "UNDERWRITTER", "HAS_CLAIM", "CLAIM_NO", "COUNT", "AMEND_ID"));
+	public List<Tuple> contractIdentifierList(ContractidetifierlistReq bean) {
+		 List<Tuple> list = new ArrayList<>();
+		 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy") ;
+		try {
+			//contract.identifier.list
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			Root<PositionMaster> a = query.from(PositionMaster.class);
+			Root<TmasDepartmentMaster> b = query.from(TmasDepartmentMaster.class);
+			Root<PersonalInfo> c = query.from(PersonalInfo.class);
+			Root<TtrnRiskDetails> d = query.from(TtrnRiskDetails.class);
+			Root<UnderwritterMaster> e = query.from(UnderwritterMaster.class);
+			Root<PersonalInfo> c1 = query.from(PersonalInfo.class);
+			
+			Expression<String> e0 = cb.concat(c1.get("firstName"), " ")	;	
 
-		List<Map<String, Object>> resultList = new ArrayList<>();
-		String searchQuery = "";
-		String searchKey = null;
+			query.multiselect(a.get("proposalNo").alias("PROPOSAL_NO"),a.get("deptId").alias("DEPT_ID"),
+					a.get("contractNo").alias("CONTRACT_NO"),b.get("tmasDepartmentName").alias("TMAS_DEPARTMENT_NAME"),
+					a.get("cedingCompanyId").alias("CEDING_COMPANY_ID"),a.get("accountDate").alias("ACCOUNT_DATE"),
+					c.get("companyName").alias("COMPANY_NAME"),	cb.concat(e0, c1.get("lastName")).alias("BROKER_NAME"),					
+					a.get("inceptionDate").alias("INCEPTION_DATE"),a.get("expiryDate").alias("EXPIRY_DATE"),
+					a.get("layerNo").alias("LAYER_NO"),a.get("baseLayer").alias("BASE_LAYER"),a.get("oldContractno").alias("OLD_CONTRACTNO"),
+					a.get("renewalStatus").alias("RENEWAL_STATUS"), //cb.diff(a.get("expiryDate"), new Date()).alias("RENWALDATE"),
+					cb.selectCase().when(cb.notEqual(a.get("uwYear"),"0"), a.get("uwYear")) .otherwise("").alias("UW_YEAR"),
+					a.get("uwMonth").alias("UW_MONTH"),e.get("underwritter").alias("UNDERWRITTER"),a.get("amendId").alias("AMEND_ID"));
+					
+			Subquery<Long> amend = query.subquery(Long.class); 
+			Root<PersonalInfo> pi = amend.from(PersonalInfo.class);
+			amend.select(cb.max(pi.get("amendId")));
+			Predicate a1 = cb.equal( pi.get("customerId"), c.get("customerId"));
+			Predicate a2 = cb.equal( pi.get("branchCode"), c.get("branchCode"));
+			Predicate a3 = cb.equal( pi.get("customerType"), c.get("customerType"));
+			amend.where(a1,a2,a3);
+			//amenId
+			Subquery<Long> amenId = query.subquery(Long.class); 
+			Root<PositionMaster> pm = amenId.from(PositionMaster.class);
+			amenId.select(cb.max(pm.get("amendId")));
+			Predicate b1 = cb.equal( pm.get("productId"), bean.getProductId());
+			Predicate b2 = cb.equal( pm.get("contractNo"), a.get("contractNo"));
+			Predicate b3 = cb.equal( pm.get("layerNo"), a.get("layerNo"));
+			Predicate b4 = cb.equal( pm.get("branchCode"), a.get("branchCode"));
+			Predicate b5 = cb.equal( pm.get("contractStatus"), "A");
+			amenId.where(b1,b2,b3,b4,b5);
+			//amendC1
+			Subquery<Long> amendC1 = query.subquery(Long.class); 
+			Root<PersonalInfo> pis = amendC1.from(PersonalInfo.class);
+			amendC1.select(cb.max(pis.get("amendId")));
+			Predicate d1 = cb.equal( pis.get("customerId"), c1.get("customerId"));
+			Predicate d2 = cb.equal( pis.get("branchCode"), c1.get("branchCode"));
+			Predicate d3 = cb.equal( pis.get("customerType"), c1.get("customerType"));
+			amendC1.where(d1,d2,d3);
+			//end
+			Subquery<Long> end = query.subquery(Long.class); 
+			Root<TtrnRiskDetails> rd = end.from(TtrnRiskDetails.class);
+			end.select(cb.max(rd.get("rskEndorsementNo")));
+			Predicate f1 = cb.equal( rd.get("rskProposalNumber"), d.get("rskProposalNumber"));
+			Predicate f2 = cb.equal( rd.get("branchCode"), d.get("branchCode"));
+			end.where(f1,f2);
+			List<Order> orderList = new ArrayList<Order>();
+			orderList.add(cb.desc(a.get("contractNo")));
 
-		if (!"N".equalsIgnoreCase(req.getCedingCompanyCode()) && !"".equalsIgnoreCase(req.getCedingCompanyCode())) {
-			searchQuery = " AND D.RSK_CEDINGID = ? ";
-			searchKey = req.getCedingCompanyCode();
-
-		}
-		if (!"N".equalsIgnoreCase(req.getBrokerCode()) && !"".equalsIgnoreCase(req.getBrokerCode())) {
-			searchQuery = "  AND D.RSK_BROKERID = ? ";
-			searchKey = req.getBrokerCode();
-
-		}
-		if (!"N".equalsIgnoreCase(req.getUnderwritingYear()) && !"".equalsIgnoreCase(req.getUnderwritingYear())) {
-			searchQuery = " AND D.RSK_UWYEAR = ?  ";
-			searchKey = req.getUnderwritingYear();
-
-		}
-		if (!"N".equalsIgnoreCase(req.getDeptId()) && !"".equalsIgnoreCase(req.getDeptId())) {
-			searchQuery = " AND D.RSK_DEPTID = ? ";
-			searchKey = req.getDeptId();
-		}
-
-		String nativeQuery = "SELECT distinct A.PROPOSAL_NO,A.DEPT_ID,A.CONTRACT_NO,A.CEDING_COMPANY_ID,"
-				+ "TO_CHAR (A.ACCOUNT_DATE, 'dd/mm/yyyy') AS ACCOUNT_DATE,B.TMAS_DEPARTMENT_NAME,C.COMPANY_NAME,"
-				+ " C1.FIRST_NAME || ' '||C1.LAST_NAME BROKER_NAME,TO_CHAR (A.INCEPTION_DATE, 'dd/mm/yyyy')"
-				+ " AS INCEPTION_DATE, TO_CHAR (A.EXPIRY_DATE, 'dd/mm/yyyy') AS EXPIRY_DATE,A.LAYER_NO,"
-				+ "A.BASE_LAYER,A.OLD_CONTRACTNO AS OLD_CONTRACTNO, A.RENEWAL_STATUS AS RENEWAL_STATUS,"
-				+ "(A.EXPIRY_DATE - SYSDATE) AS RENWALDATE,(CASE WHEN A.UW_YEAR != 0 THEN A.UW_YEAR ELSE NULL END)"
-				+ " UW_YEAR, TO_CHAR (A.UW_MONTH, 'dd/mm/yyyy') UW_MONTH,E.UNDERWRITTER,DECODE(CD.CONTRACT_NO,"
-				+ "NULL,'N','Y') HAS_CLAIM,CD.CLAIM_NO,CD.COUNT,A.AMEND_ID FROM   POSITION_MASTER A JOIN "
-				+ "TMAS_DEPARTMENT_MASTER B ON A.DEPT_ID = B.TMAS_DEPARTMENT_ID JOIN PERSONAL_INFO C ON "
-				+ " C.CUSTOMER_ID = A.CEDING_COMPANY_ID JOIN TTRN_RISK_DETAILS D ON A.PRODUCT_ID = D.RSK_PRODUCTID "
-				+ "AND A.CONTRACT_NO = D.RSK_CONTRACT_NO AND A.LAYER_NO=D.RSK_LAYER_NO AND A.AMEND_ID ="
-				+ " D.RSK_ENDORSEMENT_NO AND A.DEPT_ID = D.RSK_DEPTID JOIN UNDERWRITTER_MASTER E ON D.RSK_UNDERWRITTER"
-				+ " = E.UWR_CODE JOIN PERSONAL_INFO C1 ON  C1.CUSTOMER_ID = A.BROKER_ID LEFT OUTER JOIN ( "
-				+ "SELECT DISTINCT CONTRACT_NO,LAYER_NO,CLAIM_NO, COUNT(CLAIM_NO) COUNT FROM   TTRN_CLAIM_DETAILS "
-				+ "group by CONTRACT_NO, LAYER_NO ,CLAIM_NO) CD ON A.CONTRACT_NO = CD.CONTRACT_NO AND A.LAYER_NO="
-				+ "CD.LAYER_NO  WHERE  A.PRODUCT_ID = ?  AND A.CONTRACT_STATUS = 'A' AND A.CONTRACT_NO > 0 AND"
-				+ " B.TMAS_PRODUCT_ID = ? AND B.BRANCH_CODE = ?   AND B.TMAS_STATUS='Y' AND C.BRANCH_CODE = ?"
-				+ " AND C.CUSTOMER_TYPE = 'C' AND C.AMEND_ID = (SELECT   MAX (AMEND_ID) FROM   PERSONAL_INFO"
-				+ " WHERE CUSTOMER_ID = C.CUSTOMER_ID AND BRANCH_CODE = C.BRANCH_CODE AND CUSTOMER_TYPE = "
-				+ "C.CUSTOMER_TYPE) AND E.BRANCH_CODE = ? AND A.BRANCH_CODE = ? AND A.AMEND_ID IN (SELECT "
-				+ "  MAX (AMEND_ID) FROM   POSITION_MASTER WHERE  PRODUCT_ID = ? AND A.CONTRACT_NO = CONTRACT_NO"
-				+ " AND A.LAYER_NO=LAYER_NO AND A.BRANCH_CODE = BRANCH_CODE AND CONTRACT_STATUS = 'A') AND "
-				+ "C1.BRANCH_CODE = ? AND C1.AMEND_ID = (SELECT   MAX (AMEND_ID) FROM   PERSONAL_INFO WHERE "
-				+ "CUSTOMER_ID = C1.CUSTOMER_ID AND BRANCH_CODE = C1.BRANCH_CODE AND CUSTOMER_TYPE = "
-				+ "C1.CUSTOMER_TYPE) and D.RSK_ENDORSEMENT_NO=(SELECT MAX(RSK_ENDORSEMENT_NO) FROM TTRN_RISK_DETAILS"
-				+ " RD  WHERE RD.BRANCH_CODE=D.BRANCH_CODE AND RD.RSK_PROPOSAL_NUMBER=D.RSK_PROPOSAL_NUMBER)";
-
-		nativeQuery += searchQuery;
-		nativeQuery += " ORDER BY A.CONTRACT_NO DESC ";
-
-		Query query = em.createNativeQuery(nativeQuery);
-		query.setParameter(1, req.getProductId());
-		query.setParameter(2, req.getProductId());
-		query.setParameter(3, req.getBranchCode());
-		query.setParameter(4, req.getBranchCode());
-		query.setParameter(5, req.getBranchCode());
-		query.setParameter(6, req.getBranchCode());
-		query.setParameter(7, req.getProductId());
-		query.setParameter(8, req.getBranchCode());
-		if (Objects.nonNull(searchKey))
-			query.setParameter(9, searchKey);
-
-		List<Object[]> list = query.getResultList();
-		for (Object[] objArr : list) {
-			Map<String, Object> output = new HashMap<>();
-			int index = 0;
-			for (Object q1 : objArr) {
-				output.put(columns.get(index), q1.toString());
-				index++;
+			Predicate n1 = cb.equal(a.get("deptId"), b.get("tmasDepartmentId"));
+			Predicate n2 = cb.equal(c.get("customerId"), a.get("cedingCompanyId"));
+			Predicate n3 = cb.equal(a.get("productId"), d.get("rskProductid"));
+			Predicate n4 = cb.equal(a.get("contractNo"), d.get("rskContractNo"));
+			Predicate n5 = cb.equal(a.get("layerNo"), d.get("rskLayerNo"));
+			Predicate n6 = cb.equal(a.get("amendId"), d.get("rskEndorsementNo"));
+			Predicate n7 = cb.equal(a.get("deptId"), d.get("rskDeptid"));
+			Predicate n8 = cb.equal(d.get("rskUnderwritter"), e.get("uwrCode"));
+			Predicate n9 = cb.equal(c1.get("customerId"), a.get("brokerId"));
+			Predicate n10 = cb.equal(a.get("productId"), bean.getProductId());
+			Predicate n11 = cb.equal(a.get("contractStatus"), "A");
+			Predicate n12 = cb.greaterThan(a.get("contractNo"), 0);
+			Predicate n13 = cb.equal(b.get("tmasProductId"), bean.getProductId());
+			Predicate n14 = cb.equal(b.get("branchCode"), bean.getBranchCode());
+			Predicate n15 = cb.equal(b.get("tmasStatus"), "Y");
+			Predicate n16 = cb.equal(c.get("branchCode"), bean.getBranchCode());
+			Predicate n17 = cb.equal(c.get("customerType"), "C");
+			Predicate n18 = cb.equal(c.get("amendId"), amend);
+			Predicate n19 = cb.equal(e.get("branchCode"), bean.getBranchCode());
+			Predicate n20 = cb.equal(a.get("branchCode"), bean.getBranchCode());
+			//in
+			Expression<String> e1= a.get("amendId");
+			Predicate n21 = e1.in(amenId==null?null:amenId);
+			Predicate n22 = cb.equal(c1.get("branchCode"), bean.getBranchCode());
+			Predicate n23 = cb.equal(c1.get("amendId"), amendC1);
+			Predicate n24 = cb.equal(d.get("rskEndorsementNo"), end);
+			Predicate n25 = null;
+			if(!"N".equalsIgnoreCase(bean.getCedingCompanyCode())&&!"".equalsIgnoreCase(bean.getCedingCompanyCode())){
+				 n25 = cb.equal(d.get("rskCedingid"), bean.getCedingCompanyCode());
+				 query.where(n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11,n12,n13,n14,n15,n16,n17,n18,n19,n20,n21,n22,n23,n24,n25).orderBy(orderList);
 			}
-			resultList.add(output);
-		}
+			if(!"N".equalsIgnoreCase(bean.getBrokerCode())&&!"".equalsIgnoreCase(bean.getBrokerCode())){
+				 n25 = cb.equal(d.get("rskBrokerId"), bean.getBrokerCode());
+				 query.where(n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11,n12,n13,n14,n15,n16,n17,n18,n19,n20,n21,n22,n23,n24,n25).orderBy(orderList);
+			}
+			if(!"N".equalsIgnoreCase(bean.getUnderwritingYear())&&!"".equalsIgnoreCase(bean.getUnderwritingYear())){
+				 n25 = cb.equal(d.get("rskUwyear"), bean.getUnderwritingYear());
+				 query.where(n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11,n12,n13,n14,n15,n16,n17,n18,n19,n20,n21,n22,n23,n24,n25).orderBy(orderList);
+			}
+			if(!"N".equalsIgnoreCase(bean.getDeptId())&&!"".equalsIgnoreCase(bean.getDeptId())){
+				 n25 = cb.equal(d.get("rskDeptid"), bean.getDeptId());
+				 query.where(n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11,n12,n13,n14,n15,n16,n17,n18,n19,n20,n21,n22,n23,n24,n25).orderBy(orderList);
+			}
+			query.where(n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11,n12,n13,n14,n15,n16,n17,n18,n19,n20,n21,n22,n23,n24).orderBy(orderList);	
+		
 
-		return resultList;
+			TypedQuery<Tuple> result = em.createQuery(query);
+			list = result.getResultList();
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+			}
+		return list;
 	}
 	public Date formatDate(String input) throws ParseException {
 		SimpleDateFormat sdf1 = new SimpleDateFormat("dd/MM/yyyy");

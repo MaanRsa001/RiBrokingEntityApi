@@ -113,6 +113,6 @@ public interface ClaimCustomRepository {
 	
 	public String selectMaxno(String claimNo, String policyContractNo);
 	
-	public List<Map<String, Object>> contractIdentifierList(ContractidetifierlistReq req);
+	public List<Tuple> contractIdentifierList(ContractidetifierlistReq req);
 	
 }

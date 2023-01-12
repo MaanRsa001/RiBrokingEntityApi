@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.persistence.Tuple;
 
 import com.maan.insurance.model.entity.RskPremiumDetailsTemp;
+import com.maan.insurance.model.req.premium.ContractidetifierlistReq;
 import com.maan.insurance.model.req.premium.GetPremiumReservedReq;
 import com.maan.insurance.model.req.premium.GetPremiumedListReq;
 import com.maan.insurance.model.req.premium.InsertPremiumReq;
@@ -130,5 +131,13 @@ public interface PropPremiumCustomRepository {
 	public List<Tuple> getPremiumTempList(PremiumListReq bean);
 
 	public List<Tuple> getPremiumRiFullList(PremiumListReq bean);
+
+	public List<Tuple> contractIdentifierList(ContractidetifierlistReq bean);
+
+	public List<Tuple> getPremiumEditRi(String contNo, String transactionNo);
+
+	public List<Tuple> getPremiumViewRi(String branchCode, String productId, String contractNo, String transactionNo);
+
+
 	
 }

@@ -74,6 +74,10 @@ public interface XolPremiumService {
 
 	GetRIPremiumListRes getRIPremiumList(GetRIPremiumListReq req);
 
+	GetPremiumDetailsRes getPremiumDetailsRi(GetPremiumDetailsReq req);
+
+	PremiumEditRes premiumEditRi(PremiumEditReq req);
+
 
 
 }

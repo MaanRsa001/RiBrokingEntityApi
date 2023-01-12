@@ -1670,26 +1670,25 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 	//contractidetifierlist(ContractidetifierlistReq req) -- STARTS
 	public ContractidetifierlistRes1 contractidetifierlist(ContractidetifierlistReq req) {
 		ContractidetifierlistRes1 res = new ContractidetifierlistRes1();
-		List<Map<String, Object>> allocists=new ArrayList<Map<String, Object>>();
 		List<ContractidetifierlistRes> finalList = new ArrayList<ContractidetifierlistRes>();
 		log.info("Enter into PremiumList");
 		try{
 		//query="contract.identifier.list";	
-		allocists = claimCustomRepository.contractIdentifierList(req);
+			List<Tuple>	allocists = claimCustomRepository.contractIdentifierList(req);
 		for(int i=0 ; i<allocists.size() ; i++) {
-			Map<String,Object> tempMap = (Map<String,Object>) allocists.get(i);
+			Tuple tempMap = allocists.get(i);
 			ContractidetifierlistRes tempBean=new ContractidetifierlistRes();
 			tempBean.setProposalNo(tempMap.get("PROPOSAL_NO")==null?"":tempMap.get("PROPOSAL_NO").toString());
 			tempBean.setContractNo(tempMap.get("CONTRACT_NO")==null?"":tempMap.get("CONTRACT_NO").toString());
 			tempBean.setCedingcompanyName(tempMap.get("COMPANY_NAME")==null?"":tempMap.get("COMPANY_NAME").toString());
 			tempBean.setBrokerName(tempMap.get("BROKER_NAME")==null?"":tempMap.get("BROKER_NAME").toString());
 			tempBean.setLayerNo(tempMap.get("LAYER_NO")==null?"":tempMap.get("LAYER_NO").toString());
-			tempBean.setTransactionNumber(tempMap.get("TRANSACTION_NO")==null?"":tempMap.get("TRANSACTION_NO").toString());
+		//	tempBean.setTransactionNumber(tempMap.get("TRANSACTION_NO")==null?"":tempMap.get("TRANSACTION_NO").toString());
 			tempBean.setProductId(req.getProductId());
 			tempBean.setDeptId(tempMap.get("TMAS_DEPARTMENT_NAME")==null?"":tempMap.get("TMAS_DEPARTMENT_NAME").toString());
 			tempBean.setExpiryDate(tempMap.get("EXPIRY_DATE")==null?"":tempMap.get("EXPIRY_DATE").toString());
 			tempBean.setInceptionDate(tempMap.get("INCEPTION_DATE")==null?"":tempMap.get("INCEPTION_DATE").toString());
-			tempBean.setTransactionDate(tempMap.get("TRANSACTION_DATE")==null?"":tempMap.get("TRANSACTION_DATE").toString());
+		//	tempBean.setTransactionDate(tempMap.get("TRANSACTION_DATE")==null?"":tempMap.get("TRANSACTION_DATE").toString());
 			tempBean.setUnderwritingYear(tempMap.get("UW_YEAR")==null?"":tempMap.get("UW_YEAR").toString());
 			tempBean.setUnderwriter(tempMap.get("UNDERWRITTER")==null?"":tempMap.get("UNDERWRITTER").toString());
 			tempBean.setOldContract(tempMap.get("OLD_CONTRACTNO")==null?"":tempMap.get("OLD_CONTRACTNO").toString());

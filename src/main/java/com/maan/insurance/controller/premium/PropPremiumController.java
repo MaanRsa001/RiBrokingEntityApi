@@ -72,7 +72,6 @@ import com.maan.insurance.validation.premium.PropPremiumValidation;
 @RequestMapping("/Insurance")
 public class PropPremiumController {
 	Gson gson = new Gson();
-	private Logger log = LogManager.getLogger(PropPremiumController.class);
 	
 	@Autowired
 	private PropPremiumService premiumService;
@@ -202,6 +201,14 @@ public class PropPremiumController {
 		}
 		return premiumService.getPremiumDetails(req);	
 	}
+	@PostMapping("/Proppremium/GetPremiumDetailsRi")
+	public GetPremiumDetailsRes getPremiumDetailsRi(@RequestBody GetPremiumDetailsReq req) throws CommonValidationException {
+		List<ErrorCheck> error = premiumVali.getPremiumDetailsVali(req);
+		if(error!= null && error.size()>0) {
+			throw new CommonValidationException("error",error);
+		}
+		return premiumService.getPremiumDetailsRi(req);	
+	}
 	@PostMapping("/Proppremium/premiumEdit")
 	public PremiumEditRes premiumEdit(@RequestBody PremiumEditReq req) throws CommonValidationException {
 		List<ErrorCheck> error = premiumVali.premiumEditVali(req);
@@ -209,6 +216,14 @@ public class PropPremiumController {
 			throw new CommonValidationException("error",error);
 		}
 		return premiumService.premiumEdit(req);	
+	}
+	@PostMapping("/Proppremium/premiumEditRi")
+	public PremiumEditRes premiumEditRi(@RequestBody PremiumEditReq req) throws CommonValidationException {
+		List<ErrorCheck> error = premiumVali.premiumEditVali(req);
+		if(error!= null && error.size()>0) {
+			throw new CommonValidationException("error",error);
+		}
+		return premiumService.premiumEditRi(req);	
 	}
 	@GetMapping("/Proppremium/getBrokerAndCedingName/{ContNo}/{branchCode}")
 	public GetBrokerAndCedingNameRes getBrokerAndCedingName(@PathVariable ("ContNo") String ContNo, @PathVariable ("branchCode") String branchCode) throws CommonValidationException {

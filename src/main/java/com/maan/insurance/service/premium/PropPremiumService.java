@@ -134,5 +134,9 @@ public interface PropPremiumService {
 
 	getCurrencyShortNameRes getCurrencyShortName(String currencyId, String branchCode);
 
+	PremiumEditRes premiumEditRi(PremiumEditReq req);
+
+	GetPremiumDetailsRes getPremiumDetailsRi(GetPremiumDetailsReq req);
+
 
 }

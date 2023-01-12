@@ -44,6 +44,7 @@ import com.maan.insurance.model.entity.CurrencyMaster;
 import com.maan.insurance.model.entity.PersonalInfo;
 import com.maan.insurance.model.entity.PositionMaster;
 import com.maan.insurance.model.entity.RskPremiumDetails;
+import com.maan.insurance.model.entity.RskPremiumDetailsRi;
 import com.maan.insurance.model.entity.RskPremiumDetailsTemp;
 import com.maan.insurance.model.entity.TmasBranchMaster;
 import com.maan.insurance.model.entity.TmasDepartmentMaster;
@@ -2292,5 +2293,185 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 		SimpleDateFormat sdf1 = new SimpleDateFormat("dd/MM/yyyy");
 		java.util.Date date = sdf1.parse(input);
 		return new java.sql.Date(date.getTime());
+	}
+
+	@Override
+	public List<Tuple> premiumSelectXolPremiumViewRi(String branchCode, String contNo, String productId,
+			String transactionNo) {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Tuple> cq = cb.createTupleQuery();
+		Root<RskPremiumDetailsRi> root = cq.from(RskPremiumDetailsRi.class);
+		
+		Subquery<String> deptSq = cq.subquery(String.class);
+		Root<TmasDepartmentMaster> deptSubRoot = deptSq.from(TmasDepartmentMaster.class);
+
+		deptSq.select(deptSubRoot.get("tmasDepartmentName")).where(
+				cb.equal(deptSubRoot.get("branchCode"), branchCode),
+				cb.equal(deptSubRoot.get("tmasProductId"), productId),
+				cb.equal(deptSubRoot.get("tmasStatus"), "Y"),
+				cb.equal(deptSubRoot.get("tmasDepartmentId"), root.get("subClass")));
+		
+		Subquery<String> pDeptSq = cq.subquery(String.class);
+		Root<TmasDepartmentMaster> pDeptSubRoot = pDeptSq.from(TmasDepartmentMaster.class);
+
+		pDeptSq.select(pDeptSubRoot.get("tmasDepartmentName")).where(
+				cb.equal(pDeptSubRoot.get("branchCode"), branchCode),
+				cb.equal(pDeptSubRoot.get("tmasProductId"), productId),
+				cb.equal(pDeptSubRoot.get("tmasStatus"), "Y"),
+				cb.equal(pDeptSubRoot.get("tmasDepartmentId"), root.get("premiumClass")));
+
+		cq.multiselect(root.get("contractNo").alias("CONTRACT_NO"),
+				root.get("ritransactionNo").alias("RI_TRANSACTION_NO"),
+				root.get("statementDate").alias("STATEMENT_DATE"),
+				root.get("transactionMonthYear").alias("TRANS_DATE"),
+				root.get("exchangeRate").alias("EXCHANGE_RATE"),
+				root.get("brokerage").alias("BROKERAGE"),
+				root.get("brokerageAmtOc").alias("BROKERAGE_AMT_OC"),
+				root.get("tax").alias("TAX"),
+				root.get("taxAmtOc").alias("TAX_AMT_OC"),
+				root.get("commission").alias("COMMISSION"),
+				root.get("mDpremiumOc").alias("M_DPREMIUM_OC"),
+				root.get("adjustmentPremiumOc").alias("ADJUSTMENT_PREMIUM_OC"),
+				root.get("recPremiumOc").alias("REC_PREMIUM_OC"),
+				root.get("netdueOc").alias("NETDUE_OC"),
+				root.get("layerNo").alias("LAYER_NO"),
+				root.get("enteringMode").alias("ENTERING_MODE"),
+				root.get("entryDateTime").alias("ENTRY_DATE_TIME"),
+				root.get("accountPeriodQtr").alias("ACCOUNT_PERIOD_QTR"),
+				root.get("currencyId").alias("CURRENCY_ID"),
+				root.get("otherCostOc").alias("OTHER_COST_OC"),
+				root.get("brokerageAmtDc").alias("BROKERAGE_AMT_DC"),
+				root.get("taxAmtDc").alias("TAX_AMT_DC"),
+				root.get("mDpremiumDc").alias("M_DPREMIUM_DC"),
+				root.get("adjustmentPremiumDc").alias("ADJUSTMENT_PREMIUM_DC"),
+				root.get("recPremiumDc").alias("REC_PREMIUM_DC"),
+				root.get("netdueDc").alias("NETDUE_DC"),
+				root.get("otherCostDc").alias("OTHER_COST_DC"),
+				root.get("cedantReference").alias("CEDANT_REFERENCE"),
+				root.get("remarks").alias("REMARKS"),
+				root.get("totalCrOc").alias("TOTAL_CR_OC"),
+				root.get("totalCrDc").alias("TOTAL_CR_DC"),
+				root.get("totalDrOc").alias("TOTAL_DR_OC"),
+				root.get("totalDrDc").alias("TOTAL_DR_DC"),
+				root.get("settlementStatus").alias("SETTLEMENT_STATUS"),
+				root.get("amendmentDate").alias("AMENDMENT_DATE"),
+				root.get("instalmentNumber").alias("INSTALMENT_NUMBER"),
+				root.get("withHoldingTaxOc").alias("WITH_HOLDING_TAX_OC"),
+				root.get("withHoldingTaxDc").alias("WITH_HOLDING_TAX_DC"),
+				//root.get("accountPeriodQtr").alias("due_date"),
+				root.get("riCession").alias("RI_CESSION"),
+				deptSq.alias("SUB_CLASS"),//sq
+				root.get("tdsOc").alias("TDS_OC"),
+				root.get("tdsDc").alias("TDS_DC"),
+				//root.get("stOc").alias("ST_OC"),
+				//root.get("stDc").alias("ST_DC"),
+				root.get("bonusOc").alias("BONUS_OC"),
+				root.get("bonusDc").alias("BONUS_DC"),
+				root.get("gnpiEndtNo").alias("GNPI_ENDT_NO"),
+				pDeptSq.alias("PREMIUM_CLASS"),//sq
+				root.get("reverselStatus").alias("REVERSEL_STATUS"),
+				root.get("reverseTransactionNo").alias("REVERSE_TRANSACTION_NO"),
+				root.get("vatPremiumOc").alias("VAT_PREMIUM_OC"),
+				root.get("vatPremiumDc").alias("VAT_PREMIUM_DC"),
+				root.get("brokerageVatOc").alias("BROKERAGE_VAT_OC"),
+				root.get("brokerageVatDc").alias("BROKERAGE_VAT_DC"),
+				root.get("documentType").alias("DOCUMENT_TYPE"))
+		
+		.where(cb.equal(root.get("contractNo"), contNo),
+				cb.equal(root.get("ritransactionNo"), transactionNo));
+		
+		return em.createQuery(cq).getResultList();  
+	}
+
+	@Override
+	public List<Tuple> selectTreetyXOLPremiumEditRi(String contNo, String transactionNo) {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Tuple> cq = cb.createTupleQuery();
+		Root<RskPremiumDetailsRi> root = cq.from(RskPremiumDetailsRi.class);
+
+		cq.multiselect(root.get("transactionMonthYear").alias("TRANS_DATE"),
+				root.get("accountingPeriodDate").alias("ACCOUNTING_PERIOD_DATE"),
+				root.get("statementDate").alias("STATEMENT_DATE"),
+				root.get("accountPeriodQtr").alias("ACCOUNT_PERIOD_QTR"),
+				root.get("accountPeriodYear").alias("ACCOUNT_PERIOD_YEAR"),
+				root.get("currencyId").alias("CURRENCY_ID"),
+				root.get("exchangeRate").alias("EXCHANGE_RATE"),
+				root.get("brokerageAmtOc").alias("BROKERAGE_AMT_OC"),
+				root.get("taxAmtOc").alias("TAX_AMT_OC"),
+				root.get("entryDateTime").alias("ENTRY_DATE_TIME"),
+				root.get("amendmentDate").alias("AMENDMENT_DATE"),
+				root.get("premiumQuotashareOc").alias("PREMIUM_QUOTASHARE_OC"),
+				root.get("commissionQuotashareOc").alias("COMMISSION_QUOTASHARE_OC"),
+				root.get("premiumSurplusOc").alias("PREMIUM_SURPLUS_OC"),
+				root.get("commissionSurplusOc").alias("COMMISSION_SURPLUS_OC"),
+				root.get("premiumPortfolioinOc").alias("PREMIUM_PORTFOLIOIN_OC"),
+				root.get("claimPortfolioinOc").alias("CLAIM_PORTFOLIOIN_OC"),
+				root.get("premiumPortfoliooutOc").alias("PREMIUM_PORTFOLIOOUT_OC"),
+				root.get("lossReserveReleasedOc").alias("LOSS_RESERVE_RELEASED_OC"),
+				root.get("premiumreserveQuotashareOc").alias("PREMIUMRESERVE_QUOTASHARE_OC"),
+				root.get("cashLossCreditOc").alias("CASH_LOSS_CREDIT_OC"),
+				root.get("lossReserveretainedOc").alias("LOSS_RESERVERETAINED_OC"),
+				root.get("profitCommissionOc").alias("PROFIT_COMMISSION_OC"),
+				root.get("cashLosspaidOc").alias("CASH_LOSSPAID_OC"),
+				root.get("status").alias("STATUS"),
+				root.get("remarks").alias("REMARKS"),
+				root.get("netdueOc").alias("NETDUE_OC"),
+				root.get("enteringMode").alias("ENTERING_MODE"),
+				root.get("receiptNo").alias("RECEIPT_NO"),
+				root.get("claimsPaidOc").alias("CLAIMS_PAID_OC"),
+				root.get("settlementStatus").alias("SETTLEMENT_STATUS"),
+				root.get("mDpremiumOc").alias("M_DPREMIUM_OC"),
+				root.get("adjustmentPremiumOc").alias("ADJUSTMENT_PREMIUM_OC"),
+				root.get("recPremiumOc").alias("REC_PREMIUM_OC"),
+				root.get("commission").alias("COMMISSION"),
+				//root.get("entryDateTime").alias("INS_DATE"),
+				root.get("xlCostOc").alias("XL_COST_OC"),
+				root.get("claimPortfolioOutOc").alias("CLAIM_PORTFOLIO_OUT_OC"),
+				root.get("premiumReserveRealsedOc").alias("PREMIUM_RESERVE_REALSED_OC"),
+				root.get("otherCostOc").alias("OTHER_COST_OC"),
+				root.get("cedantReference").alias("CEDANT_REFERENCE"),
+				root.get("totalCrOc").alias("TOTAL_CR_OC"),
+				root.get("totalDrOc").alias("TOTAL_DR_OC"),
+				root.get("interestOc").alias("INTEREST_OC"),
+				root.get("osclaimLossupdateOc").alias("OSCLAIM_LOSSUPDATE_OC"),
+				root.get("overrider").alias("OVERRIDER"),
+				root.get("overriderAmtOc").alias("OVERRIDER_AMT_OC"),
+				root.get("overriderAmtDc").alias("OVERRIDER_AMT_DC"),
+				root.get("withHoldingTaxOc").alias("WITH_HOLDING_TAX_OC"),
+				root.get("withHoldingTaxDc").alias("WITH_HOLDING_TAX_DC"),
+				root.get("riCession").alias("RI_CESSION"),
+				root.get("subClass").alias("SUB_CLASS"),
+				root.get("tdsOc").alias("TDS_OC"),
+				root.get("tdsDc").alias("TDS_DC"),
+				//root.get("stOc").alias("ST_OC"),
+				//root.get("stDc").alias("ST_DC"),
+				root.get("scCommOc").alias("SC_Comm_OC"),
+				root.get("scCommDc").alias("SC_Comm_DC"),
+				root.get("bonusOc").alias("BONUS_OC"),
+				root.get("bonusDc").alias("BONUS_DC"),
+				root.get("premiumSubclass").alias("PREMIUM_SUBCLASS"),
+				root.get("lpcOc").alias("LPC_OC"),
+				root.get("lpcDc").alias("LPC_DC"),
+				root.get("gnpiEndtNo").alias("GNPI_ENDT_NO"),
+				cb.selectCase().when(cb.isNull(root.get("prdAllocatedTillDate")), 0)
+							   .otherwise(root.get("prdAllocatedTillDate")).alias("PRD_ALLOCATED_TILL_DATE"),
+			    cb.selectCase().when(cb.isNull(root.get("lrdAllocatedTillDate")), 0)
+			    			   .otherwise(root.get("lrdAllocatedTillDate")).alias("LRD_ALLOCATED_TILL_DATE"),
+				root.get("premiumClass").alias("PREMIUM_CLASS"),
+				root.get("osbyn").alias("OSBYN"),
+				root.get("sectionName").alias("SECTION_NAME"),
+				root.get("reverselStatus").alias("REVERSEL_STATUS"),
+				root.get("reverseTransactionNo").alias("REVERSE_TRANSACTION_NO"),
+				root.get("instalmentNumber").alias("INSTALMENT_NUMBER"),
+				root.get("vatPremiumOc").alias("VAT_PREMIUM_OC"),
+				root.get("vatPremiumDc").alias("VAT_PREMIUM_DC"),
+				root.get("brokerageVatOc").alias("BROKERAGE_VAT_OC"),
+				root.get("brokerageVatDc").alias("BROKERAGE_VAT_DC"),
+				root.get("documentType").alias("DOCUMENT_TYPE"))
+		
+		  .where(cb.equal(root.get("contractNo"), contNo),
+				 cb.equal(root.get("ritransactionNo"), transactionNo));
+		
+		return em.createQuery(cq).getResultList();
 	}
 }

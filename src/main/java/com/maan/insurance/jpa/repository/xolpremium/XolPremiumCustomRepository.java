@@ -121,6 +121,11 @@ public interface XolPremiumCustomRepository {
 	public Integer prclDelete(PremiumInsertMethodReq beanObj);
 
 	public void premiumRiSplit(PremiumInsertMethodReq beanObj);
+
+	public List<Tuple> premiumSelectXolPremiumViewRi(String branchCode, String contNo, String productId,
+			String transactionNo);
+
+	public List<Tuple> selectTreetyXOLPremiumEditRi(String contNo, String transactionNo);
 	
 	
 }

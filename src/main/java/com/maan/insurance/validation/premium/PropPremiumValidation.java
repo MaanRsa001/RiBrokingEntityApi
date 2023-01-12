@@ -912,7 +912,6 @@ public class PropPremiumValidation {
 		if(StringUtils.isBlank(req.getBranchCode())) {
 			list.add(new ErrorCheck("Please Enter BranchCode","BranchCode", "01"));
 			}
-	
 		if(StringUtils.isBlank(req.getContNo())) {
 			list.add(new ErrorCheck("Please Enter ContractNo","ContractNo", "03"));
 			}
@@ -1046,6 +1045,6 @@ public class PropPremiumValidation {
 			}
 		return list;
 	}
-	
+
 
 }
