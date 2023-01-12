@@ -23,4 +23,6 @@ public interface TtrnAllocatedTransactionRepository
 	int countByContractNoAndTransactionNoAndLayerNoAndTypeAndStatus(String contNo, BigDecimal bigDecimal, String string,
 			String string2, String string3);
 
+	int countByTransactionNoAndStatus(BigDecimal bigDecimal, String string);
+
 }

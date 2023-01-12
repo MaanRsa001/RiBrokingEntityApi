@@ -48,11 +48,11 @@ import com.maan.insurance.model.entity.CurrencyMaster;
 import com.maan.insurance.model.entity.PersonalInfo;
 import com.maan.insurance.model.entity.PositionMaster;
 import com.maan.insurance.model.entity.RskPremiumDetails;
+import com.maan.insurance.model.entity.RskPremiumDetailsRi;
 import com.maan.insurance.model.entity.RskPremiumDetailsTemp;
 import com.maan.insurance.model.entity.TmasBranchMaster;
 import com.maan.insurance.model.entity.TmasDepartmentMaster;
 import com.maan.insurance.model.entity.TmasPfcMaster;
-import com.maan.insurance.model.entity.TmasPolicyBranch;
 import com.maan.insurance.model.entity.TtrnClaimDetails;
 import com.maan.insurance.model.entity.TtrnClaimPayment;
 import com.maan.insurance.model.entity.TtrnPttySection;
@@ -62,7 +62,7 @@ import com.maan.insurance.model.entity.TtrnRiskProposal;
 import com.maan.insurance.model.req.premium.GetPremiumReservedReq;
 import com.maan.insurance.model.req.premium.GetPremiumedListReq;
 import com.maan.insurance.model.req.premium.InsertPremiumReq;
-import com.maan.insurance.model.res.premium.GetPremiumReservedRes;
+import com.maan.insurance.model.req.premium.PremiumListReq;
 
 @Repository
 public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomRepository {
@@ -99,7 +99,12 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 				   .where(cb.equal(dSubRoot.get("categoryId"), 49),
 						   cb.equal(dSubRoot.get("type"), traRoot.get("accountPeriodQtr")),
 						   cb.equal(dSubRoot.get("status"), "Y"));
-		
+		Subquery<Integer> pmendoSq = cq.subquery(Integer.class);
+		Root<PositionMaster> pmendoSubRoot = pmendoSq.from(PositionMaster.class);
+
+		pmendoSq.select(cb.max(pmendoSubRoot.get("amendId"))).where(
+				cb.equal(pmendoSubRoot.get("contractNo"), traRoot.get("contractNo")),
+				cb.equal(pmendoSubRoot.get("branchCode"), traRoot.get("branchCode")));
 		cq.multiselect(rkRoot.get("rskContractNo").alias("RSK_CONTRACT_NO"),
 				personalRoot.get("companyName").alias("COMPANY_NAME"),
 				nameExpression.alias("BROKER_NAME"),
@@ -153,6 +158,7 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 				 cb.equal(traRoot.get("contractNo"), rkRoot.get("rskContractNo")),
 				 cb.equal(rkRoot.get("rskProposalNumber"), pmroot.get("proposalNo")),
 				 cb.equal(pmroot.get("sectionNo"), req.getSectionNo()),
+				 cb.equal(pmroot.get("amendId"), pmendoSq),
 				 cb.equal(traRoot.get("subClass"), rkRoot.get("rskDeptid")));
 		
 		cq.orderBy(cb.desc(traRoot.get("transactionNo")));
@@ -228,7 +234,12 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		endoSq.select(cb.max(endoSubRoot.get("rskEndorsementNo"))).where(
 				cb.equal(endoSubRoot.get("rskContractNo"), req.getContNo()),
 				cb.equal(endoSubRoot.get("rskDeptid"), traRoot.get("subClass")));
-		
+		Subquery<Integer> pmendoSq = cq.subquery(Integer.class);
+		Root<PositionMaster> pmendoSubRoot = pmendoSq.from(PositionMaster.class);
+
+		pmendoSq.select(cb.max(pmendoSubRoot.get("amendId"))).where(
+				cb.equal(pmendoSubRoot.get("contractNo"), traRoot.get("contractNo")),
+				cb.equal(pmendoSubRoot.get("branchCode"), traRoot.get("branchCode")));
 		cq.where(cb.equal(rkRoot.get("rskContractNo"), req.getContNo()),
 				 cb.equal(rkRoot.get("rskCedingid"), personalRoot.get("customerId")),
 				 cb.equal(rkRoot.get("rskBrokerid"), piRoot.get("customerId")),
@@ -241,6 +252,7 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 				 cb.equal(rkRoot.get("rskProposalNumber"), pmroot.get("proposalNo")),
 				 cb.equal(pmroot.get("sectionNo"), req.getSectionNo()),
 				 cb.equal(traRoot.get("subClass"), rkRoot.get("rskDeptid")),
+				 cb.equal(pmroot.get("amendId"), pmendoSq),
 				 cb.equal(traRoot.get("transStatus"), "P"));
 		
 		cq.orderBy(cb.desc(traRoot.get("transactionNo")));
@@ -313,11 +325,11 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		Subquery<Integer> endoSq = cq.subquery(Integer.class);
 		Root<TtrnRiskDetails> endoSubRoot = endoSq.from(TtrnRiskDetails.class);
 
-		endoSq.select(cb.max(endoSubRoot.get("rskProposalNumber")))
+		endoSq.select(cb.max(endoSubRoot.get("rskEndorsementNo")))
 				.where(cb.equal(endoSubRoot.get("rskProposalNumber"), root.get("rskProposalNumber")));
 
 		cq.select(root.get("rskAccountingPeriod").as(String.class).alias("RSK_ACCOUNTING_PERIOD")).where(
-				cb.equal(root.get("rskProposalNumber"), proposalNo), cb.equal(root.get("rskProposalNumber"), endoSq));
+				cb.equal(root.get("rskProposalNumber"), proposalNo), cb.equal(root.get("rskEndorsementNo"), endoSq));
 		
 		return em.createQuery(cq).getSingleResult();
 	
@@ -2398,5 +2410,385 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		SimpleDateFormat sdf1 = new SimpleDateFormat("dd/MM/yyyy");
 		java.util.Date date = sdf1.parse(input);
 		return new java.sql.Date(date.getTime());
+	}
+
+	@Override
+	public List<Tuple> getPremiumFullList(PremiumListReq req) {
+		List<Tuple>list=null;
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Tuple> cq = cb.createTupleQuery();
+		Root<TtrnRiskDetails> rkRoot = cq.from(TtrnRiskDetails.class);
+		Root<PersonalInfo> personalRoot = cq.from(PersonalInfo.class);
+		Root<PersonalInfo> piRoot = cq.from(PersonalInfo.class);
+		Root<RskPremiumDetails> traRoot = cq.from(RskPremiumDetails.class);
+		Root<PositionMaster> pmroot = cq.from(PositionMaster.class);
+		
+		Expression<String> nameExpression = cb.concat(cb.concat(piRoot.get("firstName"), " "),
+				piRoot.get("lastName"));
+		
+		Expression<String> traExpression = cb.concat(cb.concat(traRoot.get("instalmentNumber"), " "),
+				traRoot.get("accountPeriodQtr"));
+		
+		Expression<String> accPerExpression = cb.concat(cb.concat(traRoot.get("accountPeriodQtr"), " "),
+				traRoot.get("accountPeriodYear"));
+		
+		Subquery<String> detailNameSq = cq.subquery(String.class);
+		Root<ConstantDetail> dSubRoot = detailNameSq.from(ConstantDetail.class);
+
+		detailNameSq.select(dSubRoot.get("detailName")).distinct(true)
+				   .where(cb.equal(dSubRoot.get("categoryId"), 49),
+						   cb.equal(dSubRoot.get("type"), traRoot.get("accountPeriodQtr")),
+						   cb.equal(dSubRoot.get("status"), "Y"));
+		
+		cq.multiselect(rkRoot.get("rskContractNo").alias("RSK_CONTRACT_NO"),
+				personalRoot.get("companyName").alias("COMPANY_NAME"),
+				nameExpression.alias("BROKER_NAME"),
+				rkRoot.get("rskProposalNumber").alias("RSK_PROPOSAL_NUMBER"),
+				rkRoot.get("rskLayerNo").alias("RSK_LAYER_NO"),
+				pmroot.get("sectionNo").alias("SECTION_NO"),
+				traRoot.get("transactionNo").alias("TRANSACTION_NO"),
+				traRoot.get("productId").alias("RSK_PRODUCTID"),
+				traRoot.get("requestNo").alias("REQUEST_NO"),
+				traExpression.alias("INS_DETAIL"),
+				cb.selectCase().when(cb.equal(rkRoot.<Integer>get("rskProductid"), 2), 
+									 cb.concat(cb.concat(detailNameSq, " "), traRoot.get("accountPeriodYear")))
+							   .otherwise(accPerExpression).alias("ACC_PER"),
+			   rkRoot.get("rskInceptionDate").alias("INS_DATE"),
+			   rkRoot.get("rskAccountDate").alias("RSK_ACCOUNT_DATE"),
+			   rkRoot.get("rskExpiryDate").alias("EXP_DATE"),
+			   traRoot.get("statementDate").alias("STATEMENT_DATE"),
+			   traRoot.get("accountingPeriodDate").alias("ACCOUNTING_PERIOD_DATE"),
+			   cb.selectCase().when(cb.isNull(traRoot.get("allocatedTillDate")), 0)
+			   				  .otherwise(traRoot.get("allocatedTillDate")).alias("ALLOC_AMT"),
+			   traRoot.get("movementYn").alias("MOVEMENT_YN"),
+			   traRoot.get("settlementStatus").alias("SETTLEMENT_STATUS"),
+			   traRoot.get("transactionMonthYear").alias("TRANSACTION_DATE"),
+			   traRoot.get("reverseTransactionNo").alias("REVERSE_TRANSACTION_NO"));
+		
+		Subquery<Integer> amendSq = cq.subquery(Integer.class);
+		Root<PersonalInfo> amendSubRoort = amendSq.from(PersonalInfo.class);
+
+		amendSq.select(cb.max(amendSubRoort.get("amendId"))).where(
+				cb.equal(amendSubRoort.get("customerId"), personalRoot.get("customerId")),
+				cb.equal(amendSubRoort.get("branchCode"), personalRoot.get("branchCode")));
+		
+		Subquery<Integer> piAmendSq = cq.subquery(Integer.class);
+		Root<PersonalInfo> piAmendSubRoot = piAmendSq.from(PersonalInfo.class);
+
+		piAmendSq.select(cb.max(piAmendSubRoot.get("amendId"))).where(
+				cb.equal(piAmendSubRoot.get("customerId"), piRoot.get("customerId")),
+				cb.equal(piAmendSubRoot.get("branchCode"), piRoot.get("branchCode")));
+		
+		Subquery<Integer> endoSq = cq.subquery(Integer.class);
+		Root<TtrnRiskDetails> endoSubRoot = endoSq.from(TtrnRiskDetails.class);
+
+		endoSq.select(cb.max(endoSubRoot.get("rskEndorsementNo"))).where(
+				cb.equal(endoSubRoot.get("rskContractNo"), traRoot.get("contractNo")),
+				cb.equal(endoSubRoot.get("rskDeptid"), traRoot.get("subClass")));
+		
+		Subquery<Integer> pmendoSq = cq.subquery(Integer.class);
+		Root<PositionMaster> pmendoSubRoot = pmendoSq.from(PositionMaster.class);
+
+		pmendoSq.select(cb.max(pmendoSubRoot.get("amendId"))).where(
+				cb.equal(pmendoSubRoot.get("contractNo"), traRoot.get("contractNo")),
+				cb.equal(pmendoSubRoot.get("branchCode"), traRoot.get("branchCode")));
+		
+		Predicate n1=cb.equal(rkRoot.get("rskCedingid"), personalRoot.get("customerId"));
+		Predicate n2= cb.equal(rkRoot.get("rskBrokerid"), piRoot.get("customerId"));
+		Predicate n3= cb.equal(personalRoot.get("branchCode"), req.getBranchCode());
+		Predicate n4= cb.equal(personalRoot.get("amendId"), amendSq);
+		Predicate n5= cb.equal(piRoot.get("branchCode"), personalRoot.get("branchCode"));
+		Predicate n6= cb.equal(piRoot.get("amendId"), piAmendSq);
+		Predicate n7= cb.equal(rkRoot.get("rskEndorsementNo"), endoSq);
+		Predicate n8= cb.equal(traRoot.get("contractNo"), rkRoot.get("rskContractNo"));
+		Predicate n9= cb.equal(rkRoot.get("rskProposalNumber"), pmroot.get("proposalNo"));
+		Predicate n10= cb.equal(pmroot.get("amendId"), pmendoSq);
+		Predicate n11= cb.equal(traRoot.get("subClass"), rkRoot.get("rskDeptid"));
+		Predicate n0=null;
+		
+		if("S".equalsIgnoreCase(req.getSearchType())){
+				if(StringUtils.isNotBlank(req.getCompanyNameSearch())){
+					n0 =cb.like(cb.upper(personalRoot.get("companyName").as(String.class)),"%"+req.getCompanyNameSearch().toUpperCase()+"%");
+				}
+				if(StringUtils.isNotBlank(req.getBrokerNameSearch())){
+					n0 =cb.like(cb.upper(nameExpression.as(String.class)),"%"+req.getBrokerNameSearch().toUpperCase()+"%");
+				}
+				if(StringUtils.isNotBlank(req.getContractNoSearch())){
+					n0 =cb.like(cb.upper(traRoot.get("contractNo").as(String.class)),"%"+req.getContractNoSearch().toUpperCase()+"%");
+				}
+				if(StringUtils.isNotBlank(req.getTransactionNoSearch())){
+					n0 =cb.like(cb.upper(traRoot.get("transactionNo").as(String.class)),"%"+req.getTransactionNoSearch().toUpperCase()+"%");
+				}
+				if(StringUtils.isNotBlank(req.getTransactionDateSearch())){
+					n0 =cb.like(cb.upper(traRoot.get("transactionMonthYear").as(String.class)),"%"+req.getTransactionDateSearch().toUpperCase()+"%");
+				}
+				cq.where(n0,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11);
+			}	else {
+				cq.where(n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11);
+			}
+			
+				 
+		
+		cq.orderBy(cb.desc(traRoot.get("transactionNo")));
+		TypedQuery<Tuple> result = em.createQuery(cq);
+		if(req.getType().equalsIgnoreCase("premium")){
+			result.setFirstResult(0 * 100);
+			result.setMaxResults(100);
+		}
+		list = result.getResultList();
+		return list;
+	}
+
+	@Override
+	public List<Tuple> getPremiumTempList(PremiumListReq req) {
+		List<Tuple>list=null;
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Tuple> cq = cb.createTupleQuery();
+		Root<TtrnRiskDetails> rkRoot = cq.from(TtrnRiskDetails.class);
+		Root<PersonalInfo> personalRoot = cq.from(PersonalInfo.class);
+		Root<PersonalInfo> piRoot = cq.from(PersonalInfo.class);
+		Root<RskPremiumDetailsTemp> traRoot = cq.from(RskPremiumDetailsTemp.class);
+		Root<PositionMaster> pmroot = cq.from(PositionMaster.class);
+		
+		Expression<String> nameExpression = cb.concat(cb.concat(piRoot.get("firstName"), " "),
+				piRoot.get("lastName"));
+		
+		Expression<String> traExpression = cb.concat(cb.concat(traRoot.get("instalmentNumber"), " "),
+				traRoot.get("accountPeriodQtr"));
+		
+		Expression<String> accPerExpression = cb.concat(cb.concat(traRoot.get("accountPeriodQtr"), " "),
+				traRoot.get("accountPeriodYear"));
+		
+		Subquery<String> detailNameSq = cq.subquery(String.class);
+		Root<ConstantDetail> dSubRoot = detailNameSq.from(ConstantDetail.class);
+
+		detailNameSq.select(dSubRoot.get("detailName")).distinct(true)
+				   .where(cb.equal(dSubRoot.get("categoryId"), 49),
+						   cb.equal(dSubRoot.get("type"), traRoot.get("accountPeriodQtr")),
+						   cb.equal(dSubRoot.get("status"), "Y"));
+		
+		cq.multiselect(rkRoot.get("rskContractNo").alias("RSK_CONTRACT_NO"),
+				personalRoot.get("companyName").alias("COMPANY_NAME"),
+				nameExpression.alias("BROKER_NAME"),
+				rkRoot.get("rskProposalNumber").alias("RSK_PROPOSAL_NUMBER"),
+				rkRoot.get("rskLayerNo").alias("RSK_LAYER_NO"),
+				pmroot.get("sectionNo").alias("SECTION_NO"),
+				traRoot.get("transactionNo").alias("TRANSACTION_NO"),
+				traRoot.get("productId").alias("RSK_PRODUCTID"),
+				traRoot.get("requestNo").alias("REQUEST_NO"),
+				traExpression.alias("INS_DETAIL"),
+				cb.selectCase().when(cb.equal(rkRoot.<Integer>get("rskProductid"), 2), 
+									 cb.concat(cb.concat(detailNameSq, " "), traRoot.get("accountPeriodYear")))
+							   .otherwise(accPerExpression).alias("ACC_PER"),
+			   rkRoot.get("rskInceptionDate").alias("INS_DATE"),
+			   rkRoot.get("rskAccountDate").alias("RSK_ACCOUNT_DATE"),
+			   rkRoot.get("rskExpiryDate").alias("EXP_DATE"),
+			   traRoot.get("statementDate").alias("STATEMENT_DATE"),
+			   traRoot.get("accountingPeriodDate").alias("ACCOUNTING_PERIOD_DATE"),
+			   cb.selectCase().when(cb.isNull(traRoot.get("allocatedTillDate")), 0)
+			   				  .otherwise(traRoot.get("allocatedTillDate")).alias("ALLOC_AMT"),
+			   traRoot.get("movementYn").alias("MOVEMENT_YN"),
+			   traRoot.get("settlementStatus").alias("SETTLEMENT_STATUS"),
+			   traRoot.get("transactionMonthYear").alias("TRANSACTION_DATE"),
+			   traRoot.get("reverseTransactionNo").alias("REVERSE_TRANSACTION_NO"));
+		
+		Subquery<Integer> amendSq = cq.subquery(Integer.class);
+		Root<PersonalInfo> amendSubRoort = amendSq.from(PersonalInfo.class);
+
+		amendSq.select(cb.max(amendSubRoort.get("amendId"))).where(
+				cb.equal(amendSubRoort.get("customerId"), personalRoot.get("customerId")),
+				cb.equal(amendSubRoort.get("branchCode"), personalRoot.get("branchCode")));
+		
+		Subquery<Integer> piAmendSq = cq.subquery(Integer.class);
+		Root<PersonalInfo> piAmendSubRoot = piAmendSq.from(PersonalInfo.class);
+
+		piAmendSq.select(cb.max(piAmendSubRoot.get("amendId"))).where(
+				cb.equal(piAmendSubRoot.get("customerId"), piRoot.get("customerId")),
+				cb.equal(piAmendSubRoot.get("branchCode"), piRoot.get("branchCode")));
+		
+		Subquery<Integer> endoSq = cq.subquery(Integer.class);
+		Root<TtrnRiskDetails> endoSubRoot = endoSq.from(TtrnRiskDetails.class);
+
+		endoSq.select(cb.max(endoSubRoot.get("rskEndorsementNo"))).where(
+				cb.equal(endoSubRoot.get("rskContractNo"), traRoot.get("contractNo")),
+				cb.equal(endoSubRoot.get("rskDeptid"), traRoot.get("subClass")));
+		
+		Subquery<Integer> pmendoSq = cq.subquery(Integer.class);
+		Root<PositionMaster> pmendoSubRoot = pmendoSq.from(PositionMaster.class);
+
+		pmendoSq.select(cb.max(pmendoSubRoot.get("amendId"))).where(
+				cb.equal(pmendoSubRoot.get("contractNo"), traRoot.get("contractNo")),
+				cb.equal(pmendoSubRoot.get("branchCode"), traRoot.get("branchCode")));
+		
+			Predicate n1=cb.equal(rkRoot.get("rskCedingid"), personalRoot.get("customerId"));
+			Predicate n2= cb.equal(rkRoot.get("rskBrokerid"), piRoot.get("customerId"));
+			Predicate n3= cb.equal(personalRoot.get("branchCode"), req.getBranchCode());
+			Predicate n4= cb.equal(personalRoot.get("amendId"), amendSq);
+			Predicate n5= cb.equal(piRoot.get("branchCode"), personalRoot.get("branchCode"));
+			Predicate n6= cb.equal(piRoot.get("amendId"), piAmendSq);
+			Predicate n7= cb.equal(rkRoot.get("rskEndorsementNo"), endoSq);
+			Predicate n8= cb.equal(traRoot.get("contractNo"), rkRoot.get("rskContractNo"));
+			Predicate n9= cb.equal(rkRoot.get("rskProposalNumber"), pmroot.get("proposalNo"));
+			Predicate n10= cb.equal(pmroot.get("amendId"), pmendoSq);
+			Predicate n11= cb.equal(traRoot.get("subClass"), rkRoot.get("rskDeptid"));
+			Predicate n0=null;
+		
+			if("ST".equalsIgnoreCase(req.getSearchType())){
+				if(StringUtils.isNotBlank(req.getCompanyNameSearchTemp())){
+					n0 =cb.like(cb.upper(personalRoot.get("companyName").as(String.class)),"%"+req.getCompanyNameSearchTemp().toUpperCase()+"%");
+				}
+				if(StringUtils.isNotBlank(req.getBrokerNameSearchTemp())){
+					n0 =cb.like(cb.upper(nameExpression.as(String.class)),"%"+req.getBrokerNameSearchTemp().toUpperCase()+"%");
+				}
+				if(StringUtils.isNotBlank(req.getContractNoSearchTemp())){
+					n0 =cb.like(cb.upper(traRoot.get("contractNo").as(String.class)),"%"+req.getContractNoSearchTemp().toUpperCase()+"%");
+				}
+				if(StringUtils.isNotBlank(req.getTransactionNoSearchTemp())){
+					n0 =cb.like(cb.upper(traRoot.get("requestNo").as(String.class)),"%"+req.getTransactionNoSearchTemp().toUpperCase()+"%");
+				}
+				if(StringUtils.isNotBlank(req.getTransactionDateSearchTemp())){
+					n0 =cb.like(cb.upper(traRoot.get("transactionMonthYear").as(String.class)),"%"+req.getTransactionDateSearchTemp().toUpperCase()+"%");
+				}
+				cq.where(n0,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11);
+				}else {
+					cq.where(n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11);
+				}
+		cq.orderBy(cb.desc(traRoot.get("transactionNo")));
+		
+		TypedQuery<Tuple> result = em.createQuery(cq);
+		if(req.getType().equalsIgnoreCase("premium")){
+			result.setFirstResult(0 * 100);
+			result.setMaxResults(100);
+		}
+		list = result.getResultList();
+		return list;
+	}
+
+	@Override
+	public List<Tuple> getPremiumRiFullList(PremiumListReq req) {
+		List<Tuple>list=null;
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Tuple> cq = cb.createTupleQuery();
+		Root<TtrnRiskDetails> rkRoot = cq.from(TtrnRiskDetails.class);
+		Root<PersonalInfo> personalRoot = cq.from(PersonalInfo.class);
+		Root<PersonalInfo> piRoot = cq.from(PersonalInfo.class);
+		Root<RskPremiumDetailsRi> traRoot = cq.from(RskPremiumDetailsRi.class);
+		Root<PositionMaster> pmroot = cq.from(PositionMaster.class);
+		
+		Expression<String> nameExpression = cb.concat(cb.concat(piRoot.get("firstName"), " "),
+				piRoot.get("lastName"));
+		
+		Expression<String> traExpression = cb.concat(cb.concat(traRoot.get("instalmentNumber"), " "),
+				traRoot.get("accountPeriodQtr"));
+		
+		Expression<String> accPerExpression = cb.concat(cb.concat(traRoot.get("accountPeriodQtr"), " "),
+				traRoot.get("accountPeriodYear"));
+		
+		Subquery<String> detailNameSq = cq.subquery(String.class);
+		Root<ConstantDetail> dSubRoot = detailNameSq.from(ConstantDetail.class);
+
+		detailNameSq.select(dSubRoot.get("detailName")).distinct(true)
+				   .where(cb.equal(dSubRoot.get("categoryId"), 49),
+						   cb.equal(dSubRoot.get("type"), traRoot.get("accountPeriodQtr")),
+						   cb.equal(dSubRoot.get("status"), "Y"));
+		
+		cq.multiselect(rkRoot.get("rskContractNo").alias("RSK_CONTRACT_NO"),
+				personalRoot.get("companyName").alias("COMPANY_NAME"),
+				nameExpression.alias("BROKER_NAME"),
+				rkRoot.get("rskProposalNumber").alias("RSK_PROPOSAL_NUMBER"),
+				rkRoot.get("rskLayerNo").alias("RSK_LAYER_NO"),
+				pmroot.get("sectionNo").alias("SECTION_NO"),
+				traRoot.get("transactionNo").alias("TRANSACTION_NO"),
+				traRoot.get("productId").alias("RSK_PRODUCTID"),
+				traRoot.get("requestNo").alias("REQUEST_NO"),
+				traExpression.alias("INS_DETAIL"),
+				cb.selectCase().when(cb.equal(rkRoot.<Integer>get("rskProductid"), 2), 
+									 cb.concat(cb.concat(detailNameSq, " "), traRoot.get("accountPeriodYear")))
+							   .otherwise(accPerExpression).alias("ACC_PER"),
+			   rkRoot.get("rskInceptionDate").alias("INS_DATE"),
+			   rkRoot.get("rskAccountDate").alias("RSK_ACCOUNT_DATE"),
+			   rkRoot.get("rskExpiryDate").alias("EXP_DATE"),
+			   traRoot.get("statementDate").alias("STATEMENT_DATE"),
+			   traRoot.get("accountingPeriodDate").alias("ACCOUNTING_PERIOD_DATE"),
+			   cb.selectCase().when(cb.isNull(traRoot.get("allocatedTillDate")), 0)
+			   				  .otherwise(traRoot.get("allocatedTillDate")).alias("ALLOC_AMT"),
+			   traRoot.get("movementYn").alias("MOVEMENT_YN"),
+			   traRoot.get("settlementStatus").alias("SETTLEMENT_STATUS"),
+			   traRoot.get("transactionMonthYear").alias("TRANSACTION_DATE"),
+			   traRoot.get("ritransactionNo").alias("RI_TRANSCATION_NO"),
+			   traRoot.get("reverseTransactionNo").alias("REVERSE_TRANSACTION_NO"));
+		
+		Subquery<Integer> amendSq = cq.subquery(Integer.class);
+		Root<PersonalInfo> amendSubRoort = amendSq.from(PersonalInfo.class);
+
+		amendSq.select(cb.max(amendSubRoort.get("amendId"))).where(
+				cb.equal(amendSubRoort.get("customerId"), personalRoot.get("customerId")),
+				cb.equal(amendSubRoort.get("branchCode"), personalRoot.get("branchCode")));
+		
+		Subquery<Integer> piAmendSq = cq.subquery(Integer.class);
+		Root<PersonalInfo> piAmendSubRoot = piAmendSq.from(PersonalInfo.class);
+
+		piAmendSq.select(cb.max(piAmendSubRoot.get("amendId"))).where(
+				cb.equal(piAmendSubRoot.get("customerId"), piRoot.get("customerId")),
+				cb.equal(piAmendSubRoot.get("branchCode"), piRoot.get("branchCode")));
+		
+		Subquery<Integer> endoSq = cq.subquery(Integer.class);
+		Root<TtrnRiskDetails> endoSubRoot = endoSq.from(TtrnRiskDetails.class);
+
+		endoSq.select(cb.max(endoSubRoot.get("rskEndorsementNo"))).where(
+				cb.equal(endoSubRoot.get("rskContractNo"), traRoot.get("contractNo")),
+				cb.equal(endoSubRoot.get("rskDeptid"), traRoot.get("subClass")));
+		
+		Subquery<Integer> pmendoSq = cq.subquery(Integer.class);
+		Root<PositionMaster> pmendoSubRoot = pmendoSq.from(PositionMaster.class);
+
+		pmendoSq.select(cb.max(pmendoSubRoot.get("amendId"))).where(
+				cb.equal(pmendoSubRoot.get("contractNo"), traRoot.get("contractNo")),
+				cb.equal(pmendoSubRoot.get("branchCode"), traRoot.get("branchCode")));
+		
+		Predicate n1=cb.equal(rkRoot.get("rskCedingid"), personalRoot.get("customerId"));
+		Predicate n2= cb.equal(rkRoot.get("rskBrokerid"), piRoot.get("customerId"));
+		Predicate n3= cb.equal(personalRoot.get("branchCode"), req.getBranchCode());
+		Predicate n4= cb.equal(personalRoot.get("amendId"), amendSq);
+		Predicate n5= cb.equal(piRoot.get("branchCode"), personalRoot.get("branchCode"));
+		Predicate n6= cb.equal(piRoot.get("amendId"), piAmendSq);
+		Predicate n7= cb.equal(rkRoot.get("rskEndorsementNo"), endoSq);
+		Predicate n8= cb.equal(traRoot.get("contractNo"), rkRoot.get("rskContractNo"));
+		Predicate n9= cb.equal(rkRoot.get("rskProposalNumber"), pmroot.get("proposalNo"));
+		Predicate n10= cb.equal(pmroot.get("amendId"), pmendoSq);
+		Predicate n11= cb.equal(traRoot.get("subClass"), rkRoot.get("rskDeptid"));
+		Predicate n0=null;
+		
+		if("S".equalsIgnoreCase(req.getSearchType())){
+				if(StringUtils.isNotBlank(req.getCompanyNameSearch())){
+					n0 =cb.like(cb.upper(personalRoot.get("companyName").as(String.class)),"%"+req.getCompanyNameSearch().toUpperCase()+"%");
+				}
+				if(StringUtils.isNotBlank(req.getBrokerNameSearch())){
+					n0 =cb.like(cb.upper(nameExpression.as(String.class)),"%"+req.getBrokerNameSearch().toUpperCase()+"%");
+				}
+				if(StringUtils.isNotBlank(req.getContractNoSearch())){
+					n0 =cb.like(cb.upper(traRoot.get("contractNo").as(String.class)),"%"+req.getContractNoSearch().toUpperCase()+"%");
+				}
+				if(StringUtils.isNotBlank(req.getTransactionNoSearch())){
+					n0 =cb.like(cb.upper(traRoot.get("transactionNo").as(String.class)),"%"+req.getTransactionNoSearch().toUpperCase()+"%");
+				}
+				if(StringUtils.isNotBlank(req.getTransactionDateSearch())){
+					n0 =cb.like(cb.upper(traRoot.get("transactionMonthYear").as(String.class)),"%"+req.getTransactionDateSearch().toUpperCase()+"%");
+				}
+				cq.where(n0,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11);
+			}	else {
+				cq.where(n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11);
+			}
+			
+				 
+		
+		cq.orderBy(cb.desc(traRoot.get("transactionNo")));
+		TypedQuery<Tuple> result = em.createQuery(cq);
+		if(req.getType().equalsIgnoreCase("premium")){
+			result.setFirstResult(0 * 100);
+			result.setMaxResults(100);
+		}
+		list = result.getResultList();
+		return list;
 	}
 }

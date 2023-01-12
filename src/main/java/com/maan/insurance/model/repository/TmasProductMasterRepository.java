@@ -13,6 +13,7 @@
 package com.maan.insurance.model.repository;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -33,5 +34,7 @@ public interface TmasProductMasterRepository  extends JpaRepository<TmasProductM
 
 	TmasProductMaster findByTmasProductIdAndBranchCodeAndTmasStatus(BigDecimal bigDecimal, String branchCode,
 			String string);
+
+	List<TmasProductMaster> findByBranchCodeAndTmasProductIdIn(String branchCode, List<BigDecimal> bigDecimalList);
 
 }

@@ -36,4 +36,8 @@ public interface TmasOpenPeriodRepository extends JpaRepository<TmasOpenPeriod,B
 
 	List<TmasOpenPeriod> findByEndDateAndBranchCode(Date parse, String branchCode);
 
+
+
+	List<TmasOpenPeriod> findByBranchCodeAndStatus(String branchCode, String string);
+
 }

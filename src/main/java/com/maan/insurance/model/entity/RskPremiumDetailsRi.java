@@ -451,7 +451,8 @@ public class RskPremiumDetailsRi implements Serializable {
 	    @Column(name="BROKERAGE")
 	    private BigDecimal brokerage ;
 
-
+	    @Column(name="RI_TRANSCATION_NO")
+	    private BigDecimal ritransactionNo ;
 	    //--- ENTITY LINKS ( RELATIONSHIP )
 
 

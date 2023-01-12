@@ -10,6 +10,7 @@ import com.maan.insurance.model.entity.RskPremiumDetailsTemp;
 import com.maan.insurance.model.req.premium.GetPremiumReservedReq;
 import com.maan.insurance.model.req.premium.GetPremiumedListReq;
 import com.maan.insurance.model.req.premium.InsertPremiumReq;
+import com.maan.insurance.model.req.premium.PremiumListReq;
 import com.maan.insurance.model.res.premium.GetPremiumReservedRes;
 
 public interface PropPremiumCustomRepository {
@@ -123,5 +124,11 @@ public interface PropPremiumCustomRepository {
 			String netDueOc, String departmentId, String productId);
 
 	public void premiumRiSplit(InsertPremiumReq req);
+
+	public List<Tuple> getPremiumFullList(PremiumListReq bean);
+
+	public List<Tuple> getPremiumTempList(PremiumListReq bean);
+
+	public List<Tuple> getPremiumRiFullList(PremiumListReq bean);
 	
 }
