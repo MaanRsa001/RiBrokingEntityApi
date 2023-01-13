@@ -17,6 +17,7 @@ import com.maan.insurance.model.req.premium.GetVatInfoReq;
 import com.maan.insurance.model.req.premium.InsertPremiumReq;
 import com.maan.insurance.model.req.premium.PremiumEditReq;
 import com.maan.insurance.model.req.premium.PremiumUpdateMethodReq;
+import com.maan.insurance.model.req.premium.PremiumUpdateMethodRiReq;
 import com.maan.insurance.model.req.premium.SubmitPremiumReservedReq;
 import com.maan.insurance.model.req.premium.CashLossmailTriggerReq;
 import com.maan.insurance.model.req.premium.InsertReverseCashLossCreditReq;
@@ -100,8 +101,6 @@ public interface PropPremiumService {
 
 	CurrencyListRes currencyList(String branchCode);
 
-
-
 	GetPremiumReservedRes1 getPremiumReserved(GetPremiumReservedReq req);
 
 	GetCashLossCreditRes getCassLossCredit(GetCassLossCreditReq req);
@@ -137,6 +136,8 @@ public interface PropPremiumService {
 	PremiumEditRes premiumEditRi(PremiumEditReq req);
 
 	GetPremiumDetailsRes getPremiumDetailsRi(GetPremiumDetailsReq req);
+
+	CommonResponse premiumUpdateMethodRi(InsertPremiumReq req);
 
 
 }

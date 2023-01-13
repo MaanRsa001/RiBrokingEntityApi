@@ -32,6 +32,7 @@ import com.maan.insurance.model.req.premium.InsertPremiumReq;
 import com.maan.insurance.model.req.premium.InsertReverseCashLossCreditReq;
 import com.maan.insurance.model.req.premium.PremiumEditReq;
 import com.maan.insurance.model.req.premium.PremiumUpdateMethodReq;
+import com.maan.insurance.model.req.premium.PremiumUpdateMethodRiReq;
 import com.maan.insurance.model.req.premium.SubmitPremiumReservedReq;
 import com.maan.insurance.model.req.premium.SubmitPremiumReservedReq1;
 import com.maan.insurance.model.res.DropDown.GetOpenPeriodRes;
@@ -618,8 +619,6 @@ public class PropPremiumValidation {
 								  list.add(new ErrorCheck(prop.getProperty("error.lossParticipation.number"),"lossParticipation","01"));
 							 }
 						 }
-				
-				 
 				 
 			 	 if(!val.isNull(req.getLossReserveRetained()).equalsIgnoreCase(""))
 				 {
@@ -653,9 +652,7 @@ public class PropPremiumValidation {
 					 {
 						  list.add(new ErrorCheck(prop.getProperty("errors.CashLossPaid1.Error"),"CashLossPaid","01"));
 					 }
-					
 				 }
-			 
 				 
 			   if(! val.isNull(req.getXlCost()).equalsIgnoreCase(""))
 				 {
@@ -674,7 +671,6 @@ public class PropPremiumValidation {
 						  list.add(new ErrorCheck(prop.getProperty("Premium.CliamPortpoliIn.Invalid"),"CliamPortpoliIn","01"));
 					 }
 				 }
-				 
 				 if(! val.isNull(req.getPremiumReserveReleased()).equalsIgnoreCase(""))
 				 {
 					 req.setPremiumReserveReleased((req.getPremiumReserveReleased()).replaceAll(",",""));
@@ -715,8 +711,7 @@ public class PropPremiumValidation {
 						  list.add(new ErrorCheck(prop.getProperty("errors.osbtotal.invalid"),"",""));  
 					 }
 				 }
-				 
-				 
+				
 					req.setTotalCredit((req.getTotalCredit()).replaceAll(",",""));
 					req.setTotalDebit((req.getTotalDebit()).replaceAll(",",""));
 					if(flag==false)
@@ -736,8 +731,6 @@ public class PropPremiumValidation {
 		} catch(Exception e) {
 			e.printStackTrace();
 		}		
-		 		
-	
 		return list;
 	}
 
@@ -1032,19 +1025,16 @@ public class PropPremiumValidation {
 		if(StringUtils.isBlank(req.getContNo())) {
 			list.add(new ErrorCheck("Please Enter ContNo","ContNo", "01"));
 			}
-	
 		if(StringUtils.isBlank(req.getDepartmentId())) {
 			list.add(new ErrorCheck("Please Enter DepartmentId","DepartmentId", "02"));
 			}
 		if(StringUtils.isBlank(req.getProposalNo())) {
 			list.add(new ErrorCheck("Please Enter ProposalNo","ProposalNo", "03"));
 			}
-	
 		if(StringUtils.isBlank(req.getTransactionNo())) {
 			list.add(new ErrorCheck("Please Enter TransactionNo","TransactionNo", "04"));
 			}
 		return list;
 	}
-
 
 }

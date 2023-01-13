@@ -1273,11 +1273,8 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 		args[38] = getModeOfTransaction(beanObj.getBonus(),beanObj.getEnteringMode(), beanObj.getShareSigned());
 		args[39] =  dropDowmImpl.GetDesginationCountry(args[38], beanObj.getExchRate());
 		args[46]=beanObj.getContNo();
-		if("Temp".equalsIgnoreCase(beanObj.getTableType()) &&"3".equalsIgnoreCase(beanObj.getProductId())){
-			args[47]=beanObj.getRequestNo();
-		}else{
+		
 			args[47]=beanObj.getTransactionNo();
-		}
 		
 		args[40]=StringUtils.isEmpty(beanObj.getGnpiDate()) ?"" :beanObj.getGnpiDate();
 		args[41]=beanObj.getPredepartment();
@@ -2203,5 +2200,22 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 			}
 			return response;
 
+	}
+
+	@Override
+	public CommonResponse premiumUpdateMethodRi(PremiumInsertMethodReq beanObj) {
+		CommonResponse response = new CommonResponse();
+		try {
+			String[] args = updateAruguments(beanObj);
+					xolPremiumCustomRepository.premiumUpdateXolUpdatePreRi(args);
+			
+			response.setMessage("Success");
+			response.setIsError(false);
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.setMessage("Failed");
+			response.setIsError(true);
+		}
+		return response;
 	}
 }

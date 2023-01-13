@@ -44,7 +44,6 @@ import com.maan.insurance.validation.XolPremium.XolPremiumValidation;
 @RequestMapping("/Insurance/XolPremium")
 public class Xolpremiumcontroller {
 	Gson gson = new Gson();
-	private Logger log = LogManager.getLogger(Xolpremiumcontroller.class);
 	
 	@Autowired
 	private XolPremiumService xps;
@@ -122,6 +121,14 @@ public class Xolpremiumcontroller {
 		throw new CommonValidationException("error",error);
 	}
 	 	return xps.premiumUpdateMethod(req); 
+	} 
+	@PostMapping("/premiumUpdateMethodRi")
+	public CommonResponse premiumUpdateMethodRi(@RequestBody PremiumInsertMethodReq req) throws CommonValidationException {
+	List<ErrorCheck> error= XolPremVali.validateXolPremium(req);
+	if(error!=null && error.size()>0) {
+		throw new CommonValidationException("error",error);
+	}
+	 	return xps.premiumUpdateMethodRi(req); 
 	} 
 	@PostMapping("/getPremiumDetails")
 	public GetPremiumDetailsRes getPremiumDetails(@RequestBody GetPremiumDetailsReq req) throws CommonValidationException {

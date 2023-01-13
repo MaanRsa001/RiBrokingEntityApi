@@ -81,7 +81,6 @@ import com.maan.insurance.validation.Claim.ClaimValidation;
 
 public class ClaimController {
 	Gson gson = new Gson();
-	private Logger log = LogManager.getLogger(ClaimController.class);
 	
 	@Autowired
 	private ClaimService claimService;
@@ -167,7 +166,6 @@ public class ClaimController {
 	public ClaimTableListMode1Res claimTableListMode1(@RequestBody ClaimTableListReq req) throws CommonValidationException {
 		List<ErrorCheck> error = claimValidation.claimTableListVali(req);
 		if(error != null && error.size() > 0) {
-			
 			throw new CommonValidationException("error",error);
 		}
 		return claimService.claimTableListMode1(req);
@@ -186,7 +184,6 @@ public class ClaimController {
 	public ClaimTableListMode7Res claimListMode7(@RequestBody ClaimTableListMode2Req req) throws CommonValidationException {
 		List<ErrorCheck> error = claimValidation.claimTableListMode2Vali(req);
 		if(error != null && error.size() > 0) {
-			
 			throw new CommonValidationException("error",error);
 		}
 		return claimService.claimTableListMode7(req);
@@ -196,7 +193,6 @@ public class ClaimController {
 	public ClaimListMode3Response claimListMode3(@RequestBody ClaimTableListMode2Req req) throws CommonValidationException {
 		List<ErrorCheck> error = claimValidation.claimTableListMode2Vali(req);
 		if(error != null && error.size() > 0) {
-			
 			throw new CommonValidationException("error",error);
 		}
 		return claimService.claimListMode3(req);
@@ -206,7 +202,6 @@ public class ClaimController {
 	public ClaimListMode4Response claimListMode4(@RequestBody ClaimListMode4Req req) throws CommonValidationException {
 		List<ErrorCheck> error = claimValidation.claimListMode4Vali(req);
 		if(error != null && error.size() > 0) {
-			
 			throw new CommonValidationException("error",error);
 		}
 		return claimService.claimListMode4(req);
@@ -214,7 +209,6 @@ public class ClaimController {
 	
 	@GetMapping("/claimlist/mode/five/{claimNo}/{contractNo}")
 	public ClaimListMode5Response claimListMode5(@PathVariable ("claimNo") String claimNo,@ PathVariable ("contractNo") String contractNo ) throws CommonValidationException {
-		
 		
 			return claimService.claimListMode5( claimNo, contractNo);
 		
@@ -246,6 +240,15 @@ public class ClaimController {
 			throw new CommonValidationException("error",error);
 		}
 		return claimService.claimPaymentEdit(req);
+	}
+	@PostMapping("/claimPaymentEditRi")
+	public ClaimPaymentEditRes1 claimPaymentEditRi(@RequestBody ClaimPaymentEditReq req) throws CommonValidationException {
+		List<ErrorCheck> error = claimValidation.claimPaymentEditVali(req);
+		if(error != null && error.size() > 0) {
+			
+			throw new CommonValidationException("error",error);
+		}
+		return claimService.claimPaymentEditRi(req);
 	}
 	
 	@PostMapping("/alloclist")
@@ -350,5 +353,14 @@ public class ClaimController {
 			throw new CommonValidationException("error",error);
 		}
 		return claimService.claimNoList(req);
+	}
+	@PostMapping("/claimUpdatePaymentRi")
+	public InsertCliamDetailsMode3Res claimUpdatePaymentRi(@RequestBody InsertCliamDetailsMode3Req req) throws CommonValidationException {
+		List<ErrorCheck> error = claimValidation.insertCliamDetailsMode3Vali(req);
+		if(error != null && error.size() > 0) {
+			
+			throw new CommonValidationException("error",error);
+		}
+		return claimService.claimUpdatePaymentRi(req);
 	}
 }

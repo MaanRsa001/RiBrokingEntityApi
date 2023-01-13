@@ -78,6 +78,8 @@ public interface XolPremiumService {
 
 	PremiumEditRes premiumEditRi(PremiumEditReq req);
 
+	CommonResponse premiumUpdateMethodRi(PremiumInsertMethodReq req);
+
 
 
 }

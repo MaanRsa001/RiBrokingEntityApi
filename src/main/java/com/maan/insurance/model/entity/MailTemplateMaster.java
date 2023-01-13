@@ -65,11 +65,54 @@ public class MailTemplateMaster implements Serializable {
 
 	    @Column(name="MAIL_REGARDS")
 	    private String     mailRegards ;
+	    
+	    @Temporal(TemporalType.TIMESTAMP)
+	    @Column(name="ENTRY_DATE")
+	    private Date entryDate ;
 
-	
+	    @Column(name="HTML_MAIL_BODY")
+	    private String     htmlMailBody ; 
+
+	    @Column(name="MAIL_BODY_AR")
+	    private String     mailBodyAr ;
+
+	    @Column(name="MAIL_REQUIRED")
+	    private String     mailRequired ;
+
+	    @Column(name="PRODUCT_ID")
+	    private BigDecimal     productId;
 
 
 	    //--- ENTITY LINKS ( RELATIONSHIP )
+	    @Column(name="REMARKS")
+	    private String     remarks ; 
+
+	    @Column(name="SMS_BODY_AR")
+	    private String     smsBodyAr ;
+
+	    @Column(name="SMS_BODY_EN")
+	    private String     smsBodyEn ;
+
+	    @Column(name="SMS_REGARDS")
+	    private String     smsRegards;
+	    
+	    @Column(name="SMS_REGARDS_AR")
+	    private String     smsRegardsAr ; 
+
+	    @Column(name="SMS_REQUIRED")
+	    private String     smsRequired ;
+
+	    @Column(name="SMS_SUBJECT")
+	    private String     smsSubject ;
+
+	    @Column(name="SMS_TO")
+	    private String     smsTo;
+	    
+	    @Column(name="STATUS")
+	    private String     status ;
+
+	    @Column(name="USER_TYPE")
+	    private String     userType ;
 
 
 	}

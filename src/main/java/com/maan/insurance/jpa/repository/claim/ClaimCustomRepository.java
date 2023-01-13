@@ -1,5 +1,6 @@
 package com.maan.insurance.jpa.repository.claim;
 
+import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -112,5 +113,9 @@ public interface ClaimCustomRepository {
 	public String selectMaxno(String claimNo, String policyContractNo);
 	
 	public List<Tuple> contractIdentifierList(ContractidetifierlistReq req);
+
+	public List<Tuple> getClaimPaymentDataRi(ClaimPaymentEditReq req);
+
+	public int claimUpdatePaymentRi(InsertCliamDetailsMode3Req req)  throws ParseException;
 	
 }

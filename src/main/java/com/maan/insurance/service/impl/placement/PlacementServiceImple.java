@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -456,6 +457,44 @@ public class PlacementServiceImple implements PlacementService {
 		ProposalInfoRes1 bean = new ProposalInfoRes1();
 		try {
 			String proposal=StringUtils.isBlank(eProposalNo)?proposalNo:eProposalNo;
+			
+			List<Tuple> list = getExistingProposal(proposal, branchCode);
+			if(list.size()>0) {
+				Tuple map=list.get(0);
+				bean.setCedingCompanyName(map.get("COMPANY_NAME")==null?"":map.get("COMPANY_NAME").toString());
+				bean.setCedingCompany(map.get("RSK_CEDINGID")==null?"":map.get("RSK_CEDINGID").toString());
+				bean.setBrokerCompany(map.get("RSK_BROKERID")==null?"":map.get("RSK_BROKERID").toString());
+				bean.setTreatyName(map.get("TREATY_TYPE")==null?"":map.get("TREATY_TYPE").toString());
+				bean.setInceptionDate(map.get("INS_DATE")==null?"":map.get("INS_DATE").toString());
+				bean.setExpiryDate(map.get("EXP_DATE")==null?"":map.get("EXP_DATE").toString());
+				bean.setUwYear(map.get("UW_YEAR")==null?"":map.get("UW_YEAR").toString());
+				bean.setUwYearTo(map.get("UW_YEAR_TO")==null?"":map.get("UW_YEAR_TO").toString());
+				bean.setBouquetModeYN(map.get("BOUQUET_MODE_YN")==null?"":map.get("BOUQUET_MODE_YN").toString());
+				bean.setBouquetNo(map.get("BOUQUET_NO")==null?"":map.get("BOUQUET_NO").toString());
+				bean.setBaseProposalNo(map.get("BASE_LAYER")==null?"":map.get("BASE_LAYER").toString());
+				bean.setContractNo(map.get("CONTRACT_NO")==null?"":map.get("CONTRACT_NO").toString());
+				bean.setLayerNo(map.get("LAYER_NO")==null?"0":map.get("LAYER_NO").toString());
+				bean.setSectionNo(map.get("SECTION_NO")==null?"":map.get("SECTION_NO").toString());
+				bean.setOfferNo(map.get("OFFER_NO")==null?"":map.get("OFFER_NO").toString());
+				bean.setAmendId(map.get("AMEND_ID")==null?"":map.get("AMEND_ID").toString());
+				if(StringUtils.isBlank(eProposalNo))
+				bean.setEproposalNo(proposalNo);
+				response.setCommonResponse(bean);
+			}
+			response.setMessage("Success");
+			response.setIsError(false);
+		}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	}
+
+	private List<Tuple> getExistingProposal(String proposal, String branchCode) {
+		List<Tuple> list = new ArrayList<>();
+		try {
 			//GET_EXISTING_PROPOSAL
 			CriteriaBuilder cb = em.getCriteriaBuilder(); 
 			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
@@ -489,64 +528,37 @@ public class PlacementServiceImple implements PlacementService {
 			Predicate c2 = cb.equal(cb.selectCase().when(cb.equal(pm.get("productId") ,"2") ,rd.get("treatytype") ).otherwise(rd.get("rskBusinessType")) ,
 					  cd.get("type"));	
 			treatyType.where(c1,c2);
-
+	
 			query.multiselect(rd.get("rskInceptionDate").alias("INS_DATE"),rd.get("rskExpiryDate").alias("EXP_DATE"),
 					companyName.alias("COMPANY_NAME"),pm.get("uwYear").alias("UW_YEAR"),
 					pm.get("uwYearTo").alias("UW_YEAR_TO"),pm.get("contractNo").alias("CONTRACT_NO"),
 					baseLayer.alias("BASE_LAYER"),pm.get("layerNo").alias("LAYER_NO"),pm.get("sectionNo").alias("SECTION_NO"),
 					pm.get("proposalNo").alias("PROPOSAL_NO"),
 					rd.get("rskTreatyid").alias("RSK_TREATYID"),treatyType.alias("TREATY_TYPE"),
-					pm.get("bouquetNo").alias("BOUQUET_NO"),pm.get("bouquetModeYn").alias("Bouquet_Mode_YN"),
+					pm.get("bouquetNo").alias("BOUQUET_NO"),pm.get("bouquetModeYn").alias("BOUQUET_MODE_YN"),
 					pm.get("offerNo").alias("OFFER_NO"),rd.get("rskCedingid").alias("RSK_CEDINGID"),
 					rd.get("rskBrokerid").alias("RSK_BROKERID"),pm.get("amendId").alias("AMEND_ID")); 
-
+	
 			//Order By
 			List<Order> orderList = new ArrayList<Order>();
 			orderList.add(cb.asc(pm.get("offerNo")));
 			orderList.add(cb.asc(pm.get("proposalNo")));
-
+	
 			// Where
 			Predicate n1 = cb.equal(pm.get("branchCode"), branchCode);
 			Predicate n2 = cb.equal(pm.get("proposalNo"), rd.get("rskProposalNumber"));
 			Predicate n3 = cb.equal(pm.get("proposalNo"), proposal);
-			Predicate n4 = cb.equal(pm.get("contractStatus"), "P");
+			Predicate n4 = cb.equal(pm.get("contractStatus"), "P");  //P
 			query.where(n1,n2,n3,n4).orderBy(orderList);
 			
 			// Get Result
 			TypedQuery<Tuple> res = em.createQuery(query);
-			List<Tuple> list = res.getResultList();
-		
-			if(list.size()>0) {
-				Tuple map=list.get(0);
-				bean.setCedingCompanyName(map.get("COMPANY_NAME")==null?"":map.get("COMPANY_NAME").toString());
-				bean.setCedingCompany(map.get("RSK_CEDINGID")==null?"":map.get("RSK_CEDINGID").toString());
-				bean.setBrokerCompany(map.get("RSK_BROKERID")==null?"":map.get("RSK_BROKERID").toString());
-				bean.setTreatyName(map.get("TREATY_TYPE")==null?"":map.get("TREATY_TYPE").toString());
-				bean.setInceptionDate(map.get("INS_DATE")==null?"":map.get("INS_DATE").toString());
-				bean.setExpiryDate(map.get("EXP_DATE")==null?"":map.get("EXP_DATE").toString());
-				bean.setUwYear(map.get("UW_YEAR")==null?"":map.get("UW_YEAR").toString());
-				bean.setUwYearTo(map.get("UW_YEAR_TO")==null?"":map.get("UW_YEAR_TO").toString());
-				bean.setBouquetModeYN(map.get("BOUQUET_MODE_YN")==null?"":map.get("BOUQUET_MODE_YN").toString());
-				bean.setBouquetNo(map.get("BOUQUET_NO")==null?"":map.get("BOUQUET_NO").toString());
-				bean.setBaseProposalNo(map.get("BASE_LAYER")==null?"":map.get("BASE_LAYER").toString());
-				bean.setContractNo(map.get("CONTRACT_NO")==null?"":map.get("CONTRACT_NO").toString());
-				bean.setLayerNo(map.get("LAYER_NO")==null?"0":map.get("LAYER_NO").toString());
-				bean.setSectionNo(map.get("SECTION_NO")==null?"":map.get("SECTION_NO").toString());
-				bean.setOfferNo(map.get("OFFER_NO")==null?"":map.get("OFFER_NO").toString());
-				bean.setAmendId(map.get("AMEND_ID")==null?"":map.get("AMEND_ID").toString());
-				if(StringUtils.isBlank(eProposalNo))
-				bean.setEproposalNo(proposalNo);
-				response.setCommonResponse(bean);
-			}
-			response.setMessage("Success");
-			response.setIsError(false);
+			list = res.getResultList();
 		}catch(Exception e){
-				log.error(e);
-				e.printStackTrace();
-				response.setMessage("Failed");
-				response.setIsError(true);
-			}
-		return response;
+			e.printStackTrace();
+			
+		}
+	return list;
 	}
 
 	@Override
@@ -2284,9 +2296,51 @@ public class PlacementServiceImple implements PlacementService {
 				bean.setMailTo(map.getEmailTo()==null?"":map.getEmailTo().toString());
 				bean.setMailCC(map.getEmailCc()==null?"":map.getEmailCc().toString());
 				bean.setMailRegards(map.getMailRegards()==null?"":map.getMailRegards().toString());
-				
 			}
 			//GetMailBodyFrame(bean);
+			String mailbody=bean.getMailBody(),mailsub=bean.getMailSubject();
+			
+			//proposalInfo
+			String proposal=StringUtils.isBlank(req.getEproposalNo())?req.getProposalNo():req.getEproposalNo();
+			List<Tuple> list1 = getExistingProposal(proposal, req.getBranchCode());
+		
+			if(!CollectionUtils.isEmpty(list1)) {
+				Tuple map=list1.get(0);
+				String bouquetNo=map.get("BOUQUET_NO")==null?"":map.get("BOUQUET_NO").toString();
+				String proposalNo=map.get("PROPOSAL_NO")==null?"":map.get("PROPOSAL_NO").toString();
+				String baseproposalNo=map.get("BASE_LAYER")==null?"":map.get("BASE_LAYER").toString();
+				String offerNo=map.get("OFFER_NO")==null?"":map.get("OFFER_NO").toString();
+				if(StringUtils.isNotBlank(bouquetNo)) {
+					mailsub=mailsub+" "+bouquetNo+"";
+				}else if(StringUtils.isNotBlank(offerNo)) {
+					mailsub=mailsub+" "+offerNo+" ";
+				}
+			//	GetPalcementInfo(bean);
+				 Map<String,Object>  values = new HashMap<String,Object>();
+				 values.put("COMPANY_NAME", map.get("COMPANY_NAME") );
+				 
+				 if("PWL".equalsIgnoreCase(req.getNewStatus())) {
+					if(mailbody.contains("COMPANY_NAME") == true) {
+						mailbody = mailbody.replace("{COMPANY_NAME}", req.getReinsurerName());
+					}
+				 }
+				
+				for (Map.Entry entry: values.entrySet()) {
+					
+					if(mailbody.contains(entry.getKey().toString()) == true) {
+						mailbody = mailbody.replace("{"+entry.getKey().toString()+"}", entry.getValue()==null?"":entry.getValue().toString());
+					}
+					
+					if(mailsub.contains(entry.getKey().toString()) == true) {
+						mailsub = mailsub.replace("{"+entry.getKey().toString()+"}", entry.getValue()==null?"":entry.getValue().toString());
+					}
+				}
+			}
+			
+			mailbody+=BodyTableFrame(req);
+			bean.setMailBody(mailbody);
+			bean.setMailSubject(mailsub);
+	
 			response.setCommonResponse(bean);
 			 response.setMessage("Success");
 			 response.setIsError(false);
@@ -2298,7 +2352,209 @@ public class PlacementServiceImple implements PlacementService {
 				}
 			return response;
 	}
-
+	private String BodyTableFrame(GetMailTemplateReq bean) {
+		List<Tuple> list=MailproposalInfo(bean);
+		String msg="";
+		if(StringUtils.isBlank(bean.getNewStatus())) {
+			msg=getOfferMsg(list,bean);
+		}else if("PWL".equalsIgnoreCase(bean.getNewStatus())) {
+			msg=getPropsalWrittenMsg(list,bean);
+		}else if("PSL".equalsIgnoreCase(bean.getNewStatus())) {
+			msg=getPropsalSignedMsg(list,bean);
+		}
+		return msg;
+	}
+	private List<Tuple> MailproposalInfo(GetMailTemplateReq bean) {
+		List<Tuple> list=null;
+		String query="";
+//		try {
+//			Object[] obj=new Object[4];
+//			if(StringUtils.isBlank(bean.getSearchType())) {
+//				if("C".equals(bean.getPlacementMode())) {
+//					if(StringUtils.isNotBlank(bean.getBouquetNo())) {
+//						//GET_MAILTEPLATE_BOUQUET
+//						obj[0]=bean.getBranchCode();
+//						obj[1]=bean.getBouquetNo();
+//						obj[2]=bean.getReinsurerId();
+//						obj[3]=bean.getBrokerId();
+//					}else {
+//						query=getQuery("GET_MAILTEPLATE_BASELAYER");
+//						obj[0]=bean.getBranchCode();
+//						obj[1]=bean.getBaseProposalNo();
+//						obj[2]=bean.getReinsurerId();
+//						obj[3]=bean.getBrokerId();
+//					}
+//				}else {
+//					query=getQuery("GET_MAILTEPLATE_PROPOSAL");
+//					obj[0]=bean.getBranchCode();
+//					obj[1]=bean.getProposalNo();
+//					obj[2]=bean.getReinsurerId();
+//					obj[3]=bean.getBrokerId();
+//				}
+//			}else {
+//				obj=new Object[5];
+//				obj[0]=bean.getBranchCode();
+//				obj[2]=bean.getSearchReinsurerId();
+//				obj[3]=bean.getSearchBrokerId();
+//				obj[4]=bean.getNewStatus();
+//				
+//				if(StringUtils.isNotBlank(bean.getBouquetNo())) {
+//					query=getQuery("GET_MAILTEPLATE_BOUQUET_SEARCH");
+//					obj[1]=bean.getBouquetNo();
+//				}else if(StringUtils.isNotBlank(bean.getBaseProposalNo())) {
+//					query=getQuery("GET_MAILTEPLATE_BASELAYER_SEARCH");
+//					obj[1]=bean.getBaseProposalNo();
+//				}else {
+//					query=getQuery("GET_MAILTEPLATE_PROPOSAL_SEARCH");
+//					obj[1]=bean.getProposalNo();
+//				}
+//			}
+//			
+//			list=this.mytemplate.queryForList(query, obj);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+		return list;
+	}
+	public String getOfferMsg(List<Tuple> agentWiseReport, GetMailTemplateReq bean) {
+		String messageContent ="";
+		messageContent="<!DOCTYPE html>" + 
+				"<html lang=\"en\">" + 
+				"<body>" + 
+				"    <div style=\"width: 80%;\">" + 
+				"<table style=\"width:100%;border: 1px solid #000000;\">" +
+				"<thead> <tr> <th width=\"10%\" style=\"border: 1px solid #000000;\">TQR Bouquet Ref </th>" + 
+				"<th width=\"10%\" style=\"border: 1px solid #000000;\">TQR Offer Ref</th>" + 
+				"<th width=\"10%\" style=\"border: 1px solid #000000;\">Business Type</th>" + 
+				"<th width=\"10%\" style=\"border: 1px solid #000000;\">Main Class</th>" + 
+				"<th width=\"10%\" style=\"border: 1px solid #000000;\">Sub Class</th>" + 
+				"<th width=\"10%\" style=\"border: 1px solid #000000;\">Treaty Type</th>" + 
+				"<th width=\"10%\" style=\"border: 1px solid #000000;\">Treaty Name</th>" + 
+				"<th width=\"10%\" style=\"border: 1px solid #000000;\">Layer / Section No</th>" + 
+				"<th width=\"10%\" style=\"border: 1px solid #000000;\">Inception Date</th>" + 
+				"<th width=\"10%\" style=\"border: 1px solid #000000;\">Expiry Date</th>" + 
+				"<th width=\"10%\" style=\"border: 1px solid #000000;\">Max Share Offer %</th>" + 
+				"</tr> </thead> <tbody>" ;
+		
+		
+		for(int i=0;i<agentWiseReport.size();i++) {
+			Tuple map=agentWiseReport.get(i);
+				messageContent+="<tr>"+
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("BOUQUET_NO")==null?"":map.get("BOUQUET_NO").toString())+"</td>" + 
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("OFFER_NO")==null?"":map.get("OFFER_NO").toString())+"</td>" + 
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("BUSINESS_TYPE")==null?"":map.get("BUSINESS_TYPE").toString())+"</td>" + 
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("CLASS")==null?"":map.get("CLASS").toString())+"</td>" + 
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("SUB_CLASS")==null?"":map.get("SUB_CLASS").toString())+"</td>" + 
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("TREATY_TYPE")==null?"":map.get("TREATY_TYPE").toString())+"</td>" + 
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("RSK_TREATYID")==null?"":map.get("RSK_TREATYID").toString())+"</td>" +
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("SECTION_NO")==null?"":map.get("SECTION_NO").toString())+"</td>" +
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("INS_DATE")==null?"":map.get("INS_DATE").toString())+"</td>" + 
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("EXP_DATE")==null?"":map.get("EXP_DATE").toString())+"</td>" + 
+			"<td style=\"border: 1px solid #000000;text-align: right;\">"+(map.get("SHARE_OFFERED")==null?"":dropDownImple.formattereight(map.get("SHARE_OFFERED").toString()))+"</td>" + 
+			"</tr>";
+		}
+		messageContent+=	"</table>" +
+				"    </div>" + 
+				"</body>" + 
+				"" + 
+				"</html>";
 	
+	return messageContent.toString();
+	}
+	public String getPropsalWrittenMsg(List<Tuple>agentWiseReport, GetMailTemplateReq bean) {
+		String messageContent ="";
+		messageContent="<!DOCTYPE html>" + 
+				"<html lang=\"en\">" + 
+				"<body>" + 
+				"    <div style=\"width: 80%;\">" + 
+				"<table style=\"width:100%;border: 1px solid #000000;\">" +
+				"<thead> <tr> <th width=\"10%\" style=\"border: 1px solid #000000;\">TQR Bouquet Ref </th>" + 
+				"<th width=\"10%\" style=\"border: 1px solid #000000;\">TQR Offer Ref</th>" + 
+				"<th width=\"10%\" style=\"border: 1px solid #000000;\">Business Type</th>" + 
+				"<th width=\"10%\" style=\"border: 1px solid #000000;\">Main Class</th>" + 
+				"<th width=\"10%\" style=\"border: 1px solid #000000;\">Sub Class</th>" + 
+				"<th width=\"10%\" style=\"border: 1px solid #000000;\">Treaty Type</th>" + 
+				"<th width=\"10%\" style=\"border: 1px solid #000000;\">Treaty Name</th>" + 
+				"<th width=\"10%\" style=\"border: 1px solid #000000;\">Layer / Section No</th>" + 
+				"<th width=\"10%\" style=\"border: 1px solid #000000;\">Inception Date</th>" + 
+				"<th width=\"10%\" style=\"border: 1px solid #000000;\">Expiry Date</th>" + 
+				"<th width=\"10%\" style=\"border: 1px solid #000000;\">Max Share Offer %</th>" +
+				"<th width=\"10%\" style=\"border: 1px solid #000000;\">Proposed Written Line %</th>" + 
+				"</tr> </thead> <tbody>" ;
+		
+		for(int i=0;i<agentWiseReport.size();i++) {
+			Tuple map=agentWiseReport.get(i);
+				messageContent+="<tr>"+
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("BOUQUET_NO")==null?"":map.get("BOUQUET_NO").toString())+"</td>" + 
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("OFFER_NO")==null?"":map.get("OFFER_NO").toString())+"</td>" + 
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("BUSINESS_TYPE")==null?"":map.get("BUSINESS_TYPE").toString())+"</td>" + 
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("CLASS")==null?"":map.get("CLASS").toString())+"</td>" + 
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("SUB_CLASS")==null?"":map.get("SUB_CLASS").toString())+"</td>" + 
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("TREATY_TYPE")==null?"":map.get("TREATY_TYPE").toString())+"</td>" + 
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("RSK_TREATYID")==null?"":map.get("RSK_TREATYID").toString())+"</td>" +
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("SECTION_NO")==null?"":map.get("SECTION_NO").toString())+"</td>" +
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("INS_DATE")==null?"":map.get("INS_DATE").toString())+"</td>" + 
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("EXP_DATE")==null?"":map.get("EXP_DATE").toString())+"</td>" + 
+			"<td style=\"border: 1px solid #000000;text-align: right;\">"+(map.get("SHARE_OFFERED")==null?"":dropDownImple.formattereight(map.get("SHARE_OFFERED").toString()))+"</td>" +
+			"<td style=\"border: 1px solid #000000;text-align: right;\">"+(map.get("SHARE_PROPOSAL_WRITTEN")==null?"":dropDownImple.formattereight(map.get("SHARE_PROPOSAL_WRITTEN").toString()))+"</td>" +
+			"</tr>";
+		}
+		messageContent+=	"</table>" +
+				"    </div>" + 
+				"</body>" + 
+				"" + 
+				"</html>";
+	
+	return messageContent.toString();
+	}
+	public String getPropsalSignedMsg(List<Tuple> agentWiseReport, GetMailTemplateReq bean) {
+		String messageContent ="";
+		messageContent="<!DOCTYPE html>" + 
+				"<html lang=\"en\">" + 
+				"<body>" + 
+				"    <div style=\"width: 80%;\">" + 
+				"<table style=\"width:100%;border: 1px solid #000000;\">" +
+				"<thead> <tr> <th width=\"10%\" style=\"border: 1px solid #000000;\">TQR Bouquet Ref </th>" + 
+				"<th width=\"10%\" style=\"border: 1px solid #000000;\">TQR Offer Ref</th>" + 
+				"<th width=\"10%\" style=\"border: 1px solid #000000;\">Business Type</th>" + 
+				"<th width=\"10%\" style=\"border: 1px solid #000000;\">Main Class</th>" + 
+				"<th width=\"10%\" style=\"border: 1px solid #000000;\">Sub Class</th>" + 
+				"<th width=\"10%\" style=\"border: 1px solid #000000;\">Treaty Type</th>" + 
+				"<th width=\"10%\" style=\"border: 1px solid #000000;\">Treaty Name</th>" + 
+				"<th width=\"10%\" style=\"border: 1px solid #000000;\">Layer / Section No</th>" + 
+				"<th width=\"10%\" style=\"border: 1px solid #000000;\">Inception Date</th>" + 
+				"<th width=\"10%\" style=\"border: 1px solid #000000;\">Expiry Date</th>" + 
+				"<th width=\"10%\" style=\"border: 1px solid #000000;\">Max Share Offer %</th>" + 
+				"<th width=\"10%\" style=\"border: 1px solid #000000;\">Proposed Written Line %</th>" + 
+				"<th width=\"10%\" style=\"border: 1px solid #000000;\">Proposed Signed Line %</th>" + 
+				"</tr> </thead> <tbody>" ;
+		
+		
+		for(int i=0;i<agentWiseReport.size();i++) {
+			Tuple map=agentWiseReport.get(i);
+				messageContent+="<tr>"+
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("BOUQUET_NO")==null?"":map.get("BOUQUET_NO").toString())+"</td>" + 
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("OFFER_NO")==null?"":map.get("OFFER_NO").toString())+"</td>" + 
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("BUSINESS_TYPE")==null?"":map.get("BUSINESS_TYPE").toString())+"</td>" + 
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("CLASS")==null?"":map.get("CLASS").toString())+"</td>" + 
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("SUB_CLASS")==null?"":map.get("SUB_CLASS").toString())+"</td>" + 
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("TREATY_TYPE")==null?"":map.get("TREATY_TYPE").toString())+"</td>" + 
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("RSK_TREATYID")==null?"":map.get("RSK_TREATYID").toString())+"</td>" +
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("SECTION_NO")==null?"":map.get("SECTION_NO").toString())+"</td>" +
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("INS_DATE")==null?"":map.get("INS_DATE").toString())+"</td>" + 
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("EXP_DATE")==null?"":map.get("EXP_DATE").toString())+"</td>" + 
+			"<td style=\"border: 1px solid #000000;text-align: right;\">"+(map.get("SHARE_OFFERED")==null?"":dropDownImple.formattereight(map.get("SHARE_OFFERED").toString()))+"</td>" +
+			"<td style=\"border: 1px solid #000000;text-align: right;\">"+(map.get("SHARE_PROPOSAL_WRITTEN")==null?"":dropDownImple.formattereight(map.get("SHARE_PROPOSAL_WRITTEN").toString()))+"</td>" +
+			"<td style=\"border: 1px solid #000000;text-align: right;\">"+(map.get("SHARE_PROPOSED_SIGNED")==null?"":dropDownImple.formattereight(map.get("SHARE_PROPOSED_SIGNED").toString()))+"</td>" +
+			"</tr>";
+		} 
+		messageContent+=	"</table>" +
+				"    </div>" + 
+				"</body>" + 
+				"" + 
+				"</html>";
+	
+	return messageContent.toString();
+	}
 
 	}

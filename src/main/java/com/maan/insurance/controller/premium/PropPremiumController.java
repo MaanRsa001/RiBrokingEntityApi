@@ -28,6 +28,7 @@ import com.maan.insurance.model.req.premium.GetSPRetroListReq;
 import com.maan.insurance.model.req.premium.GetVatInfoReq;
 import com.maan.insurance.model.req.premium.InsertPremiumReq;
 import com.maan.insurance.model.req.premium.PremiumEditReq;
+import com.maan.insurance.model.req.premium.PremiumUpdateMethodRiReq;
 import com.maan.insurance.model.req.premium.SubmitPremiumReservedReq;
 import com.maan.insurance.model.req.premium.CashLossmailTriggerReq;
 import com.maan.insurance.model.req.premium.InsertReverseCashLossCreditReq;
@@ -286,6 +287,14 @@ public class PropPremiumController {
 			throw new CommonValidationException("error",error);
 		}
 		return premiumService.premiumUpdateMethod(req);	
+	}
+	@PostMapping("/Proppremium/premiumUpdateMethodRi")
+	public CommonResponse premiumUpdateMethodRi(@RequestBody InsertPremiumReq req) throws CommonValidationException {
+		List<ErrorCheck> error = premiumVali.insertPremiumVali(req);
+		if(error!= null && error.size()>0) {
+			throw new CommonValidationException("error",error);
+		}
+		return premiumService.premiumUpdateMethodRi(req);	
 	}
 	@PostMapping("/Proppremium/getVatInfo")
 	public GetVatInfoRes getVatInfo(@RequestBody GetVatInfoReq req) throws CommonValidationException {

@@ -1063,127 +1063,127 @@ public ClaimValidation() {
 
 	public List<ErrorCheck> insertCliamDetailsMode3Vali(InsertCliamDetailsMode3Req req) {
 		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
-		final Validation val = new Validation();	
-		GetOpenPeriodRes openPeriodRes = new GetOpenPeriodRes();
-		openPeriodRes = dropDownImple.getOpenPeriod(req.getBranchCode());
-		try {
-					
-			InsertCliamDetailsMode8Req req1 = new InsertCliamDetailsMode8Req();
-			req1.setPolicyContractNo(req.getPolicyContractNo());
-			req1.setClaimNo(req.getClaimNo());
-			
-				if(claimImpl.BusinessValidation(req1, 6)){
-					list.add(new ErrorCheck(prop.getProperty("error.claimClosed"),"claimClosedStatus","01"));
-				}
-				else if(claimImpl.BusinessValidation(req1,10)){
-					list.add(new ErrorCheck(prop.getProperty("error.claimRepudiated"),"claimRepudiatedStatus","01"));
-				}
-				else{ 
-					
-				if (val.isNull(req.getPaidAmountOrigcurr()).equalsIgnoreCase("")) {
-					list.add(new ErrorCheck(prop.getProperty("errors.paid_Amount_Orig_curr.required"),"PaidAmountOrigcurr","01"));
-				} else
-				{
-					req.setPaidAmountOrigcurr((req.getPaidAmountOrigcurr()).replaceAll(",",""));
-					if (val.numbervalid(req.getPaidAmountOrigcurr()).equalsIgnoreCase("INVALID")) 
-					{
-						list.add(new ErrorCheck(prop.getProperty("errors.paid_Amount_Orig_curr.invalid"),"PaidAmountOrigcurr","01"));
-					}else{
-						String ans =calcu.calculateClaimPayment(req,"Total");
-						if(Double.parseDouble(ans)!=Double.parseDouble(req.getPaidAmountOrigcurr())){
-							list.add(new ErrorCheck(prop.getProperty("error.calcul.mistake"),"PaidAmountOrigcurr","01"));
-							
-						}else{
-							req.setPaidAmountOrigcurr(ans);
-						}
-					}
-					
-					
-				}			 
-
-				if (val.isNull(req.getPaymentReference()).equalsIgnoreCase("")) {
-					list.add(new ErrorCheck(prop.getProperty("errors.payment_Reference.required"),"PaymentReference","01"));
-				}
-				if (val.isNull(req.getPaidClaimOs()).equalsIgnoreCase("")) {
-					list.add(new ErrorCheck(prop.getProperty("errors.paid_claim_os.required"),"PaidClaimOs","01"));
-				} else {
-					req.setPaidClaimOs((req.getPaidClaimOs()).replaceAll(",",""));
-					if (val.numbervalid(req.getPaidClaimOs()).equalsIgnoreCase("INVALID")) 
-					{
-						list.add(new ErrorCheck(prop.getProperty("errors.paid_claim_os.invalid"),"PaidClaimOs","01"));
-					} else if(claimImpl.BusinessValidation(req,7)){
-						list.add(new ErrorCheck(prop.getProperty("errors.paid_claim_osGrRsrvAmt"),"PaidClaimOs","01"));
-					}
-				}
-				if (val.isNull(req.getSurveyorfeeos()).equalsIgnoreCase("")) {
-					list.add(new ErrorCheck(prop.getProperty("errors.surveyor_fee_os.required"),"Surveyorfeeos","01"));
-				}  else {
-					req.setSurveyorfeeos((req.getSurveyorfeeos()).replaceAll(",",""));
-					if (val.numbervalid(req.getSurveyorfeeos()).equalsIgnoreCase("INVALID")) 
-					{
-						list.add(new ErrorCheck(prop.getProperty("errors.surveyor_fee_os.invalid"),"Surveyorfeeos","01"));
-					} else if(claimImpl.BusinessValidation(req,8)){
-						list.add(new ErrorCheck(prop.getProperty("errors.surveyor_fee_osGrRsrvAmt"),"Surveyorfeeos","01"));
-					}
-				}
-				if (val.isNull(req.getOtherproffeeos()).equalsIgnoreCase("")) {
-					list.add(new ErrorCheck(prop.getProperty("errors.other_prof_fee_os.required"),"Otherproffeeos","01"));
-				}  else {
-					req.setOtherproffeeos((req.getOtherproffeeos()).replaceAll(",",""));
-					if (val.numbervalid(req.getOtherproffeeos()).equalsIgnoreCase("INVALID")) 
-					{
-						list.add(new ErrorCheck(prop.getProperty("errors.other_prof_fee_os.invalid"),"Otherproffeeos","01"));
-					} else if(claimImpl.BusinessValidation(req,9)){
-						list.add(new ErrorCheck(prop.getProperty("errors.other_prof_fee_osGrRsrvAmt"),"Otherproffeeos","01"));
-					}
-				}
-//				if("3".equalsIgnoreCase(req.getProductId())){
-//				if (!val.isNull(req.getPaidClaimOs()).equalsIgnoreCase("") && !val.isNull(req.getSurveyorfeeos()).equalsIgnoreCase("") && !val.isNull(req.getOtherproffeeos()).equalsIgnoreCase("")) {
-//					double totalVal = Double.parseDouble(req.getPaidClaimOs().replaceAll(",", "")) +Double.parseDouble(req.getSurveyorfeeos().replaceAll(",", "")) +Double.parseDouble(req.getOtherproffeeos().replaceAll(",", ""));
-//					String annualVal =new DropDownControllor().getAnnualAgregateVal(req.getProposalNo(),req.getPolicyContractNo(),req.getLayerNo(),req.getBranchCode(),req.getDepartmentId());
-//					if(totalVal>Double.parseDouble(annualVal)){
-//						//list.add(new ErrorCheck(prop.getProperty("error.annual.agregate",new String[] {req.getDepartmentName() }));
+//		final Validation val = new Validation();	
+//		GetOpenPeriodRes openPeriodRes = new GetOpenPeriodRes();
+//		openPeriodRes = dropDownImple.getOpenPeriod(req.getBranchCode());
+//		try {
+//					
+//			InsertCliamDetailsMode8Req req1 = new InsertCliamDetailsMode8Req();
+//			req1.setPolicyContractNo(req.getPolicyContractNo());
+//			req1.setClaimNo(req.getClaimNo());
+//			
+//				if(claimImpl.BusinessValidation(req1, 6)){
+//					list.add(new ErrorCheck(prop.getProperty("error.claimClosed"),"claimClosedStatus","01"));
+//				}
+//				else if(claimImpl.BusinessValidation(req1,10)){
+//					list.add(new ErrorCheck(prop.getProperty("error.claimRepudiated"),"claimRepudiatedStatus","01"));
+//				}
+//				else{ 
+//					
+//				if (val.isNull(req.getPaidAmountOrigcurr()).equalsIgnoreCase("")) {
+//					list.add(new ErrorCheck(prop.getProperty("errors.paid_Amount_Orig_curr.required"),"PaidAmountOrigcurr","01"));
+//				} else
+//				{
+//					req.setPaidAmountOrigcurr((req.getPaidAmountOrigcurr()).replaceAll(",",""));
+//					if (val.numbervalid(req.getPaidAmountOrigcurr()).equalsIgnoreCase("INVALID")) 
+//					{
+//						list.add(new ErrorCheck(prop.getProperty("errors.paid_Amount_Orig_curr.invalid"),"PaidAmountOrigcurr","01"));
+//					}else{
+//						String ans =calcu.calculateClaimPayment(req,"Total");
+//						if(Double.parseDouble(ans)!=Double.parseDouble(req.getPaidAmountOrigcurr())){
+//							list.add(new ErrorCheck(prop.getProperty("error.calcul.mistake"),"PaidAmountOrigcurr","01"));
+//							
+//						}else{
+//							req.setPaidAmountOrigcurr(ans);
+//						}
+//					}
+//					
+//					
+//				}			 
+//
+//				if (val.isNull(req.getPaymentReference()).equalsIgnoreCase("")) {
+//					list.add(new ErrorCheck(prop.getProperty("errors.payment_Reference.required"),"PaymentReference","01"));
+//				}
+//				if (val.isNull(req.getPaidClaimOs()).equalsIgnoreCase("")) {
+//					list.add(new ErrorCheck(prop.getProperty("errors.paid_claim_os.required"),"PaidClaimOs","01"));
+//				} else {
+//					req.setPaidClaimOs((req.getPaidClaimOs()).replaceAll(",",""));
+//					if (val.numbervalid(req.getPaidClaimOs()).equalsIgnoreCase("INVALID")) 
+//					{
+//						list.add(new ErrorCheck(prop.getProperty("errors.paid_claim_os.invalid"),"PaidClaimOs","01"));
+//					} else if(claimImpl.BusinessValidation(req,7)){
+//						list.add(new ErrorCheck(prop.getProperty("errors.paid_claim_osGrRsrvAmt"),"PaidClaimOs","01"));
 //					}
 //				}
+//				if (val.isNull(req.getSurveyorfeeos()).equalsIgnoreCase("")) {
+//					list.add(new ErrorCheck(prop.getProperty("errors.surveyor_fee_os.required"),"Surveyorfeeos","01"));
+//				}  else {
+//					req.setSurveyorfeeos((req.getSurveyorfeeos()).replaceAll(",",""));
+//					if (val.numbervalid(req.getSurveyorfeeos()).equalsIgnoreCase("INVALID")) 
+//					{
+//						list.add(new ErrorCheck(prop.getProperty("errors.surveyor_fee_os.invalid"),"Surveyorfeeos","01"));
+//					} else if(claimImpl.BusinessValidation(req,8)){
+//						list.add(new ErrorCheck(prop.getProperty("errors.surveyor_fee_osGrRsrvAmt"),"Surveyorfeeos","01"));
+//					}
 //				}
-				
-				if (val.checkDate(req.getDate()).equalsIgnoreCase("INVALID")) {
-					list.add(new ErrorCheck(prop.getProperty("errors.date.required"),"Date","01"));
-				}else if(val.belowCurrentDate(req.getDate()).equalsIgnoreCase("Invalid"))
-				{
-					list.add(new ErrorCheck(prop.getProperty("errors.created_Date.invalid5"),"Date","01"));
-				}
-//				else if(Validation.ValidateTwo(req.getDateofLoss(),req.getDate()).equalsIgnoreCase("Invalid"))
+//				if (val.isNull(req.getOtherproffeeos()).equalsIgnoreCase("")) {
+//					list.add(new ErrorCheck(prop.getProperty("errors.other_prof_fee_os.required"),"Otherproffeeos","01"));
+//				}  else {
+//					req.setOtherproffeeos((req.getOtherproffeeos()).replaceAll(",",""));
+//					if (val.numbervalid(req.getOtherproffeeos()).equalsIgnoreCase("INVALID")) 
+//					{
+//						list.add(new ErrorCheck(prop.getProperty("errors.other_prof_fee_os.invalid"),"Otherproffeeos","01"));
+//					} else if(claimImpl.BusinessValidation(req,9)){
+//						list.add(new ErrorCheck(prop.getProperty("errors.other_prof_fee_osGrRsrvAmt"),"Otherproffeeos","01"));
+//					}
+//				}
+////				if("3".equalsIgnoreCase(req.getProductId())){
+////				if (!val.isNull(req.getPaidClaimOs()).equalsIgnoreCase("") && !val.isNull(req.getSurveyorfeeos()).equalsIgnoreCase("") && !val.isNull(req.getOtherproffeeos()).equalsIgnoreCase("")) {
+////					double totalVal = Double.parseDouble(req.getPaidClaimOs().replaceAll(",", "")) +Double.parseDouble(req.getSurveyorfeeos().replaceAll(",", "")) +Double.parseDouble(req.getOtherproffeeos().replaceAll(",", ""));
+////					String annualVal =new DropDownControllor().getAnnualAgregateVal(req.getProposalNo(),req.getPolicyContractNo(),req.getLayerNo(),req.getBranchCode(),req.getDepartmentId());
+////					if(totalVal>Double.parseDouble(annualVal)){
+////						//list.add(new ErrorCheck(prop.getProperty("error.annual.agregate",new String[] {req.getDepartmentName() }));
+////					}
+////				}
+////				}
+//				
+//				if (val.checkDate(req.getDate()).equalsIgnoreCase("INVALID")) {
+//					list.add(new ErrorCheck(prop.getProperty("errors.date.required"),"Date","01"));
+//				}else if(val.belowCurrentDate(req.getDate()).equalsIgnoreCase("Invalid"))
 //				{
-//					list.add(new ErrorCheck(prop.getProperty("errors.created_Date.invalid1"),"","01"));
+//					list.add(new ErrorCheck(prop.getProperty("errors.created_Date.invalid5"),"Date","01"));
 //				}
-				else if(Validation.ValidateTwo(claimImpl.getClaimDate(req1,1),req.getDate()).equalsIgnoreCase("Invalid"))
-				{
-					list.add(new ErrorCheck(prop.getProperty("errors.payDtGrELastResDt"),"ClaimDate","01"));
-				}else if(Validation.ValidateTwo(claimImpl.getClaimDate(req1,4),req.getDate()).equalsIgnoreCase("Invalid"))
-				{
-					list.add(new ErrorCheck(prop.getProperty("errors.payDtGrELastPayDt"),"ClaimDate","01"));
-				}
-				if(!val.isNull(openPeriodRes.getOpenPeriodDate()).equalsIgnoreCase("") && !val.isNull(req.getDate()).equalsIgnoreCase("")){
-					if(dropDowmImpl.Validatethree(req.getBranchCode(), req.getDate())==0){
-						list.add(new ErrorCheck(prop.getProperty("errors.open.period.date.Claim.pay")+openPeriodRes.getOpenPeriodDate(),"OpenPeriodDate","01"));
-					}
-					}
-				if(!"edit".equalsIgnoreCase(req.getPaymentFlag())){
-					if(claimImpl.BusinessValidation(req,4)){
-						list.add(new ErrorCheck(prop.getProperty("errors.PaidAmtGrOSAmt"),"PaymentFlag","01"));
-					}
-				}
-			}	
-				if("3".equalsIgnoreCase(req.getProductId())){
-				req.setReinstPremiumOCOS((req.getReinstPremiumOCOS()).replaceAll(",",""));
-				
-				}
-
-		} catch (NumberFormatException e) {
-			list.add(new ErrorCheck(prop.getProperty("error.claim.payment.validation"),"","01"));
-			e.printStackTrace();
-		}
+////				else if(Validation.ValidateTwo(req.getDateofLoss(),req.getDate()).equalsIgnoreCase("Invalid"))
+////				{
+////					list.add(new ErrorCheck(prop.getProperty("errors.created_Date.invalid1"),"","01"));
+////				}
+//				else if(Validation.ValidateTwo(claimImpl.getClaimDate(req1,1),req.getDate()).equalsIgnoreCase("Invalid"))
+//				{
+//					list.add(new ErrorCheck(prop.getProperty("errors.payDtGrELastResDt"),"ClaimDate","01"));
+//				}else if(Validation.ValidateTwo(claimImpl.getClaimDate(req1,4),req.getDate()).equalsIgnoreCase("Invalid"))
+//				{
+//					list.add(new ErrorCheck(prop.getProperty("errors.payDtGrELastPayDt"),"ClaimDate","01"));
+//				}
+//				if(!val.isNull(openPeriodRes.getOpenPeriodDate()).equalsIgnoreCase("") && !val.isNull(req.getDate()).equalsIgnoreCase("")){
+//					if(dropDowmImpl.Validatethree(req.getBranchCode(), req.getDate())==0){
+//						list.add(new ErrorCheck(prop.getProperty("errors.open.period.date.Claim.pay")+openPeriodRes.getOpenPeriodDate(),"OpenPeriodDate","01"));
+//					}
+//					}
+//				if(!"edit".equalsIgnoreCase(req.getPaymentFlag())){
+//					if(claimImpl.BusinessValidation(req,4)){
+//						list.add(new ErrorCheck(prop.getProperty("errors.PaidAmtGrOSAmt"),"PaymentFlag","01"));
+//					}
+//				}
+//			}	
+//				if("3".equalsIgnoreCase(req.getProductId())){
+//				req.setReinstPremiumOCOS((req.getReinstPremiumOCOS()).replaceAll(",",""));
+//				
+//				}
+//
+//		} catch (NumberFormatException e) {
+//			list.add(new ErrorCheck(prop.getProperty("error.claim.payment.validation"),"","01"));
+//			e.printStackTrace();
+//		}
 			
 	return list;
 	}

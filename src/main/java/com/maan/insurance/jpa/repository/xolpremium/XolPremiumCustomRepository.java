@@ -108,7 +108,7 @@ public interface XolPremiumCustomRepository {
 	
 	public Integer xolPremiumUpdateUpdateTemp(String[] args) throws ParseException;
 	
-	public Integer premiumUpdateXolUpdatePre(String[] args) throws ParseException, ParseException;
+	public Integer premiumUpdateXolUpdatePre(String[] args) throws ParseException;
 	
 	public Integer premiumUpdateRetroxolUpdatePre(String[] args) throws ParseException;
 	
@@ -126,6 +126,8 @@ public interface XolPremiumCustomRepository {
 			String transactionNo);
 
 	public List<Tuple> selectTreetyXOLPremiumEditRi(String contNo, String transactionNo);
+
+	public int premiumUpdateXolUpdatePreRi(String[] args)  throws ParseException;
 	
 	
 }

@@ -2013,4 +2013,60 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 					return response;
 
 			}
+	@Override
+	public ClaimPaymentEditRes1 claimPaymentEditRi(ClaimPaymentEditReq req) {
+		ClaimPaymentEditRes1 res = new ClaimPaymentEditRes1();
+		List<ClaimPaymentEditRes>  response = new ArrayList<ClaimPaymentEditRes>();
+		try{
+			List<Tuple> list =new ArrayList<>();
+			//query -- GET_CLAIM_PAYMENT_DATA
+			
+			list = claimCustomRepository.getClaimPaymentDataRi(req);
+			if(list.size()>0){
+				for(int i=0;i<list.size();i++){
+					ClaimPaymentEditRes bean = new ClaimPaymentEditRes();
+					Tuple map = list.get(i);
+					bean.setDate(map.get("INCEPTION_DATE")==null?"":new SimpleDateFormat("dd/MM/yyyy").format(map.get("INCEPTION_DATE")).toString());
+					bean.setPaymentRequestNo(map.get("PAYMENT_REQUEST_NO")==null?"":map.get("PAYMENT_REQUEST_NO").toString());
+					bean.setPaymentReference(map.get("PAYMENT_REFERENCE")==null?"":map.get("PAYMENT_REFERENCE").toString());
+					bean.setPaidClaimOs(map.get("PAID_CLAIM_OS_OC")==null?"":fm.formatter(map.get("PAID_CLAIM_OS_OC").toString()));
+					bean.setSurveyOrFeeOs(map.get("SAF_OS_OC")==null?"":fm.formatter(map.get("SAF_OS_OC").toString()));
+					bean.setOtherprofFeeOs(map.get("OTH_FEE_OS_OC")==null?"":fm.formatter(map.get("OTH_FEE_OS_OC").toString()));
+					bean.setPaidAmountOrigCurr(map.get("PAID_AMOUNT_OC")==null?"":fm.formatter(map.get("PAID_AMOUNT_OC").toString()));
+					bean.setRemarks(map.get("REMARKS")==null?"":map.get("REMARKS").toString());
+					bean.setClaimPaymentNo(map.get("CLAIM_PAYMENT_NO")==null?"":map.get("CLAIM_PAYMENT_NO").toString());
+					bean.setReinstPremiumOCOS(map.get("REINSPREMIUM_OURSHARE_OC")==null?"":map.get("REINSPREMIUM_OURSHARE_OC").toString());
+					bean.setPaymentType(map.get("PAYMENT_TYPE")==null?"":map.get("PAYMENT_TYPE").toString());
+					response.add(bean);
+				}
+			}
+			res.setCommonResponse(response);
+			res.setMessage("Success");
+			res.setIsError(false);
+			
+			} catch (Exception e) {
+				e.printStackTrace();
+				res.setMessage("Failed");
+				res.setIsError(true);
+			}
+			return res;	
+	}
+	@Override
+	public InsertCliamDetailsMode3Res claimUpdatePaymentRi(InsertCliamDetailsMode3Req req) {
+		InsertCliamDetailsMode3Res response = new InsertCliamDetailsMode3Res();
+		try {
+				// query -- CLAIM_UPDATE_PAYMENT
+				claimCustomRepository.claimUpdatePaymentRi(req);
+			
+			response.setMessage("Success");
+			response.setIsError(false);
+		}
+
+		catch (Exception e) {
+			e.printStackTrace();
+			response.setMessage("Failed");
+			response.setIsError(true);
+		}
+		return response;
+	}
 }

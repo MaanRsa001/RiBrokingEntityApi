@@ -2479,4 +2479,65 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 		
 		return em.createQuery(cq).getResultList();
 	}
+	@Transactional
+	@Override
+	public int premiumUpdateXolUpdatePreRi(String[] args) throws ParseException {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaUpdate<RskPremiumDetailsRi> update = cb.createCriteriaUpdate(RskPremiumDetailsRi.class);
+		Root<RskPremiumDetailsRi> root = update.from(RskPremiumDetailsRi.class);
+
+		update.set(root.get("transactionMonthYear"), present(args[0]))
+		.set(root.get("currencyId"), Double.parseDouble(args[1]))
+		.set(root.get("exchangeRate"), Double.parseDouble(args[2]))
+		.set(root.get("brokerage"), Double.parseDouble(args[3]))
+		.set(root.get("brokerageAmtOc"), Double.parseDouble(args[4]))
+		.set(root.get("tax"), Double.parseDouble(args[5]))
+		.set(root.get("taxAmtOc"), Double.parseDouble(args[6]))
+		.set(root.get("entryDateTime"), present(args[7]))
+		.set(root.get("commission"), Double.parseDouble(args[8]))
+		.set(root.get("mDpremiumOc"), Double.parseDouble(args[9]))
+		.set(root.get("adjustmentPremiumOc"), Double.parseDouble(args[10]))
+		.set(root.get("recPremiumOc"), Double.parseDouble(args[11]))
+		.set(root.get("netdueOc"), Double.parseDouble(args[12]))
+		.set(root.get("enteringMode"), args[13])
+		.set(root.get("receiptNo"), Integer.parseInt(args[14]))
+		.set(root.get("otherCostOc"), Double.parseDouble(args[15]))
+		.set(root.get("brokerageAmtDc"), Double.parseDouble(args[16]))
+		.set(root.get("taxAmtDc"), Double.parseDouble(args[17]))
+		.set(root.get("mDpremiumDc"), Double.parseDouble(args[18]))
+		.set(root.get("adjustmentPremiumDc"), Double.parseDouble(args[19]))
+		.set(root.get("recPremiumDc"), Double.parseDouble(args[20]))
+		.set(root.get("netdueDc"), Double.parseDouble(args[21]))
+		.set(root.get("otherCostDc"), Double.parseDouble(args[22]))
+		.set(root.get("cedantReference"), args[23])
+		.set(root.get("remarks"), args[24])
+		.set(root.get("totalCrOc"), Double.parseDouble(args[25]))
+		.set(root.get("totalCrDc"), Double.parseDouble(args[26]))
+		.set(root.get("totalDrOc"), Double.parseDouble(args[27]))
+		.set(root.get("totalDrDc"), Double.parseDouble(args[28]))
+		.set(root.get("amendmentDate"), StringUtils.isEmpty(args[29]) ?null :sdf.parse(args[29]))
+		.set(root.get("entryDate"), new java.sql.Date(Calendar.getInstance().getTime().getTime()))
+		.set(root.get("withHoldingTaxOc"), Double.parseDouble(args[30]))
+		.set(root.get("withHoldingTaxDc"), Double.parseDouble(args[31]))
+		.set(root.get("riCession"), args[32])
+		.set(root.get("subClass"), Integer.parseInt(args[33]))
+		.set(root.get("tdsOc"), Double.parseDouble(args[34]))
+		.set(root.get("tdsDc"), Double.parseDouble(args[35]))
+		.set(root.get("vatPremiumOc"), Double.parseDouble(args[36]))
+		.set(root.get("vatPremiumDc"), Double.parseDouble(args[37]))
+		.set(root.get("bonusOc"), Double.parseDouble(args[38]))
+		.set(root.get("bonusDc"), Double.parseDouble(args[39]))
+		.set(root.get("gnpiEndtNo"), args[40])
+		.set(root.get("premiumClass"), args[41])
+		.set(root.get("statementDate"), present(args[42]))
+		.set(root.get("brokerageVatOc"), Double.parseDouble(args[43]))
+		.set(root.get("brokerageVatDc"), Double.parseDouble(args[44]))
+		.set(root.get("documentType"), args[45]);
+
+		update.where(cb.equal(root.get("contractNo"), args[46]),
+				     cb.equal(root.get("ritransactionNo"), args[47]));
+
+		Query q = em.createQuery(update);
+		return q.executeUpdate();
+	}
 }

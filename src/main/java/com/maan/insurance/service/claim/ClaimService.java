@@ -141,5 +141,9 @@ public interface ClaimService {
 
 	claimNoListRes claimNoList(claimNoListReq req);
 
+	ClaimPaymentEditRes1 claimPaymentEditRi(ClaimPaymentEditReq req);
+
+	InsertCliamDetailsMode3Res claimUpdatePaymentRi(InsertCliamDetailsMode3Req req);
+
 
 }

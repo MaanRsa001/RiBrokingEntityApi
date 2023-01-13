@@ -25,4 +25,6 @@ public interface RskPremiumDetailsRIRepository extends  JpaRepository<RskPremium
 	List<RskPremiumDetailsRi> findByContractNoAndTransactionNoAndBranchCode(BigDecimal bigDecimal,
 			BigDecimal bigDecimal2, String branchCode);
 
+	RskPremiumDetailsRi findByContractNoAndRitransactionNo(BigDecimal bigDecimal, BigDecimal bigDecimal2);
+
 }

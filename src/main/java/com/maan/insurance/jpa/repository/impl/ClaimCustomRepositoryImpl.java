@@ -50,6 +50,7 @@ import com.maan.insurance.model.entity.TmasDepartmentMaster;
 import com.maan.insurance.model.entity.TmasProductMaster;
 import com.maan.insurance.model.entity.TtrnClaimDetails;
 import com.maan.insurance.model.entity.TtrnClaimPayment;
+import com.maan.insurance.model.entity.TtrnClaimPaymentRi;
 import com.maan.insurance.model.entity.TtrnRiskDetails;
 import com.maan.insurance.model.entity.UnderwritterMaster;
 import com.maan.insurance.model.req.claim.ClaimListReq;
@@ -1545,5 +1546,79 @@ public class ClaimCustomRepositoryImpl implements ClaimCustomRepository{
 		SimpleDateFormat sdf1 = new SimpleDateFormat("dd/MM/yyyy");
 		java.util.Date date = sdf1.parse(input);
 		return new java.sql.Date(date.getTime());
+	}
+
+	@Override
+	public List<Tuple> getClaimPaymentDataRi(ClaimPaymentEditReq req) {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Tuple> cq = cb.createTupleQuery();
+		Root<TtrnClaimPaymentRi> root = cq.from(TtrnClaimPaymentRi.class);
+		
+		Expression<Object> exp = cb.selectCase().when(cb.equal(root.get("reinstatementType"), "MDP"), "On M&D Premium")
+					   .when(cb.equal(root.get("reinstatementType"), "ADP"), "On Adjusted Premium")	
+					   .when(cb.equal(root.get("reinstatementType"), "FDP"), "On Final Adjusted Premium")
+					   .when(cb.equal(root.get("reinstatementType"), "NA"), "Not Applicable").otherwise(cb.literal(""));
+		
+		cq.multiselect(root.get("reinspremiumOurshareOc").alias("REINSPREMIUM_OURSHARE_OC"),
+				root.get("reinstatementType").alias("REINSTATEMENT_TYPE"),
+				exp.alias("REINSTATEMENT_TYPE_NAME"),
+				root.get("claimPaymentNo").alias("CLAIM_PAYMENT_NO"),
+				root.get("paymentRequestNo").alias("PAYMENT_REQUEST_NO"),
+				root.get("paidAmountOc").alias("PAID_AMOUNT_OC"),
+				root.get("paidClaimOsOc").alias("PAID_CLAIM_OS_OC"),
+				root.get("lossEstimateRevisedOc").alias("LOSS_ESTIMATE_REVISED_OC"),
+				root.get("paymentReference").alias("PAYMENT_REFERENCE"),
+				root.get("inceptionDate").alias("INCEPTION_DATE"),
+				root.get("remarks").alias("REMARKS"),
+				root.get("paidClaimOsDc").alias("PAID_CLAIM_OS_DC"),
+				root.get("safOsOc").alias("SAF_OS_OC"),
+				root.get("othFeeOsOc").alias("OTH_FEE_OS_OC"),
+				root.get("paymentType").alias("PAYMENT_TYPE"))
+		
+		.where(cb.equal(root.get("claimNo"), req.getClaimNo()),
+				cb.equal(root.get("contractNo"), req.getContractNo()),
+				cb.equal(root.get("layerNo"), req.getLayerNo()),
+				cb.equal(root.get("riTransactionNo"), req.getClaimPaymentNo()));
+		
+		return em.createQuery(cq).getResultList();
+	}
+
+	@Override
+	public int claimUpdatePaymentRi(InsertCliamDetailsMode3Req req) throws ParseException {
+		 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy") ;
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaUpdate<TtrnClaimPaymentRi> update = cb.createCriteriaUpdate(TtrnClaimPaymentRi.class);
+		Root<TtrnClaimPaymentRi> root = update.from(TtrnClaimPaymentRi.class);
+		
+		boolean condition = "3".equalsIgnoreCase(req.getProductId());
+		java.util.Date date = sdf.parse(req.getDate());
+		update.set(root.get("inceptionDate"), date)
+		.set(root.get("paymentReference"), req.getPaymentReference())
+		.set(root.get("paymentRequestNo"), req.getPaymentRequestNo())
+		.set(root.get("paidClaimOsOc"), new BigDecimal(req.getPaidClaimOs()))
+		.set(root.get("paidClaimOsDc"), GetDesginationCountry(req.getPaidClaimOs(),req.getExcRate()))
+		.set(root.get("safOsOc"), req.getSurveyorfeeos())
+		.set(root.get("safOsDc"), GetDesginationCountry(req.getSurveyorfeeos(),req.getExcRate()))
+		.set(root.get("othFeeOsOc"), req.getOtherproffeeos())
+		.set(root.get("othFeeOsDc"), GetDesginationCountry(req.getOtherproffeeos(),req.getExcRate()))
+		.set(root.get("branchCode"), req.getBranchCode())
+		.set(root.get("loginId"), req.getLoginId())
+		.set(root.get("sysDate"), new java.sql.Date(Calendar.getInstance().getTime().getTime()))
+		.set(root.get("paidAmountOc"), req.getPaidAmountOrigcurr())
+		.set(root.get("paidAmountDc"), GetDesginationCountry(req.getPaidAmountOrigcurr(),req.getExcRate()))
+		.set(root.get("remarks"), req.getRemarks())
+		
+		.set(root.get("reinstatementType"), condition ? req.getReinstType() : "")
+		.set(root.get("reinspremiumOurshareOc"),  condition ? req.getReinstPremiumOCOS() : "")
+		.set(root.get("reinspremiumOurshareDc"), condition ? GetDesginationCountry(req.getReinstPremiumOCOS(),req.getExcRate()) : "")
+		.set(root.get("paymentType"), req.getPaymentType());
+				
+		update.where(cb.equal(root.get("contractNo"), req.getPolicyContractNo()),
+				     cb.equal(root.get("claimNo"), req.getClaimNo()),
+				     cb.equal(root.get("layerNo"), req.getLayerNo()),
+				     cb.equal(root.get("riTransactionNo"), req.getClaimPaymentNo()));
+
+		Query q = em.createQuery(update);
+		return q.executeUpdate();
 	}
 }
