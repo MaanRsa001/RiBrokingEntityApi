@@ -19,6 +19,7 @@ import com.maan.insurance.model.req.placement.DeleteFileReq;
 import com.maan.insurance.model.req.placement.EditPlacingDetailsReq;
 import com.maan.insurance.model.req.placement.GetExistingAttachListReq;
 import com.maan.insurance.model.req.placement.GetExistingReinsurerListReq;
+import com.maan.insurance.model.req.placement.GetMailTemplateReq;
 import com.maan.insurance.model.req.placement.GetMailToListReq;
 import com.maan.insurance.model.req.placement.GetPlacementInfoListReq;
 import com.maan.insurance.model.req.placement.GetPlacementViewListReq;
@@ -57,23 +58,20 @@ public class PlacementValidation {
 
 public List<ErrorCheck> getMailToListVali(GetMailToListReq req) {
 	List<ErrorCheck> list = new ArrayList<ErrorCheck>();
-	if (StringUtils.isBlank(req.getBrokerCompany())) {
+	if (StringUtils.isBlank(req.getBrokerId())) {
 		list.add(new ErrorCheck("Please Enter BrokerCompany", "BrokerCompany", "1"));
 	}
-	if (StringUtils.isBlank(req.getBrokerId())) {
-		list.add(new ErrorCheck("Please Enter BrokerId", "BrokerId", "2"));
-	}
-	if (StringUtils.isBlank(req.getCedingCompany())) {
+	if (StringUtils.isBlank(req.getCedingId())) {
 		list.add(new ErrorCheck("Please Enter CedingCompany", "CedingCompany", "3"));
 	}
 	if (StringUtils.isBlank(req.getCurrentStatus())) {
-		list.add(new ErrorCheck("Please Enter CurrentStatus", "CurrentStatus", "4"));
+		//list.add(new ErrorCheck("Please Enter CurrentStatus", "CurrentStatus", "4"));
 	}
 	if (StringUtils.isBlank(req.getNewStatus())) {
-		list.add(new ErrorCheck("Please Enter NewStatus", "NewStatus", "5"));
+		//list.add(new ErrorCheck("Please Enter NewStatus", "NewStatus", "5"));
 	}
 	if (StringUtils.isBlank(req.getReinsurerId())) {
-		list.add(new ErrorCheck("Please Enter ReinsurerId", "ReinsurerId", "6"));
+		//list.add(new ErrorCheck("Please Enter ReinsurerId", "ReinsurerId", "6"));
 	}
 	return list;
 }
@@ -601,6 +599,13 @@ public List<ErrorCheck> validationStatus(UpdatePlacementReq bean) {
 		}
 		if (StringUtils.isBlank(req.getProposalNo())) {
 			list.add(new ErrorCheck("Please Enter ProposalNo", "ProposalNo", "2"));
+		}
+		return list;
+	}
+	public List<ErrorCheck> getMailTemplateVali(GetMailTemplateReq req) {
+		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
+		if (StringUtils.isBlank(req.getMailType())) {
+			list.add(new ErrorCheck("Please Enter MailType", "MailType", "1"));
 		}
 		return list;
 	}

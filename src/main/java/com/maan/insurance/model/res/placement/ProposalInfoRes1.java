@@ -41,6 +41,6 @@ public class ProposalInfoRes1 {
 	private String offerNo; 
 	@JsonProperty("AmendId")
 	private String amendId; 
-	@JsonProperty("EproposalNo")
-	private String eproposalNo; 
+	@JsonProperty("ProposalNo")
+	private String proposalNo; 
 }

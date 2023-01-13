@@ -838,6 +838,8 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 				rkRoot.get("rskAccountDate").alias("RSK_ACCOUNT_DATE"),
 				rkRoot.get("rskExpiryDate").alias("EXP_DATE"),
 				rkRoot.get("rskMonth").alias("MONTH"),
+				rkRoot.get("rskCedingid").alias("CEDING_ID"),
+				rkRoot.get("rskBrokerid").alias("BROKER_ID"),
 				//branchRoot.get("tmasPolBranchName").alias("TMAS_POL_BRANCH_NAME"),	
 				rkRoot.get("rskProposalNumber").alias("RSK_PROPOSAL_NUMBER"),
 				rkRoot.get("rskUwyear").alias("RSK_UWYEAR"),

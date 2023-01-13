@@ -1689,6 +1689,8 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 						contDet.get("CURRENCY_NAME") == null ? "" : contDet.get("CURRENCY_NAME").toString());
 				//bean.setPolicyBranch(contDet.get("TMAS_POL_BRANCH_NAME") == null ? "": contDet.get("TMAS_POL_BRANCH_NAME").toString());
 				bean.setAddress(contDet.get("Address") == null ? "" : contDet.get("Address").toString());
+				bean.setCedingId(contDet.get("CEDING_ID") == null ? "" : contDet.get("CEDING_ID").toString());
+				bean.setBrokerId(contDet.get("BROKER_ID") == null ? "" : contDet.get("BROKER_ID").toString());
 				bean.setDepartmentId(contDet.get("RSK_DEPTID") == null ? "" : contDet.get("RSK_DEPTID").toString());
 				bean.setDepartmentName(contDet.get("TMAS_DEPARTMENT_NAME") == null ? ""
 						: contDet.get("TMAS_DEPARTMENT_NAME").toString());

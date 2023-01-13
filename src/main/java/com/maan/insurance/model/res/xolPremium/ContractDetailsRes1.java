@@ -23,6 +23,10 @@ public class ContractDetailsRes1 {
 	private String cedingCo;
 	@JsonProperty("Broker")
 	private String broker; 
+	@JsonProperty("CedingId")
+	private String cedingId;
+	@JsonProperty("BrokerId")
+	private String brokerId; 
 	@JsonProperty("TreatyNametype")
 	private String treatyNametype;
 	@JsonProperty("UwYear")

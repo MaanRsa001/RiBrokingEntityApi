@@ -9,11 +9,8 @@ public class GetMailToListReq {
 	private String currentStatus;
 	@JsonProperty("NewStatus")
 	private String newStatus;
-	@JsonProperty("BrokerCompany")
-	private String brokerCompany;
-	
-	@JsonProperty("CedingCompany")
-	private String cedingCompany;
+	@JsonProperty("CedingId")
+	private String cedingId;
 	@JsonProperty("BrokerId")
 	private String brokerId;
 	@JsonProperty("ReinsurerId")

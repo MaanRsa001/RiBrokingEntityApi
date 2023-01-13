@@ -18,6 +18,7 @@ import com.maan.insurance.model.req.placement.DeleteFileReq;
 import com.maan.insurance.model.req.placement.EditPlacingDetailsReq;
 import com.maan.insurance.model.req.placement.GetExistingAttachListReq;
 import com.maan.insurance.model.req.placement.GetExistingReinsurerListReq;
+import com.maan.insurance.model.req.placement.GetMailTemplateReq;
 import com.maan.insurance.model.req.placement.GetMailToListReq;
 import com.maan.insurance.model.req.placement.GetPlacementInfoListReq;
 import com.maan.insurance.model.req.placement.GetPlacementViewListReq;
@@ -36,6 +37,7 @@ import com.maan.insurance.model.res.placement.AttachFileRes;
 import com.maan.insurance.model.res.placement.CommonSaveResList;
 import com.maan.insurance.model.res.placement.EditPlacingDetailsRes;
 import com.maan.insurance.model.res.placement.GetExistingAttachListRes;
+import com.maan.insurance.model.res.placement.GetMailTemplateRes;
 import com.maan.insurance.model.res.placement.GetPlacementInfoListRes;
 import com.maan.insurance.model.res.placement.GetPlacementNoRes;
 import com.maan.insurance.model.res.placement.GetPlacementViewListRes;
@@ -250,5 +252,13 @@ Gson gson = new Gson();
 			 throw new CommonValidationException("error",error);
 	}
 		return serv.placementSummary(req);  
+	}
+	@PostMapping("/getMailTemplate")
+	public GetMailTemplateRes getMailTemplate(@RequestBody GetMailTemplateReq req) throws CommonValidationException {
+		List<ErrorCheck> error= val.getMailTemplateVali(req);
+		if(error!=null && error.size()>0) {
+			 throw new CommonValidationException("error",error);
+	}
+		return serv.getMailTemplate(req);  
 	}
 }
