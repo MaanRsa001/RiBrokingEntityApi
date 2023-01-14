@@ -1621,4 +1621,30 @@ public class ClaimCustomRepositoryImpl implements ClaimCustomRepository{
 		Query q = em.createQuery(update);
 		return q.executeUpdate();
 	}
+	public void getPremiumRiSplit(InsertCliamDetailsMode3Req req) {
+		StoredProcedureQuery sp = em.createStoredProcedureQuery("RI_SPLIT_INSERT");
+
+		// Assign parameters
+		sp.registerStoredProcedureParameter("V_CONTRACT_NO", String.class, ParameterMode.IN);
+		sp.registerStoredProcedureParameter("V_LAYER_NO", String.class, ParameterMode.IN);
+		sp.registerStoredProcedureParameter("V_PRODUCT_ID", String.class, ParameterMode.IN);
+		sp.registerStoredProcedureParameter("V_TRANSACTION_NO", String.class, ParameterMode.IN);
+		sp.registerStoredProcedureParameter("V_BRANCH_CODE", String.class, ParameterMode.IN);
+		sp.registerStoredProcedureParameter("V_TYPE", String.class, ParameterMode.IN);
+		
+		// Set parameters
+		sp.setParameter("V_CONTRACT_NO", req.getPolicyContractNo());
+		sp.setParameter("V_LAYER_NO", Integer.parseInt(StringUtils.isEmpty(req.getLayerNo())?"0":req.getLayerNo()));
+		sp.setParameter("V_PRODUCT_ID", req.getProductId());
+		sp.setParameter("V_TRANSACTION_NO", req.getClaimPaymentNo());
+		sp.setParameter("V_BRANCH_CODE", req.getBranchCode());
+		sp.setParameter("V_TYPE", "C");
+		
+		System.out.println("V_CONTRACT_NO: "+sp.getParameterValue("V_CONTRACT_NO"));
+		System.out.println("V_LAYER_NO: "+sp.getParameterValue("V_LAYER_NO"));
+		System.out.println("V_PRODUCT_ID: "+sp.getParameterValue("V_PRODUCT_ID"));
+		System.out.println("V_TRANSACTION_NO: "+sp.getParameterValue("V_TRANSACTION_NO"));
+		System.out.println("V_BRANCH_CODE: "+sp.getParameterValue("V_BRANCH_CODE"));
+		sp.execute();
+	}
 }

@@ -3,6 +3,9 @@ package com.maan.insurance.model.entity;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
+import javax.persistence.Column;
+import javax.persistence.Id;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -30,4 +33,6 @@ public class RskPremiumDetailsRiId implements Serializable {
     private String     reinsurerId ;
     
     private String     brokerId ;
+    
+    private BigDecimal ritransactionNo ;
 }

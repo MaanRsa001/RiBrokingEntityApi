@@ -992,6 +992,7 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 
 				// query -- premium.sp.retroSplit
 				claimCustomRepository.getPremiumSpRetroSplit(req);
+				claimCustomRepository.getPremiumRiSplit(req);
 
 			}
 			response.setMessage("Success");

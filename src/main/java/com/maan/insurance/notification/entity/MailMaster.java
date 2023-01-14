@@ -81,8 +81,8 @@ private static final long serialVersionUID = 1L;
     @Column(name="SMTP_PORT")
     private String smtpPort ;
 
-    @Column(name="ENTRYDATE")
-    private String       entrydate ;
+    //@Column(name="ENTRYDATE")
+    //private String       entrydate ;
 
 
     //--- ENTITY LINKS ( RELATIONSHIP )

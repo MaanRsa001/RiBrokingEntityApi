@@ -1807,6 +1807,8 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 				res.setInsDate(tempMap.get("INS_DATE") == null ? "" : formatDate(tempMap.get("INS_DATE")).toString());
 				res.setExpDate(tempMap.get("EXP_DATE") == null ? "" : formatDate(tempMap.get("EXP_DATE")).toString());
 				res.setMonth(tempMap.get("MONTH") == null ? "" : tempMap.get("MONTH").toString());
+				res.setCedingId(tempMap.get("CEDING_ID") == null ? "" : tempMap.get("CEDING_ID").toString());
+				res.setBrokerId(tempMap.get("BROKER_ID") == null ? "" : tempMap.get("BROKER_ID").toString());
 				res.setBaseCurrencyId(
 						tempMap.get("RSK_ORIGINAL_CURR") == null ? "" : tempMap.get("RSK_ORIGINAL_CURR").toString());
 				res.setBaseCurrencyName(

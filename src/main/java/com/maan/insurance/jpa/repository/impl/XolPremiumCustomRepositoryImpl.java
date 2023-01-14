@@ -2277,13 +2277,14 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 		sp.registerStoredProcedureParameter("V_PRODUCT_ID", String.class, ParameterMode.IN);
 		sp.registerStoredProcedureParameter("V_TRANSACTION_NO", String.class, ParameterMode.IN);
 		sp.registerStoredProcedureParameter("V_BRANCH_CODE", String.class, ParameterMode.IN);
-	
+		sp.registerStoredProcedureParameter("V_TYPE", String.class, ParameterMode.IN);
 		// Set parameters
 		sp.setParameter("V_CONTRACT_NO", req.getContNo());
 		sp.setParameter("V_LAYER_NO", StringUtils.isBlank(req.getLayerno())?"0":req.getLayerno());
 		sp.setParameter("V_PRODUCT_ID", req.getProductId());
 		sp.setParameter("V_TRANSACTION_NO", req.getTransactionNo());
 		sp.setParameter("V_BRANCH_CODE", req.getBranchCode());
+		sp.setParameter("V_TYPE", "P");
 		
 		System.out.println("V_CONTRACT_NO: "+sp.getParameterValue("V_CONTRACT_NO"));
 		System.out.println("V_LAYER_NO: "+sp.getParameterValue("V_LAYER_NO"));

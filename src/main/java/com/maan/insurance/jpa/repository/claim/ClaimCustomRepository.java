@@ -117,5 +117,7 @@ public interface ClaimCustomRepository {
 	public List<Tuple> getClaimPaymentDataRi(ClaimPaymentEditReq req);
 
 	public int claimUpdatePaymentRi(InsertCliamDetailsMode3Req req)  throws ParseException;
+
+	public void getPremiumRiSplit(InsertCliamDetailsMode3Req req);
 	
 }

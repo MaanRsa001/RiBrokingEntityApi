@@ -136,4 +136,8 @@ public class ContractDetailsRes1 {
 	private String settlementStatus; 
 	@JsonProperty("SumofPaidPremium")
 	private String  sumofPaidPremium;
+	@JsonProperty("CedingId")
+	private String cedingId;
+	@JsonProperty("BrokerId")
+	private String brokerId; 
 }

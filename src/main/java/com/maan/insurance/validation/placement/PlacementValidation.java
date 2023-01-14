@@ -442,19 +442,19 @@ public List<ErrorCheck> validationStatus(UpdatePlacementReq bean) {
 			list.add(new ErrorCheck("Please Enter BranchCode", "BranchCode", "1"));
 		}
 		if (StringUtils.isBlank(req.getEproposalNo())) {
-			list.add(new ErrorCheck("Please Enter EproposalNo", "EproposalNo", "2"));
+			//list.add(new ErrorCheck("Please Enter EproposalNo", "EproposalNo", "2"));
 		}
 		if (StringUtils.isBlank(req.getProposalNo())) {
-			list.add(new ErrorCheck("Please Enter ProposalNo", "ProposalNo", "3"));
+			//list.add(new ErrorCheck("Please Enter ProposalNo", "ProposalNo", "3"));
 		}
 		if (StringUtils.isBlank(req.getBrokerId())) {
-			list.add(new ErrorCheck("Please Enter BrokerId", "BrokerId", "4"));
+			//list.add(new ErrorCheck("Please Enter BrokerId", "BrokerId", "4"));
 		}
 		if (StringUtils.isBlank(req.getCorresId())) {
-			list.add(new ErrorCheck("Please Enter CorresId", "CorresId", "5"));
+			//list.add(new ErrorCheck("Please Enter CorresId", "CorresId", "5"));
 		}
 		if (StringUtils.isBlank(req.getReinsurerId())) {
-			list.add(new ErrorCheck("Please Enter ReinsurerId", "ReinsurerId", "6"));
+			//list.add(new ErrorCheck("Please Enter ReinsurerId", "ReinsurerId", "6"));
 		}
 		if (StringUtils.isBlank(req.getMailBody())) {
 			list.add(new ErrorCheck("Please Enter MailBody", "MailBody", "7"));
@@ -466,7 +466,7 @@ public List<ErrorCheck> validationStatus(UpdatePlacementReq bean) {
 			list.add(new ErrorCheck("Please Enter MailRegards", "MailRegards", "9"));
 		}
 		if (StringUtils.isBlank(req.getMailRemarks())) {
-			list.add(new ErrorCheck("Please Enter MailRemarks", "MailRemarks", "10"));
+			//list.add(new ErrorCheck("Please Enter MailRemarks", "MailRemarks", "10"));
 		}
 		if (StringUtils.isBlank(req.getMailSubject())) {
 			list.add(new ErrorCheck("Please Enter MailSubject", "MailSubject", "11"));
