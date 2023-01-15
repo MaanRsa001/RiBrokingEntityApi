@@ -137,7 +137,7 @@ public interface PropPremiumService {
 
 	GetPremiumDetailsRes getPremiumDetailsRi(GetPremiumDetailsReq req);
 
-	CommonResponse premiumUpdateMethodRi(InsertPremiumReq req);
+	premiumUpdateMethodRes premiumUpdateMethodRi(InsertPremiumReq req);
 
 
 }

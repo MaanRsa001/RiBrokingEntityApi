@@ -706,10 +706,12 @@ public class PropPremiumValidation {
 				 }
 				
 				 if(StringUtils.isNotBlank(req.getAccountPeriod()) && "6".equals(req.getAccountPeriod())){
-					GetOSBListRes totalOSB = premiumImpl.getOSBList(req.getTransaction(),req.getContNo(),req.getBranchCode());
-					 if(Double.parseDouble(totalOSB.getCommonResponse())>0){
-						  list.add(new ErrorCheck(prop.getProperty("errors.osbtotal.invalid"),"",""));  
-					 }
+						/*
+						 * GetOSBListRes totalOSB =
+						 * premiumImpl.getOSBList(req.getTransaction(),req.getContNo(),req.getBranchCode
+						 * ()); if(Double.parseDouble(totalOSB.getCommonResponse())>0){ list.add(new
+						 * ErrorCheck(prop.getProperty("errors.osbtotal.invalid"),"","")); }
+						 */
 				 }
 				
 					req.setTotalCredit((req.getTotalCredit()).replaceAll(",",""));
@@ -750,7 +752,7 @@ public class PropPremiumValidation {
 			list.add(new ErrorCheck("Please Enter ProductId","ProductId", "05"));
 			}
 		if(StringUtils.isBlank(req.getTableType())) {
-			list.add(new ErrorCheck("Please Enter TableType","TableType", "06"));
+			//list.add(new ErrorCheck("Please Enter TableType","TableType", "06"));
 			}
 		if(StringUtils.isBlank(req.getTransactionNo())) {
 			//list.add(new ErrorCheck("Please Enter TransactionNo"),"TransactionNo", "07"));

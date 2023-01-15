@@ -4108,8 +4108,9 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 		return response;
 		}
 		@Override
-		public CommonResponse premiumUpdateMethodRi(InsertPremiumReq beanObj) {
-			CommonResponse response = new CommonResponse();
+		public premiumUpdateMethodRes premiumUpdateMethodRi(InsertPremiumReq beanObj) {
+			premiumUpdateMethodRes response = new premiumUpdateMethodRes();
+			premiumUpdateMethodRes1 res = new premiumUpdateMethodRes1();
 			SimpleDateFormat sdf = new  SimpleDateFormat("dd/MM/yyyy");
 			try {
 			RskPremiumDetailsRi	 entity = pdRIRepo.findByContractNoAndRitransactionNo(new BigDecimal(beanObj.getContNo()),new BigDecimal(beanObj.getTransactionNo()));
@@ -4224,7 +4225,7 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 					entity.setWithHoldingTaxOc(StringUtils.isEmpty(beanObj.getWithHoldingTaxOC()) ? BigDecimal.ZERO : new BigDecimal(beanObj.getWithHoldingTaxOC()));
 					entity.setWithHoldingTaxDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getWithHoldingTaxOc().toString(), beanObj.getExchRate())));	
 					entity.setRiCession(beanObj.getRiCession());		
-					entity.setSubClass(new BigDecimal(beanObj.getDepartmentId()));
+					//entity.setSubClass(new BigDecimal(beanObj.getDepartmentId()));
 					entity.setTdsOc(new BigDecimal(getModeOfTransaction(beanObj.getTaxDedectSource(),beanObj)));
 					entity.setTdsDc(new BigDecimal(dropDownImple.GetDesginationCountry(entity.getTdsOc().toString(), beanObj.getExchRate())));
 					entity.setVatPremiumOc(new BigDecimal(getModeOfTransaction(beanObj.getVatPremium(),beanObj)));
@@ -4256,14 +4257,18 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 					 entity.setEntryDate(new Date());
 					 pdRIRepo.save(entity);
 		}
-			 	response.setMessage("Success");
-				response.setIsError(false);
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			response.setMessage("Failed");
-			response.setIsError(true);
-		}
+			 res.setRequestNo(beanObj.getRequestNo());
+			 res.setTransactionNo(beanObj.getTransactionNo());
+			 response.setResponse(res);
+			 response.setMessage("Success");
+			 response.setIsError(false);
+			 }catch (Exception e) {
+				log.error(e);
+				e.printStackTrace();
+				response.setResponse(res);
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
 		return response;
 		}
 }

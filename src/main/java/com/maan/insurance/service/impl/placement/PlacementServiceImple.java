@@ -2337,7 +2337,7 @@ public class PlacementServiceImple implements PlacementService {
 				}
 			}
 			
-			mailbody+=BodyTableFrame(req);
+			//mailbody+=BodyTableFrame(req);
 			bean.setMailBody(mailbody);
 			bean.setMailSubject(mailsub);
 	

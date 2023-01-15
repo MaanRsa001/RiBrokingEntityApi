@@ -1037,7 +1037,7 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
                             if ("Temp".equalsIgnoreCase(req.getTableType()) && "3".equalsIgnoreCase(req.getProductId())|| "".equalsIgnoreCase(req.getTransactionNo())) {
 		                            bean.setDueDate(xolView.get("TRANS_DATE")==null?"":fm.Transadded(xolView.get("TRANS_DATE")).toString());
 		                    }else {
-		                    	bean.setDueDate(xolView.get("ACCOUNT_PERIOD_QTR")==null?"":fm.Transadded(xolView.get("ACCOUNT_PERIOD_QTR")).toString());
+		                    	bean.setDueDate(xolView.get("ACCOUNT_PERIOD_QTR")==null?"":(xolView.get("ACCOUNT_PERIOD_QTR")).toString());
 		                    }
                             
                             bean.setCreditsign(xolView.get("NETDUE_OC")==null?"":xolView.get("NETDUE_OC").toString());
@@ -2029,7 +2029,7 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
                             if ("Temp".equalsIgnoreCase(req.getTableType()) && "3".equalsIgnoreCase(req.getProductId())|| "".equalsIgnoreCase(req.getTransactionNo())) {
 		                            bean.setDueDate(xolView.get("TRANS_DATE")==null?"":fm.Transadded(xolView.get("TRANS_DATE")).toString());
 		                    }else {
-		                    	bean.setDueDate(xolView.get("ACCOUNT_PERIOD_QTR")==null?"":fm.Transadded(xolView.get("ACCOUNT_PERIOD_QTR")).toString());
+		                    	bean.setDueDate(xolView.get("ACCOUNT_PERIOD_QTR")==null?"":(xolView.get("ACCOUNT_PERIOD_QTR")).toString());
 		                    }
                             
                             bean.setCreditsign(xolView.get("NETDUE_OC")==null?"":xolView.get("NETDUE_OC").toString());
@@ -2163,7 +2163,7 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 							bean.setOsClaimsLossUpdateOC(editPremium.get("OSCLAIM_LOSSUPDATE_OC")==null?"":editPremium.get("OSCLAIM_LOSSUPDATE_OC").toString());
 							bean.setOverrider(editPremium.get("OVERRIDER_AMT_OC")==null?"":editPremium.get("OVERRIDER_AMT_OC").toString());
 							bean.setOverriderUSD(editPremium.get("OVERRIDER_AMT_DC")==null?"":editPremium.get("OVERRIDER_AMT_DC").toString());	
-							bean.setAmendmentDate(editPremium.get("AMENDMENT_DATE")==null?"":editPremium.get("AMENDMENT_DATE").toString());	
+							bean.setAmendmentDate(editPremium.get("AMENDMENT_DATE")==null?"":formatDate(editPremium.get("AMENDMENT_DATE")));	
 	                        bean.setWithHoldingTaxOC(fm.formatter(editPremium.get("WITH_HOLDING_TAX_OC")==null?"":editPremium.get("WITH_HOLDING_TAX_OC").toString()));
 	                        bean.setWithHoldingTaxDC(fm.formatter(editPremium.get("WITH_HOLDING_TAX_DC")==null?"":editPremium.get("WITH_HOLDING_TAX_DC").toString()));
 	                        bean.setRicession(editPremium.get("RI_CESSION")==null?"":editPremium.get("RI_CESSION").toString());

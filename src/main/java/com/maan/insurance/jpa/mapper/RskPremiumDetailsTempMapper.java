@@ -24,6 +24,7 @@ public class RskPremiumDetailsTempMapper extends AbstractEntityMapper<RskPremium
 			rskPremiumDetailsTemp.setContractNo(formatBigDecimal(input[0]));
 			rskPremiumDetailsTemp.setRequestNo(formatBigDecimal(input[1]));
 			rskPremiumDetailsTemp.setTransactionMonthYear(formatDate(input[2]));
+			rskPremiumDetailsTemp.setAccountPeriodQtr(input[3]);
 			rskPremiumDetailsTemp.setAccountPeriodYear(formatBigDecimal(input[4]));
 			rskPremiumDetailsTemp.setCurrencyId(formatBigDecimal(input[5]));
 			rskPremiumDetailsTemp.setExchangeRate(formatBigDecimal(input[6]));

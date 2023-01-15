@@ -344,29 +344,30 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		Root<ConstantDetail> root = cq.from(ConstantDetail.class);
 
 		cq.multiselect(root.get("type").alias("TYPE"), 
-				root.get("detailName").alias("DETAIL_NAME")).distinct(true);  
+				root.get("detailName").alias("DETAIL_NAME"));  
 		
 		if("2".equalsIgnoreCase(accPeriod)){
 			cq.where(cb.equal(root.get("categoryId"), categoryId),
 					   cb.equal(root.get("status"), status),
 					   root.get("remarks").in(Arrays.asList(new String[]{"P","Q"})));
-			cq.orderBy(cb.asc(root.get("detailName")));
+			cq.orderBy(cb.asc(root.get("categoryDetailId")));
 			
 		}else if("3".equalsIgnoreCase(accPeriod)){
 			cq.where(cb.equal(root.get("categoryId"), categoryId),
 					   cb.equal(root.get("status"), status),
 					   root.get("remarks").in(Arrays.asList(new String[]{"P","H"})));
-			cq.orderBy(cb.asc(root.get("detailName")));
+			cq.orderBy(cb.asc(root.get("categoryDetailId")));
 			
 		}else if("4".equalsIgnoreCase(accPeriod)){
 			cq.where(cb.equal(root.get("categoryId"), categoryId),
 					   cb.equal(root.get("status"), status),
 					   root.get("remarks").in(Arrays.asList(new String[]{"P","Y"})));
-			cq.orderBy(cb.asc(root.get("detailName")));
+			cq.orderBy(cb.asc(root.get("categoryDetailId")));
 			
 		}else {
 			cq.where(cb.equal(root.get("categoryId"), categoryId),
 					   cb.equal(root.get("status"), status));
+			cq.orderBy(cb.asc(root.get("categoryDetailId")));
 		}
 		
 		return em.createQuery(cq).getResultList();

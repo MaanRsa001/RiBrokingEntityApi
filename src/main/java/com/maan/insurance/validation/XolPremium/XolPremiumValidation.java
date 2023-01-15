@@ -152,7 +152,7 @@ public class XolPremiumValidation {
 			list.add(new ErrorCheck("Please Enter Table Type", "ContractNo", "9"));
 		}
 		if (StringUtils.isBlank(req.getTransDropDownVal())) {
-		if("Main".equals(req.getTableType())) {
+		if("Main".equals(req.getTableType())||"RiMain".equals(req.getTableType())) {
 			if (StringUtils.isBlank(req.getTransactionNo())) {
 				list.add(new ErrorCheck("Please Enter Transaction No", "OpstartDate", "12"));
 			}

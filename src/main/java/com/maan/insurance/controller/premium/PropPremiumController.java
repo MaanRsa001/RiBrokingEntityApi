@@ -289,7 +289,7 @@ public class PropPremiumController {
 		return premiumService.premiumUpdateMethod(req);	
 	}
 	@PostMapping("/Proppremium/premiumUpdateMethodRi")
-	public CommonResponse premiumUpdateMethodRi(@RequestBody InsertPremiumReq req) throws CommonValidationException {
+	public premiumUpdateMethodRes premiumUpdateMethodRi(@RequestBody InsertPremiumReq req) throws CommonValidationException {
 		List<ErrorCheck> error = premiumVali.insertPremiumVali(req);
 		if(error!= null && error.size()>0) {
 			throw new CommonValidationException("error",error);
