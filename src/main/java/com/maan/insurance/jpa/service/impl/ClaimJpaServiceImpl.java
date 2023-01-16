@@ -959,7 +959,7 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 					String maxId = claimCustomRepository.selectMaxResvId(req.getClaimNo(), req.getPolicyContractNo());
 					maxId = maxId == null ? "" : maxId;
 
-					ttrnClaimPayment.setClaimPaymentNo(new BigDecimal(maxId));
+					ttrnClaimPayment.setReserveId(new BigDecimal(maxId));
 					// query -- claim.insert.payment
 					ttrnClaimPaymentRepository.save(ttrnClaimPayment);
 

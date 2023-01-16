@@ -1838,30 +1838,20 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 			for (int i = 0; i < list.size(); i++) {
 				Tuple tempMap = list.get(i);
 
-				res.setCommissionView(fm.formatter(tempMap.get("RSK_COMM_QUOTASHARE") == null ? ""
+				res.setCommissionView(fm.formatterfour(tempMap.get("RSK_COMM_QUOTASHARE") == null ? ""
 						: tempMap.get("RSK_COMM_QUOTASHARE").toString()));
-				res.setPremiumReserveView(fm.formatter(tempMap.get("RSK_PREMIUM_RESERVE") == null ? ""
+				res.setPremiumReserveView(fm.formatterfour(tempMap.get("RSK_PREMIUM_RESERVE") == null ? ""
 						: tempMap.get("RSK_PREMIUM_RESERVE").toString()));
-				res.setLossReserveView(fm.formatter(
+				res.setLossReserveView(fm.formatterfour(
 						tempMap.get("RSK_LOSS_RESERVE") == null ? "" : tempMap.get("RSK_LOSS_RESERVE").toString()));
-				res.setProfitCommYN(fm.formatter(
-						tempMap.get("RSK_PROFIT_COMM") == null ? "" : tempMap.get("RSK_PROFIT_COMM").toString()));
-
-				res.setCommissionSurbView(fm.formatter(
-						tempMap.get("RSK_COMM_SURPLUS") == null ? "" : tempMap.get("RSK_COMM_SURPLUS").toString()));
-				res.setOverRiderView(fm.formatter(
-						tempMap.get("RSK_OVERRIDER_PERC") == null ? "" : tempMap.get("RSK_OVERRIDER_PERC").toString()));
-				res.setBrokerageView(fm.formatter(
-						tempMap.get("RSK_BROKERAGE") == null ? "" : tempMap.get("RSK_BROKERAGE").toString()));
-				res.setBrokerageView(
-						tempMap.get("RSK_BROKERAGE") == null ? "" : tempMap.get("RSK_BROKERAGE").toString());
-				res.setTaxView(fm.formatter(tempMap.get("RSK_TAX") == null ? "" : tempMap.get("RSK_TAX").toString()));
-				res.setOtherCostView(fm.formatter(
-						tempMap.get("RSK_OTHER_COST") == null ? "" : tempMap.get("RSK_OTHER_COST").toString()));
-				res.setOurAssessmentOfOrginal(tempMap.get("RSK_OUR_ASS_ACQ_COST") == null ? "0.00"
-						: tempMap.get("RSK_OUR_ASS_ACQ_COST").toString());
-				res.setPremiumReserve(tempMap.get("RSK_PREMIUM_RESERVE") == null ? ""
-						: tempMap.get("RSK_PREMIUM_RESERVE").toString());
+				res.setProfitCommYN(tempMap.get("RSK_PROFIT_COMM") == null ? "" : tempMap.get("RSK_PROFIT_COMM").toString());
+				res.setCommissionSurbView(tempMap.get("RSK_COMM_SURPLUS") == null ? "" : fm.formatterfour(tempMap.get("RSK_COMM_SURPLUS").toString()));
+				res.setOverRiderView(tempMap.get("RSK_OVERRIDER_PERC") == null ? "" : fm.formatterfour(tempMap.get("RSK_OVERRIDER_PERC").toString()));
+				res.setBrokerageView(tempMap.get("RSK_BROKERAGE") == null ? "" : fm.formatterfour(tempMap.get("RSK_BROKERAGE").toString()));
+				res.setTaxView(tempMap.get("RSK_TAX") == null ? "" :fm.formatterfour(tempMap.get("RSK_TAX").toString()));
+				res.setOtherCostView(tempMap.get("RSK_OTHER_COST") == null ? "" :fm.formatterfour(tempMap.get("RSK_OTHER_COST").toString()));
+				res.setOurAssessmentOfOrginal(tempMap.get("RSK_OUR_ASS_ACQ_COST") == null ? "0.0000": fm.formatterfour(tempMap.get("RSK_OUR_ASS_ACQ_COST").toString()));
+				res.setPremiumReserve(tempMap.get("RSK_PREMIUM_RESERVE") == null ? "": tempMap.get("RSK_PREMIUM_RESERVE").toString());
 
 			}
 
@@ -1871,12 +1861,12 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 			for (int i = 0; i < list.size(); i++) {
 				Tuple tempMap = list.get(i);
 				res.setShareSigned(
-						tempMap.get("RSK_SHARE_SIGNED") == null ? "" : tempMap.get("RSK_SHARE_SIGNED").toString());
-				res.setPremiumQuotaView(fm.formatter(tempMap.get("RSK_PREMIUM_QUOTA_SHARE") == null ? ""
+						tempMap.get("RSK_SHARE_SIGNED") == null ? "" : fm.formattereight(tempMap.get("RSK_SHARE_SIGNED").toString()));
+				res.setPremiumQuotaView(fm.formatterfour(tempMap.get("RSK_PREMIUM_QUOTA_SHARE") == null ? ""
 						: tempMap.get("RSK_PREMIUM_QUOTA_SHARE").toString()));
-				res.setPremiumsurpView(fm.formatter(tempMap.get("RSK_PREMIUM_SURPULS") == null ? ""
+				res.setPremiumsurpView(fm.formatterfour(tempMap.get("RSK_PREMIUM_SURPULS") == null ? ""
 						: tempMap.get("RSK_PREMIUM_SURPULS").toString()));
-				res.setXlCostView(fm.formatter(
+				res.setXlCostView(fm.formatterfour(
 						tempMap.get("RSK_XLCOST_OS_OC") == null ? "" : tempMap.get("RSK_XLCOST_OS_OC").toString()));
 				String eps = (tempMap.get("RSK_EPI_OSOE_OC") == null ? "" : tempMap.get("RSK_EPI_OSOE_OC").toString());
 				res.setRdsExchageRate(

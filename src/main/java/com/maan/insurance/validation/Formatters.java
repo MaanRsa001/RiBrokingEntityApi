@@ -79,7 +79,18 @@ public class Formatters {
 		return output;
 
 	}
+	public  String formatterfour(final String value)
+	{
+		String output="0.00";
+		if(StringUtils.isNotBlank(value))
+		{
+			double doublevalue=Double.parseDouble(value);
+			DecimalFormat myFormatter = new DecimalFormat("###,###,###,###,##0.0000");
+			output =myFormatter.format(doublevalue);
+		}
+		return output;
 
+	}
 
 	public Object exchRateFormat(String string) {
 		
@@ -92,7 +103,7 @@ public class Formatters {
 		return new java.sql.Date(date.getTime());
 	}
 
-	public String decimalFormat(final double number, final int nos) {
+	public String decimalFormat(final String number, final int nos) {
 
 		String noFmt="0";
 		try{

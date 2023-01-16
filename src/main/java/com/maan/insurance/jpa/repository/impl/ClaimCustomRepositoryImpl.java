@@ -1626,7 +1626,7 @@ public class ClaimCustomRepositoryImpl implements ClaimCustomRepository{
 
 		// Assign parameters
 		sp.registerStoredProcedureParameter("V_CONTRACT_NO", String.class, ParameterMode.IN);
-		sp.registerStoredProcedureParameter("V_LAYER_NO", String.class, ParameterMode.IN);
+		sp.registerStoredProcedureParameter("V_LAYER_NO", Integer.class, ParameterMode.IN);
 		sp.registerStoredProcedureParameter("V_PRODUCT_ID", String.class, ParameterMode.IN);
 		sp.registerStoredProcedureParameter("V_TRANSACTION_NO", String.class, ParameterMode.IN);
 		sp.registerStoredProcedureParameter("V_BRANCH_CODE", String.class, ParameterMode.IN);

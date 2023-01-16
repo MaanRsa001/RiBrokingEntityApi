@@ -573,18 +573,17 @@ public class PropPremiumValidation {
 				 {
 					 flag=true;
 					 cashLossCrFlag=true;
-				
+				System.out.println("Cash");;
 					 req.setCashLossCredit((req.getCashLossCredit()).replaceAll(",",""));
 					 if(val.numbervalid(req.getCashLossCredit()).equalsIgnoreCase("INVALID"))
 					 {
 						 cashLossCrFlag=false;
 						  list.add(new ErrorCheck(prop.getProperty("errors.CashLossCredit.Error"),"CashLossCredit","01")); 
-					 }else if(Double.parseDouble(req.getCashLossCredit())>0 && (response.getCommonResponse().size()==0)){
+					 }else if(Double.parseDouble(req.getCashLossCredit())>0 && (CollectionUtils.isEmpty(ClaimNos.getCommonResponse()))){
 						 cashLossCrFlag=false;
 						  list.add(new ErrorCheck(prop.getProperty("errors.CashLossCredit.invalid"),"CashLossCredit","01"));
 					 }
 				 }
-				 
 				 if("RI02".equalsIgnoreCase(req.getSourceId())){
 					 if(StringUtils.isBlank(req.getVatPremium())){
 						 list.add(new ErrorCheck(prop.getProperty("vatpremium.empty"),"servicetax","01")); 
