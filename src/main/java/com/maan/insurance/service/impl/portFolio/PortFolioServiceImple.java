@@ -899,14 +899,14 @@ public class PortFolioServiceImple implements PortFolioService{
 	        try {
 	            String query = "";
 	            String[] obj = new String[0];
-	            obj = new String[7];
+	            obj = new String[6];
 	            obj[0] = beanObj.getProductId();
 	            obj[1] = beanObj.getProductId();
 	            obj[2] = beanObj.getBranchCode();
 	            obj[3] = beanObj.getBranchCode();
 	            obj[4] = beanObj.getBranchCode();
 	            obj[5] = beanObj.getBranchCode();
-	            obj[6] = beanObj.getBranchCode();
+	            //obj[6] = beanObj.getBranchCode();
 	            query = "portfolio.select.contractList1";
 	            String qutext = prop.getProperty(query);
 	            if (!"1".equals(beanObj.getProductId()))

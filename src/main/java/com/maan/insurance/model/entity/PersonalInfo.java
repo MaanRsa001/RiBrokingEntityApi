@@ -230,8 +230,16 @@ private static final long serialVersionUID = 1L;
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="LAST_RATING")
     private Date       lastRating ;
-
-
+    
+    @Column(name="DOMICILE", length=100)
+    private String     domicle ;
+    
+    @Column(name="DOMICILE_TYPE", length=100)
+    private String     domicleType ;
+    @Column(name="VAT_REG_YN", length=100)
+    private String     vatRegYn ;
+    @Column(name="VAT_REG_NO", length=100)
+    private String     vatRegno ;
     //--- ENTITY LINKS ( RELATIONSHIP )
 
 

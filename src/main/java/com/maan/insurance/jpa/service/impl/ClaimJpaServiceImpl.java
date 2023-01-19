@@ -602,7 +602,7 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 		try {
 			//query -- claim.select.claimTableList
 			list = claimCustomRepository.selectClaimTableList(req.getPolicyContractNo(), 
-					req.getLayerNo(), req.getDepartmentId());
+					req.getLayerNo(), req.getSectionNo());
 			for (int i = 0; i < list.size(); i++) {
 				Tuple tempMap = list.get(i);
 				

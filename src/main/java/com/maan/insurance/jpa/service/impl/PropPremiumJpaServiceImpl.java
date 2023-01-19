@@ -1830,6 +1830,7 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 						tempMap.get("INWARD_BUS_TYPE") == null ? "" : tempMap.get("INWARD_BUS_TYPE").toString());
 				res.setAcceptenceDate(
 						tempMap.get("RSK_ACCOUNT_DATE") == null ? "" : tempMap.get("RSK_ACCOUNT_DATE").toString());
+				res.setVatRate(tempMap.get("VAT_RATE") == null ? "0": fm.formatterfour(tempMap.get("VAT_RATE").toString()));
 			}
 			if (list != null && list.size() > 0)
 
@@ -1838,12 +1839,9 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 			for (int i = 0; i < list.size(); i++) {
 				Tuple tempMap = list.get(i);
 
-				res.setCommissionView(fm.formatterfour(tempMap.get("RSK_COMM_QUOTASHARE") == null ? ""
-						: tempMap.get("RSK_COMM_QUOTASHARE").toString()));
-				res.setPremiumReserveView(fm.formatterfour(tempMap.get("RSK_PREMIUM_RESERVE") == null ? ""
-						: tempMap.get("RSK_PREMIUM_RESERVE").toString()));
-				res.setLossReserveView(fm.formatterfour(
-						tempMap.get("RSK_LOSS_RESERVE") == null ? "" : tempMap.get("RSK_LOSS_RESERVE").toString()));
+				res.setCommissionView(tempMap.get("RSK_COMM_QUOTASHARE") == null ? "": fm.formatterfour(tempMap.get("RSK_COMM_QUOTASHARE").toString()));
+				res.setPremiumReserveView(tempMap.get("RSK_PREMIUM_RESERVE") == null ? "": fm.formatterfour(tempMap.get("RSK_PREMIUM_RESERVE").toString()));
+				res.setLossReserveView(	tempMap.get("RSK_LOSS_RESERVE") == null ? "" : fm.formatterfour(tempMap.get("RSK_LOSS_RESERVE").toString()));
 				res.setProfitCommYN(tempMap.get("RSK_PROFIT_COMM") == null ? "" : tempMap.get("RSK_PROFIT_COMM").toString());
 				res.setCommissionSurbView(tempMap.get("RSK_COMM_SURPLUS") == null ? "" : fm.formatterfour(tempMap.get("RSK_COMM_SURPLUS").toString()));
 				res.setOverRiderView(tempMap.get("RSK_OVERRIDER_PERC") == null ? "" : fm.formatterfour(tempMap.get("RSK_OVERRIDER_PERC").toString()));
@@ -2173,6 +2171,8 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 							res.setSlideScaleComDC(fm.formatter(getMultipleVal(editpremium.get("SC_COMM_DC")==null?"":editpremium.get("SC_COMM_DC").toString())));
 							res.setPrAllocatedAmount(getMultipleVal(editpremium.get("PRD_ALLOCATED_TILL_DATE")==null?"":editpremium.get("PRD_ALLOCATED_TILL_DATE").toString()));
 							res.setLrAllocatedAmount(getMultipleVal(editpremium.get("LRD_ALLOCATED_TILL_DATE")==null?"":editpremium.get("LRD_ALLOCATED_TILL_DATE").toString()));
+							res.setSectionName(editpremium.get("SECTION_NAME")==null?"":editpremium.get("SECTION_NAME").toString());
+							res.setSectionType("2");
 							//res.setStatementDate(editpremium.get("STATEMENT_DATE")==null?"":editpremium.get("STATEMENT_DATE").toString());
 							//res.setOsbYN(editpremium.get("OSBYN")==null?"":editpremium.get("OSBYN").toString());
 							//res.setSectionName(editpremium.get("SECTION_NAME")==null?"":editpremium.get("SECTION_NAME").toString());
@@ -2254,7 +2254,7 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 					res.setStatementDate(editpremium.get("STATEMENT_DATE")==null?"":formatDate(editpremium.get("STATEMENT_DATE")));
 					res.setOsbYN(editpremium.get("OSBYN")==null?"":editpremium.get("OSBYN").toString());
 					res.setSectionName(editpremium.get("SECTION_NAME")==null?"":editpremium.get("SECTION_NAME").toString());
-	//							res.setSectionType(editpremium.get("2")==null?"":editpremium.get("TRANS_DATE").toString());
+					res.setSectionType("2");
 					res.setAccountPeriodDate(editpremium.get("ACCOUNTING_PERIOD_DATE")==null?"":formatDate(editpremium.get("ACCOUNTING_PERIOD_DATE")));
 					res.setPredepartment(editpremium.get("PREMIUM_CLASS")==null?"":editpremium.get("PREMIUM_CLASS").toString());
 				}

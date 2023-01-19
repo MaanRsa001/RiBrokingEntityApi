@@ -600,13 +600,15 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 							tempMap.get("PAID_AMOUNT") == null ? "" : tempMap.get("PAID_AMOUNT").toString());
 				}
 				res1.setAllocatedList(resList);
+				if (a > 0) {
+					res1.setTotalAmount(fm.formatter(Double.toString(a)));
+				} else {
+					res1.setTotalAmount("");
+				}
+				response.setCommonResponse(res1);
 			}
-			if (a > 0) {
-				res1.setTotalAmount(fm.formatter(Double.toString(a)));
-			} else {
-				res1.setTotalAmount("");
-			}
-			response.setCommonResponse(res1);
+			
+			
 			response.setMessage("Success");
 			response.setIsError(false);
 		} catch (Exception e) {
@@ -1693,6 +1695,7 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 						: contDet.get("TMAS_DEPARTMENT_NAME").toString());
 				bean.setAcceptenceDate(contDet.get("RSK_ACCOUNT_DATE") == null ? ""
 						: formatDate(contDet.get("RSK_ACCOUNT_DATE")).toString());
+				bean.setVatRate(contDet.get("VAT_RATE") == null ? "0": fm.formatterfour(contDet.get("VAT_RATE").toString()));
 			}
 			if (list != null && list.size() > 0)
 				bean.setSaveFlag("true");
@@ -1703,24 +1706,15 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 			list = xolPremiumCustomRepository.selectCommissionDetails(bean.getProposalNo());
 			if (list != null && list.size() > 0) {
 				Tuple commission = list.get(0);
-				bean.setCommissionview(commission.get("RSK_COMM_QUOTASHARE") == null ? ""
-						: commission.get("RSK_COMM_QUOTASHARE").toString());
-				bean.setPremiumReserveview(commission.get("RSK_PREMIUM_RESERVE") == null ? ""
-						: commission.get("RSK_PREMIUM_RESERVE").toString());
-				bean.setLossreserveview(commission.get("RSK_LOSS_RESERVE") == null ? ""
-						: commission.get("RSK_LOSS_RESERVE").toString());
-				bean.setProfitCommYN(
-						commission.get("RSK_PROFIT_COMM") == null ? "" : commission.get("RSK_PROFIT_COMM").toString());
-				bean.setCommissionSurbview(commission.get("RSK_COMM_SURPLUS") == null ? ""
-						: commission.get("RSK_COMM_SURPLUS").toString());
-				bean.setOverRiderview(commission.get("RSK_OVERRIDER_PERC") == null ? ""
-						: commission.get("RSK_OVERRIDER_PERC").toString());
-				bean.setBrokerageview(
-						commission.get("RSK_BROKERAGE") == null ? "" : commission.get("RSK_BROKERAGE").toString());
-				bean.setTaxview(
-						commission.get("RSK_TAX") == null ? "" : fm.formatter(commission.get("RSK_TAX").toString()));
-				bean.setOtherCostView(commission.get("RSK_OTHER_COST") == null ? ""
-						: fm.formatter(commission.get("RSK_OTHER_COST").toString()));
+				bean.setCommissionview(commission.get("RSK_COMM_QUOTASHARE") == null ? "": fm.formatterfour(commission.get("RSK_COMM_QUOTASHARE").toString()));
+				bean.setPremiumReserveview(commission.get("RSK_PREMIUM_RESERVE") == null ? "": fm.formatterfour(commission.get("RSK_PREMIUM_RESERVE").toString()));
+				bean.setLossreserveview(commission.get("RSK_LOSS_RESERVE") == null ? "": (commission.get("RSK_LOSS_RESERVE").toString()));
+				bean.setProfitCommYN(commission.get("RSK_PROFIT_COMM") == null ? "" : (commission.get("RSK_PROFIT_COMM").toString()));
+				bean.setCommissionSurbview(commission.get("RSK_COMM_SURPLUS") == null ? "": fm.formatterfour(commission.get("RSK_COMM_SURPLUS").toString()));
+				bean.setOverRiderview(commission.get("RSK_OVERRIDER_PERC") == null ? "": fm.formatterfour(commission.get("RSK_OVERRIDER_PERC").toString()));
+				bean.setBrokerageview(commission.get("RSK_BROKERAGE") == null ? "" : fm.formatterfour(commission.get("RSK_BROKERAGE").toString()));
+				bean.setTaxview(commission.get("RSK_TAX") == null ? "" : fm.formatterfour(commission.get("RSK_TAX").toString()));
+				bean.setOtherCostView(commission.get("RSK_OTHER_COST") == null ? "": fm.formatterfour(commission.get("RSK_OTHER_COST").toString()));
 			}
 			args[0] = bean.getProposalNo();
 			args[1] = bean.getProposalNo();
@@ -1729,22 +1723,17 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 			list = xolPremiumCustomRepository.selectTreatyXOLfacProposalDetails(bean.getProposalNo());
 			if (list != null && list.size() > 0) {
 				Tuple proposalDetails = list.get(0);
-				bean.setShareSigned(proposalDetails.get("RSK_SHARE_SIGNED") == null ? "0"
-						: proposalDetails.get("RSK_SHARE_SIGNED").toString());
-				String mnd = proposalDetails.get("RSK_MD_PREM_OS_OC") == null ? "0"
-						: proposalDetails.get("RSK_MD_PREM_OS_OC").toString();
-				String eps = (proposalDetails.get("RSK_EPI_OSOF_OC") == null ? "0"
-						: proposalDetails.get("RSK_EPI_OSOF_OC").toString());
-				bean.setRdsExchageRate(proposalDetails.get("RSK_EXCHANGE_RATE") == null ? ""
-						: proposalDetails.get("RSK_EXCHANGE_RATE").toString());
+				bean.setShareSigned(proposalDetails.get("RSK_SHARE_SIGNED") == null ? "0": fm.formattereight(proposalDetails.get("RSK_SHARE_SIGNED").toString()));
+				String mnd = proposalDetails.get("RSK_MD_PREM_OS_OC") == null ? "0": proposalDetails.get("RSK_MD_PREM_OS_OC").toString();
+				String eps = (proposalDetails.get("RSK_EPI_OSOF_OC") == null ? "0": proposalDetails.get("RSK_EPI_OSOF_OC").toString());
+				bean.setRdsExchageRate(proposalDetails.get("RSK_EXCHANGE_RATE") == null ? "": proposalDetails.get("RSK_EXCHANGE_RATE").toString());
 				if (bean.getRdsExchageRate() != "0" && bean.getRdsExchageRate() != null) {
 					double val = Double.parseDouble(eps) / Double.parseDouble(bean.getRdsExchageRate());
 					double mndval = Double.parseDouble(mnd) / Double.parseDouble(bean.getRdsExchageRate());
 					bean.setEPIourshareview(fm.formatter(Double.toString(val)));
 					bean.setMdpremiumview(fm.formatter(Double.toString(mndval)));
 				}
-				bean.setAdjustmentpremiumtemp(
-						proposalDetails.get("ADJ_PRE") == null ? "" : proposalDetails.get("ADJ_PRE").toString());
+				bean.setAdjustmentpremiumtemp(proposalDetails.get("ADJ_PRE") == null ? "" : proposalDetails.get("ADJ_PRE").toString());
 			}
 			// query -- premium.select.currecy.name
 			String currency = xolPremiumCustomRepository.selectCurrecyName(req.getBranchCode());

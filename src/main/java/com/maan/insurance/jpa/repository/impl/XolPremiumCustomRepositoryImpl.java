@@ -823,7 +823,20 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 					   cb.equal(tmasSubRoot.get("tmasProductId"), req.getProductId()),
 					   cb.equal(tmasSubRoot.get("tmasStatus"), "Y"));
 		
+		Subquery<String> vatrateSq = cq.subquery(String.class);
+		Root<TmasBranchMaster> branchSq = vatrateSq.from(TmasBranchMaster.class);
+		Root<PersonalInfo> personalSq = vatrateSq.from(PersonalInfo.class);
 		
+		List<BigDecimal> input =new ArrayList<BigDecimal>();
+		input.add(new BigDecimal(63));input.add(new BigDecimal(64));
+		
+		vatrateSq.select(branchSq.get("vatRate"))
+				.where(cb.equal(personalSq.get("customerType"), "B"),
+					   cb.equal(personalSq.get("country"), "764"),
+					   cb.equal(personalSq.get("customerId"), rkRoot.get("rskBrokerid")),
+					   cb.equal(personalSq.get("branchCode"), branchSq.get("branchCode")),
+					   cb.in(personalSq.get("customerId")).value(input).not(),
+					   cb.equal(personalSq.get("vatRegYn"), "Y"));
 		cq.multiselect(rkRoot.get("treatytype").alias("TREATYTYPE"), 
 				rkRoot.get("rskDeptid").alias("RSK_DEPTID"),
 				rkRoot.get("rskSpfcid").alias("RSK_SPFCID"),
@@ -847,6 +860,7 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 				rkRoot.get("rskOriginalCurr").alias("RSK_ORIGINAL_CURR"),
 				cmRoot.get("shortName").alias("CURRENCY_NAME"),
 				addressExpression.alias("Address"),
+				vatrateSq.alias("VAT_RATE"),
 				rkRoot.get("inwardBusType").alias("INWARD_BUS_TYPE"),
 				tmasDeptSq.alias("TMAS_DEPARTMENT_NAME"));
 		

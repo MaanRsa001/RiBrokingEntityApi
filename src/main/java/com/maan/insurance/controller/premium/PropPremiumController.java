@@ -116,8 +116,8 @@ public class PropPremiumController {
 			return premiumService.getPreviousPremium(contractNo);
 		
 	}
-	@GetMapping("/Proppremium/GetContractPremium/{contractNo}/{departmentId}/{branchCode}")
-	public GetContractPremiumRes GetContractPremium(@PathVariable ("contractNo") String contractNo,@PathVariable ("departmentId") String departmentId,@PathVariable ("branchCode") String branchCode) throws CommonValidationException {
+	@GetMapping("/Proppremium/GetContractPremium/{contractNo}/{sectionNo}/{branchCode}")
+	public GetContractPremiumRes GetContractPremium(@PathVariable ("contractNo") String contractNo,@PathVariable ("sectionNo") String departmentId,@PathVariable ("branchCode") String branchCode) throws CommonValidationException {
 
 	return premiumService.getContractPremium(contractNo,departmentId,branchCode);
 	}

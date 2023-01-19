@@ -207,8 +207,8 @@ public ClaimValidation() {
 			list.add(new ErrorCheck("Please Enter LayerNo", "LayerNo", "3"));
 		}
 		
-		if (StringUtils.isBlank(req.getDepartmentId())) {
-			list.add(new ErrorCheck("Please Enter DepartmentId", "DepartmentId", "4"));
+		if (StringUtils.isBlank(req.getSectionNo())) {
+			list.add(new ErrorCheck("Please Enter SectionNo", "DepartmentId", "4"));
 		}
 		return list;
 	}

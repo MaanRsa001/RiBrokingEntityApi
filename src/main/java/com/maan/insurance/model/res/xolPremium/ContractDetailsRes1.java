@@ -100,4 +100,6 @@ public class ContractDetailsRes1 {
 	private String mdpremiumview; 
 	@JsonProperty("Adjustmentpremiumtemp")
 	private String adjustmentpremiumtemp;
+	@JsonProperty("VatRate")
+	private String vatRate;
 }

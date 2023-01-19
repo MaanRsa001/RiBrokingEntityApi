@@ -139,5 +139,7 @@ public class ContractDetailsRes1 {
 	@JsonProperty("CedingId")
 	private String cedingId;
 	@JsonProperty("BrokerId")
-	private String brokerId; 
+	private String brokerId;
+	@JsonProperty("VatRate")
+	private String vatRate; 
 }

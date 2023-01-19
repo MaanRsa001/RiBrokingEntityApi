@@ -19,8 +19,8 @@ public class ClaimTableListReq {
 	@JsonProperty("LayerNo")
 	private String layerNo;
 	
-	@JsonProperty("DepartmentId")
-	private String departmentId;
+	@JsonProperty("SectionNo")
+	private String sectionNo;
 	
 	@JsonProperty("BranchCode")
 	private String branchCode;

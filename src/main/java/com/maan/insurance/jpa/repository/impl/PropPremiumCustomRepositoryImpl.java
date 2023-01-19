@@ -146,8 +146,8 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		Root<TtrnRiskDetails> endoSubRoot = endoSq.from(TtrnRiskDetails.class);
 
 		endoSq.select(cb.max(endoSubRoot.get("rskEndorsementNo"))).where(
-				cb.equal(endoSubRoot.get("rskContractNo"), req.getContNo()),
-				cb.equal(endoSubRoot.get("rskDeptid"), traRoot.get("subClass")));
+				cb.equal(endoSubRoot.get("rskProposalNumber"), traRoot.get("proposalNo"))
+				);
 		
 		cq.where(cb.equal(rkRoot.get("rskContractNo"), req.getContNo()),
 				 cb.equal(rkRoot.get("rskCedingid"), personalRoot.get("customerId")),
@@ -234,8 +234,8 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		Root<TtrnRiskDetails> endoSubRoot = endoSq.from(TtrnRiskDetails.class);
 
 		endoSq.select(cb.max(endoSubRoot.get("rskEndorsementNo"))).where(
-				cb.equal(endoSubRoot.get("rskContractNo"), req.getContNo()),
-				cb.equal(endoSubRoot.get("rskDeptid"), traRoot.get("subClass")));
+				cb.equal(endoSubRoot.get("rskProposalNumber"), traRoot.get("proposalNo"))
+				);
 		Subquery<Integer> pmendoSq = cq.subquery(Integer.class);
 		Root<PositionMaster> pmendoSubRoot = pmendoSq.from(PositionMaster.class);
 
@@ -250,10 +250,9 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 				 cb.equal(piRoot.get("branchCode"), personalRoot.get("branchCode")),
 				 cb.equal(piRoot.get("amendId"), piAmendSq),
 				 cb.equal(rkRoot.get("rskEndorsementNo"), endoSq),
-				 cb.equal(traRoot.get("contractNo"), rkRoot.get("rskContractNo")),
+				 cb.equal(traRoot.get("proposalNo"), rkRoot.get("rskProposalNumber")),
 				 cb.equal(rkRoot.get("rskProposalNumber"), pmroot.get("proposalNo")),
 				 cb.equal(pmroot.get("sectionNo"), req.getSectionNo()),
-				 cb.equal(traRoot.get("subClass"), rkRoot.get("rskDeptid")),
 				 cb.equal(pmroot.get("amendId"), pmendoSq),
 				 cb.equal(traRoot.get("transStatus"), "P"));
 		
@@ -487,7 +486,7 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 	}
 
 	@Override
-	public List<Tuple> getContPrem(String contractNo, String departmentId, String branchCode) {
+	public List<Tuple> getContPrem(String contractNo, String sectionNo, String branchCode) {
 		CriteriaBuilder cb= em.getCriteriaBuilder();	
 		CriteriaQuery<Tuple> query1 = cb.createQuery(Tuple.class);
 		
@@ -506,13 +505,13 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		
 		maxAmendId.select(cb.max(amend.get("amendId")));	
 		Predicate b1 = cb.equal(amend.get("contractNo"), pm.get("contractNo"));		
-		Predicate b2 = cb.equal(amend.get("deptId"),pm.get("deptId") );
+		Predicate b2 = cb.equal(amend.get("sectionNo"),pm.get("sectionNo") );
 		maxAmendId.where(b1,b2);	
 		
 		proposalNo.select(pm.get("proposalNo"));	
 		
 		Predicate a1 = cb.equal(pm.get("contractNo"),contractNo);		
-		Predicate a2 = cb.equal(pm.get("deptId"),departmentId);
+		Predicate a2 = cb.equal(pm.get("sectionNo"),sectionNo);
 		Predicate a3 = cb.equal(pm.get("amendId"), maxAmendId);
 		proposalNo.where(a1,a2,a3);	
 		
@@ -1465,6 +1464,9 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		Root<PersonalInfo> piRoot = cq.from(PersonalInfo.class);
 		Root<CurrencyMaster> cmRoot = cq.from(CurrencyMaster.class);
 		Root<PositionMaster> pmroot = cq.from(PositionMaster.class);
+		
+		
+		
 		Expression<String> nameExpression = cb.concat(cb.concat(piRoot.get("firstName"), " "),
 				piRoot.get("lastName"));
 		
@@ -1480,6 +1482,20 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 					   cb.equal(tmasSubRoot.get("tmasProductId"), req.getProductId()),
 					   cb.equal(tmasSubRoot.get("tmasStatus"), "Y"));
 		
+		Subquery<String> vatrateSq = cq.subquery(String.class);
+		Root<TmasBranchMaster> branchSq = vatrateSq.from(TmasBranchMaster.class);
+		Root<PersonalInfo> personalSq = vatrateSq.from(PersonalInfo.class);
+		
+		List<BigDecimal> input =new ArrayList<BigDecimal>();
+		input.add(new BigDecimal(63));input.add(new BigDecimal(64));
+		
+		vatrateSq.select(branchSq.get("vatRate"))
+				.where(cb.equal(personalSq.get("customerType"), "B"),
+					   cb.equal(personalSq.get("country"), "764"),
+					   cb.equal(personalSq.get("customerId"), rkRoot.get("rskBrokerid")),
+					   cb.equal(personalSq.get("branchCode"), branchSq.get("branchCode")),
+					   cb.in(personalSq.get("customerId")).value(input).not(),
+					   cb.equal(personalSq.get("vatRegYn"), "Y"));
 		
 		cq.multiselect(rkRoot.get("treatytype").alias("TREATYTYPE"), 
 				rkRoot.get("rskDeptid").alias("RSK_DEPTID"),
@@ -1504,6 +1520,7 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 				rkRoot.get("rskOriginalCurr").alias("RSK_ORIGINAL_CURR"),
 				cmRoot.get("shortName").alias("CURRENCY_NAME"),
 				addressExpression.alias("Address"),
+				vatrateSq.alias("VAT_RATE"),
 				rkRoot.get("inwardBusType").alias("INWARD_BUS_TYPE"),
 				tmasDeptSq.alias("TMAS_DEPARTMENT_NAME"));
 		
@@ -1525,8 +1542,15 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		Root<TtrnRiskDetails> endoSubRoot = endoSq.from(TtrnRiskDetails.class);
 
 		endoSq.select(cb.max(endoSubRoot.get("rskEndorsementNo"))).where(
-				cb.equal(endoSubRoot.get("rskContractNo"), req.getContNo()),
-				cb.equal(endoSubRoot.get("rskDeptid"), rkRoot.get("rskDeptid")));
+				cb.equal(endoSubRoot.get("rskProposalNumber"), pmroot.get("proposalNo"))
+				);
+		
+		Subquery<Integer> pmendoSq = cq.subquery(Integer.class);
+		Root<PositionMaster> pmendoSubRoot = pmendoSq.from(PositionMaster.class);
+
+		pmendoSq.select(cb.max(pmendoSubRoot.get("amendId"))).where(
+				cb.equal(pmendoSubRoot.get("contractNo"), pmroot.get("contractNo")),
+				cb.equal(pmendoSubRoot.get("branchCode"), pmroot.get("branchCode")));
 		
 		Subquery<Integer> cmAmendSq = cq.subquery(Integer.class);
 		Root<CurrencyMaster> cmAmendSubRoot = cmAmendSq.from(CurrencyMaster.class);
@@ -1557,6 +1581,7 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 			   cb.equal(cmRoot.get("branchCode"), piRoot.get("branchCode")),
 			   cb.equal(rkRoot.get("rskProposalNumber"), pmroot.get("proposalNo")),
 			   cb.equal(pmroot.get("sectionNo"), req.getSectionNo()),
+			   cb.equal(pmroot.get("amendId"), pmendoSq),
 			   cb.equal(cmRoot.get("amendId"), cmAmendSq));
 		
 		return em.createQuery(cq).getResultList();
@@ -1586,7 +1611,7 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 				root.get("rskAcquistionCostOc").alias("RSK_ACQUISTION_COST_OC"),
 				root.get("rskManagementExpenses").alias("RSK_MANAGEMENT_EXPENSES"),
 				root.get("rskProfitComm").alias("RSK_PROFIT_COMM"),
-				cb.selectCase().when(cb.isNull(root.get("rskPremiumReserve")), 0)
+				cb.selectCase().when(cb.isNull(root.get("rskPremiumReserve")),BigDecimal.ZERO)
 							   .otherwise(root.get("rskPremiumReserve")).alias("RSK_PREMIUM_RESERVE"))
 		
 		.where(cb.equal(root.get("rskProposalNumber"), proposalNo),
@@ -2490,8 +2515,8 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		Root<TtrnRiskDetails> endoSubRoot = endoSq.from(TtrnRiskDetails.class);
 
 		endoSq.select(cb.max(endoSubRoot.get("rskEndorsementNo"))).where(
-				cb.equal(endoSubRoot.get("rskContractNo"), traRoot.get("contractNo")),
-				cb.equal(endoSubRoot.get("rskDeptid"), traRoot.get("subClass")));
+				cb.equal(endoSubRoot.get("rskProposalNumber"), traRoot.get("proposalNo"))
+				);
 		
 		Subquery<Integer> pmendoSq = cq.subquery(Integer.class);
 		Root<PositionMaster> pmendoSubRoot = pmendoSq.from(PositionMaster.class);
@@ -2507,10 +2532,11 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		Predicate n5= cb.equal(piRoot.get("branchCode"), personalRoot.get("branchCode"));
 		Predicate n6= cb.equal(piRoot.get("amendId"), piAmendSq);
 		Predicate n7= cb.equal(rkRoot.get("rskEndorsementNo"), endoSq);
-		Predicate n8= cb.equal(traRoot.get("contractNo"), rkRoot.get("rskContractNo"));
+		Predicate n8= cb.equal(traRoot.get("proposalNo"), rkRoot.get("rskProposalNumber"));
 		Predicate n9= cb.equal(rkRoot.get("rskProposalNumber"), pmroot.get("proposalNo"));
 		Predicate n10= cb.equal(pmroot.get("amendId"), pmendoSq);
-		Predicate n11= cb.equal(traRoot.get("subClass"), rkRoot.get("rskDeptid"));
+		//Predicate n11= cb.equal(traRoot.get("subClass"), rkRoot.get("rskDeptid"));
+		//Predicate n12= cb.equal(traRoot.get("layerNo"), pmroot.get("layerNo"));
 		Predicate n0=null;
 		
 		if("S".equalsIgnoreCase(req.getSearchType())){
@@ -2529,9 +2555,9 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 				if(StringUtils.isNotBlank(req.getTransactionDateSearch())){
 					n0 =cb.like(cb.upper(traRoot.get("transactionMonthYear").as(String.class)),"%"+req.getTransactionDateSearch().toUpperCase()+"%");
 				}
-				cq.where(n0,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11);
+				cq.where(n0,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10);
 			}	else {
-				cq.where(n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11);
+				cq.where(n1,n2,n3,n4,n5,n6,n7,n8,n9,n10);
 			}
 			
 				 
@@ -2617,8 +2643,8 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		Root<TtrnRiskDetails> endoSubRoot = endoSq.from(TtrnRiskDetails.class);
 
 		endoSq.select(cb.max(endoSubRoot.get("rskEndorsementNo"))).where(
-				cb.equal(endoSubRoot.get("rskContractNo"), traRoot.get("contractNo")),
-				cb.equal(endoSubRoot.get("rskDeptid"), traRoot.get("subClass")));
+				cb.equal(endoSubRoot.get("rskProposalNumber"), traRoot.get("proposalNo"))
+				);
 		
 		Subquery<Integer> pmendoSq = cq.subquery(Integer.class);
 		Root<PositionMaster> pmendoSubRoot = pmendoSq.from(PositionMaster.class);
@@ -2634,10 +2660,10 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 			Predicate n5= cb.equal(piRoot.get("branchCode"), personalRoot.get("branchCode"));
 			Predicate n6= cb.equal(piRoot.get("amendId"), piAmendSq);
 			Predicate n7= cb.equal(rkRoot.get("rskEndorsementNo"), endoSq);
-			Predicate n8= cb.equal(traRoot.get("contractNo"), rkRoot.get("rskContractNo"));
+			Predicate n8= cb.equal(traRoot.get("proposalNo"), rkRoot.get("rskProposalNumber"));
 			Predicate n9= cb.equal(rkRoot.get("rskProposalNumber"), pmroot.get("proposalNo"));
 			Predicate n10= cb.equal(pmroot.get("amendId"), pmendoSq);
-			Predicate n11= cb.equal(traRoot.get("subClass"), rkRoot.get("rskDeptid"));
+			///Predicate n11= cb.equal(traRoot.get("subClass"), rkRoot.get("rskDeptid"));
 			Predicate n0=null;
 		
 			if("ST".equalsIgnoreCase(req.getSearchType())){
@@ -2656,9 +2682,9 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 				if(StringUtils.isNotBlank(req.getTransactionDateSearchTemp())){
 					n0 =cb.like(cb.upper(traRoot.get("transactionMonthYear").as(String.class)),"%"+req.getTransactionDateSearchTemp().toUpperCase()+"%");
 				}
-				cq.where(n0,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11);
+				cq.where(n0,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10);
 				}else {
-					cq.where(n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11);
+					cq.where(n1,n2,n3,n4,n5,n6,n7,n8,n9,n10);
 				}
 		cq.orderBy(cb.desc(traRoot.get("transactionNo")));
 		
@@ -2743,8 +2769,8 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		Root<TtrnRiskDetails> endoSubRoot = endoSq.from(TtrnRiskDetails.class);
 
 		endoSq.select(cb.max(endoSubRoot.get("rskEndorsementNo"))).where(
-				cb.equal(endoSubRoot.get("rskContractNo"), traRoot.get("contractNo")),
-				cb.equal(endoSubRoot.get("rskDeptid"), traRoot.get("subClass")));
+				cb.equal(endoSubRoot.get("rskProposalNumber"), traRoot.get("proposalNo"))
+				);
 		
 		Subquery<Integer> pmendoSq = cq.subquery(Integer.class);
 		Root<PositionMaster> pmendoSubRoot = pmendoSq.from(PositionMaster.class);
@@ -2760,10 +2786,10 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		Predicate n5= cb.equal(piRoot.get("branchCode"), personalRoot.get("branchCode"));
 		Predicate n6= cb.equal(piRoot.get("amendId"), piAmendSq);
 		Predicate n7= cb.equal(rkRoot.get("rskEndorsementNo"), endoSq);
-		Predicate n8= cb.equal(traRoot.get("contractNo"), rkRoot.get("rskContractNo"));
+		Predicate n8= cb.equal(traRoot.get("proposalNo"), rkRoot.get("rskProposalNumber"));
 		Predicate n9= cb.equal(rkRoot.get("rskProposalNumber"), pmroot.get("proposalNo"));
 		Predicate n10= cb.equal(pmroot.get("amendId"), pmendoSq);
-		Predicate n11= cb.equal(traRoot.get("subClass"), rkRoot.get("rskDeptid"));
+		//Predicate n11= cb.equal(traRoot.get("subClass"), rkRoot.get("rskDeptid"));
 		Predicate n0=null;
 		
 		if("S".equalsIgnoreCase(req.getSearchType())){
@@ -2782,9 +2808,9 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 				if(StringUtils.isNotBlank(req.getTransactionDateSearch())){
 					n0 =cb.like(cb.upper(traRoot.get("transactionMonthYear").as(String.class)),"%"+req.getTransactionDateSearch().toUpperCase()+"%");
 				}
-				cq.where(n0,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11);
+				cq.where(n0,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10);
 			}	else {
-				cq.where(n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11);
+				cq.where(n1,n2,n3,n4,n5,n6,n7,n8,n9,n10);
 			}
 			
 				 
