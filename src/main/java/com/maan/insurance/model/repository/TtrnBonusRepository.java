@@ -17,4 +17,10 @@ public interface TtrnBonusRepository extends JpaRepository<TtrnBonus,BigDecimal>
 	void deleteByProposalNoAndEndorsementNoAndBranchAndTypeAndLayerNo(BigDecimal bigDecimal, BigDecimal bigDecimal2,
 			String branchCode, String type, String layerNo);
 
+	int countByProposalNoAndBranchAndTypeAndEndorsementNoAndLayerNoAndLcbFromNotNull(BigDecimal bigDecimal,
+			String string, String string2, BigDecimal bigDecimal2, String string3);
+
+	void deleteByReferenceNoAndBranchAndTypeAndLayerNo(BigDecimal bigDecimal, String string, String string2,
+			String string3);
+
 }

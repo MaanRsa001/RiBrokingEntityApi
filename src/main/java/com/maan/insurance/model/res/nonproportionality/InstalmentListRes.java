@@ -10,5 +10,7 @@ public class InstalmentListRes {
 	@JsonProperty("InstalmentDateList")
 	private String instalmentDateList;
 	@JsonProperty("PaymentDueDays")
-	private String paymentDueDays;
+	private String paymentDueDays; 
+	@JsonProperty("InstalList")
+	private String instalList;
 }

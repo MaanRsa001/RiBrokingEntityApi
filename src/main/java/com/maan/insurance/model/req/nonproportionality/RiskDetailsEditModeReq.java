@@ -26,4 +26,9 @@ public class RiskDetailsEditModeReq {
 	
 	@JsonProperty("ReMode")
 	private String reMode;
+	
+	@JsonProperty("LayerProposalNo")
+	private String layerProposalNo; 
+	
+	
 }

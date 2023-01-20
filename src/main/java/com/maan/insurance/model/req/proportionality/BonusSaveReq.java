@@ -30,12 +30,11 @@ public class BonusSaveReq {
 	@JsonProperty("LoginId")
 	private String loginId;
 	@JsonProperty("DepartmentId")
-	private String departmentId;
-	
-	
-	
-	
-	
+	private String departmentId; 
+	@JsonProperty("ReferenceNo")
+	private String referenceNo;
+	@JsonProperty("PageFor")
+	private String pageFor;
 	
 
 }

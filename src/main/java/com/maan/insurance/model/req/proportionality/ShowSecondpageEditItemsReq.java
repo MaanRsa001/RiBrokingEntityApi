@@ -16,5 +16,8 @@ public class ShowSecondpageEditItemsReq {
 	private String branchCode;
 
 	@JsonProperty("NoInsurer")
-	private String noInsurer;
+	private String noInsurer; 
+	
+	@JsonProperty("SectionMode")
+	private String sectionMode;
 }

@@ -359,6 +359,29 @@ public class insertProportionalTreatyReq {
 	private String endorsementStatus;
 	
 	@JsonProperty("AmendStatus")
-	private Boolean amendStatus;
+	private Boolean amendStatus; 
 	
+	@JsonProperty("BouquetNo") //RI
+	private String bouquetNo;
+	
+	@JsonProperty("BouquetModeYN")
+	private String bouquetModeYN; 
+	
+	@JsonProperty("OfferNo")
+	private String offerNo; 
+	
+	@JsonProperty("UwYearTo")
+	private String uwYearTo; 
+	@JsonProperty("SectionNo")
+	private String sectionNo; 
+	
+	@JsonProperty("ProductId") 
+	private String productId;  
+	
+	@JsonProperty("AccountingPeriodNotes")
+	private String accountingPeriodNotes; 
+	
+	@JsonProperty("StatementConfirm")
+	private String statementConfirm; 
+
 }

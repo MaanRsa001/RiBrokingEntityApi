@@ -46,4 +46,7 @@ public interface TtrnMndInstallmentsRepository  extends JpaRepository<TtrnMndIns
 
 	TtrnMndInstallments findByProposalNo(String proposalNo);
 
+	List<TtrnMndInstallments> findByProposalNoAndLayerNoAndEndorsementNoAndEndorsementNoNotNullOrderByInstallmentNo(
+			String proposalNo, BigDecimal bigDecimal, BigDecimal bigDecimal2);
+
 }

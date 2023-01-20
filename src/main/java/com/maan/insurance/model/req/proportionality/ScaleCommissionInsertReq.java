@@ -48,23 +48,33 @@ public class ScaleCommissionInsertReq {
 	@JsonProperty("Bonusremarks")	
 	private String bonusremarks;
 	
-	@JsonProperty("Fistpc")	
-	private String fistpc;
+	@JsonProperty("ScFistpc")	
+	private String scFistpc;
 	
-	@JsonProperty("ProfitMont")	
-	private String profitMont;
+	@JsonProperty("ScProfitMont")	
+	private String scProfitMont;
 	
-	@JsonProperty("Subpc")	
-	private String subpc;
+	@JsonProperty("ScSubpc")	
+	private String scSubpc;
 	
-	@JsonProperty("SubProfitMonth")	
-	private String subProfitMonth;
+	@JsonProperty("ScSubProfitMonth")	
+	private String scSubProfitMonth;
 	
-	@JsonProperty("SubSeqCalculation")	
-	private String subSeqCalculation;
+	@JsonProperty("ScSubSeqCalculation")	
+	private String scSubSeqCalculation;
 	
 	@JsonProperty("ScaleList")	
-	private List<ScaleList> ScaleList;
+	private List<ScaleList> ScaleList; 
 	
-
+	@JsonProperty("ReferenceNo")	
+	private String referenceNo; //Ri 
+	
+	@JsonProperty("Scalementhod")	
+	private String scalementhod;  
+	
+	@JsonProperty("FpcType")	
+	private String fpcType;
+	
+	@JsonProperty("FpcfixedDate")	
+	private String fpcfixedDate;
 }

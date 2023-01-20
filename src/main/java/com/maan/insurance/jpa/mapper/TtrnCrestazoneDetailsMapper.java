@@ -27,8 +27,8 @@ public class TtrnCrestazoneDetailsMapper extends AbstractEntityMapper<TtrnCresta
 			ttrnCrestazoneDetails
 					.setAmendId(StringUtils.isEmpty(input.getEndorsmentno()) ? "0" : input.getEndorsmentno());
 			ttrnCrestazoneDetails.setSubClass(input.getDepartmentId());
-			ttrnCrestazoneDetails.setCresta_Id("");
-			ttrnCrestazoneDetails.setCresta_Name("");
+			ttrnCrestazoneDetails.setCrestaId("");
+			ttrnCrestazoneDetails.setCrestaName("");
 			ttrnCrestazoneDetails.setCurrency("");
 			ttrnCrestazoneDetails.setAccRisk("");
 			ttrnCrestazoneDetails.setAccumDate(null);
@@ -36,7 +36,7 @@ public class TtrnCrestazoneDetailsMapper extends AbstractEntityMapper<TtrnCresta
 			ttrnCrestazoneDetails.setStatus("");
 			ttrnCrestazoneDetails.setBranchCode(input.getBranchCode());
 			ttrnCrestazoneDetails.setTerritoryCode("");
-			ttrnCrestazoneDetails.setSNo("");
+			ttrnCrestazoneDetails.setSno("");
 
 		}
 		return ttrnCrestazoneDetails;

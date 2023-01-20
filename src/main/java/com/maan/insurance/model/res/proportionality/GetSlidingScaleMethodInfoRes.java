@@ -6,9 +6,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 @Data
-public class ShowRetroContractsRes {
+public class GetSlidingScaleMethodInfoRes {
+	
 	@JsonProperty("Result")
-	private List<ShowRetroContractsRes1> commonResponse;
+	private List<GetSlidingScaleMethodInfoRes1> commonResponse;
 		
 	@JsonProperty("Message")
 	private String message;

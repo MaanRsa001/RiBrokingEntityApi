@@ -18,4 +18,7 @@ public class ScaleList {
 	
 	@JsonProperty("ScaleSNo")	
 	private String scaleSNo;
+	
+	@JsonProperty("ScaleMaxPartPercent")	
+	private String scaleMaxPartPercent;
 }

@@ -11,8 +11,6 @@ import lombok.Data;
 public class GetScaleCommissionListRes1 {
 
 	
-	@JsonProperty("BonusDetails")
-	private List<BonusDetailsRes> bonusDetails;
 	
 	
 	@JsonProperty("BonusTypeId")
@@ -21,16 +19,31 @@ public class GetScaleCommissionListRes1 {
 	private String quotaShare;
 	@JsonProperty("Bonusremarks")
 	private String bonusremarks;
-	@JsonProperty("Fistpc")
-	private String fistpc;
-	@JsonProperty("ProfitMont")
-	private String profitMont;
-	@JsonProperty("Subpc")
-	private String subpc;
-	@JsonProperty("SubProfitMonth")
-	private String subProfitMonth;
-	@JsonProperty("SubSeqCalculation")
-	private String subSeqCalculation;
+	@JsonProperty("ScFistpc")
+	private String scFistpc;
+	@JsonProperty("ScProfitMont")
+	private String scProfitMont;
+	@JsonProperty("ScSubpc")
+	private String scSubpc;
+	@JsonProperty("ScSubProfitMonth")
+	private String scSubProfitMonth;
+	@JsonProperty("ScSubSeqCalculation")
+	private String scSubSeqCalculation;
+	@JsonProperty("FpcType") //Ri
+	private String fpcType;
+	@JsonProperty("FpcfixedDate")
+	private String fpcfixedDate;
+	@JsonProperty("ScaleMaxPartPercent")
+	private String scaleMaxPartPercent;
+	
+	@JsonProperty("BonusSno")
+	private String bonusSno;
+	@JsonProperty("BonusFrom")
+	private String bonusFrom;
+	@JsonProperty("BonusTo")
+	private String bonusTo;
+	@JsonProperty("BonusLowClaimBonus")
+	private String bonusLowClaimBonus;
 //	@JsonProperty("CoversubdeptList")
 //	private List<CommonResDropDown> coversubdeptList;
 }

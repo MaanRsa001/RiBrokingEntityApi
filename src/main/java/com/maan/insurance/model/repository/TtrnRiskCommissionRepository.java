@@ -37,4 +37,6 @@ public interface TtrnRiskCommissionRepository  extends JpaRepository<TtrnRiskCom
 
 	TtrnRiskCommission findByRskProposalNumberAndRskEndorsementNo(String proposalNo, BigDecimal bigDecimal);
 
+	int countByRskProposalNumber(String proposalNo);
+
 }

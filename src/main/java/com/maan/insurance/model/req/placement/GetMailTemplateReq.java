@@ -19,7 +19,6 @@ public class GetMailTemplateReq {
 	private String newStatus;
 	@JsonProperty("ReinsurerName")
 	private String reinsurerName; 
-	
 	@JsonProperty("SearchType")
 	private String searchType;
 	@JsonProperty("PlacementMode")
@@ -28,7 +27,6 @@ public class GetMailTemplateReq {
 	private String bouquetNo;
 	@JsonProperty("ReinsurerId")
 	private String reinsurerId; 
-	
 	@JsonProperty("BrokerId")
 	private String brokerId;
 	@JsonProperty("BaseProposalNo")
@@ -37,18 +35,7 @@ public class GetMailTemplateReq {
 	private String searchReinsurerId;
 	@JsonProperty("SearchBrokerId")
 	private String searchBrokerId; 
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+          	
 	/*
 	 * @JsonProperty("MailTo") private String mailTo;
 	 * 

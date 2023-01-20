@@ -31,5 +31,8 @@ public class ShowRetroContractsReq {
 	@JsonProperty("IncepDate")
 	private String incepDate;
 	@JsonProperty("BranchCode")
-	private String branchCode;
+	private String branchCode; 
+	@JsonProperty("RetroType")
+	private String retroType; 
 }
+

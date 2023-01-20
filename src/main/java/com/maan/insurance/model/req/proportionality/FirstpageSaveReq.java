@@ -224,5 +224,51 @@ public class FirstpageSaveReq {
 	private String edit;
 	@JsonProperty("ProcessId")
 	private String processId;
+	@JsonProperty("RiskdetailYN")
+	private String riskdetailYN;
+	@JsonProperty("BrokerdetYN")
+	private String brokerdetYN;
+	@JsonProperty("CoverdetYN")
+	private String coverdetYN;
+	@JsonProperty("PremiumdetailYN")
+	private String premiumdetailYN;
+	@JsonProperty("AcqdetailYN")
+	private String acqdetailYN;
+	@JsonProperty("CommissiondetailYN")
+	private String commissiondetailYN;
+	@JsonProperty("DocdetailYN")
+	private String docdetailYN;
+	@JsonProperty("DepositdetailYN")
+	private String depositdetailYN;
+	@JsonProperty("LossdetailYN")
+	private String lossdetailYN;
+	
+	@JsonProperty("PaymentPartner")
+	private String paymentPartner;
+	@JsonProperty("InstallYN")
+	private String installYN;
+	@JsonProperty("ReinstdetailYN")
+	private String reinstdetailYN;
+	@JsonProperty("RateOnLine")
+	private String rateOnLine;
+	@JsonProperty("QuotesharePercent")
+	private String quotesharePercent; 
+	
+	
+	@JsonProperty("SectionNo")
+	private String sectionNo; 
+	@JsonProperty("BouquetModeYN") //Ri
+	private String bouquetModeYN;
+	@JsonProperty("BouquetNo")
+	private String bouquetNo;
+	@JsonProperty("UwYearTo")
+	private String uwYearTo;
+	@JsonProperty("AccountingPeriodNotes")
+	private String accountingPeriodNotes;
+	@JsonProperty("StatementConfirm")
+	private String statementConfirm; 
+	
+	@JsonProperty("OfferNo")
+	private String offerNo; 
 
 }

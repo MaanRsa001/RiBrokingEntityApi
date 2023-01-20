@@ -377,12 +377,43 @@ private static final long serialVersionUID = 1L;
     @Column(name="RSK_TRTY_LMT_OURASS_PML_OS_OC", length=100)
     private String     rskTrtyLmtOurassPmlOsOc ;
 
-    @Column(name="RSK_TRTY_LMTOUR_ASS_PML_OS_DC", length=100)
+    @Column(name="RSK_TRTY_LMTOUR_ASS_PML_OS_DC")
     private String     rskTrtyLmtourAssPmlOsDc ;
 
 
     //--- ENTITY LINKS ( RELATIONSHIP )
 
+    @Column(name="RISK_DET_YN") //Ri
+    private String     riskDetYn ;
+    @Column(name="BROKER_DET_YN")
+    private String     brokerDetYn ;
+    @Column(name="COVER_DET_YN")
+    private String     coverDetYn ;
+    @Column(name="PREMIUM_DET_YN")
+    private String     premiumDetYn ;
+    @Column(name="ACQCOST_DET_YN")
+    private String     acqcostDetYn ;
+    @Column(name="COMM_DET_YN")
+    private String     commDetYn ;
+    @Column(name="DEPOSIT_DET_YN") 
+    private String     depositDetYn ;
+    @Column(name="LOSS_DET_YN")
+    private String     lossDetYn ;
+    @Column(name="DOC_DET_YN")
+    private String     docDetYn ;
+    @Column(name="PAYMENT_PARTNER")
+    private String     paymentPartner ;
+    @Column(name="INTALL_DET_YN")
+    private String     intallDetYn ;
+    @Column(name="REINST_DET_YN")
+    private String     reinstDetYn ;
+    @Column(name="RATE_ON_LINE")
+    private BigDecimal     rateOnLine ;
+    @Column(name="QUOTESHARE_PERCENT")
+    private BigDecimal     quotesharePercent ;
+
+    
+   
 
 }
 

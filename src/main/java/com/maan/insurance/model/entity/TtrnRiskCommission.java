@@ -363,12 +363,21 @@ private static final long serialVersionUID = 1L;
     private String     rskRate ;
 
     @Column(name="RSK_COMMISSION_TYPE", length=10)
-    private String     rskCommissionType ;
-
+    private String     rskCommissionType ; 
 
     //--- ENTITY LINKS ( RELATIONSHIP )
+    @Column(name="RSK_PREMIUM_RES_TYPE")
+    private String     rskPremiumResType ;
+    
+    @Column(name="RSK_PORTFOLIO_TYPE")
+    private String     rskPortfolioType ; 
+    
+    @Column(name="FPC_TYPE")
+    private String     fpcType ;
 
-
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name="FPC_FIXED_DATE")
+    private Date       fpcFixedDate ;
 }
 
 

@@ -208,6 +208,15 @@ public class ShowSecondpageEditItemsRes1 {
 	private List<NoInsurerRes> noInsurerList;
 	
 	
-	
+	@JsonProperty("PremiumResType") //RI
+	private String premiumResType;
+	@JsonProperty("PortfolioType")
+	private String portfolioType;
+	@JsonProperty("PcfpcType")
+	private String pcfpcType;
+	@JsonProperty("PcfixedDate")
+	private String pcfixedDate; 
+	@JsonProperty("PremiumSurplus")
+	private String premiumSurplus;
 	
 }

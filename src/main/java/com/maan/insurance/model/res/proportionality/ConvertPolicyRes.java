@@ -3,12 +3,14 @@ package com.maan.insurance.model.res.proportionality;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.maan.insurance.model.req.proportionality.GetSectionDuplicationCheckReq;
 
 import lombok.Data;
+
 @Data
-public class ShowRetroContractsRes {
+public class ConvertPolicyRes {
 	@JsonProperty("Result")
-	private List<ShowRetroContractsRes1> commonResponse;
+	private ConvertPolicyRes1 commonResponse;
 		
 	@JsonProperty("Message")
 	private String message;

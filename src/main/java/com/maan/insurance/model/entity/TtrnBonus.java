@@ -107,5 +107,19 @@ public class TtrnBonus implements Serializable{
     
     @Column(name="SYS_DATE")
     private Date    sysDate ;
+    
+    @Column(name="REFERENCE_NO")
+    private BigDecimal    referenceNo ;
+    
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name="FPC_FIXED_DATE")
+    private Date    fpcFixedDate ;
+    
+    @Column(name="SCALE_MAX_PART_PERCENT")
+    private BigDecimal    scaleMaxPartPercent ;
+    
+    @Column(name="FPC_TYPE")
+    private String     fpcType ;
 
+  
 }

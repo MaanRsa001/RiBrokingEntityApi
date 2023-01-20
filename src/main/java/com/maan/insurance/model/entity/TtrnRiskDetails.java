@@ -264,11 +264,14 @@ private static final long serialVersionUID = 1L;
     private String     retentionyn ;
 
     @Column(name="XOL_LAYER_NO", length=10)
-    private String     xolLayerNo ;
+    private String     xolLayerNo ; 
 
 
     //--- ENTITY LINKS ( RELATIONSHIP )
-
+    @Column(name="RSK_ACCOUNT_PERIOD_NOTICE") //RI
+    private String     rskAccountPeriodNotice ;
+    @Column(name="RSK_STATEMENT_CONFIRM")
+    private String     rskStatementConfirm ;
 
 }
 

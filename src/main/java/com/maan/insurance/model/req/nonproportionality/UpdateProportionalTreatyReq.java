@@ -229,4 +229,17 @@ public class UpdateProportionalTreatyReq {
 	private String endorsementStatus;
 	@JsonProperty("DocStatus")
 	private String docStatus;
+	@JsonProperty("OfferNo")
+	private String offerNo;
+	
+	@JsonProperty("BouquetModeYN") //Ri
+	private String bouquetModeYN;
+	@JsonProperty("BouquetNo")
+	private String bouquetNo;
+	@JsonProperty("UwYearTo")
+	private String uwYearTo;
+	@JsonProperty("AccountingPeriodNotes")
+	private String accountingPeriodNotes;
+	@JsonProperty("StatementConfirm")
+	private String statementConfirm; 
 }

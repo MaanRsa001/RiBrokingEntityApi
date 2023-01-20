@@ -6,9 +6,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 @Data
-public class ShowRetroContractsRes {
+public class GetSectionEditModeRes {
 	@JsonProperty("Result")
-	private List<ShowRetroContractsRes1> commonResponse;
+	private GetSectionEditModeRes1 commonResponse;
 		
 	@JsonProperty("Message")
 	private String message;

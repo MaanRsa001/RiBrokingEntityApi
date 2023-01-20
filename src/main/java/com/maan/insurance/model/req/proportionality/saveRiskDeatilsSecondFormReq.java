@@ -315,5 +315,12 @@ public class saveRiskDeatilsSecondFormReq {
 	@JsonProperty("TreatyLimitsurplusOC")
 	private String treatyLimitsurplusOC;
 	
-
+	@JsonProperty("PremiumResType") //Ri
+	private String premiumResType;
+	@JsonProperty("PcfpcType")
+	private String pcfpcType;
+	@JsonProperty("PcfixedDate")
+	private String pcfixedDate;
+	@JsonProperty("PortfolioType")
+	private String portfolioType;
 }

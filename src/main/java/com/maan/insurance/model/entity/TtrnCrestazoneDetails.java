@@ -51,14 +51,14 @@ public class TtrnCrestazoneDetails implements Serializable{
     
 
     @Column(name="CRESTA_ID")
-    private String cresta_Id ;
+    private String crestaId ;
 
     @Column(name="STATUS")
     private String     status ;
 
 
     @Column(name="CRESTA_NAME")
-    private String     cresta_Name ;
+    private String     crestaName ;
 
     @Column(name="CURRENCY")
     private String     currency ;
@@ -73,7 +73,7 @@ public class TtrnCrestazoneDetails implements Serializable{
     private String     territoryCode ;
     
     @Column(name="SNO")
-    private String     sNo ;
+    private String     sno ;
     
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="Entry_DATE")

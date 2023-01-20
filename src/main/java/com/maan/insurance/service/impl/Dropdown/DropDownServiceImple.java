@@ -4,7 +4,9 @@ package com.maan.insurance.service.impl.Dropdown;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.math.BigDecimal;
+import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -5156,5 +5158,58 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 				}
 			return response;
 		}
-
+		public void getSOATableInsert(String proposalNo, String contractno,String branchCode) {
+			Connection con = null;
+			CallableStatement cstmt = null;
+			String error="";
+			try {
+				String query = "DELETE FROM TTRN_SOA_DUE WHERE PROPOSAL_NO=? AND CONTRACT_NO=? AND BRANCH_CODE=?";
+				String args[] = new String[3];
+				args[0]=proposalNo;
+				args[1] =contractno;
+				args[2] =branchCode;
+				queryImpl.updateQuery(query,args);
+//				con = this.mytemplate.getDataSource().getConnection(); 	
+//				cstmt = con.prepareCall("{CALL PRC_SOA_PENDING_DUE(?,?,?,?)}");
+//				cstmt.setString(1, branchCode.trim() );	
+//				cstmt.setString(2, proposalNo.trim());
+//				cstmt.setString(3, contractno.trim());
+//				cstmt.registerOutParameter(4,java.sql.Types.VARCHAR );
+//				cstmt.setString(4, error);
+//				boolean count = cstmt.execute();
+				
+				//Procedure Call
+				StoredProcedureQuery storedProcedure = em.createStoredProcedureQuery("PRC_SOA_PENDING_DUE");
+				storedProcedure.registerStoredProcedureParameter("pBranchCode", String.class, ParameterMode.IN);
+				storedProcedure.registerStoredProcedureParameter("pProposalNo", String.class, ParameterMode.IN);
+				storedProcedure.registerStoredProcedureParameter("pContractNo", String.class, ParameterMode.IN);
+				
+				// Set parameters
+				storedProcedure.setParameter("pBranchCode", branchCode);
+				storedProcedure.setParameter("pProposalNo", proposalNo);
+				storedProcedure.setParameter("pContractNo", contractno);
+				// execute SP
+				storedProcedure.execute();
+				
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+			finally {
+				if(cstmt!=null) {
+					try {
+						cstmt.close();
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+				}
+				if(con!=null) {
+					try {
+						con.close();
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
 }

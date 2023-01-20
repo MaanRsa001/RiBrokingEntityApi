@@ -56,7 +56,9 @@ import com.maan.insurance.model.entity.PersonalInfo;
 import com.maan.insurance.model.entity.PersonalInfoContact;
 import com.maan.insurance.model.entity.PositionMaster;
 import com.maan.insurance.model.entity.StatusMaster;
+import com.maan.insurance.model.entity.TmasDepartmentMaster;
 import com.maan.insurance.model.entity.TmasDocTypeMaster;
+import com.maan.insurance.model.entity.TmasProductMaster;
 import com.maan.insurance.model.entity.TtrnRiPlacement;
 import com.maan.insurance.model.entity.TtrnRiPlacementStatus;
 import com.maan.insurance.model.entity.TtrnRiskDetails;
@@ -2286,6 +2288,7 @@ public class PlacementServiceImple implements PlacementService {
 		GetMailTemplateRes response = new GetMailTemplateRes();
 		GetMailTemplateRes1 bean =new GetMailTemplateRes1();
 		try {
+			MailproposalInfo(req);
 			//GET_MAIL_TEMPLATE
 			List<MailTemplateMaster> list = mailTemplateMasterRepository.findByMailType(req.getMailType());
 		
@@ -2366,56 +2369,147 @@ public class PlacementServiceImple implements PlacementService {
 	}
 	private List<Tuple> MailproposalInfo(GetMailTemplateReq bean) {
 		List<Tuple> list=null;
-		String query="";
-//		try {
-//			Object[] obj=new Object[4];
-//			if(StringUtils.isBlank(bean.getSearchType())) {
-//				if("C".equals(bean.getPlacementMode())) {
-//					if(StringUtils.isNotBlank(bean.getBouquetNo())) {
-//						//GET_MAILTEPLATE_BOUQUET
-//						obj[0]=bean.getBranchCode();
-//						obj[1]=bean.getBouquetNo();
-//						obj[2]=bean.getReinsurerId();
-//						obj[3]=bean.getBrokerId();
-//					}else {
-//						query=getQuery("GET_MAILTEPLATE_BASELAYER");
-//						obj[0]=bean.getBranchCode();
-//						obj[1]=bean.getBaseProposalNo();
-//						obj[2]=bean.getReinsurerId();
-//						obj[3]=bean.getBrokerId();
-//					}
-//				}else {
-//					query=getQuery("GET_MAILTEPLATE_PROPOSAL");
-//					obj[0]=bean.getBranchCode();
-//					obj[1]=bean.getProposalNo();
-//					obj[2]=bean.getReinsurerId();
-//					obj[3]=bean.getBrokerId();
-//				}
-//			}else {
-//				obj=new Object[5];
-//				obj[0]=bean.getBranchCode();
-//				obj[2]=bean.getSearchReinsurerId();
-//				obj[3]=bean.getSearchBrokerId();
-//				obj[4]=bean.getNewStatus();
-//				
-//				if(StringUtils.isNotBlank(bean.getBouquetNo())) {
-//					query=getQuery("GET_MAILTEPLATE_BOUQUET_SEARCH");
-//					obj[1]=bean.getBouquetNo();
-//				}else if(StringUtils.isNotBlank(bean.getBaseProposalNo())) {
-//					query=getQuery("GET_MAILTEPLATE_BASELAYER_SEARCH");
-//					obj[1]=bean.getBaseProposalNo();
-//				}else {
-//					query=getQuery("GET_MAILTEPLATE_PROPOSAL_SEARCH");
-//					obj[1]=bean.getProposalNo();
-//				}
-//			}
-//			
-//			list=this.mytemplate.queryForList(query, obj);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
+		try {
+//			CASE WHEN RD.RSK_SPFCID='ALL' THEN 'ALL' ELSE (select RTRIM(XMLAGG(XMLELEMENT(E,TMAS_SPFC_NAME,',')).
+//					EXTRACT('//text()'),',')  from TMAS_SPFC_MASTER SPFC where SPFC.TMAS_SPFC_ID in(select * from table(SPLIT_TEXT_FN(replace(RD.RSK_SPFCID,' ', '')))) 
+//					AND  SPFC.TMAS_PRODUCT_ID = RD.RSK_PRODUCTID AND SPFC.BRANCH_CODE = RD.BRANCH_CODE) END SUB_CLASS
+			
+			
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+		
+			Root<PositionMaster> pm = query.from(PositionMaster.class);
+			Root<TtrnRiskDetails> rd = query.from(TtrnRiskDetails.class); //'New' POLICY_STATUS,''EXISTING_SHARE
+			Root<TtrnRiPlacement> trp = query.from(TtrnRiPlacement.class);
+			// companyName
+			Subquery<String> companyName = query.subquery(String.class); 
+			Root<PersonalInfo> pms = companyName.from(PersonalInfo.class);
+			companyName.select(pms.get("companyName"));
+			Predicate a1 = cb.equal( rd.get("rskCedingid"), pms.get("customerId"));
+			Predicate a2 = cb.equal( pms.get("customerType"), "C");
+			Predicate a3 = cb.equal( pm.get("branchCode"), pms.get("branchCode"));
+			companyName.where(a1,a2,a3);
+			
+			//BUSINESS_TYPE
+			Subquery<String> businessType = query.subquery(String.class); 
+			Root<TmasProductMaster> pd = businessType.from(TmasProductMaster.class);
+			businessType.select(pd.get("tmasProductName"));
+			Predicate b1 = cb.equal(pd.get("tmasProductId"),  pm.get("productId"));
+			Predicate b2 = cb.equal(pd.get("branchCode"),  pm.get("branchCode"));
+			businessType.where(b1,b2);
+			
+			//treatyType
+			Subquery<String> treatyType = query.subquery(String.class); 
+			Root<ConstantDetail> cd = treatyType.from(ConstantDetail.class);
+			treatyType.select(cd.get("detailName"));
+			Predicate c1 =  cb.equal(cb.selectCase().when(cb.equal(pm.get("productId") ,"2") ,new BigDecimal(43) ).otherwise(new BigDecimal(29)) ,
+					  cd.get("categoryId"));
+			Predicate c2 = cb.equal(cb.selectCase().when(cb.equal(pm.get("productId") ,"2") ,rd.get("treatytype") ).otherwise(rd.get("rskBusinessType")) ,
+					  cd.get("type"));	
+			treatyType.where(c1,c2);
+			
+			//CLASS
+			Subquery<String> deptName = query.subquery(String.class); 
+			Root<TmasDepartmentMaster> dm = deptName.from(TmasDepartmentMaster.class);
+			deptName.select(dm.get("tmasDepartmentName"));
+			Predicate d1 = cb.equal(dm.get("tmasDepartmentId"),  rd.get("rskDeptid"));
+			Predicate d2 = cb.equal(dm.get("branchCode"),  rd.get("branchCode"));
+			Predicate d3 = cb.equal(dm.get("tmasProductId"),  rd.get("rskProductid"));
+			Predicate d4 = cb.equal(dm.get("tmasStatus"), "Y");
+			deptName.where(d1,d2,d3,d4);
+			
+			//status
+			Subquery<Long> status = query.subquery(Long.class); 
+			Root<TtrnRiPlacement> TRP1 = status.from(TtrnRiPlacement.class);
+			status.select(cb.max(TRP1.get("statusNo")));
+			Predicate e1 = cb.equal( TRP1.get("proposalNo"), trp.get("proposalNo"));
+			Predicate e2 = cb.equal( TRP1.get("sno"), trp.get("sno"));
+			Predicate e3 = cb.equal( TRP1.get("branchCode"), trp.get("branchCode"));
+			status.where(e1,e2,e3);
+	
+			query.multiselect(rd.get("rskInceptionDate").alias("INS_DATE"),rd.get("rskExpiryDate").alias("EXP_DATE"),
+					companyName.alias("COMPANY_NAME"),pm.get("uwYear").alias("UW_YEAR"),
+					pm.get("uwYearTo").alias("UW_YEAR_TO"),pm.get("contractNo").alias("CONTRACT_NO"),
+					pm.get("baseLayer").alias("BASE_LAYER"),pm.get("layerNo").alias("LAYER_NO"),businessType.alias("BUSINESS_TYPE"),
+					pm.get("proposalNo").alias("PROPOSAL_NO"),treatyType.alias("TREATY_TYPE"),rd.get("rskTreatyid").alias("RSK_TREATYID"),
+					pm.get("bouquetNo").alias("BOUQUET_NO"),pm.get("bouquetModeYn").alias("BOUQUET_MODE_YN"),
+					deptName.alias("CLASS"),                    //subclass pending
+					cb.selectCase().when(cb.equal(pm.get("productId") ,"2") ,pm.get("sectionNo"))
+					.otherwise(pm.get("layerNo")).alias("SECTION_NO"), 	pm.get("offerNo").alias("OFFER_NO"),
+					pm.get("productId").alias("PRODUCT_ID"), trp.get("shareOffered").alias("SHARE_OFFERED"),
+					trp.get("shareProposalWritten").alias("SHARE_PROPOSAL_WRITTEN"),
+					trp.get("shareProposedSigned").alias("SHARE_PROPOSED_SIGNED")).distinct(true); 
+	
+			//Order By
+			List<Order> orderList = new ArrayList<Order>();
+			orderList.add(cb.asc(pm.get("productId")));
+			orderList.add(cb.asc(pm.get("proposalNo")));
+			orderList.add(cb.asc(pm.get("bouquetNo")));
+	
+			
+			if(StringUtils.isBlank(bean.getSearchType())) {
+				// Where
+				Predicate n1 = cb.equal(pm.get("branchCode"), bean.getBranchCode());
+				Predicate n2 = cb.equal(pm.get("proposalNo"), rd.get("rskProposalNumber"));
+			
+				Predicate n4 = cb.equal(trp.get("reinsurerId"), bean.getReinsurerId()); 
+				Predicate n5 = cb.equal(trp.get("brokerId"), bean.getBrokerId()); 
+				Predicate n6 = cb.equal(pm.get("contractStatus"), "P");
+				Predicate n7 = cb.equal(trp.get("proposalNo"), pm.get("proposalNo")); 
+				
+				Expression<String> e0 = trp.get("statusNo");
+	      		Predicate n8 = e0.in(status);
+				
+				if("C".equals(bean.getPlacementMode())) {
+					if(StringUtils.isNotBlank(bean.getBouquetNo())) {
+						//GET_MAILTEPLATE_BOUQUET
+						Predicate n3 = cb.equal(pm.get("bouquetNo"), bean.getBouquetNo());
+						query.where(n1,n2,n3,n4,n5,n6,n7,n8).orderBy(orderList);
+					}else {
+						//GET_MAILTEPLATE_BASELAYER
+						Predicate n3 = cb.equal(cb.coalesce(pm.get("baseLayer"), pm.get("proposalNo")), bean.getBaseProposalNo());
+						query.where(n1,n2,n3,n4,n5,n6,n7,n8).orderBy(orderList);
+					}
+				}else {
+					//GET_MAILTEPLATE_PROPOSAL
+					Predicate n3 = cb.equal(pm.get("proposalNo"), bean.getProposalNo());
+					query.where(n1,n2,n3,n4,n5,n6,n7,n8).orderBy(orderList);
+				}
+			}else {
+				// Where
+				Predicate n1 = cb.equal(pm.get("branchCode"), bean.getBranchCode());
+				Predicate n2 = cb.equal(pm.get("proposalNo"), rd.get("rskProposalNumber"));
+				Predicate n4 = cb.equal(trp.get("reinsurerId"), bean.getSearchReinsurerId()); 
+				Predicate n5 = cb.equal(trp.get("brokerId"), bean.getSearchBrokerId()); 
+				Predicate n6 = cb.equal(pm.get("contractStatus"), "P");
+				Predicate n7 = cb.equal(trp.get("proposalNo"), pm.get("proposalNo")); 
+				Expression<String> e0 = trp.get("statusNo");
+	      		Predicate n8 = e0.in(status);
+				Predicate n9 = cb.equal(trp.get("status"), bean.getNewStatus()); 
+				
+				if(StringUtils.isNotBlank(bean.getBouquetNo())) {
+					//GET_MAILTEPLATE_BOUQUET_SEARCH
+					Predicate n3 = cb.equal(pm.get("bouquetNo"), bean.getBouquetNo());
+					query.where(n1,n2,n3,n4,n5,n6,n7,n8,n9).orderBy(orderList);
+				}else if(StringUtils.isNotBlank(bean.getBaseProposalNo())) {
+					//GET_MAILTEPLATE_BASELAYER_SEARCH
+					Predicate n3 = cb.equal(cb.coalesce(pm.get("baseLayer"), pm.get("proposalNo")), bean.getBaseProposalNo());
+					query.where(n1,n2,n3,n4,n5,n6,n7,n8,n9).orderBy(orderList);
+				}else {
+					//GET_MAILTEPLATE_PROPOSAL_SEARCH
+					Predicate n3 = cb.equal(pm.get("proposalNo"), bean.getProposalNo());
+					query.where(n1,n2,n3,n4,n5,n6,n7,n8,n9).orderBy(orderList);
+				}
+			}
+			TypedQuery<Tuple> res = em.createQuery(query);
+			list = res.getResultList();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return list;
 	}
+	
 	public String getOfferMsg(List<Tuple> agentWiseReport, GetMailTemplateReq bean) {
 		String messageContent ="";
 		messageContent="<!DOCTYPE html>" + 

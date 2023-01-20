@@ -35,7 +35,7 @@ public interface TtrnRiskDetailsRepository  extends JpaRepository<TtrnRiskDetail
 	String countRsEndorsementTypeFindByRskProposalNumberAndRskContractNoAndRsEndorsementType(String proposalId,
 			String proposalNo, String string);
 
-	TtrnRiskDetails findByRskProposalNumber(String proposalNo);
+	List<TtrnRiskDetails> findByRskProposalNumber(String proposalNo);
 	
 
 
@@ -49,5 +49,9 @@ public interface TtrnRiskDetailsRepository  extends JpaRepository<TtrnRiskDetail
 
 	TtrnRiskDetails findByRskProposalNumberAndRskEndorsementNoAndRskLayerNo(String proposalNo, BigDecimal bigDecimal,
 			BigDecimal bigDecimal2);
+
+	TtrnRiskDetails findTop1ByRskProposalNumberOrderByRskEndorsementNoDesc(String proposalNo);
+
+	List<TtrnRiskDetails> findByRskContractNo(String proposalNo);
 
 }

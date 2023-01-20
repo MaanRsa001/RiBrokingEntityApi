@@ -11,6 +11,7 @@ import com.maan.insurance.model.res.proportionality.getprofitCommissionDeleteRes
 import com.maan.insurance.model.res.proportionality.getprofitCommissionEditRes;
 import com.maan.insurance.model.res.proportionality.saveRiskDeatilsSecondFormRes;
 import com.maan.insurance.model.res.proportionality.showSecondPageData1Res;
+import com.maan.insurance.model.res.retro.CommonResponse;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,12 +29,16 @@ import com.maan.insurance.error.ErrorCheck;
 import com.maan.insurance.model.req.proportionality.BonusSaveReq;
 import com.maan.insurance.model.req.proportionality.CedentRetentReq;
 import com.maan.insurance.model.req.proportionality.CedentSaveReq;
+import com.maan.insurance.model.req.proportionality.ConvertPolicyReq;
 import com.maan.insurance.model.req.proportionality.CrestaSaveReq;
 import com.maan.insurance.model.req.proportionality.FirstpageSaveReq;
 import com.maan.insurance.model.req.proportionality.GetCrestaDetailListReq;
 import com.maan.insurance.model.req.proportionality.GetRetentionDetailsReq;
+import com.maan.insurance.model.req.proportionality.GetSectionDuplicationCheckReq;
+import com.maan.insurance.model.req.proportionality.GetcalculateSCReq;
 import com.maan.insurance.model.req.proportionality.GetprofitCommissionEnableReq;
 import com.maan.insurance.model.req.proportionality.InsertCrestaDetailsReq;
+import com.maan.insurance.model.req.proportionality.InsertSlidingScaleMentodInfoReq;
 import com.maan.insurance.model.req.proportionality.ProfitCommissionSaveReq;
 import com.maan.insurance.model.req.proportionality.RemarksReq;
 import com.maan.insurance.model.req.proportionality.RemarksSaveReq;
@@ -43,6 +48,7 @@ import com.maan.insurance.model.req.proportionality.SecondpageSaveReq;
 import com.maan.insurance.model.req.proportionality.ShowRetroContractsReq;
 import com.maan.insurance.model.req.proportionality.ShowSecondPageDataReq;
 import com.maan.insurance.model.res.proportionality.CommonSaveRes;
+import com.maan.insurance.model.res.proportionality.ConvertPolicyRes;
 import com.maan.insurance.model.res.proportionality.FirstpagesaveRes;
 import com.maan.insurance.model.res.proportionality.FirstpageupdateRes;
 import com.maan.insurance.model.res.proportionality.GetRemarksDetailsRes;
@@ -66,10 +72,14 @@ import com.maan.insurance.model.res.proportionality.GetCrestaDetailListRes;
 import com.maan.insurance.model.res.proportionality.GetRetDetailsRes;
 import com.maan.insurance.model.res.proportionality.GetRetentionDetailsRes;
 import com.maan.insurance.model.res.proportionality.GetScaleCommissionListRes;
+import com.maan.insurance.model.res.proportionality.GetSectionEditModeRes;
+import com.maan.insurance.model.res.proportionality.GetSlidingScaleMethodInfoRes;
+import com.maan.insurance.model.res.proportionality.GetcalculateSCRes;
 import com.maan.insurance.model.res.proportionality.GetprofitCommissionEnableRes;
 import com.maan.insurance.model.res.proportionality.InsertCrestaDetailsRes;
 import com.maan.insurance.model.res.proportionality.RiskDetailsEditModeRes;
 import com.maan.insurance.model.res.proportionality.ShowSecondpageEditItemsRes;
+import com.maan.insurance.model.res.proportionality.UpdateOfferNoReq;
 import com.maan.insurance.model.res.proportionality.ViewRiskDetailsRes;
 import com.maan.insurance.model.res.proportionality.checkAvialabilityRes;
 import com.maan.insurance.service.claim.ClaimService;
@@ -268,10 +278,11 @@ public class ProportionalityController {
 				}
 				return propService.getRetentionDetails(req);
 			}
-			@GetMapping("/getScaleCommissionList/{proposalNo}/{branchCode}/{pageFor}")
-			public GetScaleCommissionListRes getScaleCommissionList(@PathVariable ("proposalNo") String proposalNo,@PathVariable ("branchCode") String branchCode,@PathVariable ("pageFor") String pageFor) throws CommonValidationException {
-							return propService.getScaleCommissionList(proposalNo,branchCode,pageFor);
+			@GetMapping("/getScaleCommissionList/{proposalNo}/{branchCode}/{pageFor}/{referenceNo}")
+			public GetScaleCommissionListRes getScaleCommissionList(@PathVariable ("proposalNo") String proposalNo,@PathVariable ("branchCode") String branchCode,@PathVariable ("pageFor") String pageFor,@PathVariable ("referenceNo") String referenceNo) throws CommonValidationException {
+							return propService.getScaleCommissionList(proposalNo,branchCode,pageFor,referenceNo);
 				}
+		
 			@PostMapping("/viewRiskDetails")
 			public ViewRiskDetailsRes viewRiskDetails(@RequestBody ViewRiskDetailsReq req) throws CommonValidationException {
 				List<ErrorCheck> error=propValidation.viewRiskDetailsVali(req);
@@ -332,8 +343,50 @@ public class ProportionalityController {
 			@GetMapping("/checkAvialability/{proposalno}/{pid}")
 			public checkAvialabilityRes checkAvialability (@PathVariable ("proposalno")String proposalno,@PathVariable ("pid") String pid) throws CommonValidationException {
 				return propService.checkAvialability(proposalno,pid);
+			} 
+			
+			@PostMapping("/updateOfferNo")
+			public CommonSaveRes updateOfferNo(@RequestBody UpdateOfferNoReq req) throws CommonValidationException {
+				List<ErrorCheck> error=propValidation.updateOfferNoVali(req);
+				if(error!=null && error.size()>0) {
+					throw new CommonValidationException("error",error);
+				}
+				return propService.updateOfferNo(req);
 			}
+			@GetMapping("/getSlidingScaleMethodInfo/{proposalNo}/{branchCode}/{referenceNo}")
+			public GetSlidingScaleMethodInfoRes getSlidingScaleMethodInfo(@PathVariable ("proposalNo") String proposalNo,@PathVariable ("branchCode") String branchCode,@PathVariable ("referenceNo") String referenceNo) throws CommonValidationException {
+							return propService.getSlidingScaleMethodInfo(proposalNo,branchCode,referenceNo);
+				} 
+			@PostMapping("/insertSlidingScaleMentodInfo")
+				public CommonResponse updateOfferNo(@RequestBody InsertSlidingScaleMentodInfoReq req) throws CommonValidationException {
+					List<ErrorCheck> error=propValidation.insertSlidingScaleMentodInfoVali(req);
+					if(error!=null && error.size()>0) {
+						throw new CommonValidationException("error",error);
+					}
+					return propService.insertSlidingScaleMentodInfo(req);
+				} 
+			@GetMapping("/getSectionEditMode/{proposalNo}")
+				public GetSectionEditModeRes getSectionEditMode (@PathVariable ("proposalNo")String proposalNo) throws CommonValidationException {
+					return propService.getSectionEditMode(proposalNo);
+				}  
+				@PostMapping("/getSectionDuplicationChseck")
+				public CommonSaveRes getSectionDuplicationCheck(@RequestBody GetSectionDuplicationCheckReq req) throws CommonValidationException {
+					List<ErrorCheck> error=propValidation.getSectionDuplicationCheckVali(req);
+					if(error!=null && error.size()>0) {
+						throw new CommonValidationException("error",error);
+					}
+					return propService.getSectionDuplicationCheck(req);
+				}  
+				@PostMapping("/convertPolicy")
+				public ConvertPolicyRes convertPolicy(@RequestBody ConvertPolicyReq req) throws CommonValidationException {
+					List<ErrorCheck> error=propValidation.convertPolicyVali(req);
+					if(error!=null && error.size()>0) {
+						throw new CommonValidationException("error",error);
+					}
+					return propService.convertPolicy(req);
+				} 
 }
 
 
 
+ 

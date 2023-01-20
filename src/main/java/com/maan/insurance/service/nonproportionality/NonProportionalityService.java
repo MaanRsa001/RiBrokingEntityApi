@@ -121,5 +121,7 @@ public interface NonProportionalityService {
 
 	CommonResponse insertBonusDetails(InsertBonusDetailsReq req);
 
+	CommonSaveRes getLayerDuplicationCheck(String proposalNo, String layerNo, String baseLayer);
+
 
 }

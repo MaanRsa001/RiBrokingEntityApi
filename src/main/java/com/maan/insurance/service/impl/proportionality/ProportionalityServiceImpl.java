@@ -1,8 +1,25 @@
 package com.maan.insurance.service.impl.proportionality;
 
+import java.math.BigDecimal;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Tuple;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaDelete;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.CriteriaUpdate;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -10,11 +27,45 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.maan.insurance.jpa.entity.propPremium.TtrnInsurerDetails;
+import com.maan.insurance.jpa.entity.xolpremium.TtrnMndInstallments;
+import com.maan.insurance.model.entity.ConstantDetail;
+import com.maan.insurance.model.entity.CurrencyMaster;
+import com.maan.insurance.model.entity.PersonalInfo;
+import com.maan.insurance.model.entity.PositionMaster;
+import com.maan.insurance.model.entity.TmasBranchMaster;
+import com.maan.insurance.model.entity.TmasDepartmentMaster;
+import com.maan.insurance.model.entity.TmasPfcMaster;
+import com.maan.insurance.model.entity.TmasPolicyBranch;
+import com.maan.insurance.model.entity.TtrnBonus;
+import com.maan.insurance.model.entity.TtrnCedentRet;
+import com.maan.insurance.model.entity.TtrnCommissionDetails;
+import com.maan.insurance.model.entity.TtrnCrestazoneDetails;
+import com.maan.insurance.model.entity.TtrnRiskCommission;
+import com.maan.insurance.model.entity.TtrnRiskDetails;
+import com.maan.insurance.model.entity.TtrnRiskProposal;
+import com.maan.insurance.model.entity.TtrnRiskRemarks;
+import com.maan.insurance.model.repository.PositionMasterRepository;
+import com.maan.insurance.model.repository.TtrnBonusRepository;
+import com.maan.insurance.model.repository.TtrnCedentRetRepository;
+import com.maan.insurance.model.repository.TtrnCommissionDetailsRepository;
+import com.maan.insurance.model.repository.TtrnCrestazoneDetailsRepository;
+import com.maan.insurance.model.repository.TtrnInsurerDetailsRepository;
+import com.maan.insurance.model.repository.TtrnMndInstallmentsRepository;
+import com.maan.insurance.model.repository.TtrnRiskCommissionRepository;
+import com.maan.insurance.model.repository.TtrnRiskDetailsRepository;
+import com.maan.insurance.model.repository.TtrnRiskProposalRepository;
+import com.maan.insurance.model.repository.TtrnRiskRemarksRepository;
+import com.maan.insurance.model.req.placement.UpdatePlacementListReq;
+import com.maan.insurance.model.req.placement.UpdatePlacementReq;
 import com.maan.insurance.model.req.proportionality.BaseLayerStatusReq;
 import com.maan.insurance.model.req.proportionality.BonusSaveReq;
 import com.maan.insurance.model.req.proportionality.CedentRetentReq;
 import com.maan.insurance.model.req.proportionality.CedentSaveReq;
+import com.maan.insurance.model.req.proportionality.ConvertPolicyReq;
+import com.maan.insurance.model.req.proportionality.ConvertPolicyReq1;
 import com.maan.insurance.model.req.proportionality.CrestaSaveReq;
 import com.maan.insurance.model.req.proportionality.FirstpageSaveReq;
 import com.maan.insurance.model.req.proportionality.GetBonusListCountReq;
@@ -22,8 +73,12 @@ import com.maan.insurance.model.req.proportionality.GetCrestaCountReq;
 import com.maan.insurance.model.req.proportionality.GetCrestaDetailListReq;
 import com.maan.insurance.model.req.proportionality.GetRetentionDetailsReq;
 import com.maan.insurance.model.req.proportionality.GetRetroContractDetailsListReq;
+import com.maan.insurance.model.req.proportionality.GetSectionDuplicationCheckReq;
+import com.maan.insurance.model.req.proportionality.GetcalculateSCReq;
 import com.maan.insurance.model.req.proportionality.GetprofitCommissionEnableReq;
 import com.maan.insurance.model.req.proportionality.InsertCrestaDetailsReq;
+import com.maan.insurance.model.req.proportionality.InsertSectionValueReq;
+import com.maan.insurance.model.req.proportionality.InsertSlidingScaleMentodInfoReq;
 import com.maan.insurance.model.req.proportionality.ProfitCommissionListReq;
 import com.maan.insurance.model.req.proportionality.ProfitCommissionSaveReq;
 import com.maan.insurance.model.req.proportionality.RemarksReq;
@@ -44,10 +99,11 @@ import com.maan.insurance.model.res.DropDown.CommonResDropDown;
 import com.maan.insurance.model.res.DropDown.GetCommonDropDownRes;
 import com.maan.insurance.model.res.proportionality.BaseLayerStatusRes;
 import com.maan.insurance.model.res.proportionality.BaseLayerStatusRes1;
-import com.maan.insurance.model.res.proportionality.BonusDetailsRes;
 import com.maan.insurance.model.res.proportionality.CancelProposalRes;
 import com.maan.insurance.model.res.proportionality.CheckProductMatchRes;
 import com.maan.insurance.model.res.proportionality.CommonSaveRes;
+import com.maan.insurance.model.res.proportionality.ConvertPolicyRes;
+import com.maan.insurance.model.res.proportionality.ConvertPolicyRes1;
 import com.maan.insurance.model.res.proportionality.FirstpagesaveRes;
 import com.maan.insurance.model.res.proportionality.FirstpageupdateRes;
 import com.maan.insurance.model.res.proportionality.GetCommonValueRes;
@@ -60,6 +116,12 @@ import com.maan.insurance.model.res.proportionality.GetRetentionDetailsRes;
 import com.maan.insurance.model.res.proportionality.GetRetentionDetailsRes1;
 import com.maan.insurance.model.res.proportionality.GetScaleCommissionListRes;
 import com.maan.insurance.model.res.proportionality.GetScaleCommissionListRes1;
+import com.maan.insurance.model.res.proportionality.GetSectionEditModeRes;
+import com.maan.insurance.model.res.proportionality.GetSectionEditModeRes1;
+import com.maan.insurance.model.res.proportionality.GetSlidingScaleMethodInfoRes;
+import com.maan.insurance.model.res.proportionality.GetSlidingScaleMethodInfoRes1;
+import com.maan.insurance.model.res.proportionality.GetcalculateSCRes;
+import com.maan.insurance.model.res.proportionality.GetcalculateSCRes1;
 import com.maan.insurance.model.res.proportionality.GetprofitCommissionEnableRes;
 import com.maan.insurance.model.res.proportionality.InsertCrestaDetailsRes;
 import com.maan.insurance.model.res.proportionality.InstalmentListRes;
@@ -69,7 +131,6 @@ import com.maan.insurance.model.res.proportionality.ProfitCommissionListRes;
 import com.maan.insurance.model.res.proportionality.ProfitCommissionListRes1;
 import com.maan.insurance.model.res.proportionality.RetListRes;
 import com.maan.insurance.model.res.proportionality.RetroFinalListres;
-import com.maan.insurance.model.res.proportionality.RetroListRes;
 import com.maan.insurance.model.res.proportionality.RiskDetailsEditModeRes;
 import com.maan.insurance.model.res.proportionality.RiskDetailsEditModeRes1;
 import com.maan.insurance.model.res.proportionality.ScaleCommissionInsertRes;
@@ -84,6 +145,7 @@ import com.maan.insurance.model.res.proportionality.ShowSecondPageDataRes;
 import com.maan.insurance.model.res.proportionality.ShowSecondPageDataRes1;
 import com.maan.insurance.model.res.proportionality.ShowSecondpageEditItemsRes;
 import com.maan.insurance.model.res.proportionality.ShowSecondpageEditItemsRes1;
+import com.maan.insurance.model.res.proportionality.UpdateOfferNoReq;
 import com.maan.insurance.model.res.proportionality.ViewRiskDetailsRes;
 import com.maan.insurance.model.res.proportionality.ViewRiskDetailsRes1;
 import com.maan.insurance.model.res.proportionality.checkAvialabilityRes;
@@ -93,11 +155,12 @@ import com.maan.insurance.model.res.proportionality.getprofitCommissionEditRes1;
 import com.maan.insurance.model.res.proportionality.saveRiskDeatilsSecondFormRes;
 import com.maan.insurance.model.res.proportionality.saveRiskDeatilsSecondFormRes1;
 import com.maan.insurance.model.res.proportionality.showSecondPageData1Res;
+import com.maan.insurance.model.res.retro.CommonResponse;
 import com.maan.insurance.service.impl.QueryImplemention;
 import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
+import com.maan.insurance.service.impl.placement.PlacementServiceImple;
 import com.maan.insurance.service.proportionality.ProportionalityService;
 import com.maan.insurance.validation.Formatters;
-import com.maan.insurance.validation.Claim.ValidationImple;
 
 @Service
 public class ProportionalityServiceImpl implements ProportionalityService {
@@ -111,29 +174,61 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 
 	@Autowired
 	private Formatters fm;
+	
+	@PersistenceContext
+	private EntityManager em;
+	
+	@Autowired
+	private PlacementServiceImple placeImple;
+	
 
 	@Autowired
-	private ValidationImple vi;
+	private ProportionalityCustomRepository proportionalityCustomRepository;
+	@Autowired
+	private TtrnRiskDetailsRepository ttrnRiskDetailsRepository;
+	@Autowired
+	private TtrnRiskProposalRepository ttrnRiskProposalRepository;
+	@Autowired
+	private PositionMasterRepository positionMasterRepository;
+	@Autowired
+	private TtrnRiskRemarksRepository ttrnRiskRemarksRepository;
+	@Autowired
+	private TtrnCedentRetRepository ttrnCedentRetRepository;
+	@Autowired
+	private TtrnRiskCommissionRepository ttrnRiskCommissionRepository;
+	@Autowired
+	private  TtrnInsurerDetailsRepository ttrnInsurerDetailsRepository;
+	@Autowired
+	private  TtrnCrestazoneDetailsRepository ttrnCrestazoneDetailsRepository;
+	@Autowired
+	private  TtrnBonusRepository ttrnBonusRepository;
+	@Autowired
+	private  TtrnCommissionDetailsRepository ttrnCommissionDetailsRepository;
+	@Autowired
+	private  TtrnMndInstallmentsRepository ttrnMndInstallmentsRepository;
 
 	@Override
 	public FirstpagesaveRes insertProportionalTreaty(FirstpageSaveReq req, boolean saveFlag, final boolean amendId) {
-		logger.info("firstInsert() || Enter");
 		FirstpagesaveRes res=new FirstpagesaveRes();
 		boolean savFlg = false,ChkSavFlg = false;
 		try {
-			String sql = "";
 			String[] args=null;
 			if (saveFlag) {
 				ChkSavFlg = checkEditSaveModeMethod(req);
 				if (ChkSavFlg){
 					args = getFirstPageEditSaveModeAruguments(req,getMaxAmednId(req.getProposalNo()));
-					sql = "risk.update.rskDtls";
-					queryImpl.updateQuery(sql, args);
+					
+					//risk.update.rskDtls
+					TtrnRiskDetails	 update = proportionalityCustomRepository.ttrnRiskDetailsUpdate(args);
+					if(update!=null) {
+					ttrnRiskDetailsRepository.saveAndFlush(update);	
+					}
 					args[1]=(Integer.parseInt((String)args[51])+1)+"";
 				} else {
 					args = getFirstPageInsertAruguments(req, amendId);
-					sql = "risk.insert.isAmendIDProTreaty";
-					queryImpl.updateQuery(sql, args);
+					//risk.insert.isAmendIDProTreaty
+					TtrnRiskDetails	 insert = proportionalityCustomRepository.ttrnRiskDetailsInsert(args);
+					ttrnRiskDetailsRepository.saveAndFlush(insert);	
 					
 					res.setContractGendration("Your Proposal Number :"+ req.getProposalNo());
 				}
@@ -141,56 +236,56 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 				String maxAmendID = getMaxAmednId(req.getProposalNo());
 				if(maxAmendID.equalsIgnoreCase(req.getAmendId())){
 					args = getFirstPageInsertAruguments(req, amendId);
-					sql = "risk.insert.isAmendIDProTreaty";
-					queryImpl.updateQuery(sql, args);
+					//risk.insert.isAmendIDProTreaty
+					TtrnRiskDetails	 insert = proportionalityCustomRepository.ttrnRiskDetailsInsert(args);
+					ttrnRiskDetailsRepository.saveAndFlush(insert);	
 				}
 				else {
 					args = getFirstPageEditSaveModeAruguments(req,maxAmendID);
-					sql = "risk.update.rskDtls";
-					queryImpl.updateQuery(sql, args);
+					//risk.update.rskDtls
+					TtrnRiskDetails	 update = proportionalityCustomRepository.ttrnRiskDetailsUpdate(args);
+					if(update!=null) {
+						ttrnRiskDetailsRepository.saveAndFlush(update);	
+						}
 					args[1]=(Integer.parseInt((String)args[51])+1)+"";
 				}
 			}
 			res = insertRiskProposal(req,saveFlag,ChkSavFlg,amendId,(String)args[1]);
-			
+			res.setContractGendration("Your Proposal Number :"+ req.getProposalNo());
 			//savFlg = true;
 		} catch (Exception e) {
+			e.printStackTrace();
 			saveFlag = false;
-			logger.debug("Exception @ {" + e + "}");
-
 		}
-		logger.info("firstInsert() || Exit");
 		return res;
 	}
 	private boolean checkEditSaveModeMethod(final FirstpageSaveReq req) {
-		logger.info("checkEditSaveModeMethod() || Enter");
 		boolean editSaveMode = false;
 		try {
 			Object[] args = new Object[1];
 			args[0] = req.getProposalNo();
-			List<Map<String, Object>> list  = queryImpl.selectList("risk.select.getRskProNO",new String[] {req.getProposalNo()});
-			logger.info("Result Size=>"+list.size());
+			//risk.select.getRskProNO
+			List<TtrnRiskDetails> list = ttrnRiskDetailsRepository.findByRskProposalNumber(req.getProposalNo());
 			if (list.size() == 0) {
 				editSaveMode = false;
 			} else {
 				editSaveMode = true;
 			}
 		} catch (Exception e) {
-			logger.debug("Exception @ {" + e + "}");
-
-		}
-		logger.info("checkEditSaveModeMethod() || Exit");
+			e.printStackTrace();
+			}
 		return editSaveMode;
 	}
 	public String[] getFirstPageEditSaveModeAruguments(final FirstpageSaveReq beanObj,String endNo) {
 		String[] args=null;
-		args = new String[52];
+		try {
+		args = new String[54]; //ri
 		args[0] = StringUtils.isEmpty(beanObj.getDepartmentId()) ? "0" : beanObj.getDepartmentId();
 		args[1] = StringUtils.isEmpty(beanObj.getProfitCenter()) ? "0"	: beanObj.getProfitCenter();
 		args[2] = StringUtils.isEmpty(beanObj.getSubProfitcenter()) ? "0": beanObj.getSubProfitcenter();
 		args[3] = StringUtils.isEmpty(beanObj.getPolicyBranch()) ? "0" : beanObj.getPolicyBranch();
 		args[4] = StringUtils.isEmpty(beanObj.getCedingCo()) ? "0" : beanObj.getCedingCo();
-		args[5] = StringUtils.isEmpty(beanObj.getBroker()) ? "0" : beanObj.getBroker();
+		args[5] = StringUtils.isEmpty(beanObj.getBroker()) ? "63" : beanObj.getBroker(); //ri
 		args[6] = StringUtils.isEmpty(beanObj.getTreatyNametype()) ? "": beanObj.getTreatyNametype();
 		args[7] = StringUtils.isEmpty(beanObj.getMonth()) ? "" : beanObj.getMonth();
 		args[8] = StringUtils.isEmpty(beanObj.getUwYear()) ? "0" : beanObj.getUwYear();
@@ -235,24 +330,27 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 		args[47] = "";
 		args[48]="";
 		args[49]=StringUtils.isEmpty(beanObj.getRetentionYN()) ? ""	:beanObj.getRetentionYN();
-		args[50] = beanObj.getProposalNo();
-		args[51]=endNo;
-//		args[52]=beanObj.getLayerNo();
-		logger.info("Args[]=>" + StringUtils.join(args,","));
+		args[50] = beanObj.getAccountingPeriodNotes();
+		args[51] =beanObj.getStatementConfirm();
+		args[52] = beanObj.getProposalNo();
+		args[53]=endNo;
+		} catch (Exception e) {
+			e.printStackTrace();
+			}
 		return args;
 	}
 	public String[] getFirstPageInsertAruguments(final FirstpageSaveReq beanObj, final boolean amendId) {
-		String[] args= new String[57];
-		if (amendId) {
-			args[0] = beanObj.getProposalNo();
-			args[1] =(Integer.parseInt(getMaxAmednId(beanObj.getProposalNo()))+1)+"";
-			args[26] = beanObj.getContractNo();
-		}else{
+		String[] args= new String[59]; //ri
+		if (StringUtils.isBlank(beanObj.getProposalNo())) {
 			args[26] = "";
 			beanObj.setProposalNo(getMaxProposanlno(beanObj.getProductId(),beanObj.getBranchCode(),beanObj.getDepartmentId()));
 			args[0] = beanObj.getProposalNo();
 			args[1] = "0";
-		}
+		}else{
+			args[0] = beanObj.getProposalNo();
+			args[1] =(Integer.parseInt(getMaxAmednId(beanObj.getProposalNo()))+1)+"";
+			args[26] = beanObj.getContractNo();
+				}
 		args[2] = "0";
 		args[27] = StringUtils.isEmpty(beanObj.getProposalType()) ? "0"	: beanObj.getProposalType();
 		args[28] = StringUtils.isEmpty(beanObj.getAccountingPeriod()) ? "0"	: beanObj.getAccountingPeriod();
@@ -264,7 +362,7 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 		args[6] = StringUtils.isEmpty(beanObj.getSubProfitcenter()) ? "0": beanObj.getSubProfitcenter();
 		args[7] = StringUtils.isEmpty(beanObj.getPolicyBranch()) ? "0" : beanObj.getPolicyBranch();
 		args[8] = StringUtils.isEmpty(beanObj.getCedingCo()) ? "0" : beanObj.getCedingCo();
-		args[9] = StringUtils.isEmpty(beanObj.getBroker()) ? "0" : beanObj.getBroker();
+		args[9] = StringUtils.isEmpty(beanObj.getBroker()) ? "63" : beanObj.getBroker(); //ri
 		args[10] = StringUtils.isEmpty(beanObj.getTreatyNametype()) ? "": beanObj.getTreatyNametype();
 		args[11] = StringUtils.isEmpty(beanObj.getMonth()) ? "" : beanObj.getMonth();
 		args[12] = StringUtils.isEmpty(beanObj.getUwYear()) ? "0" : beanObj.getUwYear();
@@ -307,65 +405,65 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 		args[54]="";
 		args[55]="";
 		args[56]=StringUtils.isEmpty(beanObj.getRetentionYN()) ? ""	:beanObj.getRetentionYN();
-		logger.info("Args[]=>" +StringUtils.join(args,","));
+		args[57] = beanObj.getAccountingPeriodNotes();
+		args[58] = beanObj.getStatementConfirm();
 		return args;
 	}
 	private String getMaxAmednIdPro(final String proposalNo) {
 		String result ="";
 		try{
-			List<Map<String, Object>> list  = queryImpl.selectList("GET_MAX_AMEND_RISK_PROPOSAL",new String[] {proposalNo});
-			if(!CollectionUtils.isEmpty(list)) {
-				result=list.get(0).get("RSK_ENDORSEMENT_NO")==null?"":list.get(0).get("RSK_ENDORSEMENT_NO").toString();
+			//GET_MAX_AMEND_RISK_PROPOSAL
+			TtrnRiskProposal list = ttrnRiskProposalRepository.findTop1ByRskProposalNumberOrderByRskEndorsementNoDesc(proposalNo);
+			if(list!=null) {
+				result=list.getRskEndorsementNo()==null?"0":list.getRskEndorsementNo().toString();
 			}
 		}catch(Exception e){
-			logger.debug("Exception @ {" + e + "}");
 			e.printStackTrace();
 		}
 		return result;
 	}
 	private String getMaxAmednId(final String proposalNo) {
-		logger.info("getMaxAmednId() || Enter");
 		String result ="";
 		try{ 
-			List<Map<String, Object>> list  = queryImpl.selectList("risk.select.getMaxEndorseNo",new String[] {proposalNo});
-			if(!CollectionUtils.isEmpty(list)) {
-				result=list.get(0).get("RSK_ENDORSEMENT_NO")==null?"":list.get(0).get("RSK_ENDORSEMENT_NO").toString();
+			//risk.select.getMaxEndorseNo
+			TtrnRiskDetails list = ttrnRiskDetailsRepository.findTop1ByRskProposalNumberOrderByRskEndorsementNoDesc(proposalNo);
+			if(list!=null) {
+				result=list.getRskEndorsementNo()==null?"0":list.getRskEndorsementNo().toString();
 			}
 		}catch(Exception e){
-			logger.debug("Exception @ {" + e + "}");
-
-		}
-		logger.info("getMaxAmednId() || Exit");
+			e.printStackTrace();
+			}
 		return result;
 	}	
 	public String getMaxProposanlno(String pid,String branchCode, String deptId) {
-		logger.info("getMaxProposanlno() || Enter");
 		String result="";
 		try{
-				result=queryImpl.getSequenceNo("Proposal",pid,deptId, branchCode,"","");
+				result=queryImpl.getSequenceNo("Proposal",pid,"0", branchCode,"",""); //RI: .getSequence("Proposal",pid,deptId, branchCode,"","")
 			
 		}catch(Exception e){
-			logger.debug("Exception @ {" + e + "}");
-
+			e.printStackTrace();
 		}
-		logger.info("getMaxProposanlno() || Exit");
 		return result;
 	}
 	private FirstpagesaveRes insertRiskProposal(final FirstpageSaveReq beanObj,final boolean saveFlag,final boolean ChekmodeFlag,boolean amendId,final String amednIdvalue) {
 		FirstpagesaveRes res=new FirstpagesaveRes();
 		try {
-			String updateQry = "",insertQry = "";
 			String[] obj=null;
 			String maxAmendId="0";
 			if(!"0".endsWith(amednIdvalue))
 				maxAmendId=(Integer.parseInt(amednIdvalue)-1)+"";
 			if (saveFlag) {
 				if (ChekmodeFlag) {
+					int count=0;
 					String endtNo=getMaxAmednIdPro(beanObj.getProposalNo());
-					logger.info("Result=>"+endtNo);
 					obj = getProposalSaveEditModeQuery(beanObj,endtNo);
-					updateQry = "risk.update.pro24FirPageRskPro";
-					int count=queryImpl.updateQuery(updateQry, obj);
+					//risk.update.pro24FirPageRskPro
+					TtrnRiskProposal update = proportionalityCustomRepository.ttrnRiskProposalUpdate(obj);
+					if(update!=null) {
+					ttrnRiskProposalRepository.saveAndFlush(update);	
+					 count=1;
+					}
+					
 					if (count>0) {
 						if (beanObj.getProStatus().equalsIgnoreCase("A")|| beanObj.getProStatus().equalsIgnoreCase("P")||"0".equalsIgnoreCase(beanObj.getProStatus())) {
 							res.setContractGendration("Your Proposal is saved in Pending Stage with Proposal No : "+ beanObj.getProposalNo());
@@ -377,8 +475,13 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 					}
 					updateFirstPageFields(beanObj, getMaxAmednIdPro(beanObj.getProposalNo()));
 					obj = updateHomePositionMasterAruguments(beanObj,"0");
-					updateQry = "risk.update.positionMaster";
-					count=queryImpl.updateQuery(updateQry, obj);
+					//risk.update.positionMaster
+					PositionMaster update1 = proportionalityCustomRepository.positionMasterUpdate(obj);
+					if(update1!=null) {
+						positionMasterRepository.saveAndFlush(update1);	
+						count=1;
+					}
+					
 					if (count > 0) {
 						if(StringUtils.isNotBlank(beanObj.getContractNo())) {
 							res.setContractGendration("Your Proposal is saved in Endorsement with Proposal No : "+ beanObj.getProposalNo());
@@ -393,14 +496,20 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 					}
 				} else {
 					obj = getFirstPageSecondTableAruguments(beanObj, amednIdvalue, amendId);
-					insertQry = "risk.insert.pro24RskProposal";
-					int count=queryImpl.updateQuery(insertQry, obj);
+					//risk.insert.pro24RskProposal
+					TtrnRiskProposal insert = proportionalityCustomRepository.ttrnRiskProposalInsert(obj);
+					if(insert!=null) {
+						ttrnRiskProposalRepository.saveAndFlush(insert);	
+					}
+				
 					String renewalStatus = getRenewalStatus(beanObj.getProposalNo(),beanObj.getContractNo());
 					updateFirstPageFields(beanObj, getMaxAmednIdPro(beanObj.getProposalNo()));
 					obj = insertHomePositionMasterAruguments(beanObj,amednIdvalue, amendId,renewalStatus);
-					insertQry = "risk.insert.positionMaster";
-					count=queryImpl.updateQuery(insertQry, obj);
-					logger.info("Result=>"+res);
+					//risk.insert.positionMaster
+					PositionMaster insert1 = proportionalityCustomRepository.positionMasterInsert(obj);
+					if(insert1!=null) {
+						positionMasterRepository.saveAndFlush(insert1);	
+					}
 					if (beanObj.getProStatus().equalsIgnoreCase("A")|| beanObj.getProStatus().equalsIgnoreCase("P")||"0".equalsIgnoreCase(beanObj.getProStatus())) {
 						res.setContractGendration("Your Proposal is saved in Pending Stage with Proposal No : "+ beanObj.getProposalNo());
 					}else if(beanObj.getProStatus().equalsIgnoreCase("N")){
@@ -411,30 +520,51 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 				}
 			} else {
 				if (!ChekmodeFlag) {
+					int count=0;
 					if(maxAmendId.equalsIgnoreCase(beanObj.getAmendId())){
-						insertQry = "risk.insert.pro24RskProposal";
-						logger.info("Insert Qry=>" + insertQry);
+						//risk.insert.pro24RskProposal
 						obj = getFirstPageSecondTableInsertAruguments(beanObj, amednIdvalue, amendId);
+						TtrnRiskProposal insert = proportionalityCustomRepository.ttrnRiskProposalInsert(obj);
+						if(insert!=null) {
+							ttrnRiskProposalRepository.saveAndFlush(insert);	
+							 count=1;
+						}
+						
 					}else{
-						insertQry = "risk.update.pro24FirPageRskPro";
-						logger.info("Update Qry=>" + insertQry);
 						obj = getProposalSaveEditModeQuery(beanObj,maxAmendId);
+						//risk.update.pro24FirPageRskPro
+						TtrnRiskProposal update = proportionalityCustomRepository.ttrnRiskProposalUpdate(obj);
+						if(update!=null) {
+						ttrnRiskProposalRepository.saveAndFlush(update);	
+						 count=1;
+						}
+						
 					}
-					if (queryImpl.updateQuery(insertQry, obj) > 0) {
+					if (count > 0) {
 						//InsertFlag = true;
 					}
 					updateFirstPageFields(beanObj, getMaxAmednIdPro(beanObj.getProposalNo()));
+					int insertCount = 0;
 					if(maxAmendId.equalsIgnoreCase(beanObj.getAmendId())){
 						String renewalStatus = getRenewalStatus(beanObj.getProposalNo(),beanObj.getContractNo());
 						obj = insertHomePositionMasterAruguments(beanObj,amednIdvalue, amendId,renewalStatus);
-						insertQry ="risk.insert.positionMaster";
+					//risk.insert.positionMaster
+						PositionMaster insert1 = proportionalityCustomRepository.positionMasterInsert(obj);
+						if(insert1!=null) {
+							positionMasterRepository.saveAndFlush(insert1);	
+							insertCount=1;
+						}
+						
 					}else{
-						insertQry = "risk.update.positionMaster";
-						logger.info("updateQry=>" + insertQry);
+						//risk.update.positionMaster
 						obj = updateHomePositionMasterAruguments(beanObj,maxAmendId);
+						PositionMaster update1 = proportionalityCustomRepository.positionMasterUpdate(obj);
+						if(update1!=null) {
+							positionMasterRepository.saveAndFlush(update1);	
+							insertCount=1;
+						}
+						
 					}
-					int insertCount = queryImpl.updateQuery(insertQry, obj);
-					logger.info("Result=>" + insertCount);
 					if (insertCount > 0){
 						//InsertFlag = true;
 					}
@@ -454,7 +584,7 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 			res.setMessage("Success");
 			res.setIsError(false);
 		} catch (Exception e) {
-			logger.debug("Exception @ {" + e + "}");
+			e.printStackTrace();
 			res.setMessage("Failed");
 			res.setIsError(true);
 		}
@@ -528,7 +658,6 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 		obj[48]=StringUtils.isEmpty(beanObj.getPmlPercent()) ? "0.00": beanObj.getPmlPercent();
 		obj[49] = beanObj.getProposalNo();
 		obj[50]=endNo;
-		logger.info("Args[]=>" + StringUtils.join(obj,","));
 		return obj;
 	}
 	public String getDesginationCountry(final String limitOrigCur,final String ExchangeRate) {
@@ -543,8 +672,7 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 				}
 			}
 		}catch(Exception e){
-			logger.debug("Exception @ {" + e + "}");
-
+			e.printStackTrace();
 		}
 		return output;
 	}
@@ -552,7 +680,7 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 		boolean updateStatus = true;
 		int res=0;
 		
-		String[] obj= new String[41];
+		String[] obj= new String[55]; //RI
 		try {
 			obj[0] = StringUtils.isEmpty(beanObj.getEventlimit()) ? "": beanObj.getEventlimit();
 			obj[1] = StringUtils.isEmpty(beanObj.getEventlimit())	|| StringUtils.isEmpty(beanObj.getExchangeRate()) ? "0"	: getDesginationCountry(beanObj.getEventlimit(), beanObj.getExchangeRate());
@@ -608,11 +736,29 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 			obj[36] = StringUtils.isEmpty(beanObj.getEpipml())|| StringUtils.isEmpty(beanObj.getExchangeRate()) ? "0": getDesginationCountry(beanObj.getEpipml(), beanObj.getExchangeRate());
 			obj[37] =StringUtils.isEmpty(beanObj.getEpipmlOS()) ? "0": beanObj.getEpipmlOS();
 			obj[38] = StringUtils.isEmpty(beanObj.getEpipmlOS())|| StringUtils.isEmpty(beanObj.getExchangeRate()) ? "0": getDesginationCountry(beanObj.getEpipmlOS(), beanObj.getExchangeRate());
+			obj[39]=beanObj.getRiskdetailYN(); //RI
+			obj[40]=beanObj.getBrokerdetYN();
+			obj[41]=beanObj.getCoverdetYN();
+			obj[42]=beanObj.getPremiumdetailYN();
+			obj[43]=beanObj.getAcqdetailYN();
+			obj[44]=beanObj.getCommissiondetailYN();
+			obj[45]=beanObj.getDepositdetailYN();
+			obj[46]=beanObj.getLossdetailYN();
+			obj[47]=beanObj.getDocdetailYN();
+			obj[48] = beanObj.getPaymentPartner();
+			obj[49] = beanObj.getInstallYN();
+			obj[50] = beanObj.getReinstdetailYN();
+			obj[51] = beanObj.getRateOnLine();
+			obj[52] =StringUtils.isEmpty(beanObj.getQuotesharePercent()) ? "0": beanObj.getQuotesharePercent();
+			obj[53] = beanObj.getProposalNo();
+			obj[54]=endNo;
 			
-			obj[39] = beanObj.getProposalNo();
-			obj[40]=endNo;
-			String query="UPDATE_RISK_PROPOSAL_DETAILS";
-			res=queryImpl.updateQuery(query, obj);
+			//UPDATE_RISK_PROPOSAL_DETAILS
+			TtrnRiskProposal update = proportionalityCustomRepository.updateFirstPageFields(obj);
+			if(update!=null) {
+			ttrnRiskProposalRepository.saveAndFlush(update);	
+			res=1;
+			}
 			if (res> 0) {
 				updateStatus = true;
 			}
@@ -622,7 +768,7 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 		return updateStatus;
 	}
 	public String[] updateHomePositionMasterAruguments(final FirstpageSaveReq beanObj,  final String maxAmdId) {
-		String[] obj = new String[19];
+		String[] obj = new String[23];
 		obj[0] = StringUtils.isEmpty(beanObj.getLayerNo()) ? "0" : beanObj.getLayerNo();
 		obj[1] = "";
 		obj[2] = beanObj.getProductId();
@@ -645,14 +791,17 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 		}else{
 			obj[11] = "P";
 		}
-		obj[12] = beanObj.getBroker();
+		obj[12] = StringUtils.isBlank(beanObj.getBroker())?"63":beanObj.getBroker();
 		obj[13] = StringUtils.isBlank(beanObj.getRetroType())?"":beanObj.getRetroType();
 		obj[14] = beanObj.getLoginId();
 		obj[15] = "";
 		obj[16] =  StringUtils.isEmpty(beanObj.getContractListVal())?"":beanObj.getContractListVal();
-		obj[17] = beanObj.getProposalNo();
-		obj[18] = maxAmdId;
-		logger.info("Args[]=>" + StringUtils.join(obj,","));
+		obj[17] = beanObj.getBouquetModeYN();
+		obj[18] = beanObj.getBouquetNo();
+		obj[19] = beanObj.getUwYearTo();
+		obj[20] = beanObj.getSectionNo();
+		obj[21] = beanObj.getProposalNo();
+		obj[22] = maxAmdId;
 		return obj;
 	}
 	public String[] getFirstPageSecondTableAruguments(final FirstpageSaveReq beanObj, final String args2, final boolean amendId) {
@@ -715,29 +864,56 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 		obj[35]=beanObj.getDepartmentId();
 		obj[36]=beanObj.getLoginId();
 		obj[37]=beanObj.getBranchCode();
-		logger.info("Args[]=>" + StringUtils.join(obj,","));
 		return obj;
 	}
 	private String getRenewalStatus(String proposalNo,String contractNo) {
-		logger.info("getRenewalStatus() || Enter");
 		String result="";
 		try{
 			if(StringUtils.isNotBlank(contractNo)){
-				List<Map<String, Object>> list  = queryImpl.selectList("risk.select.getRenewalStatus",new String[] {proposalNo});
+				//risk.select.getRenewalStatus
+				CriteriaBuilder cb = em.getCriteriaBuilder(); 
+				CriteriaQuery<String> query = cb.createQuery(String.class); 
+				Root<PositionMaster> pm = query.from(PositionMaster.class);
+				query.multiselect(cb.selectCase().when(cb.isNull(pm.get("renewalStatus")), "0")
+						.otherwise(pm.get("renewalStatus"))); 
+
+				Subquery<Long> amend = query.subquery(Long.class); 
+				Root<PositionMaster> pms = amend.from(PositionMaster.class);
+				amend.select(cb.max(pms.get("amendId")));
+				Predicate a1 = cb.equal(pm.get("proposalNo"), pms.get("proposalNo"));
+				amend.where(a1);
+
+				Predicate n1 = cb.equal(pm.get("proposalNo"), proposalNo);
+				Predicate n2 = cb.equal(pm.get("amendId"), amend);
+				query.where(n1,n2);
+				
+				TypedQuery<String> res1 = em.createQuery(query);
+				List<String> list = res1.getResultList();
+				 
 				if(!CollectionUtils.isEmpty(list)) {
-					result=list.get(0).get("RENEWAL_STATUS")==null?"":list.get(0).get("RENEWAL_STATUS").toString();
+					result=list.get(0)==null?"":list.get(0);
 				}
-				logger.info("Result=>"+result);
 			}
 		}catch(Exception e){
-			logger.debug("Exception @ {" + e + "}");
-
-		}
-		logger.info("getRenewalStatus() || Exit");
+			e.printStackTrace();
+			}
 		return result;
 	}
 	public String[] insertHomePositionMasterAruguments(final FirstpageSaveReq beanObj, final String args2, final boolean amendId,String renewalStatus) {
-		String[] obj = new String[26];
+		String bouquetno="",offerNo="";
+		if(StringUtils.isBlank(beanObj.getBouquetNo()) && "Y".equals(beanObj.getBouquetModeYN())) {
+			bouquetno=fm.getSequence("Bouquet","9","0", beanObj.getBranchCode(),"","");
+			//String query=getQuery("GET_BOUQUET_NO_SEQ");
+			//bouquetno=this.mytemplate.queryForObject(query, String.class);
+			beanObj.setBouquetNo(bouquetno);
+		}
+		if(StringUtils.isBlank(beanObj.getOfferNo())) {
+			offerNo=fm.getSequence("Offer",beanObj.getProductId(),"0", beanObj.getBranchCode(),"","");
+			beanObj.setOfferNo(offerNo);
+		} //Ri
+		
+		
+		String[] obj = new String[31];
 		if (amendId) {
 			obj[1] = beanObj.getContractNo();
 			obj[2] = args2;
@@ -745,7 +921,7 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 		} else {
 			obj[1] = "0";
 			obj[2] = "0";
-			obj[16] = beanObj.getLayerProposalNo();
+			obj[16] = StringUtils.isBlank(beanObj.getBaseLayer())?beanObj.getLayerProposalNo():beanObj.getBaseLayer();
 		}
 		obj[0] = beanObj.getProposalNo();
 		obj[3] = StringUtils.isEmpty(beanObj.getLayerNo()) ? "0" : beanObj.getLayerNo();
@@ -768,14 +944,18 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 		}
 		obj[15] = StringUtils.isNotBlank(beanObj.getBaseLoginId())?beanObj.getBaseLoginId():beanObj.getLoginId();
 		obj[17] = StringUtils.isEmpty(beanObj.getLayerProposalNo()) ?StringUtils.isEmpty(beanObj.getRenewalcontractNo()) ? "" : beanObj.getRenewalcontractNo():"";
-		obj[19] = beanObj.getBroker();
+		obj[19] = StringUtils.isBlank(beanObj.getBroker())?"63":beanObj.getBroker();
 		obj[20] = beanObj.getBranchCode();
 		obj[21] = StringUtils.isBlank(beanObj.getRetroType())?"":beanObj.getRetroType();
 		obj[22] = beanObj.getLoginId();
 		obj[23] = "";
 		obj[24] = "";
 		obj[25] = StringUtils.isEmpty(beanObj.getContractListVal())?"":beanObj.getContractListVal();
-		logger.info("Args[]=>" + StringUtils.join(obj,","));
+		obj[26] = beanObj.getBouquetModeYN();
+		obj[27] = beanObj.getBouquetNo();
+		obj[28] = beanObj.getUwYearTo();
+		obj[29] = beanObj.getSectionNo();
+		obj[30] = beanObj.getOfferNo();
 		return obj;
 	}
 	public String[] getFirstPageSecondTableInsertAruguments(final FirstpageSaveReq beanObj,final String args2, final boolean amendId) {
@@ -837,23 +1017,42 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 		obj[35] =beanObj.getDepartmentId();
 		obj[36]=beanObj.getLoginId();
 		obj[37]=beanObj.getBranchCode();
-		logger.info("Args[]=>" + StringUtils.join(obj,","));
 		return obj;
 	}
+	@Transactional
 	@Override
 	public CommonSaveRes insertRemarkDetails(RemarksSaveReq beanObj) {
 		CommonSaveRes resp=new CommonSaveRes();
-		String amendId="";
+		int amendId=0;
 		try {
-			String  deleteQuery="DELETE_REMARKS_DETAILS";
-			queryImpl.updateQuery(deleteQuery, new String[] {beanObj.getProposalNo(),"0"});
+			//DELETE_REMARKS_DETAILS
+			CriteriaBuilder cb = em.getCriteriaBuilder();
+			CriteriaDelete<TtrnRiskRemarks> delete = cb.createCriteriaDelete(TtrnRiskRemarks.class);
 			
-			List<Map<String, Object>> list  = queryImpl.selectList("GET_AMEND_REMARKS",new String[] {beanObj.getProposalNo()});
+			Root<TtrnRiskRemarks> rp = delete.from(TtrnRiskRemarks.class);
+			
+			// MAXAmend ID
+			Subquery<Long> amend = delete.subquery(Long.class); 
+			Root<TtrnRiskRemarks> rrs = amend.from(TtrnRiskRemarks.class);
+			amend.select(cb.max(rrs.get("amendId")));
+			Predicate a1 = cb.equal( rrs.get("proposalNo"), rp.get("proposalNo"));
+			amend.where(a1);
+			
+			//Where
+			Predicate n1 = cb.equal(rp.get("proposalNo"), beanObj.getProposalNo());
+			Predicate n2 = cb.equal(rp.get("layerNo"), "0");
+			Predicate n3 = cb.equal(rp.get("amendId"), amend);
+			delete.where(n1,n2,n3);
+			em.createQuery(delete).executeUpdate();
+			
+			//GET_AMEND_REMARKS
+			List<TtrnRiskRemarks> list = ttrnRiskRemarksRepository.findTop1ByProposalNoOrderByAmendIdDesc(new BigDecimal(beanObj.getProposalNo()));
+			
 			if(!CollectionUtils.isEmpty(list)) {
-				amendId=list.get(0).get("AMEND_ID")==null?"":list.get(0).get("AMEND_ID").toString();
+				amendId=list.get(0).getAmendId()==null?0:Integer.valueOf(list.get(0).getAmendId()+1);
 			}
 			if(!CollectionUtils.isEmpty(beanObj.getRemarksReq())) {
-				String query="INSERT_REMARKS_DETAILS";
+				//INSERT_REMARKS_DETAILS
 			for(int i=0;i<beanObj.getRemarksReq().size();i++){
 				RemarksReq req=beanObj.getRemarksReq().get(i);
 			
@@ -863,66 +1062,16 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 				obj[2]="0";
 				obj[3]=beanObj.getDepartmentId();
 				obj[4]=beanObj.getProductid();
-				obj[5]=amendId;
+				obj[5]=String.valueOf(amendId);
 				obj[6]=String.valueOf(i+1);
 				obj[7]=req.getDescription();
 				obj[8]=req.getRemark1();
 				obj[9]=req.getRemark2();
 				obj[10]=beanObj.getLoginId();
 				obj[11]=beanObj.getBranchCode();
-				queryImpl.updateQuery(query, obj);
-			}
-			resp.setResponse("Success");
-			resp.setErroCode(0);
-			resp.setIsError(false);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			resp.setResponse("Failed");
-			resp.setErroCode(1);
-			resp.setIsError(true);
-		}
-		return resp;
-		
-	}
-	public CommonSaveRes insertCedentRetention(CedentSaveReq beanObj) {
-		CommonSaveRes resp=new CommonSaveRes();
-		String amendId="";
-		try {
-			String  deleteQuery="DELETE_RET_DETAILS";
-			queryImpl.updateQuery(deleteQuery, new String[] {beanObj.getProposalNo(),"0"});
-			
-			String query="INSERT_RET_DETAILS";
-			List<Map<String, Object>> list = queryImpl.selectList("GET_AMEND_RETENT", new String[] {beanObj.getProposalNo()});
-			if(!CollectionUtils.isEmpty(list)) {
-				amendId=list.get(0).get("AMEND_ID")==null?"":list.get(0).get("AMEND_ID").toString();
-			}
-			if(StringUtils.isNotBlank(beanObj.getRetentionYN()) && "Y".equalsIgnoreCase(beanObj.getRetentionYN())){
-			if(beanObj.getCedentRetentReq()!=null) {
-				for(int i=0;i<beanObj.getCedentRetentReq().size();i++){
-					CedentRetentReq req=beanObj.getCedentRetentReq().get(i);
-					String[] obj= new String[20];
-					obj[0]=beanObj.getProposalNo();
-					obj[1]=beanObj.getContractNo();
-					obj[2]="0";
-					obj[3]=beanObj.getDepartmentId();
-					obj[4]=beanObj.getProductid();
-					obj[5]=amendId;
-					obj[6]=String.valueOf(i+1);
-					obj[7]=req.getCoverdepartId();
-					obj[8]=req.getCoversubdepartId();
-					obj[9]=req.getRetBusinessType();
-					obj[10]=req.getRetType();
-					obj[11]=req.getRetBasis();
-					obj[12]=req.getFirstretention().replace(",", "");
-					obj[13]=req.getSecondretention().replace(",", "");
-					obj[14]=req.getRetTreatyFST().replace(",", "");
-					obj[15]=req.getRetTreatySST().replace(",", "");
-					obj[16]=req.getRetEventFST().replace(",", "");
-					obj[17]=req.getRetEventSST().replace(",", "");
-					obj[18]=beanObj.getLoginId();
-					obj[19]=beanObj.getBranchCode();
-					queryImpl.updateQuery(query, obj);
+				TtrnRiskRemarks insert = proportionalityCustomRepository.ttrnRiskRemarksInsert(obj);
+				if(insert!=null) {
+					ttrnRiskRemarksRepository.saveAndFlush(insert);	
 				}
 			}
 			resp.setResponse("Success");
@@ -937,19 +1086,93 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 		}
 		return resp;
 		
-		
 	}
+	@Transactional
+	public CommonSaveRes insertCedentRetention(CedentSaveReq beanObj) {
+		CommonSaveRes resp=new CommonSaveRes();
+		int amendId=0;
+		try {
+			//DELETE_RET_DETAILS
+			CriteriaBuilder cb = em.getCriteriaBuilder();
+			CriteriaDelete<TtrnCedentRet> delete = cb.createCriteriaDelete(TtrnCedentRet.class);
+			
+			Root<TtrnCedentRet> rp = delete.from(TtrnCedentRet.class);
+			
+			// MAXAmend ID
+			Subquery<Long> amend = delete.subquery(Long.class); 
+			Root<TtrnRiskRemarks> rrs = amend.from(TtrnRiskRemarks.class);
+			amend.select(cb.max(rrs.get("amendId")));
+			Predicate a1 = cb.equal( rrs.get("proposalNo"), rp.get("proposalNo"));
+			amend.where(a1);
+			
+			//Where
+			Predicate n1 = cb.equal(rp.get("proposalNo"), beanObj.getProposalNo());
+			Predicate n2 = cb.equal(rp.get("layerNo"), "0");
+			Predicate n3 = cb.equal(rp.get("amendId"), amend);
+			delete.where(n1,n2,n3);
+			em.createQuery(delete).executeUpdate();
+			
+			//GET_AMEND_RETENT
+			TtrnCedentRet list = ttrnCedentRetRepository.findTop1ByProposalNoOrderByAmendIdDesc(beanObj.getProposalNo());
+			if(list!=null) {
+				amendId=list.getAmendId()==null?0:Integer.valueOf(list.getAmendId()+1);
+			}
+			//INSERT_RET_DETAILS
+			if(StringUtils.isNotBlank(beanObj.getRetentionYN()) && "Y".equalsIgnoreCase(beanObj.getRetentionYN())){
+			if(beanObj.getCedentRetentReq()!=null) {
+				for(int i=0;i<beanObj.getCedentRetentReq().size();i++){
+					CedentRetentReq req=beanObj.getCedentRetentReq().get(i);
+					String[] obj= new String[20];
+					obj[0]=beanObj.getProposalNo();
+					obj[1]=beanObj.getContractNo();
+					obj[2]="0";
+					obj[3]=beanObj.getDepartmentId();
+					obj[4]=beanObj.getProductid();
+					obj[5]=String.valueOf(amendId);
+					obj[6]=String.valueOf(i+1);
+					obj[7]=req.getCoverdepartId();
+					obj[8]=req.getCoversubdepartId();
+					obj[9]=req.getRetBusinessType();
+					obj[10]=req.getRetType();
+					obj[11]=req.getRetBasis();
+					obj[12]=req.getFirstretention().replace(",", "");
+					obj[13]=req.getSecondretention().replace(",", "");
+					obj[14]=req.getRetTreatyFST().replace(",", "");
+					obj[15]=req.getRetTreatySST().replace(",", "");
+					obj[16]=req.getRetEventFST().replace(",", "");
+					obj[17]=req.getRetEventSST().replace(",", "");
+					obj[18]=beanObj.getLoginId();
+					obj[19]=beanObj.getBranchCode();
+					TtrnCedentRet insert = proportionalityCustomRepository.ttrnCedentRetInsert(obj);
+					if(insert!=null) {
+						ttrnCedentRetRepository.saveAndFlush(insert);	
+					}
+				}
+			}
+			resp.setResponse("Success");
+			resp.setErroCode(0);
+			resp.setIsError(false);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			resp.setResponse("Failed");
+			resp.setErroCode(1);
+			resp.setIsError(true);
+		}
+		return resp;
+	}
+	
 	@Override
 	public FirstpageupdateRes updateProportionalTreaty(FirstpageSaveReq req) {
 		FirstpageupdateRes res=new FirstpageupdateRes();
 		boolean savFlg = false;
 		try {
-			String updateQry = "";
 			String[] args = getFirstPageSaveModeAruguments(req,getMaxAmednId(req.getProposalNo()));
-			updateQry = "risk.update.rskDtls";
-			logger.info("Query=>"+updateQry);
-			int updateCount = queryImpl.updateQuery(updateQry, args);
-			logger.info("Result=>"+updateCount);
+			//risk.update.rskDtls
+			TtrnRiskDetails	 update = proportionalityCustomRepository.ttrnRiskDetailsUpdate(args);
+			ttrnRiskDetailsRepository.saveAndFlush(update);	
+			int updateCount = 1;
+			
 			if (updateCount > 0) {
 				updateRiskProposal(req);
 				savFlg = true;
@@ -967,13 +1190,13 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 	}
 	public String[] getFirstPageSaveModeAruguments(final FirstpageSaveReq beanObj,String endNo) {
 		String[] args=null;
-		args = new String[52];
+		args = new String[54]; //Ri
 		args[0] = beanObj.getDepartmentId();
 		args[1] = beanObj.getProfitCenter();
 		args[2] = beanObj.getSubProfitcenter();
 		args[3] = beanObj.getPolicyBranch();
 		args[4] = beanObj.getCedingCo();
-		args[5] = beanObj.getBroker();
+		args[5] =  StringUtils.isBlank(beanObj.getBroker())?"63":beanObj.getBroker();
 		args[6] = beanObj.getTreatyNametype();
 		args[7] = beanObj.getMonth();
 		args[8] = beanObj.getUwYear();
@@ -1018,37 +1241,43 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 		args[47] = "";
 		args[48]="";
 		args[49]=StringUtils.isEmpty(beanObj.getRetentionYN()) ? ""	:beanObj.getRetentionYN();
-		args[50] = beanObj.getProposalNo();
-		args[51]=endNo;
-//		args[52]=beanObj.getProductId();
-		logger.info("Args[]=>" + StringUtils.join(args,","));
+		args[50] = beanObj.getAccountingPeriodNotes();
+		args[51] =beanObj.getStatementConfirm();
+		args[52] = beanObj.getProposalNo();
+		args[53	]=endNo;
+//		args[53]=beanObj.getProductId();
 		return args;
 	}
 	private boolean updateRiskProposal(final FirstpageSaveReq beanObj) {
 		boolean saveFlag = false;
 		try {
-			String updateQry = "";
 			int res=0;
 			String[] obj=null;
 			obj = updateRiskProposalArgs(beanObj,getMaxAmednIdPro(beanObj.getProposalNo()));
-			updateQry =  "risk.update.pro24FirPageRskPro";
-			res=queryImpl.updateQuery(updateQry, obj);
-			logger.info("Result=>" + res);
+			//risk.update.pro24FirPageRskPro
+			TtrnRiskProposal update = proportionalityCustomRepository.ttrnRiskProposalUpdate(obj);
+			if(update!=null) {
+			ttrnRiskProposalRepository.saveAndFlush(update);	
+			res=1;
+			}
+		
 			if (res> 0) {
 				saveFlag = true;
 			}
 			updateFirstPageFields(beanObj, getMaxAmednIdPro(beanObj.getProposalNo()));
 			obj = updateHomePostion(beanObj,true);
-			updateQry = "risk.update.positionMaster";
-			logger.info("updateQry " + updateQry);
-			res=queryImpl.updateQuery(updateQry, obj);
+			//risk.update.positionMaster
+			PositionMaster update1 = proportionalityCustomRepository.positionMasterUpdate(obj);
+			if(update1!=null) {
+				positionMasterRepository.saveAndFlush(update1);	
+				res=1;
+			}
 			if (res > 0) {
 				saveFlag = true;
 			}
 		} catch (Exception e) {
-			logger.debug("Exception @ {" + e + "}");
-
-		}
+			e.printStackTrace();
+			}
 		return saveFlag;
 	}
 	public String[] updateRiskProposalArgs(final FirstpageSaveReq beanObj,String endNo) {
@@ -1120,21 +1349,42 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 		obj[48]=StringUtils.isEmpty(beanObj.getPmlPercent()) ? "0.00": beanObj.getPmlPercent();
 		obj[49] = beanObj.getProposalNo();
 		obj[50]=endNo;
-		logger.info("Args[]=>" + StringUtils.join(obj,","));
 		return obj;
 	}
 	public GetRemarksDetailsRes GetRemarksDetails(String proposalNo,String layerNo) {
 		GetRemarksDetailsRes resp=new GetRemarksDetailsRes();
 		try {
+			
 			List<RemarksReq> remarksres=new ArrayList<RemarksReq>();
-			String[] args = new String [2];
-			args [0] = proposalNo;
-			args [1] = layerNo;	
-			List<Map<String, Object>> list  = queryImpl.selectList("GET_REMARKS_DETAILS",args);
+			//GET_REMARKS_DETAILS
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			Root<TtrnRiskRemarks> rd = query.from(TtrnRiskRemarks.class);
+
+			query.multiselect(rd.get("rskSNo").alias("RSK_SNO"),rd.get("rskDescription").alias("RSK_DESCRIPTION"),
+					rd.get("rskRemark1").alias("RSK_REMARK1"),rd.get("rskRemark2").alias("RSK_REMARK2")); 
+
+			Subquery<Long> amend = query.subquery(Long.class); 
+			Root<TtrnRiskRemarks> rds = amend.from(TtrnRiskRemarks.class);
+			amend.select(cb.max(rds.get("amendId")));
+			Predicate a1 = cb.equal( rds.get("proposalNo"), rd.get("proposalNo"));
+			amend.where(a1);
+
+			List<Order> orderList = new ArrayList<Order>();
+			orderList.add(cb.asc(rd.get("rskSNo")));
+			
+			Predicate n1 = cb.equal(rd.get("proposalNo"), proposalNo);
+			Predicate n2 = cb.equal(rd.get("layerNo"), layerNo);
+			Predicate n4 = cb.equal(rd.get("amendId"), amend);
+			query.where(n1,n2,n4).orderBy(orderList);
+
+			TypedQuery<Tuple> result = em.createQuery(query);
+			List<Tuple> list = result.getResultList();
+			
 			if(list!=null && list.size()>0){
 				RemarksReq res=new RemarksReq();
 				for (int i = 0; i < list.size(); i++) {
-					Map<String, Object> insMap = (Map<String, Object>)list.get(i);
+					Tuple insMap = list.get(i);
 					res.setDescription(insMap.get("RSK_DESCRIPTION")==null?"Remarks":insMap.get("RSK_DESCRIPTION").toString());
 					res.setRemark1(insMap.get("RSK_REMARK1")==null?" ":insMap.get("RSK_REMARK1").toString());
 					res.setRemark2(insMap.get("RSK_REMARK2")==null?"":insMap.get("RSK_REMARK2").toString());
@@ -1158,7 +1408,7 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 	}
 	public String[] updateHomePostion(final FirstpageSaveReq beanObj, final boolean bool) {
 
-		String[] obj = new String[19];
+		String[] obj = new String[23]; //Ri
 		obj[0] = StringUtils.isEmpty(beanObj.getLayerNo()) ? "0" : beanObj.getLayerNo();
 		obj[1] = "";
 		obj[2] = beanObj.getProductId();
@@ -1191,15 +1441,18 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 		else{
 			obj[11] =beanObj.getProStatus().trim();
 		}
-		obj[12] = beanObj.getBroker();
+		obj[12] =StringUtils.isBlank(beanObj.getBroker())?"63":beanObj.getBroker();
 		obj[13] = StringUtils.isBlank(beanObj.getRetroType())?"":beanObj.getRetroType();
 		obj[14] = beanObj.getLoginId();
 		obj[15]="";
 		
 		obj[16] =  StringUtils.isEmpty(beanObj.getContractListVal())?"":beanObj.getContractListVal();
-		obj[17] = beanObj.getProposalNo();
-		obj[18] =beanObj.getAmendId();
-		logger.info("Args[]=>" + StringUtils.join(obj,","));
+		obj[17] = beanObj.getBouquetModeYN(); //Ri
+		obj[18] = beanObj.getBouquetNo();
+		obj[19] = beanObj.getUwYearTo();
+		obj[20] = beanObj.getSectionNo();
+		obj[21] = beanObj.getProposalNo();
+		obj[22] =beanObj.getAmendId();
 		return obj;
 	}
 	@Override
@@ -1209,18 +1462,36 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 		try{
 			String GetProposalStatus = null;
 			int ChkSecPagMod = checkSecondPageMode(req.getProposalNo());
-			String updateQry = "",insertQry = "";
 			String[] obj=null,obj1=null;
-			//if (ContractEditMode == 1) {
-			if (ChkSecPagMod == 2) {
+			if (ChkSecPagMod == 1) {
+			//if (ChkSecPagMod == 2) {
 				obj = saveUpdateRiskDetailsSecondForm(req,getMaxAmednId(req.getProposalNo()));
-				updateQry = "risk.update.pro24RskProposal";
-				logger.info("Query=>" + updateQry);
-				int res=queryImpl.updateQuery(updateQry, obj);
-				logger.info("Result=>" + res);
-				List<Map<String, Object>> list  = queryImpl.selectList("risk.select.maxRskStatus",new String[] {req.getProposalNo()});
+				//risk.update.pro24RskProposal
+				TtrnRiskProposal update = proportionalityCustomRepository.ttrnRiskProposalSecondPageUpdate(obj);
+				if(update!=null) {
+				ttrnRiskProposalRepository.saveAndFlush(update);	
+				}
+				//risk.select.maxRskStatus
+				CriteriaBuilder cb = em.getCriteriaBuilder(); 
+				CriteriaQuery<String> query = cb.createQuery(String.class); 
+				Root<TtrnRiskDetails> rd = query.from(TtrnRiskDetails.class);
+
+				query.multiselect(rd.get("rskStatus").alias("RSK_STATUS")); 
+
+				Subquery<Long> end = query.subquery(Long.class); 
+				Root<TtrnRiskDetails> rds = end.from(TtrnRiskDetails.class);
+				end.select(cb.max(rds.get("rskEndorsementNo")));
+				Predicate a1 = cb.equal( rds.get("rskProposalNumber"), rd.get("rskProposalNumber"));
+				end.where(a1);
+
+				Predicate n1 = cb.equal(rd.get("rskProposalNumber"), req.getProposalNo());
+				Predicate n2 = cb.equal(rd.get("rskEndorsementNo"), end);
+				query.where(n1,n2);
+
+				TypedQuery<String> result = em.createQuery(query);
+				List<String> list = result.getResultList();
 				if(!CollectionUtils.isEmpty(list)) {
-					GetProposalStatus=list.get(0).get("RSK_STATUS")==null?"":list.get(0).get("RSK_STATUS").toString();
+					GetProposalStatus=list.get(0)==null?"":list.get(0);
 				}
 				
 				//beanObj.setProStatus(GetProposalStatus);
@@ -1232,25 +1503,59 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 				}else if ("N".equalsIgnoreCase(GetProposalStatus)) {
 					response.setContractGendration("Your Proposal is saved in Not Taken Up Stage with Proposal No : "+ obj[16]);
 				}
-				updateQry ="risk.update.pro2SecComm";
 				obj1 = savemodeUpdateRiskDetailsSecondFormSecondTable(req, getMaxAmednId(req.getProposalNo()));
-				res=queryImpl.updateQuery(updateQry, obj1);
-				logger.info("Result=>" + res);
+				//risk.update.pro2SecComm
+				TtrnRiskCommission update1 = proportionalityCustomRepository.ttrnRiskCommissionSecondPageUpdate(obj1);
+				if(update1!=null) {
+					ttrnRiskCommissionRepository.saveAndFlush(update1);	
+				}
+				
 			}else {
 				obj = secondPageFirstTableSaveAruguments(req,getMaxAmednId(req.getProposalNo()));
-				updateQry ="risk.update.pro24RskProposal";
-				logger.info("updateQry" + updateQry);
-				int res=queryImpl.updateQuery(updateQry, obj);
-				logger.info("Result=>" + res);
-				insertQry = "risk.insert.pro2SecComm";
-				logger.info("insertQry " + insertQry);
+				//risk.update.pro24RskProposal
+				TtrnRiskProposal update = proportionalityCustomRepository.ttrnRiskProposalSecondPageUpdate(obj);
+				if(update!=null) {
+				ttrnRiskProposalRepository.saveAndFlush(update);	
+				}
 				obj1 = secondPageCommissionSaveAruguments(req);
-				res=queryImpl.updateQuery(insertQry, obj1);
-				logger.info("Result=>"+res);
-				List<Map<String, Object>> list  = queryImpl.selectList("risk.select.chechProposalStatus",new String[] {req.getProposalNo(),req.getProposalNo(),req.getProposalNo()});
+				//risk.insert.pro2SecComm
+				TtrnRiskCommission insert = proportionalityCustomRepository.ttrnRiskCommissionSecondPageInsert(obj1);
+				if(insert!=null) {
+					ttrnRiskCommissionRepository.saveAndFlush(insert);	
+				}
+				
+				//risk.select.chechProposalStatus
+				CriteriaBuilder cb = em.getCriteriaBuilder(); 
+				CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+				Root<TtrnRiskProposal> rd = query.from(TtrnRiskProposal.class);
+				Root<TtrnRiskDetails> b = query.from(TtrnRiskDetails.class);
+
+				query.multiselect(b.get("rskStatus").alias("RSK_STATUS"),rd.get("rskShareSigned").alias("RSK_SHARE_SIGNED"),b.get("rskContractNo").alias("RSK_CONTRACT_NO")); 
+
+				Subquery<Long> endA = query.subquery(Long.class); 
+				Root<TtrnRiskProposal> rds = endA.from(TtrnRiskProposal.class);
+				endA.select(cb.max(rds.get("rskEndorsementNo")));
+				Predicate a1 = cb.equal( rds.get("rskProposalNumber"), req.getProposalNo());
+				endA.where(a1);
+				
+				Subquery<Long> endB = query.subquery(Long.class); 
+				Root<TtrnRiskProposal> bs = endB.from(TtrnRiskProposal.class);
+				endB.select(cb.max(bs.get("rskEndorsementNo")));
+				Predicate b1 = cb.equal( bs.get("rskProposalNumber"), req.getProposalNo());
+				endB.where(b1);
+
+				Predicate n1 = cb.equal(rd.get("rskProposalNumber"), req.getProposalNo());
+				Predicate n3 = cb.equal(rd.get("rskProposalNumber"), b.get("rskProposalNumber"));
+				Predicate n2 = cb.equal(rd.get("rskEndorsementNo"), endA);
+				Predicate n4 = cb.equal(b.get("rskEndorsementNo"), endB);
+				query.where(n1,n2,n3,n4);
+
+				TypedQuery<Tuple> result = em.createQuery(query);
+				List<Tuple> list = result.getResultList();
+				
 				if(!CollectionUtils.isEmpty(list)) {
 					for (int i = 0; i < list.size(); i++) {
-						Map<String, Object> resMap=list.get(0);
+						Tuple resMap= list.get(0);
 						response.setProStatus(resMap.get("RSK_STATUS")==null?"":resMap.get("RSK_STATUS").toString());
 						response.setSharSign(resMap.get("RSK_SHARE_SIGNED")==null?"":resMap.get("RSK_SHARE_SIGNED").toString());
 						response.setContractNo(resMap.get("RSK_CONTRACT_NO")==null?"":resMap.get("RSK_CONTRACT_NO").toString());
@@ -1283,21 +1588,17 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 	}
 	public int checkSecondPageMode(String proposalNo) {
 		int mode=0;
-		String result="";
 		try{
-		
-			List<Map<String, Object>> list  = queryImpl.selectList("risk.select.getRiskCommCount",new String[] {proposalNo});
-			if(!CollectionUtils.isEmpty(list)) {
-				result=list.get(0).get("COUNT")==null?"":list.get(0).get("COUNT").toString();
-			}
-			mode="0".equals(result)?1:2;
-		}catch(Exception e){		
-			logger.debug("Exception @ {" + e + "}");
-
+			//risk.select.getRiskCommCount
+			int  count = ttrnRiskCommissionRepository.countByRskProposalNumber(proposalNo);
+			if (count == 0) {
+				mode = 1;
+			} else if (count != 0) {
+				mode = 2;
+			}		}
+		catch(Exception e){		
+			e.printStackTrace();	
 		}
-		logger.info("Mode Of Insertion=>" + mode);
-		logger.info("If 1 means Insert");
-		logger.info("if 2  means Update");
 		return mode;
 	}
 	public String[] saveUpdateRiskDetailsSecondForm(final SecondpageSaveReq beanObj, final String endNo) {
@@ -1336,12 +1637,11 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 						.getExchangeRate());
 		obj[16] = beanObj.getProposalNo();
 		obj[17] = endNo;
-		logger.info("Args[]=>" + StringUtils.join(obj,","));
 		return obj;
 	}
 	public String[] savemodeUpdateRiskDetailsSecondFormSecondTable(final SecondpageSaveReq beanObj, final String endNo) {
 		String[] obj=new String[0];
-		obj = new String[63];
+		obj = new String[67];
 		obj[0] = StringUtils.isEmpty(beanObj.getBrokerage()) ? "0": beanObj.getBrokerage();
 		obj[1] = StringUtils.isEmpty(beanObj.getTax()) ? "0" : beanObj.getTax();
 		obj[2] = StringUtils.isEmpty(beanObj.getShareProfitCommission()) ? "0": beanObj.getShareProfitCommission();
@@ -1425,9 +1725,12 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 			}
 		obj[59] = StringUtils.isEmpty(beanObj.getDocStatus())? "" :beanObj.getDocStatus();
 		obj[60] = StringUtils.isEmpty(beanObj.getLocRate())? "" :beanObj.getLocRate();
-		obj[61] = beanObj.getProposalNo();
-		obj[62] = endNo;
-		logger.info("Args[]=>" + StringUtils.join(obj,","));
+		obj[61] =StringUtils.isEmpty(beanObj.getPremiumResType())? "" :beanObj.getPremiumResType();
+		obj[62] = StringUtils.isEmpty(beanObj.getPcfpcType())?"":beanObj.getPcfpcType();
+		obj[63] = StringUtils.isEmpty(beanObj.getPcfixedDate())?"":beanObj.getPcfixedDate();
+		obj[64] = StringUtils.isEmpty(beanObj.getPortfolioType())?"":beanObj.getPortfolioType();
+		obj[65] = beanObj.getProposalNo();
+		obj[66] = endNo;
 		return obj;
 	}
 	public String[] secondPageFirstTableSaveAruguments(final SecondpageSaveReq beanObj, final String endNo) {
@@ -1466,17 +1769,15 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 						.getExchangeRate());
 		obj[16] = beanObj.getProposalNo();
 		obj[17] = endNo;
-		logger.info("Args[]=>" + StringUtils.join(obj,","));
 		return obj;
 	}
 	public String[] secondPageCommissionSaveAruguments(final SecondpageSaveReq beanObj) {
 		String[] obj=null;
-		obj = new String[67];
+		obj = new String[71]; //Ri
 		obj[0] = beanObj.getProposalNo();
 		obj[1] = "0";
 		obj[2] = "0";
 		obj[3] = StringUtils.isEmpty(beanObj.getBrokerage()) ? "0": beanObj.getBrokerage();
-		logger.info("Enter Into beanObj.getExchRate()" + obj[3]);
 		obj[4] = StringUtils.isEmpty(beanObj.getTax()) ? "0" : beanObj.getTax();
 		obj[5] = StringUtils.isEmpty(beanObj.getShareProfitCommission()) ? "0": beanObj.getShareProfitCommission();
 		obj[6] = "0";
@@ -1564,26 +1865,30 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 			}
 		obj[65] =StringUtils.isEmpty(beanObj.getDocStatus())?"":beanObj.getDocStatus();
 		obj[66] =StringUtils.isEmpty(beanObj.getLocRate())? "" :beanObj.getLocRate();
-		logger.info("Args[]=>" + StringUtils.join(obj,","));
+		obj[67] =StringUtils.isEmpty(beanObj.getPremiumResType())? "" :beanObj.getPremiumResType();
+		obj[68] = StringUtils.isEmpty(beanObj.getPcfpcType())?"":beanObj.getPcfpcType();
+		obj[69] = StringUtils.isEmpty(beanObj.getPcfixedDate())?"":beanObj.getPcfixedDate();
+		obj[70] = StringUtils.isEmpty(beanObj.getPortfolioType())?"":beanObj.getPortfolioType();
 		return obj;
 	}
-	
+	@Transactional
 	public CommonSaveRes insertRetroContracts(RetroSaveReq beanObj) {
 		CommonSaveRes resp=new CommonSaveRes();
+		int	res=0;
 		try{
 			final int LoopCount = Integer.parseInt(beanObj.getNoInsurer());
 			String[] obj = new String[12];
 			String endtNo=dropDowmImpl.getRiskComMaxAmendId(beanObj.getProposalNo());
 		
-			int res=queryImpl.updateQuery("DELETE_INSURE_DETAIL", new String[]{beanObj.getProposalNo(),endtNo});
-		
+			//delete.facul.data
+			 ttrnInsurerDetailsRepository.deleteByProposalNoAndEndorsementNo(beanObj.getProposalNo(),new BigDecimal(endtNo));
 			
 			if(LoopCount==0){
 				beanObj.setRetentionPercentage("100");
 			}
 			if(Integer.parseInt(endtNo)>0){
-				res=queryImpl.updateQuery("fac.update.insDetails", new String[]{beanObj.getProposalNo(),"0"});
-				logger.info("Update Result=>"+res);
+				//fac.update.insDetails
+				res= proportionalityCustomRepository.facUpdateInsDetails(beanObj.getProposalNo(),"0");
 			}
 			obj[0] = "0";
 			obj[1] = beanObj.getProposalNo();
@@ -1597,8 +1902,12 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 			obj[9] = beanObj.getDepartmentId();
 			obj[10] = beanObj.getLoginId();
 			obj[11] = beanObj.getBranchCode();
-			res=queryImpl.updateQuery("fac.insert.insDetails", obj);
-			logger.info("Result=>"+res);
+			//fac.insert.insDetails
+			TtrnInsurerDetails insert = proportionalityCustomRepository.facInsertInsDetails(obj);
+			if(insert!=null) {
+			ttrnInsurerDetailsRepository.saveAndFlush(insert);	
+			res=1;
+			}
 			obj = new String[12];
 			obj[0] = "1";
 			obj[1] = beanObj.getProposalNo();
@@ -1612,8 +1921,12 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 			obj[9] = beanObj.getDepartmentId();
 			obj[10] = beanObj.getLoginId();
 			obj[11] = beanObj.getBranchCode();
-			res=queryImpl.updateQuery("fac.insert.insDetails", obj);
-			logger.info("Result=>"+res);
+			//fac.insert.insDetails
+			TtrnInsurerDetails insert1 = proportionalityCustomRepository.facInsertInsDetails(obj);
+			if(insert1!=null) {
+			ttrnInsurerDetailsRepository.saveAndFlush(insert1);	
+			res=1;
+			}
 			int j=2;
 			if(beanObj.getRetroDetailReq()!=null && beanObj.getRetroDetailReq().size()>0) {
 			for(int i=0;i<beanObj.getRetroDetailReq().size();i++){
@@ -1630,7 +1943,12 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 				obj[9] = beanObj.getDepartmentId();
 				obj[10] = beanObj.getLoginId();
 				obj[11] = beanObj.getBranchCode();
-				res=queryImpl.updateQuery("fac.insert.insDetails", obj);
+				//fac.insert.insDetails
+				TtrnInsurerDetails insert2 = proportionalityCustomRepository.facInsertInsDetails(obj);
+				if(insert2!=null) {
+				ttrnInsurerDetailsRepository.saveAndFlush(insert2);	
+				res=1;
+				}
 				j++;
 			}
 		}
@@ -1638,13 +1956,16 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 			resp.setErroCode(0);
 			resp.setIsError(false);
 		}catch(Exception e){
-			logger.debug("Exception @ {" + e + "}");
+			e.printStackTrace();
 			resp.setResponse("Success");
 			resp.setErroCode(1);
 			resp.setIsError(true);
-
 		}
 		return resp;
+	}
+private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bigDecimal) {
+		// TODO Auto-generated method stub
+		
 	}
 //	public String getRiskComMaxAmendId(final String proposalNo) {
 //		String result="";
@@ -1682,14 +2003,23 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 					obj[9]=bean.getBranchCode();
 					obj[10]="";
 					obj[11]= "";
-					queryImpl.updateQuery("MOVE_TO_CRESTA_MAIN_TABLE", obj);
+					//MOVE_TO_CRESTA_MAIN_TABLE
+					TtrnCrestazoneDetails insert = proportionalityCustomRepository.moveToCrestaMainTable(obj);
+					if(insert!=null) {
+						ttrnCrestazoneDetailsRepository.saveAndFlush(insert);
+						}
 			}
 			 obj = new String[4];
 			 obj[0]=bean.getContractNo();
 			 obj[1]=bean.getProposalNo();
 			 obj[2]=bean.getAmendId();
 			 obj[3]=bean.getBranchCode();
-			 queryImpl.updateQuery("CREATA_CONTRACT_UPDATE", obj);
+			 //CREATA_CONTRACT_UPDATE
+			 TtrnCrestazoneDetails list = ttrnCrestazoneDetailsRepository.findByProposalNoAndAmendIdAndBranchCode(new BigDecimal(bean.getProposalNo()),bean.getAmendId(),bean.getBranchCode());
+			 if(list!= null) {
+				 list.setContractNo(new BigDecimal(bean.getContractNo()));	
+				 ttrnCrestazoneDetailsRepository.saveAndFlush(list);
+				 }
 			 resp.setResponse("Success");
 			 resp.setErroCode(0);
 			 resp.setIsError(false);
@@ -1705,22 +2035,18 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 	public int getCrestaCount(CrestaSaveReq bean) {
 		int count=0;
 		try {
-			String[] obj=new String[3];
-			obj[0]=bean.getProposalNo();
-			obj[1]=bean.getAmendId();
-			obj[2]=bean.getBranchCode();
-			List<Map<String, Object>> list  = queryImpl.selectList("GET_CRESTA_DETAIL_COUNT",obj);
-			if(!CollectionUtils.isEmpty(list)) {
-				count=list.get(0).get("RSK_ENDORSEMENT_NO")==null?0:Integer.parseInt(list.get(0).get("RSK_ENDORSEMENT_NO").toString());
-			}
+			//GET_CRESTA_DETAIL_COUNT
+			count = ttrnCrestazoneDetailsRepository.countByProposalNoAndAmendIdAndBranchCode(new BigDecimal(bean.getProposalNo()), bean.getAmendId(), bean.getBranchCode());
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return count;
 	}
+	@Transactional
 	@Override
 	public CommonSaveRes insertBonusDetails(BonusSaveReq req, String type) {
-		
+		CommonSaveRes resp=new CommonSaveRes();
 		try {
 			if("scale".equalsIgnoreCase(type) && "Y".equalsIgnoreCase(req.getSlideScaleCommission()) ){
 				updateContractDetails(req,"scale");
@@ -1731,18 +2057,38 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 			else{
 				moveBonusEmptyData(req,type);
 			}
+			 resp.setResponse("Success");
+			 resp.setErroCode(0);
+			 resp.setIsError(false);
 		} catch (Exception e) {
 			e.printStackTrace();
+			resp.setResponse("Failed");
+			resp.setErroCode(1);
+			resp.setIsError(true);
 		}
-		return null;
+		return resp;
+		
 	}
+
 	private void updateContractDetails(BonusSaveReq bean, String string) {
 		try{
-			String args[] = new String[3];
-			args[1] =bean.getProposalNo();
-		    args[0] = bean.getContractNo();
-		    args[2] = bean.getBranchCode();
-			 queryImpl.updateQuery("CONTRACT_UPDATE", args);
+		    //CONTRACT_UPDATE
+		    CriteriaBuilder cb = this.em.getCriteriaBuilder();
+			 CriteriaUpdate<TtrnBonus> update = cb.createCriteriaUpdate(TtrnBonus.class);
+			 Root<TtrnBonus> m = update.from(TtrnBonus.class);
+			 update.set("contractNo", new BigDecimal(bean.getContractNo()));
+			 //end
+				Subquery<Long> end = update.subquery(Long.class);
+				Root<TtrnBonus> rds = end.from(TtrnBonus.class);
+				end.select(cb.max(rds.get("endorsementNo")));
+				Predicate a1 = cb.equal(rds.get("proposalNo"), m.get("proposalNo"));
+				Predicate a2 = cb.equal(rds.get("branch"), m.get("branch"));
+				end.where(a1, a2);
+			 Predicate n1 = cb.equal(m.get("proposalNo"), bean.getProposalNo());
+			 Predicate n2 = cb.equal(m.get("branch"), bean.getBranchCode());
+			 Predicate n3 = cb.equal(m.get("endorsementNo"), end==null?null:end);
+			 update.where(n1,n2,n3 );
+			 em.createQuery(update).executeUpdate();
 		}
 		catch(Exception e){
 			e.printStackTrace();
@@ -1752,19 +2098,18 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 	private void moveBonusEmptyData(BonusSaveReq bean,String type) {
 		try{
 			if(StringUtils.isBlank(bean.getAmendId())){
-
 				bean.setAmendId("0");
 			}
 			deleteMaintable(bean,type);
-			String query ="BONUS_MAIN_INSERT_PTTY";
-			String args[]=new String[21];
+			//BONUS_MAIN_INSERT_PTTY
+			String args[]=new String[22]; //ri
 					args[0] =bean.getProposalNo();
 					args[1] = bean.getContractNo();
 					args[2] = bean.getProductid();
 		           args[3] = "";
 		           args[4] = "";
 		           args[5] = "";
-		           args[6] ="";
+		           args[6] = "";
 		           args[7] = bean.getLoginId();
 		           args[8] = bean.getBranchCode();
 		           args[9] = "";
@@ -1784,20 +2129,22 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 		           args[18] ="";
 		           args[19] ="";
 		           args[20] ="";
-		           logger.info("Query=>"+query);
-		           logger.info("Args=>"+StringUtils.join(args, ","));
-		           queryImpl.updateQuery(query, args);
+		           args[21]=StringUtils.isBlank(bean.getReferenceNo())?"":bean.getReferenceNo();
+		           TtrnBonus insert = proportionalityCustomRepository.bonusMainInsertPtty(args);
+		           if(insert!=null) {
+		        	   ttrnBonusRepository.saveAndFlush(insert);
+		        	   }
 	}
 		catch(Exception e){
 			e.printStackTrace();
 		}
 	}
+	@Transactional
 	private void deleteMaintable(BonusSaveReq bean,String type) {
-		String query1="";
 		String arg[]=null;
 		try{
 			if("".equalsIgnoreCase(bean.getEndorsmentno())){
-				query1 ="BONUS_MAIN_DELETE";
+				//BONUS_MAIN_DELETE
 				 arg = new String[4];
 				 arg[0] = bean.getProposalNo();
 				 arg[1] = bean.getBranchCode();
@@ -1807,10 +2154,23 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 		           else{
 		        	   arg[2]="LPC";
 		           }
-				  arg[3]=StringUtils.isEmpty(bean.getLayerNo()) ? "0" : bean.getLayerNo();;
-			}
-			else{
-			 query1 ="BONUS_MAIN_DELETE2";
+				  arg[3]=StringUtils.isEmpty(bean.getLayerNo()) ? "0" : bean.getLayerNo();
+				  ttrnBonusRepository.deleteByProposalNoAndBranchAndTypeAndLayerNo(new BigDecimal( arg[0]), arg[1], arg[2],arg[3]);
+			}else if(StringUtils.isBlank(bean.getProposalNo())) {
+				//BONUS_MAIN_DELETE3
+				 arg = new String[4];
+				 arg[0] = bean.getReferenceNo();
+				 arg[1] = bean.getBranchCode();
+				 if("scale".equalsIgnoreCase(bean.getPageFor())){
+		        	   arg[2] ="SSC";
+		           }
+		           else{
+		        	   arg[2]="LPC";
+		           }
+				  arg[3]=StringUtils.isEmpty(bean.getLayerNo()) ? "0" : bean.getLayerNo();
+				  ttrnBonusRepository.deleteByReferenceNoAndBranchAndTypeAndLayerNo(new BigDecimal(arg[0]), arg[1], arg[2],arg[3]);
+			}	else{
+			 //BONUS_MAIN_DELETE2
 			 arg = new String[5];
 			 arg[0] = bean.getProposalNo();
 			 arg[1] = bean.getAmendId();
@@ -1821,9 +2181,9 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 	           else{
 	        	   arg[3]="LPC";
 	           }
-			  arg[4]=StringUtils.isEmpty(bean.getLayerNo()) ? "0" : bean.getLayerNo();;
+			  arg[4]=StringUtils.isEmpty(bean.getLayerNo()) ? "0" : bean.getLayerNo();
+			  ttrnBonusRepository.deleteByProposalNoAndEndorsementNoAndBranchAndTypeAndLayerNo(new BigDecimal(arg[0]), new BigDecimal(arg[1]), arg[2],arg[3], arg[4]);
 			}
-			queryImpl.updateQuery(query1, arg);
 		}
 		catch(Exception e){
 			e.printStackTrace();
@@ -1849,32 +2209,25 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 		}
 		return resp;
 	}
-	
 
 	private void profitUpdate(ProfitCommissionSaveReq bean) {
 		try{
-			String query ="COMMISSION_STATUS_UPDATE";
-			String args[] = new String[5];
-			args[0] = bean.getContractNo();
-			args[1] = bean.getShareProfitCommission();
-			args[2] = bean.getProposalNo();
-			args[3] = bean.getBranchCode();
-			args[4] = bean.getAmendId();
-			queryImpl.updateQuery(query, args);
-			
+			//COMMISSION_STATUS_UPDATE
+			TtrnCommissionDetails list =ttrnCommissionDetailsRepository.findByProposalNoAndBranchCodeAndEndorsementNo(new BigDecimal(bean.getProposalNo()), bean.getBranchCode(), new BigDecimal(bean.getAmendId()))	;
+			if(list!=null) {
+				list.setContractNo(new BigDecimal(bean.getContractNo()));	
+				list.setProfitComStatus(bean.getShareProfitCommission());
+				ttrnCommissionDetailsRepository.saveAndFlush(list);
+				}
 		}
 		catch(Exception e){
 			e.printStackTrace();
 		}
-		
 	}
-
-	
 
 	private void profitMainEmptyInsert(ProfitCommissionSaveReq bean) {
 		try{
-		
-			String query = "COMMISSION_INSERT";
+			//COMMISSION_INSERT
 			String args[]=new String[12];
 				args[0]="";
 				args[1]="";
@@ -1888,33 +2241,27 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 				args[9]=bean.getDepartmentId();
 				args[10]=bean.getCommissionType();
 				args[11]=bean.getLoginId();
-				queryImpl.updateQuery(query, args);
-		
-		}
+				TtrnCommissionDetails insert = proportionalityCustomRepository.commissionInsert(args);
+						if(insert!=null) {
+							ttrnCommissionDetailsRepository.saveAndFlush(insert);
+							}
+			}
 			catch(Exception e){
 				e.printStackTrace();
 			}
 	}
 	private void mainDelete(ProfitCommissionSaveReq bean) {
 		try{
-		String query="";
-		String args[] = null;
 		if(StringUtils.isNotBlank(bean.getContractNo())){
-			query="COMMIOSSION_DELETE_CONTRACT";
-			 args=new String[4];
-			 args[0]=bean.getProposalNo();
-			 args[1]=bean.getBranchCode();
-			 args[2]=bean.getAmendId();
-			 args[3]=bean.getContractNo();
+			//COMMIOSSION_DELETE_CONTRACT
+			 ttrnCommissionDetailsRepository.deleteByProposalNoAndBranchCodeAndEndorsementNoAndContractNo(
+					 new BigDecimal(bean.getProposalNo()), bean.getBranchCode(), new BigDecimal(bean.getAmendId()), new BigDecimal(bean.getContractNo()));
 		}
 		else{
-			query="COMMIOSSION_DELETE";
-			args=new String[3];
-			 args[0]=bean.getProposalNo();
-			 args[1]=bean.getBranchCode();
-			 args[2]=bean.getAmendId();
+			//COMMIOSSION_DELETE
+			 ttrnCommissionDetailsRepository.deleteByProposalNoAndBranchCodeAndEndorsementNo(
+					 new BigDecimal(bean.getProposalNo()), bean.getBranchCode(), new BigDecimal(bean.getAmendId()));
 		}
-		queryImpl.updateQuery(query, args);
 		}
 		catch(Exception e){
 			e.printStackTrace();
@@ -1924,23 +2271,46 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 	@Override
 	public GetCommonValueRes getShortname(String branchCode) {
 		GetCommonValueRes response = new GetCommonValueRes();
-		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
 		String Short="";
-		String query ="";
 		try {
-			query = "GET_SHORT_NAME";
-			list= queryImpl.selectList(query,new String[] {branchCode});
+			//GET_SHORT_NAME
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<String> query = cb.createQuery(String.class); 
+			Root<TmasBranchMaster> tbm = query.from(TmasBranchMaster.class);
+			//	shortName
+			Subquery<String> shortName = query.subquery(String.class); 
+			Root<CurrencyMaster> cm = shortName.from(CurrencyMaster.class);
+			shortName.select(cm.get("shortName"));
+			//amend
+			Subquery<Long> amend = query.subquery(Long.class); 
+			Root<CurrencyMaster> cms = amend.from(CurrencyMaster.class);
+			amend.select(cb.max(cb.<Long>selectCase().when(cb.isNull(cms.get("amendId")), 0l)
+					.otherwise(cms.get("amendId"))));
+			Predicate b3 = cb.equal( cms.get("currencyId"), cm.get("currencyId"));
+			Predicate b4 = cb.equal( cms.get("branchCode"), cm.get("branchCode"));
+			amend.where(b3,b4);
+			
+			Predicate a1 = cb.equal( tbm.get("baseCurrencyId"), cm.get("currencyId"));
+			Predicate a2 = cb.equal( tbm.get("branchCode"), cm.get("branchCode"));
+			Predicate a3 = cb.equal( cm.get("amendId"), amend);
+			shortName.where(a1,a2,a3);
+			
+			query.multiselect(shortName.alias("COUNTRY_SHORT_NAME")); 
+
+			Predicate n1 = cb.equal(tbm.get("branchCode"), branchCode);
+			Predicate n2 = cb.equal(tbm.get("status"), "Y");
+			query.where(n1,n2);
+			
+			TypedQuery<String> reslt = em.createQuery(query);
+			List<String> list = reslt.getResultList();
 			if (!CollectionUtils.isEmpty(list)) {
-				Short = list.get(0).get("COUNTRY_SHORT_NAME") == null ? ""
-						: list.get(0).get("COUNTRY_SHORT_NAME").toString();
+				Short = list.get(0) == null ? ""
+						: list.get(0);
 			}
-		
-		
 		response.setCommonResponse(Short);
 		response.setMessage("Success");
 		response.setIsError(false);
 		}catch(Exception e){
-			
 			e.printStackTrace();
 			response.setMessage("Failed");
 			response.setIsError(true);
@@ -1951,17 +2321,16 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 	@Override
 	public GetCommonValueRes getEditMode(String proposalNo) {
 		GetCommonValueRes response = new GetCommonValueRes();
-		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
 		int mode=0;
-		String		string ="";
+		String	string ="";
 		try {
-			String selectQry = "RISK_SELECT_GETRSKCONTRACTNO";
-			list= queryImpl.selectList(selectQry,new String[] {proposalNo});
-			if (!CollectionUtils.isEmpty(list)) {
-				string = list.get(0).get("RSK_ENDORSEMENT_NO") == null ? ""
-						: list.get(0).get("RSK_ENDORSEMENT_NO").toString();
+		
+			//RISK_SELECT_GETRSKCONTRACTNO
+			TtrnRiskDetails list = ttrnRiskDetailsRepository.findTop1ByRskProposalNumberOrderByRskEndorsementNoDesc(proposalNo);
+			if (list!= null) {
+				string = list.getRskEndorsementNo()==null ? ""
+						: list.getRskEndorsementNo().toString();
 			}
-			
 			if ("0".equalsIgnoreCase(string)) {
 				mode = 1;
 			} else {
@@ -1971,37 +2340,51 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 			response.setMessage("Success");
 			response.setIsError(false);
 			}catch(Exception e){
-				
 				e.printStackTrace();
 				response.setMessage("Failed");
 				response.setIsError(true);
 			}
 		return response;
-	
 	}
 
 	@Override
 	public RiskDetailsEditModeRes riskDetailsEditMode(RiskDetailsEditModeReq req) {
 		RiskDetailsEditModeRes response = new RiskDetailsEditModeRes();
+		List<Tuple> list = new ArrayList<>();
 		try {
 			String[] args = new String[3];
 			if (req.getContractMode()) {
 				args[0] = req.getContNo();
 				args[1] = req.getContNo();
 				args[2] = req.getContNo();
+				//risk.select.getEditModeData1
+				list = proportionalityCustomRepository.riskSelectGetEditModeData1(args);
 			} else {
 				args[0] = req.getProposalNo();
 				args[1] = req.getProposalNo();
 				args[2] = req.getProposalNo();
+				//risk.select.getEditModeData2
+				list = proportionalityCustomRepository.riskSelectGetEditModeData2(args);
 			}
-			List<Map<String, Object>> res =  queryImpl.selectList(getRiskDetailsEditQuery(req.getContractMode()),args);
 			RiskDetailsEditModeRes1 beanObj = new RiskDetailsEditModeRes1(); 
-			Map<String, Object> resMap = null;
-			if(res!=null && res.size()>0)
-				resMap = (Map<String, Object>)res.get(0);
-			if (resMap!=null) {
+			Tuple resMap = null;
+			if(list!=null && list.size()>0)
+				resMap = list.get(0);
+			if (resMap!=null) { //RI
+				beanObj.setCedingCo(resMap.get("RSK_CEDINGID")==null?"":resMap.get("RSK_CEDINGID").toString());
+				beanObj.setInceptionDate(resMap.get("RSK_INCEPTION_DATE")==null?"":resMap.get("RSK_INCEPTION_DATE").toString());
+				beanObj.setExpiryDate(resMap.get("RSK_EXPIRY_DATE")==null?"":resMap.get("RSK_EXPIRY_DATE").toString());
+				beanObj.setUwYear(resMap.get("RSK_UWYEAR")==null?"":resMap.get("RSK_UWYEAR").toString());
+				beanObj.setUwYearTo(resMap.get("UW_YEAR_TO")==null?"":resMap.get("UW_YEAR_TO").toString());
+				beanObj.setBouquetModeYN(resMap.get("BOUQUET_MODE_YN")==null?"N":resMap.get("BOUQUET_MODE_YN").toString());
+				beanObj.setBouquetNo(resMap.get("BOUQUET_NO")==null?"":resMap.get("BOUQUET_NO").toString());
+				beanObj.setOfferNo(resMap.get("OFFER_NO")==null?"":resMap.get("OFFER_NO").toString());
+				if(StringUtils.isBlank(req.getSectionMode())) {
+				beanObj.setDepartId(resMap.get("RSK_DEPTID")==null?"":resMap.get("RSK_DEPTID").toString());	
+				
 				beanObj.setContractListVal(resMap.get("DATA_MAP_CONT_NO")==null?"":resMap.get("DATA_MAP_CONT_NO").toString());
 				beanObj.setProposalNo(resMap.get("RSK_PROPOSAL_NUMBER")==null?"":resMap.get("RSK_PROPOSAL_NUMBER").toString());
+				if(StringUtils.isBlank(beanObj.getBaseLayer()))
 				beanObj.setBaseLayer(resMap.get("BASE_LAYER")==null?"":resMap.get("BASE_LAYER").toString());
 				beanObj.setEndorsmentNo(resMap.get("RSK_ENDORSEMENT_NO")==null?"":resMap.get("RSK_ENDORSEMENT_NO").toString());
 				beanObj.setContractNo(resMap.get("RSK_CONTRACT_NO")==null?"":resMap.get("RSK_CONTRACT_NO").toString());
@@ -2028,7 +2411,6 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 				beanObj.setTerritoryscope(resMap.get("RSK_TERRITORY_SCOPE")==null?"":resMap.get("RSK_TERRITORY_SCOPE").toString());
 				beanObj.setTerritory(resMap.get("RSK_TERRITORY")==null?"":resMap.get("RSK_TERRITORY").toString()); //24
 				beanObj.setProStatus(resMap.get("RSK_STATUS")==null?"":resMap.get("RSK_STATUS").toString());
-				
 				beanObj.setEpiorigCur(resMap.get("RSK_EPI_OFFER_OC")==null?"":resMap.get("RSK_EPI_OFFER_OC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_EPI_OFFER_OC").toString()==null?"":resMap.get("RSK_EPI_OFFER_OC").toString());
 				beanObj.setPerilCovered(resMap.get("RSK_PERILS_COVERED")==null ? "" : resMap.get("RSK_PERILS_COVERED").toString());
 				if(beanObj.getProductId().equalsIgnoreCase("2")){
@@ -2051,7 +2433,7 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 					beanObj.setCedRetenType(resMap.get("RSK_CEDRET_TYPE")==null?"":resMap.get("RSK_CEDRET_TYPE").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_CEDRET_TYPE")==null?"":resMap.get("RSK_CEDRET_TYPE").toString());
 					beanObj.setSpRetro(resMap.get("RSK_SP_RETRO")==null?"":resMap.get("RSK_SP_RETRO").toString()==null ? "0" : resMap.get("RSK_SP_RETRO").toString()==null?"":resMap.get("RSK_SP_RETRO").toString());
 					beanObj.setNoInsurer(resMap.get("RSK_NO_OF_INSURERS")==null?"":resMap.get("RSK_NO_OF_INSURERS").toString());
-					beanObj.setLimitPerVesselOC(resMap.get("LIMIT_PER_VESSEL_OC")==null||"0".equals(resMap.get("LIMIT_PER_clasimVESSEL_OC"))?"":resMap.get("LIMIT_PER_VESSEL_OC").toString());
+					beanObj.setLimitPerVesselOC(resMap.get("LIMIT_PER_VESSEL_OC")==null||"0".equals(resMap.get("LIMIT_PER_VESSEL_OC"))?"":resMap.get("LIMIT_PER_VESSEL_OC").toString());
 					beanObj.setLimitPerLocationOC((resMap.get("LIMIT_PER_LOCATION_OC")==null||"0".equals(resMap.get("LIMIT_PER_LOCATION_OC"))?"":resMap.get("LIMIT_PER_LOCATION_OC").toString()));
 					beanObj.setCountryIncludedList(resMap.get("COUNTRIES_INCLUDE")==null?"":resMap.get("COUNTRIES_INCLUDE").toString());
 					beanObj.setCountryExcludedList(resMap.get("COUNTRIES_EXCLUDE")==null?"":resMap.get("COUNTRIES_EXCLUDE").toString());
@@ -2060,7 +2442,6 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 					beanObj.setTreatyLimitsurplusOCPml(resMap.get("RSK_TRTY_LMT_SUR_PML_OC")==null?"":resMap.get("RSK_TRTY_LMT_SUR_PML_OC").toString());
 					beanObj.setEpipml(resMap.get("RSK_TRTY_LMT_OURASS_PML_OC")==null?"":resMap.get("RSK_TRTY_LMT_OURASS_PML_OC").toString());
 				}
-				
 				beanObj.setEndorsmenttype(resMap.get("RS_ENDORSEMENT_TYPE")==null?"":resMap.get("RS_ENDORSEMENT_TYPE").toString());
 				beanObj.setPml(resMap.get("RSK_PML")==null ? "" : resMap.get("RSK_PML").toString());
 				beanObj.setPmlPercent(resMap.get("RSK_PML_PERCENT")==null ? "" : resMap.get("RSK_PML_PERCENT").toString());
@@ -2083,21 +2464,149 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 				else{
 				beanObj.setLimitOrigCur(resMap.get("RSK_LIMIT_OC")==null?"0":resMap.get("RSK_LIMIT_OC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_LIMIT_OC").toString()==null?"":resMap.get("RSK_LIMIT_OC").toString());
 				}
-				
 			}
 			if(StringUtils.isNotBlank(beanObj.getContractNo())&&!"0".equals(beanObj.getContractNo())){
 				beanObj.setPrclFlag(dropDowmImpl.getPLCLCountStatus(beanObj.getContractNo(), "0"));
 			}else{
 				beanObj.setPrclFlag(false);
 			}
+			beanObj.setRiskdetailYN(resMap.get("RISK_DET_YN")==null?"N":resMap.get("RISK_DET_YN").toString());
+			beanObj.setBrokerdetYN(resMap.get("BROKER_DET_YN")==null?"N":resMap.get("BROKER_DET_YN").toString());
+			beanObj.setCoverdetYN(resMap.get("COVER_DET_YN")==null?"N":resMap.get("COVER_DET_YN").toString());
+			beanObj.setPremiumdetailYN(resMap.get("PREMIUM_DET_YN")==null?"N":resMap.get("PREMIUM_DET_YN").toString());
+			beanObj.setAcqdetailYN(resMap.get("ACQCOST_DET_YN")==null?"N":resMap.get("ACQCOST_DET_YN").toString());
+			beanObj.setCommissiondetailYN(resMap.get("COMM_DET_YN")==null?"N":resMap.get("COMM_DET_YN").toString());
+			beanObj.setDepositdetailYN(resMap.get("DEPOSIT_DET_YN")==null?"N":resMap.get("DEPOSIT_DET_YN").toString());
+			beanObj.setLossdetailYN(resMap.get("LOSS_DET_YN")==null?"N":resMap.get("LOSS_DET_YN").toString());
+			beanObj.setDocdetailYN(resMap.get("DOC_DET_YN")==null?"N":resMap.get("DOC_DET_YN").toString());
+			beanObj.setPaymentPartner(resMap.get("PAYMENT_PARTNER")==null?"":resMap.get("PAYMENT_PARTNER").toString());
+			beanObj.setSectionNo(resMap.get("SECTION_NO")==null?"":resMap.get("SECTION_NO").toString());
+			
+			beanObj.setQuotesharePercent(resMap.get("QUOTESHARE_PERCENT")==null?"":dropDowmImpl.formattereight(resMap.get("QUOTESHARE_PERCENT").toString()));
+			beanObj.setAccountingPeriodNotes(resMap.get("RSK_ACCOUNT_PERIOD_NOTICE")==null?"":resMap.get("RSK_ACCOUNT_PERIOD_NOTICE").toString());
+			beanObj.setStatementConfirm(resMap.get("RSK_STATEMENT_CONFIRM")==null?"":resMap.get("RSK_STATEMENT_CONFIRM").toString());
 //			GetRemarksDetails(req.getProposalNo());
 //			getRetDetails(req.getProposalNo());
 			beanObj.setAmendId(dropDowmImpl.getRiskComMaxAmendId(beanObj.getProposalNo()));
+			} 
+			else {
+				beanObj.setDepartId("");
+				beanObj.setContractListVal("");
+				beanObj.setProfitCenter("");
+				beanObj.setSubProfitcenter("");
+				beanObj.setPolicyBranch("");
+				beanObj.setBroker("");
+				beanObj.setTreatyNametype("");
+				beanObj.setMonth("");
+				beanObj.setUnderwriter("");
+				beanObj.setAcceptanceDate("");
+				beanObj.setOrginalCurrency("");
+				beanObj.setExchangeRate("");
+				beanObj.setBasis("");
+				beanObj.setPnoc("");
+				beanObj.setRiskCovered("");
+				beanObj.setTerritoryscope("");
+				beanObj.setTerritory(""); //24
+				beanObj.setProStatus("");
+				
+				beanObj.setEpiorigCur("");
+				beanObj.setPerilCovered("");
+				if(beanObj.getProductId().equalsIgnoreCase("2")){
+					beanObj.setOurEstimate("");
+				}
+				if(beanObj.getProductId().equalsIgnoreCase("2")){
+					beanObj.setEpi("");
+				}
+				beanObj.setXlCost("");
+				if(beanObj.getProductId().equalsIgnoreCase("2")){
+					beanObj.setCedRetent("");
+				}
+				beanObj.setShareWritten("");
+				beanObj.setSharSign("");
+				beanObj.setProposalType("");
+				beanObj.setAccountingPeriod("");
+				beanObj.setReceiptofStatements("");
+				beanObj.setReceiptofPayment("");
+				if("2".equalsIgnoreCase(beanObj.getProductId())){
+					beanObj.setCedRetenType("");
+					beanObj.setSpRetro("");
+					beanObj.setNoInsurer("");
+					beanObj.setLimitPerVesselOC("");
+					beanObj.setLimitPerLocationOC("");
+					beanObj.setCountryIncludedList("");
+					beanObj.setCountryExcludedList("");
+					beanObj.setTreatynoofLine("");
+					beanObj.setLimitOrigCurPml("");
+					beanObj.setTreatyLimitsurplusOCPml("");
+					beanObj.setEpipml("");
+				}
+				
+				beanObj.setEndorsmenttype("");
+				beanObj.setPml("");
+				beanObj.setPmlPercent("");
+				beanObj.setMaxLimitProduct("");
+				beanObj.setRenewalcontractNo("");
+				beanObj.setBaseLoginId("");
+				beanObj.setTreatyLimitsurplusOC("");
+				beanObj.setInwardType("");
+				beanObj.setTreatyType("");
+				beanObj.setLOCIssued("");
+				beanObj.setRunoffYear("");
+				beanObj.setLocBankName("");
+				beanObj.setLocCreditPrd("");
+				beanObj.setLocCreditAmt("");
+				beanObj.setLocBeneficerName("");
+				beanObj.setRetentionYN("");
+				beanObj.setFaclimitOrigCur("");
+				beanObj.setLimitOrigCur("");
+				beanObj.setPrclFlag(false);
+			
+			beanObj.setRiskdetailYN("N");
+			beanObj.setBrokerdetYN("N");
+			beanObj.setCoverdetYN("N");
+			beanObj.setPremiumdetailYN("N");
+			beanObj.setAcqdetailYN("N");
+			beanObj.setCommissiondetailYN("N");
+			beanObj.setDepositdetailYN("N");
+			beanObj.setLossdetailYN("N");
+			beanObj.setDocdetailYN("N");
+			beanObj.setPaymentPartner("");
+			beanObj.setSectionNo("");
+			beanObj.setQuotesharePercent("");
+			beanObj.setAccountingPeriodNotes("");
+			beanObj.setStatementConfirm("");
+//			List<Map<String,Object>>result=new ArrayList<Map<String,Object>>();
+//			Map<String,Object> doubleMap = new HashMap<String,Object>();
+//			 doubleMap.put("one",new Double(1.0));
+//			 result.add(doubleMap);
+//			 beanObj.setRemarkList(result);
+//			
+			}
+			String proposalno="";
+			if (StringUtils.isNotEmpty(req.getLayerProposalNo())) {
+				proposalno = req.getLayerProposalNo();
+			} else {
+				proposalno = beanObj.getProposalNo();
+			}
+	//		this.showSecondpageEditItems(beanObj, beanObj.getProductId(), proposalno);
+			if("copy".equals(req.getFlag())) {
+				String sectionNo="";
+				if("2".equals(beanObj.getProductId())) {
+					//if(StringUtils.isBlank(beanObj.getSectionNo())) {
+						String query= "GET_MAX_SECTION_NO_DET"; 
+						List<Map<String,Object>> list1  = queryImpl.selectList(query, new String [] {beanObj.getProposalNo()});
+						if (!CollectionUtils.isEmpty(list1)) {
+							sectionNo = list1.get(0).get("SECTION_NO") == null ? ""
+								: list1.get(0).get("SECTION_NO").toString();
+					}
+						beanObj.setSectionNo(sectionNo);
+					//}
+				}
+			}
 			response.setCommonResponse(beanObj);
 			response.setMessage("Success");
 			response.setIsError(false);
 			}catch(Exception e){
-				
 				e.printStackTrace();
 				response.setMessage("Failed");
 				response.setIsError(true);
@@ -2105,19 +2614,7 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 		return response;
 	}
 
-	public String getRiskDetailsEditQuery(boolean contractMode) {
 
-		String query = "";
-		query = "risk.select.getEditModeData";
-		if(contractMode){
-			query = "risk.select.getEditModeData1";
-		}
-		else {
-			query = "risk.select.getEditModeData2";
-		}
-		
-		return query;
-	}
 //	public boolean getPLCLCountStatus(String contractNo,String layerNo) {
 //		boolean  status=false;
 //		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
@@ -2145,22 +2642,19 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 		GetRetDetailsRes response = new GetRetDetailsRes();
 		GetRetDetailsRes1 res1 = new GetRetDetailsRes1();
 		List<GetRetDetailsRes1> resList = new ArrayList<GetRetDetailsRes1>();
-		List<Map<String, Object>> result = new ArrayList<Map<String,Object>>();
 		List<RetListRes> retResList = new ArrayList<RetListRes>();
+		List<Tuple> list = new ArrayList<>();
 		try {
-			String query="GET_RET_DETAILS";
+			//GET_RET_DETAILS
 			String[] args= new String[2];
 			args[0]=proposalNo;
 			args[1]="0";
-			
-			
-			result=queryImpl.selectList(query,args);
-			if(result!=null && result.size()>0){
+			list = proportionalityCustomRepository.getRetDetails(args);	
+			if(list!=null && list.size()>0){
 
-				for (int i = 0; i < result.size(); i++) {
+				for (int i = 0; i < list.size(); i++) {
 					RetListRes retRes = new RetListRes();
-					Map<String, Object> insMap = (Map<String, Object>)result.get(i);
-					
+					Tuple insMap = list.get(i);
 					retRes.setCoverdepartId(insMap.get("RSK_CLASS")==null?"":insMap.get("RSK_CLASS").toString());
 					retRes.setCoversubdepartId(insMap.get("RSK_SUBCLASS")==null?"":insMap.get("RSK_SUBCLASS").toString());
 					retRes.setRetBusinessType(insMap.get("RSK_TYPE")==null?"":insMap.get("RSK_TYPE").toString());
@@ -2172,7 +2666,6 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 					retRes.setRetTreatySST(insMap.get("RSK_RET_TL_SST_OC")==null?"":fm.formatter(insMap.get("RSK_RET_TL_SST_OC").toString()));
 					retRes.setRetEventFST(insMap.get("RSK_RET_EL_FST_OC")==null?"":fm.formatter(insMap.get("RSK_RET_EL_FST_OC").toString()));
 					retRes.setRetEventSST(insMap.get("RSK_RET_EL_SST_OC")==null?"":fm.formatter(insMap.get("RSK_RET_EL_SST_OC").toString()));
-					
 					GetCommonDropDownRes deptListRes= (dropDowmImpl.getSubProfitCentreDropDown(insMap.get("RSK_CLASS")==null?"":insMap.get("RSK_CLASS").toString(),branchCode,productId));
 					retRes.setCoversubdeptList(deptListRes.getCommonResponse());
 					retResList.add(retRes);
@@ -2180,13 +2673,12 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 				
 				// bean.setRetList(result);
 				res1.setRetList(retResList);
-				 res1.setLoopcount(Integer.toString(result.size()));
+				 res1.setLoopcount(Integer.toString(list.size()));
 				 resList.add(res1);
 				 response.setCommonResponse(resList);
 				 response.setMessage("Success");
 					response.setIsError(false);
-			}}catch(Exception e){
-						
+				}}catch(Exception e){
 						e.printStackTrace();
 						response.setMessage("Failed");
 						response.setIsError(true);
@@ -2198,41 +2690,36 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 	public BaseLayerStatusRes BaseLayerStatus(BaseLayerStatusReq req) {
 		BaseLayerStatusRes response = new BaseLayerStatusRes();
 		BaseLayerStatusRes1 res = new BaseLayerStatusRes1();
+		List<Tuple> list = new ArrayList<>();
 		try {
-			String query="GET_BASE_LAYER_DETAILS";
-			
-			List<Map<String, Object>> res1 = queryImpl.selectList(query,new String[]{req.getProductId(),req.getBranchCode(),req.getProposalNo()});
-			
-			Map<String, Object> resMap1 = null;
-			if(res1!=null && res1.size()>0)
-				resMap1 = (Map<String, Object>)res1.get(0);
+			//GET_BASE_LAYER_DETAILS
+			list = proportionalityCustomRepository.getBaseLayerDetails(req.getProductId(),req.getBranchCode(),req.getProposalNo());	
+			Tuple resMap1 = null;
+			if(list!=null && list.size()>0)
+				resMap1 = list.get(0);
 			if (resMap1 != null) {
 					res.setBaseLayerYN(resMap1.get("BASE_LAYER")==null?"":resMap1.get("BASE_LAYER").toString());
 			}
 			if(StringUtils.isNotBlank(res.getBaseLayerYN())){
-				query="GET_BASE_LAYER_DETAILS";
-			
-				res1 = queryImpl.selectList(query,new String[]{req.getProductId(),req.getBranchCode(),res.getBaseLayerYN()});
+				//GET_BASE_LAYER_DETAILS
+				list = proportionalityCustomRepository.getBaseLayerDetails(req.getProductId(),req.getBranchCode(),res.getBaseLayerYN());	
 				
 				resMap1 = null;
-				if(res1!=null && res1.size()>0)
-					resMap1 = (Map<String, Object>)res1.get(0);
+				if(list!=null && list.size()>0)
+					resMap1 = list.get(0);
 				if (resMap1 != null) {
 						res.setBaseContractNo(resMap1.get("CONTRACT_NO")==null?"":resMap1.get("CONTRACT_NO").toString());
 						res.setBaseContractNoStatus(resMap1.get("CONTRACT_STATUS")==null?"":resMap1.get("CONTRACT_STATUS").toString());
-						
 				}
 				if(("0".equalsIgnoreCase(res.getBaseContractNo()) || StringUtils.isBlank(res.getBaseContractNo())) && "P".equalsIgnoreCase(res.getBaseContractNoStatus().trim())){
 					res.setProStatus("P");
 					res.setProdisableStatus("Y");
 				}
-				
 			}
 			response.setCommonResponse(res);
 			 response.setMessage("Success");
 				response.setIsError(false);
 			}catch(Exception e){
-					
 					e.printStackTrace();
 					response.setMessage("Failed");
 					response.setIsError(true);
@@ -2244,20 +2731,14 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 	public ShowSecondpageEditItemsRes showSecondpageEditItems(ShowSecondpageEditItemsReq req) {
 		ShowSecondpageEditItemsRes response = new ShowSecondpageEditItemsRes();
 		ShowSecondpageEditItemsRes1 res = new ShowSecondpageEditItemsRes1();
-		
+		List<Tuple> list = new ArrayList<>();
 		try{
-			String selectQry="";
-			String[] args = new String[3];
-			args[0] = req.getProposalNo();
-			args[1] =  req.getProposalNo();
-			args[2] =  req.getProposalNo();
-			selectQry = "risk.select.getEditModeSecPageData";
-			
-			List<Map<String, Object>> list =queryImpl.selectList(selectQry,args);
-			
-			Map<String, Object> resMap = null;
+			//risk.select.getEditModeSecPageData
+			if(StringUtils.isBlank(req.getSectionMode())) { //RI
+			list = proportionalityCustomRepository.riskSelectGetEditModeSecPageData(req.getProposalNo());
+			Tuple resMap = null;
 			if(res!=null && list.size()>0)
-				resMap = (Map<String, Object>)list.get(0);
+				resMap =  list.get(0);
 			if (resMap != null) {
 				if (resMap.get("RSK_LIMIT_OS_OC") != null) {
 					res.setLimitOurShare(resMap.get("RSK_LIMIT_OS_OC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_LIMIT_OS_OC").toString());
@@ -2373,210 +2854,252 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 				res.setSubSeqCalculation(resMap.get("RSK_PRO_SUB_SEQ_CAL")==null?"":resMap.get("RSK_PRO_SUB_SEQ_CAL").toString());
 				res.setLocRate(resMap.get("RSK_RATE")==null?"":resMap.get("RSK_RATE").toString());
 
+				res.setPremiumResType(resMap.get("RSK_PREMIUM_RES_TYPE")==null?"":resMap.get("RSK_PREMIUM_RES_TYPE").toString());
+				res.setPortfolioType(resMap.get("RSK_PORTFOLIO_TYPE")==null?"":resMap.get("RSK_PORTFOLIO_TYPE").toString());
+				res.setPcfpcType(resMap.get("FPC_TYPE")==null?"":resMap.get("FPC_TYPE").toString());
+				res.setPcfixedDate(resMap.get("FPC_FIXED_DATE")==null?"":resMap.get("FPC_FIXED_DATE").toString()); //Ri
+				
 				if (resMap.get("RSK_OTHER_COST") != null) {
 					res.setOthercost(resMap.get("RSK_OTHER_COST").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_OTHER_COST").toString());
 				}else{
 					res.setOthercost("0");
 				}
-				res.setAcqCostPer((Double.parseDouble(res.getCommissionQS())+Double.parseDouble(res.getCommissionsurp())+Double.parseDouble(res.getOverRidder())+Double.parseDouble(res.getBrokerage())+Double.parseDouble(res.getTax())+Double.parseDouble(res.getOthercost()))+"");
+				res.setAcqCostPer((Double.parseDouble(res.getCommissionQS()==null?"0":res.getCommissionQS())+Double.parseDouble(res.getCommissionsurp()==null?"0":res.getCommissionsurp())
+				+Double.parseDouble(res.getOverRidder()==null?"0":res.getOverRidder())+Double.parseDouble(res.getBrokerage()==null?"0":res.getBrokerage())+Double.parseDouble(res.getTax()==null?"0":res.getTax())+Double.parseDouble(res.getOthercost()==null?"0":res.getOthercost()))+"");
 				
 			}
-			args = new String[1];
 			
-			args[0] = req.getProposalNo();;
-			selectQry ="risk.select.getQuotaShare";
-			
-			List<Map<String, Object>> res1 = queryImpl.selectList(selectQry,args);
-			
-			Map<String, Object> res1Map = null;
-			if(res1!=null && res1.size()>0) {
-				res1Map = (Map<String, Object>)res1.get(0);
+			//risk.select.getQuotaShare
+			list = proportionalityCustomRepository.riskSelectGetQuotaShare(req.getProposalNo());
+			Tuple res1Map = null;
+			if(list!=null && list.size()>0) {
+				res1Map = list.get(0);
 				if(res1Map!=null) {
 					res.setPremiumQuotaShare(res1Map.get("RSK_PREMIUM_QUOTA_SHARE")==null?"":res1Map.get("RSK_PREMIUM_QUOTA_SHARE").toString());
-					
+					res.setPremiumSurplus(res1Map.get("RSK_PREMIUM_SURPULS")==null?"":res1Map.get("RSK_PREMIUM_SURPULS").toString());
 				}
 			}
 			
-			selectQry = "RISK_SELECT_COMM_GETQUOTASHARE";
+			//RISK_SELECT_COMM_GETQUOTASHARE
+			list = proportionalityCustomRepository.riskSelectCommGetquotashare(req.getProposalNo());
 			
-			res1 = queryImpl.selectList(selectQry,args);
-			
-			if(res1!=null && res1.size()>0) {
-				res1Map = (Map<String, Object>)res1.get(0);
+			if(list!=null && list.size()>0) {
+				res1Map = list.get(0);
 				if(res1Map!=null) {
 					res.setCommissionQSAmt(res1Map.get("COMM_QS_AMT")==null?"":res1Map.get("COMM_QS_AMT").toString());
 					res.setCommissionsurpAmt(res1Map.get("COMM_SURPLUS_AMT")==null?"":res1Map.get("COMM_SURPLUS_AMT").toString());
 				}
 			}
-			
 		
 			List<CommonResDropDown> dropResList = new ArrayList<CommonResDropDown>();
 			NoInsurerRes insurerRes = new NoInsurerRes();
 			List<NoInsurerRes> insurerResList = new ArrayList<NoInsurerRes>();
 			for(int i=0;i<Integer.parseInt(req.getNoInsurer());i++){
-				CommonResDropDown dropRes = new CommonResDropDown();
+			
 				insurerRes.setProductid("4");	
 				insurerRes.setRetroType("TR");
 				insurerRes.setBranchCode(req.getBranchCode());
 				insurerRes.setIncepDate(req.getIncepDate());
-				
 				
 				GetRetroContractDetailsListReq req1 = new GetRetroContractDetailsListReq();
 				req1.setBranchCode(req.getBranchCode());
 				req1.setIncepDate(req.getIncepDate());
 				req1.setProductid(insurerRes.getProductid());
 				
-				GetCommonDropDownRes commonRes=(dropDowmImpl.getRetroContractDetailsList(req1,1,""));
-				dropRes.setCode(commonRes.getCommonResponse().get(i).getCode());
-				dropRes.setCodeDescription(commonRes.getCommonResponse().get(i).getCodeDescription());
-				dropResList.add(dropRes);
+				GetCommonDropDownRes commonRes=dropDowmImpl.getRetroContractDetailsList(req1,1,"");
+				if(commonRes.getCommonResponse()!=null) {	
+					for(int j=0;j<commonRes.getCommonResponse().size();j++) {
+						CommonResDropDown dropRes = new CommonResDropDown();
+						dropRes.setCode(commonRes.getCommonResponse().get(j).getCode());
+						dropRes.setCodeDescription(commonRes.getCommonResponse().get(j).getCodeDescription());
+						dropResList.add(dropRes);
+					}
+				}
 				
 				insurerRes.setRetroUwyear(dropResList);
 				insurerResList.add(insurerRes);
-			}
+			} 
 			res.setNoInsurerList(insurerResList);	
+			} else {
+				res.setLimitOurShare("");
+				res.setLimitOSViewOC("");
+				res.setEpiAsPerOffer("");
+				res.setEpiOSViewOC("");
+				res.setEpiAsPerShare("");
+				res.setEpiOSOEViewOC("");
+				res.setXlcostOurShare("");
+				res.setXlCostViewOC("");
+				res.setLimitOSViewDC("");
+				res.setEpiOSViewDC("");
+				res.setEpiOSOEViewDC("");
+				res.setXlCostViewDC("");
+				res.setCommissionQS("");
+				res.setCommissionsurp("");
+				res.setOverRidder("");
+				res.setBrokerage("");
+				res.setTax("");
+				res.setAcquisitionCost("");
+				res.setShareProfitCommission("2");
+				res.setPremiumReserve("");
+				res.setLossreserve("");
+				res.setInterest("");
+				res.setCashLossLimit("");
+				res.setPortfolioinoutPremium("");
+				res.setPortfolioinoutLoss("");
+				res.setLossAdvise("");
+				res.setLeaderUnderwriter("");
+				res.setLeaderUnderwritershare("");
+				res.setAccounts("");
+				res.setCrestaStatus("");
+				res.setEventlimit("");
+				res.setAggregateLimit("");
+				res.setOccurrentLimit("");
+				res.setExclusion("");
+				res.setRemarks("");
+				res.setUnderwriterRecommendations("");
+				res.setGmsApproval("");
+				res.setSlideScaleCommission("");
+				res.setLossParticipants("");
+				res.setCommissionSubClass("");
+				res.setLeaderUnderwritercountry("");
+				res.setOrginalacqcost("");
+				res.setOurassessmentorginalacqcost("");
+				res.setOuracqCost("");
+				res.setProfitCommission("");
+				res.setLosscommissionSubClass("");
+				res.setSlidecommissionSubClass("");
+				res.setCrestacommissionSubClass("");
+				res.setManagementExpenses("");
+				res.setCommissionType("");
+				res.setProfitCommissionPer("");
+				res.setSetup("");
+				res.setSuperProfitCommission("");
+				res.setLossCarried("");
+				res.setLossyear("");
+				res.setProfitCarried("");
+				res.setProfitCarriedForYear("");
+				res.setFistpc("");
+				res.setProfitMont("");
+				res.setSubProfitMonth("");
+				res.setSubpc("");
+				res.setSubSeqCalculation("");
+				res.setLocRate("");
+				res.setPremiumResType("");
+				res.setPortfolioType("");
+				res.setPcfpcType("");
+				res.setPcfixedDate("");
+				res.setOthercost("0");
+				res.setAcqCostPer("");
+				res.setPremiumQuotaShare("");
+				res.setPremiumSurplus("");
+				res.setCommissionQSAmt("");
+				res.setCommissionsurpAmt("");
+			}
+			
 			response.setCommonResponse(res);
 			 response.setMessage("Success");
 				response.setIsError(false);
 			}catch(Exception e){
-					
 					e.printStackTrace();
 					response.setMessage("Failed");
 					response.setIsError(true);
 				}
 			return response;
 	}
-	
 
-	public List<Map<String, Object>> getValidation(String icepDate, String contId, String deptId)  {
-		String query="";
-		List<Map<String, Object>> list=null;
+	public List<Map<String, Object>>  getValidation(String icepDate, String contId, String deptId){
+		List<Map<String, Object>>  list = new ArrayList<>();
 		try{
-		
-			query = "pro.select.getRenewalValidation";
-			
-			list = queryImpl.selectList(query, new String[] {icepDate,contId,deptId});
+			//pro.select.getRenewalValidation
+			list = proportionalityCustomRepository.riskSelectCommGetquotashare(icepDate,contId,deptId);
 		} 
 		catch(Exception e){
 			e.printStackTrace();
-
 		}
 		return list;
 	}
+	
 	@Override
 	public GetprofitCommissionEnableRes getprofitCommissionEnable(GetprofitCommissionEnableReq req) {
 		GetprofitCommissionEnableRes response = new GetprofitCommissionEnableRes();
 		List<Map<String,Object>> result=new ArrayList<Map<String,Object>>();
+		List<Tuple> list  = new ArrayList<>();
 		String profitComm="";
 		String subclass="";
 		String status="Y";
 		String propNo="";
 		try{
 			if(StringUtils.isBlank(req.getBaseLayer())){
-				String qry = "GET_BASE_PROPOSAL_NO";
-				String args[]=new String[1];
-				args[0] = req.getProposalNo();
-			//	args[1] = req.getBranchCode();
-				result  = queryImpl.selectList(qry, args);
-				if(!CollectionUtils.isEmpty(result)) {
-					propNo=result.get(0).get("PROPOSAL_NO")==null?"":result.get(0).get("PROPOSAL_NO").toString();
-				}
-				
+				//GET_BASE_PROPOSAL_NO
+				propNo = proportionalityCustomRepository.getBaseProposalNo(req.getProposalNo());
 				req.setBaseLayer(propNo);
 			}
 			if("profit".equalsIgnoreCase(req.getType())){
-			String query="PROFIT_COMMISSION_ENABLE";
-			String arg[]=new String[2];
-			arg[0] =req.getBaseLayer();
-			arg[1] = req.getBaseLayer();
-			result =queryImpl.selectList(query,arg);
-			for(int i=0;i<result.size();i++){
-	               Map<String,Object> tempMap = result.get(i);
+				//PROFIT_COMMISSION_ENABLE
+				list  = proportionalityCustomRepository.profitCommissionEnable(req.getBaseLayer());
+			for(int i=0;i<list.size();i++){
+	              Tuple tempMap = list.get(i);
 	               profitComm=(tempMap.get("RSK_PROFIT_COMM")==null?"":tempMap.get("RSK_PROFIT_COMM").toString());
 	               subclass=(tempMap.get("RSK_COMBIN_SUB_CLASS")==null?"":tempMap.get("RSK_COMBIN_SUB_CLASS").toString());
 			}
 			}
 			if("loss".equalsIgnoreCase(req.getType())){
-				String query="PROFIT_COMMISSION_ENABLE_LOSS";
-				String arg[]=new String[2];
-				arg[0] =req.getBaseLayer();
-				arg[1] = req.getBaseLayer();
-				result =queryImpl.selectList(query,arg);
-				for(int i=0;i<result.size();i++){
-		               Map<String,Object> tempMap = result.get(i);
+				//PROFIT_COMMISSION_ENABLE_LOSS
+				list  = proportionalityCustomRepository.profitCommissionEnableLoss(req.getBaseLayer());
+				
+				for(int i=0;i<list.size();i++){
+					Tuple tempMap = list.get(i);
 		               profitComm=(tempMap.get("RSK_LOSS_PART_CARRIDOR")==null?"":tempMap.get("RSK_LOSS_PART_CARRIDOR").toString());
 		               subclass=(tempMap.get("RSK_LOSS_COMBIN_SUB_CLASS")==null?"":tempMap.get("RSK_LOSS_COMBIN_SUB_CLASS").toString());
 				}
 				
 				}
 			if("cresta".equalsIgnoreCase(req.getType())){
-				String query="PROFIT_COMMISSION_ENABLE_CRESTA";
-				String arg[]=new String[2];
-				arg[0] =req.getBaseLayer();
-				arg[1] = req.getBaseLayer();
-				result =queryImpl.selectList(query,arg);
-				for(int i=0;i<result.size();i++){
-		               Map<String,Object> tempMap = result.get(i);
+				//PROFIT_COMMISSION_ENABLE_CRESTA
+				list  = proportionalityCustomRepository.profitCommissionEnableCresta(req.getBaseLayer());
+				for(int i=0;i<list.size();i++){
+		              Tuple tempMap = list.get(i);
 		               profitComm=(tempMap.get("RSK_CREASTA_STATUS")==null?"":tempMap.get("RSK_CREASTA_STATUS").toString());
 		               subclass=(tempMap.get("RSK_CRESTA_COMBIN_SUB_CLASS")==null?"":tempMap.get("RSK_CRESTA_COMBIN_SUB_CLASS").toString());
 				}
-				
 				}
 			if("slide".equalsIgnoreCase(req.getType())){
-				String query="PROFIT_COMMISSION_ENABLE_SLIDE";
-				String arg[]=new String[2];
-				arg[0] =req.getBaseLayer();
-				arg[1] = req.getBaseLayer();
-				result =queryImpl.selectList(query,arg);
-				for(int i=0;i<result.size();i++){
-		               Map<String,Object> tempMap = result.get(i);
+				//PROFIT_COMMISSION_ENABLE_SLIDE
+				list  = proportionalityCustomRepository.profitCommissionEnableSlide(req.getBaseLayer());
+				for(int i=0;i<list.size();i++){
+		              Tuple tempMap = list.get(i);
 		               profitComm=(tempMap.get("RSK_SLADSCALE_COMM")==null?"":tempMap.get("RSK_SLADSCALE_COMM").toString());
 		               subclass=(tempMap.get("RSK_SLIDE_COMBIN_SUB_CLASS")==null?"":tempMap.get("RSK_SLIDE_COMBIN_SUB_CLASS").toString());
 				}
-				
 				}
 			if("2".equalsIgnoreCase(subclass) || result.size()<=0){
 				status="N";	
 			}
-			response.setStatus(status);
-			 response.setMessage("Success");
+				response.setStatus(status);
+				response.setMessage("Success");
 				response.setIsError(false);
 			}catch(Exception e){
-					
 					e.printStackTrace();
 					response.setMessage("Failed");
 					response.setIsError(true);
 				}
 			return response;
-	
 	}
 	public int getCrestaCount(GetCrestaCountReq req) {
 		int count=0;
-		List<Map<String,Object>> list=new ArrayList<Map<String,Object>>();
 		try {
-			String query="GET_CRESTA_DETAIL_COUNT";
-			String[] obj=new String[3];
-			obj[0]=req.getProposalNo();
-			obj[1]=req.getAmendId();
-			obj[2]=req.getBranchCode();
-			list=queryImpl.selectList(query, obj);
-			if (!CollectionUtils.isEmpty(list)) {
-				count = Integer.valueOf(list.get(0).get("ACCOUNT_DATE") == null ? ""
-						: list.get(0).get("ACCOUNT_DATE").toString());
-			}
-			
+			//GET_CRESTA_DETAIL_COUNT
+			count = ttrnCrestazoneDetailsRepository.countByProposalNoAndAmendIdAndBranchCode(new BigDecimal(req.getProposalNo()), req.getAmendId(), req.getBranchCode());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return count;
 	}
 	public int getBonusListCount(GetBonusListCountReq req, String type) {
-		String query ="";
 		String args[]=null;
 		int result=0;
-		List<Map<String,Object>> list=new ArrayList<Map<String,Object>>();
 		try{
-			query ="BONUS_COUNT_MAIN";
+			//BONUS_COUNT_MAIN
 			args = new String[5];
 			args[0] = req.getProposalNo();
 			args[1] = req.getBranchCode();
@@ -2587,14 +3110,9 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 		        	   args[2]="LPC";
 		         }
 			args[3] = req.getAmendId();
-			args[4] = StringUtils.isEmpty(req.getLayerNo()) ? "0" : req.getLayerNo();;
-			list=queryImpl.selectList(query, args);
-			if (!CollectionUtils.isEmpty(list)) {
-				result = Integer.valueOf(list.get(0).get("COUNT") == null ? ""
-						: list.get(0).get("COUNT").toString());
-			}
-		
-	
+			args[4] = StringUtils.isEmpty(req.getLayerNo()) ? "0" : req.getLayerNo();
+			result = ttrnBonusRepository.countByProposalNoAndBranchAndTypeAndEndorsementNoAndLayerNoAndLcbFromNotNull(
+					new BigDecimal(args[0]),args[1],args[2],new BigDecimal(args[3]),args[4]);
 	}
 	catch(Exception e){
 		e.printStackTrace();
@@ -2603,38 +3121,26 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 	}
 	public int CommissionTypeCount(String proposalNo, String branchCode, String CommissionType) {
 		int count=0;
-		List<Map<String,Object>> list=new ArrayList<Map<String,Object>>();
 		try{
-			String query = "COMMISSION_TYPE_COUNT";
+			//COMMISSION_TYPE_COUNT
 			String args[]=new String[3];
 			args[0]=proposalNo;
 			args[1]=branchCode;
 			args[2]= CommissionType;
-			list=queryImpl.selectList(query, args);
-			if (!CollectionUtils.isEmpty(list)) {
-				count = Integer.valueOf(list.get(0).get("COUNT") == null ? ""
-						: list.get(0).get("COUNT").toString());
-			}
+			count =	proportionalityCustomRepository.commissionTypeCount(args);
 		}
 		catch(Exception e){
-			
 			e.printStackTrace();
 		}
 		return count;
 	}
 	public boolean GetShareValidation(String proposalNo, String leaderUnderwritershare) {
-		List<Map<String,Object>> list=new ArrayList<Map<String,Object>>();
 		boolean result=false;
 		String out="";
 		try {
-			String query="GET_SIGN_SHARE_PRODUCT23";
-			list=queryImpl.selectList(query,  new String[]{proposalNo});
-			if (!CollectionUtils.isEmpty(list)) {
-				out = (list.get(0).get("RSK_SHARE_SIGNED") == null ? ""
-						: list.get(0).get("RSK_SHARE_SIGNED").toString());
-			}
-		
-			if(Double.parseDouble(out)+Double.parseDouble(leaderUnderwritershare)>100){
+			//GET_SIGN_SHARE_PRODUCT23
+			out =	proportionalityCustomRepository.getSignShareProduct23(proposalNo);
+			if(Double.parseDouble(out)+Double.parseDouble(leaderUnderwritershare==null?"0":leaderUnderwritershare)>100){
 				result=true;
 			}
 		} catch (Exception e) {
@@ -2648,7 +3154,6 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 		ShowSecondPageDataRes response = new ShowSecondPageDataRes();
 		ShowSecondPageDataRes1 res = new ShowSecondPageDataRes1();
 		try {
-	
 			String selectQry = "";
 			String[] args=new String[7];
 			args[0]=req.getProposalNo();
@@ -2658,16 +3163,13 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 			args[4]=req.getBranchCode();
 			args[5]=req.getBranchCode();
 			args[6]=req.getBranchCode();
-			selectQry = "risk.select.getSecPageData";
-			
+			selectQry = "risk.select.getSecPageData"; //select RTRIM(XMLAGG(XMLELEMEN
 			List<Map<String, Object>> list = queryImpl.selectList(selectQry,args);
-			
 			Map<String, Object> resMap = null;
 			if(list!=null && list.size()>0)
 				resMap = (Map<String, Object>)list.get(0);
 			if(resMap!=null){
 				res.setProposalNo(resMap.get("RSK_PROPOSAL_NUMBER")==null?"":resMap.get("RSK_PROPOSAL_NUMBER").toString());
-				
 				res.setSubProfitcenter(resMap.get("TMAS_SPFC_NAME")==null?"":resMap.get("TMAS_SPFC_NAME").toString()); 
 				res.setCedingCo(resMap.get("COMPANY_NAME")==null?"":resMap.get("COMPANY_NAME").toString());
 				res.setBroker(resMap.get("BROKER")==null?"":resMap.get("BROKER").toString());
@@ -2680,10 +3182,7 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 				if(!CollectionUtils.isEmpty(list1)) {
 					res.setCeaseStatus(list1.get(0).get("RSK_ENDORSEMENT_NO")==null?"":list1.get(0).get("RSK_ENDORSEMENT_NO").toString());
 				}
-				
-				
 				res.setEndttypename(resMap.get("DETAIL_NAME")==null?"":resMap.get("DETAIL_NAME").toString());
-				
 			}
 			List<RetroFinalListres>  finalList = new ArrayList<RetroFinalListres>();
 			if(StringUtils.isNotBlank(req.getNoInsurer()) && Integer.parseInt(req.getNoInsurer())>0 && (req.getRetroFinalListReq()==null || req.getRetroFinalListReq().size()==0)){
@@ -2769,31 +3268,27 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 			}
 			res.setRetroFinalListRes(finalList);
 			response.setCommonResponse(res);
-			 response.setMessage("Success");
-				response.setIsError(false);
+			response.setMessage("Success");
+			response.setIsError(false);
 			}catch(Exception e){
-					
 					e.printStackTrace();
 					response.setMessage("Failed");
 					response.setIsError(true);
 				}
 			return response;
-			}
+	}
 	@Override
 	public ShowLayerBrokerageRes showLayerBrokerage(String layerProposalNo) {
 		ShowLayerBrokerageRes response = new ShowLayerBrokerageRes();
 		ShowLayerBrokerageRes1 res = new ShowLayerBrokerageRes1();
+		List<Tuple> list = new ArrayList<>();
 		try {
-			String selectQry ="risk.select.getBrokerage";
-			String[] args=new String[2];
-			args[0]=layerProposalNo;
-			args[1]=layerProposalNo;
-			
+			//risk.select.getBrokerage
 			if(StringUtils.isNotBlank(layerProposalNo)){
-				List<Map<String, Object>> list = queryImpl.selectList(selectQry,args);
-				Map<String, Object> resMap = null;
+				list =	proportionalityCustomRepository.riskSelectGetBrokerage(layerProposalNo);
+				Tuple resMap = null;
 				if(res!=null && list.size()>0)
-					resMap = (Map<String, Object>)list.get(0);
+					resMap = list.get(0);
 				if(resMap!=null){
 					res.setBrokerage(resMap.get("RSK_BROKERAGE")==null?"":resMap.get("RSK_BROKERAGE").toString());
 					res.setTax(resMap.get("RSK_TAX")==null?"":resMap.get("RSK_TAX").toString());
@@ -2809,30 +3304,51 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 				}
 			return response;
 	}
+	
 	@Override
 	public CheckProductMatchRes checkProductMatch(String proposalNo, boolean contractMode,String productId) {
 		CheckProductMatchRes response = new CheckProductMatchRes();
 		boolean saveFlag = false;
 		try{
-			String result = "",selectQry = "";
+			String result = "";
 			if (contractMode) {
-				selectQry = "risk.select.getRskProIdByContNo";
+				//risk.select.getRskProIdByContNo
+				List<TtrnRiskDetails> list = ttrnRiskDetailsRepository.findByRskContractNo(proposalNo);
+				if (!CollectionUtils.isEmpty(list)) {
+					result = (list.get(0).getRskProductid() == null ? ""
+							: list.get(0).getRskProductid().toString());
+				}
 			} else {
-				selectQry = "risk.select.getRskProIdByProNo";
-			}
-			List<Map<String, Object>> list = queryImpl.selectList(selectQry,new String[]{proposalNo});
-			if (!CollectionUtils.isEmpty(list)) {
-				result = (list.get(0).get("RSK_PRODUCTID") == null ? ""
-						: list.get(0).get("RSK_PRODUCTID").toString());
+				//risk.select.getRskProIdByProNo
+				CriteriaBuilder cb = em.getCriteriaBuilder(); 
+				CriteriaQuery<Tuple> query1 = cb.createQuery(Tuple.class); 
+				Root<TtrnRiskDetails> rd = query1.from(TtrnRiskDetails.class);
+				query1.multiselect(rd.get("rskProductid").alias("RSK_PRODUCTID")); 
+				//amendId
+				Subquery<Long> end = query1.subquery(Long.class); 
+				Root<TtrnRiskCommission> p = end.from(TtrnRiskCommission.class);
+				end.select(cb.max(p.get("rskEndorsementNo")));
+				Predicate d1 = cb.equal(p.get("rskProposalNumber"), rd.get("rskProposalNumber"));
+				end.where(d1);
+				
+				Predicate n1 = cb.equal(rd.get("rskProposalNumber"),proposalNo);
+				Predicate n2 = cb.equal(rd.get("rskEndorsementNo"), end); 
+				query1.where(n1,n2);
+
+				TypedQuery<Tuple> res = em.createQuery(query1);
+				List<Tuple> list = res.getResultList();
+				if (!CollectionUtils.isEmpty(list)) {
+					result = list.get(0).get("RSK_PRODUCTID")== null ? "": list.get(0).get("RSK_PRODUCTID").toString();
+				}
 			}
 			if (productId.equalsIgnoreCase(result)) {
 				saveFlag = true;
 			} else {
 				saveFlag = false;
 			}
-			response.setSaveFlag(saveFlag);
-			response.setMessage("Success");
-			response.setIsError(false);
+				response.setSaveFlag(saveFlag);
+				response.setMessage("Success");
+				response.setIsError(false);
 			}catch(Exception e){
 				e.printStackTrace();
 				response.setMessage("Failed");
@@ -2843,156 +3359,128 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 	@Override
 	public ShowRetroContractsRes showRetroContracts(ShowRetroContractsReq req) {
 		ShowRetroContractsRes response = new ShowRetroContractsRes();
-		ShowRetroContractsRes1 res = new ShowRetroContractsRes1();
+		List<ShowRetroContractsRes1> resList = new ArrayList<ShowRetroContractsRes1>();
+		
 		GetRetroContractDetailsListReq req1 = new GetRetroContractDetailsListReq();
 		req1.setBranchCode(req.getBranchCode());
 		req1.setIncepDate(req.getIncepDate());
 		req1.setProductid(req.getProductId());
-		try{
+		req1.setRetroType(req.getRetroType());
+		req1.setUwYear(req.getUwYear());
 		
+		List<Tuple> insDetailsList = new ArrayList<>();
+		try{
 			String[] args=null;
-			String query="";
 			int noofInsurar = 0;
 			if(StringUtils.isNotBlank(req.getNoInsurer())){
 				 noofInsurar = Integer.parseInt(req.getNoInsurer());
 				 noofInsurar = noofInsurar+1;
 			}
-			
 			if(req.getView()){
 				args=new String[3];
 				args[0]=req.getAmendId();
 				args[1]=req.getProposalNo();
 				args[2]=Integer.toString(noofInsurar);
-				query="fac.select.viewInsDetails";
+				//fac.select.viewInsDetails
+				insDetailsList = proportionalityCustomRepository.facSelectViewInsDetails(args);
 			}else{
-				query="fac.select.insDetails";
+				//fac.select.insDetails
 				args=new String[2];
 				args[0]=req.getProposalNo();
 				args[1]=Integer.toString(noofInsurar);
+				insDetailsList = proportionalityCustomRepository.facSelectInsDetails(args);
 			}
-			
-			List<Map<String, Object>> insDetailsList=queryImpl.selectList(query,args);
-			
 			if(insDetailsList!=null&&insDetailsList.size()>0){
-//				List<String> retroList=new ArrayList<String>();
-//				List<String> retroPercentage=new ArrayList<String>();
-//				List<String> UWYear=new ArrayList<String>();
-				
+				List<String> retroList=new ArrayList<String>();
+				List<String> retroPercentage=new ArrayList<String>();
+				List<String> UWYear=new ArrayList<String>();
 				//List<List<Map<String,Object>>> retroFinalList=new ArrayList<List<Map<String,Object>>>();
-				List<CommonResDropDown> retroFinalList = new ArrayList<CommonResDropDown>();
-			//	List<String> cedingCompany=new ArrayList<String>();
-				List<RetroListRes> retroListReslist = new ArrayList<RetroListRes>();
+				List<CommonResDropDown>  retroFinalList = new ArrayList<CommonResDropDown>();
+				List<String> cedingCompany=new ArrayList<String>();
 				for(int j=0;j<insDetailsList.size();j++){
-					RetroListRes retroListRes =new RetroListRes();
-					CommonResDropDown dropRes = new CommonResDropDown();
-					Map<String, Object> insDetailsMap=(Map<String, Object>)insDetailsList.get(j);
+					ShowRetroContractsRes1 beanObj = new  ShowRetroContractsRes1();
+					Tuple insDetailsMap= insDetailsList.get(j);
 					if("R".equalsIgnoreCase((String)insDetailsMap.get("TYPE")))	{
-						res.setRetentionPercentage(insDetailsMap.get("RETRO_PER")==null?"":insDetailsMap.get("RETRO_PER").toString());
+						beanObj.setRetentionPercentage(insDetailsMap.get("RETRO_PER")==null?"":insDetailsMap.get("RETRO_PER").toString());
 					}else{
-					
+						
 						if(j==1){
 							if(req.getUwYear().equalsIgnoreCase(insDetailsMap.get("UW_YEAR").toString())){
-								res.setRetroDupYerar(insDetailsMap.get("UW_YEAR")==null?"":insDetailsMap.get("UW_YEAR").toString());
+								beanObj.setRetroDupYerar(insDetailsMap.get("UW_YEAR")==null?"":insDetailsMap.get("UW_YEAR").toString());
 								}else{
-									res.setRetroDupYerar(req.getUwYear());
+									beanObj.setRetroDupYerar(req.getUwYear());
 								}
 							if(insDetailsMap.get("CONTRACTNO")!=null){
-							res.setRetroDupContract(insDetailsMap.get("CONTRACTNO")==null?"":insDetailsMap.get("CONTRACTNO").toString());
+							beanObj.setRetroDupContract(insDetailsMap.get("CONTRACTNO")==null?"":insDetailsMap.get("CONTRACTNO").toString());
 							}
 						}
-					
 						else if(j>1){
-							
-							retroListRes.setUWYear(insDetailsMap.get("UW_YEAR")==null?"":insDetailsMap.get("UW_YEAR").toString());
-							retroListRes.setCedingCompany(insDetailsMap.get("CONTRACTNO")==null?"":insDetailsMap.get("CONTRACTNO").toString());							
-							retroListRes.setRetroPercentage(insDetailsMap.get("RETRO_PER")==null?"0":insDetailsMap.get("RETRO_PER").toString());
-							
-							GetCommonDropDownRes commonRes=(dropDowmImpl.getRetroContractDetailsList(req1,2,insDetailsMap.get("UW_YEAR")==null?"":insDetailsMap.get("UW_YEAR").toString()));
-							dropRes.setCode(commonRes.getCommonResponse().get(j).getCode());
-							dropRes.setCodeDescription(commonRes.getCommonResponse().get(j).getCodeDescription());
-							retroFinalList.add(dropRes);
-							retroListRes.setRetroFinalList(retroFinalList);
-							//retroFinalList.add(getRetroContractDetailsList(bean,2,insDetailsMap.get("UW_YEAR")==null?"":insDetailsMap.get("UW_YEAR").toString()));
-						//	retroList.add(String.valueOf(j));
-							retroListRes.setRetroList(String.valueOf(j));	
-							retroListReslist.add(retroListRes);
-							
-					
-						if("2".equals(req.getProductId())){
-							res.setProductId("4");	
-							res.setRetroType("TR");
-						}else if("3".equals(req.getProductId())){
-							res.setProductId("4");	
-							res.setRetroType("TR");	
+							UWYear.add(insDetailsMap.get("UW_YEAR")==null?"":insDetailsMap.get("UW_YEAR").toString());
+							cedingCompany.add(insDetailsMap.get("CONTRACTNO")==null?"":insDetailsMap.get("CONTRACTNO").toString());
+							retroPercentage.add(insDetailsMap.get("RETRO_PER")==null?"0":insDetailsMap.get("RETRO_PER").toString());
+							GetCommonDropDownRes ds=dropDowmImpl.getRetroContractDetailsList(req1,2,insDetailsMap.get("UW_YEAR")==null?"":insDetailsMap.get("UW_YEAR").toString());
+						if(ds!=null) {
+							for(int k=0;k<ds.getCommonResponse().size();k++) {
+								retroFinalList.add(ds.getCommonResponse().get(k));
+							}	
+							}
+							retroList.add(String.valueOf(j));
 						}
 						
-						res.setBranchCode(req.getBranchCode());
-						res.setIncepDate(req.getIncepDate());
-					
-						GetCommonDropDownRes commonRes1=(dropDowmImpl.getRetroContractDetailsList(req1,1,""));
+						if("2".equals(req.getProductId())){
+							beanObj.setProductId("4");	
+							beanObj.setRetroType("TR");
+						}else if("3".equals(req.getProductId())){
+							beanObj.setProductId("4");	
+							beanObj.setRetroType("TR");	
+						}
 						
-						
-						dropRes.setCode(commonRes1.getCommonResponse().get(j).getCode());
-						dropRes.setCodeDescription(commonRes1.getCommonResponse().get(j).getCodeDescription());
-						retroFinalList.add(dropRes);
-						retroListRes.setRetroUWYear(retroFinalList);
-						
-						
-						retroListRes.setUWYear(insDetailsMap.get("UW_YEAR")==null?"":insDetailsMap.get("UW_YEAR").toString());
-						
-						
-					}
-					retroListReslist.add(retroListRes);
-					}
-				
-				if(res.getRetroList().get(j).getRetroUWYear().size()==0){
-					retroListRes.setRetroUWYear(retroFinalList);
-				}
-				if(retroFinalList.size()!=Integer.parseInt(req.getNoInsurer())){
-				
-					for(int i=0;i<Integer.parseInt(req.getNoInsurer())-res.getRetroList().size();i++){
-						retroFinalList.add(dropRes);
-					}
-						//retroFinalList.add(new ArrayList<Map<String,Object>>());
-					}
-				retroListRes.setRetroFinalList(retroFinalList);
-				
-			
-				retroListReslist.add(retroListRes);
-				}
-			
-				//res.setRetroFinalList(retroFinalList);
-				
-			}
-//			else{
-//				List<List<Map<String,Object>>> retroFinalList=new ArrayList<List<Map<String,Object>>>();
-//				
-//				for(int i=0;i<Integer.parseInt(StringUtils.isBlank(req.getNoInsurer())?"0":req.getNoInsurer());i++){
-//				
-//					if("2".equals(req.getProductId())) {
-//						res.setProductId("4");	
-//						res.setRetroType("TR");
-//					}else if("3".equals(req.getProductId())){
-//						res.setProductId("4");	
-//						res.setRetroType("TR");
+						beanObj.setBranchCode(beanObj.getBranchCode());
+						beanObj.setIncepDate(beanObj.getIncepDate());
+					}}}//--------------------------------------doubt below code need to update
+//						beanObj.setRetroUwyear(getRetroContractDetailsList(bean,1,""));
+//						beanObj.setUwYear(insDetailsMap.get("UW_YEAR")==null?"":insDetailsMap.get("UW_YEAR").toString());
 //					}
-//					res.setBranchCode(req.getBranchCode());
-//					res.setIncepDate(req.getIncepDate());
-//					retroFinalList.add(new ArrayList<Map<String,Object>>());
+//				}
+//				beanObj.setPercentRetro(retroPercentage);
+//				beanObj.setRetroCeding(cedingCompany);
+//				beanObj.setRetroYear(UWYear);
+//				if(UWYear.size()==0){
+//					beanObj.setRetroUwyear(getRetroContractDetailsList(beanObj,1,""));
+//				}
+//				if(retroFinalList.size()!=Integer.parseInt(req.getNoInsurer())){
+//					for(int i=0;i<Integer.parseInt(req.getNoInsurer())-retroList.size();i++){
+//						retroFinalList.add(new ArrayList<Map<String,Object>>());
+//					}
+//				}
 //				
-//					res.setRetroUwyear(getRetroContractDetailsList(bean,1,""));
+//				beanObj.setRetroFinalList(retroFinalList);
+//			}else{
+//				List<List<Map<String,Object>>> retroFinalList=new ArrayList<List<Map<String,Object>>>();
+//				for(int i=0;i<Integer.parseInt(StringUtils.isBlank(req.getNoInsurer())?"0":req.getNoInsurer());i++){
+//					ShowRetroContractsRes1 beanObj = new  ShowRetroContractsRes1();
+//					if("2".equals(req.getProductId())){
+//						beanObj.setProductId("4");	
+//						beanObj.setRetroType("TR");
+//					}else if("3".equals(req.getProductId())){
+//						beanObj.setProductId("4");	
+//						beanObj.setRetroType("TR");
+//					}
+//					beanObj.setBranchCode(beanObj.getBranchCode());
+//					beanObj.setIncepDate(beanObj.getIncepDate());
+//					retroFinalList.add(new ArrayList<Map<String,Object>>());
+//					beanObj.setRetroUwyear(getRetroContractDetailsList(bean,1,""));
 //				}
 //			}
 //			if(req.getNoInsurer()!=null &&Integer.parseInt(req.getNoInsurer())==0){
-//				res.setRetroDupYerar(req.getUwYear());
+//				beanObj.setRetroDupYerar(req.getUwYear());
 //				List<Map<String,Object>> list = getRetroContractDetailsList(beanObj,3,"");
 //				for (int i=0;i<list.size();i++){
 //					Map<String,Object> map = list.get(i);
-//					res.setRetroDupContract(map.get("CONTRACT_NO")==null?"":map.get("CONTRACT_NO").toString());
+//					beanObj.setRetroDupContract(map.get("CONTRACT_NO")==null?"":map.get("CONTRACT_NO").toString());
 //				}
 //			}
-			
-			response.setCommonResponse(res);
+			response.setCommonResponse(resList);
 			response.setMessage("Success");
 			response.setIsError(false);
 			}catch(Exception e){
@@ -3005,36 +3493,30 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 	@Override
 	public GetCrestaDetailListRes getCrestaDetailList(GetCrestaDetailListReq req) {
 		GetCrestaDetailListRes response = new GetCrestaDetailListRes();
-		List<Map<String,Object>> result=new ArrayList<Map<String,Object>>();
 		List<GetCrestaDetailListRes1> crestaDetailList = new ArrayList<GetCrestaDetailListRes1>();
-		String[] obj = null;
-		String query ="";
 		try {
-			query="GET_CRESTA_DETAIL_LIST";
-			obj=new String[3];
+			//GET_CRESTA_DETAIL_LIST
 			if(StringUtils.isBlank(req.getAmendId())){
 				req.setAmendId("0");
 			}
-			obj[0]=req.getProposalno();
-			obj[1]=req.getAmendId();
-			obj[2]=req.getBranchCode();
-			result=queryImpl.selectList(query,obj);	
+			
+			List<TtrnCrestazoneDetails> result = ttrnCrestazoneDetailsRepository.findByProposalNoAndAmendIdAndBranchCodeOrderBySno(new BigDecimal(req.getProposalno()),req.getAmendId(),req.getBranchCode());
 			if(result!=null && result.size()>0){
 				for (int i = 0; i < result.size(); i++) {
-					Map<String, Object> insMap = (Map<String, Object>)result.get(i);
+					TtrnCrestazoneDetails insMap = result.get(i);
 					GetCrestaDetailListRes1 res = new GetCrestaDetailListRes1();
-					res.setTerritoryId(insMap.get("TERITORY_CODE")==null?"":insMap.get("TERITORY_CODE").toString());;
-					res.setCrestaId(insMap.get("CRESTA_ID")==null?"":insMap.get("CRESTA_ID").toString());;
-					res.setCrestaName(insMap.get("CRESTA_NAME")==null?"":insMap.get("CRESTA_NAME").toString());
-					res.setCurrencyId(insMap.get("CURRENCY")==null?"":insMap.get("CURRENCY").toString());;
-					res.setAccRisk(insMap.get("ACC_RISK")==null?"":insMap.get("ACC_RISK").toString());
-					res.setAccDate(insMap.get("ACCUM_DATE")==null?"":insMap.get("ACCUM_DATE").toString());
-					res.setScaleSNo(insMap.get("SNO")==null?"":insMap.get("SNO").toString());
+					res.setTerritoryId(insMap.getTerritoryCode()==null?"":insMap.getTerritoryCode().toString());;
+					res.setCrestaId(insMap.getCrestaId()==null?"":insMap.getCrestaId().toString());;
+					res.setCrestaName(insMap.getCrestaName()==null?"":insMap.getCrestaName().toString());
+					res.setCurrencyId(insMap.getCurrency()==null?"":insMap.getCurrency().toString());;
+					res.setAccRisk(insMap.getAccRisk()==null?"":insMap.getAccRisk().toString());
+					res.setAccDate(insMap.getAccumDate()==null?"":insMap.getAccumDate().toString());
+					res.setScaleSNo(insMap.getSno()==null?"":insMap.getSno().toString());
 					
-					GetCommonDropDownRes commonRes=dropDowmImpl.getCrestaIDList(req.getBranchCode(),insMap.get("TERITORY_CODE")==null?"":insMap.get("TERITORY_CODE").toString());
+					GetCommonDropDownRes commonRes=dropDowmImpl.getCrestaIDList(req.getBranchCode(),insMap.getTerritoryCode()==null?"":insMap.getTerritoryCode().toString());
 					res.setCrestaIDList(commonRes.getCommonResponse());
 					
-					GetCommonDropDownRes commonRes1=dropDowmImpl.getCrestaNameList(req.getBranchCode(),insMap.get("CRESTA_ID")==null?"":insMap.get("CRESTA_ID").toString());
+					GetCommonDropDownRes commonRes1=dropDowmImpl.getCrestaNameList(req.getBranchCode(),insMap.getCrestaId()==null?"":insMap.getCrestaId().toString());
 					res.setCrestaNameList(commonRes1.getCommonResponse());					
 					crestaDetailList.add(res);
 				}
@@ -3049,6 +3531,7 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 				}
 			return response;
 	}
+	@Transactional
 	@Override
 	public InsertCrestaDetailsRes insertCrestaDetails(InsertCrestaDetailsReq req) {
 		InsertCrestaDetailsRes response = new InsertCrestaDetailsRes();
@@ -3056,15 +3539,10 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 			if(StringUtils.isBlank(req.getAmendId())){
 				req.setAmendId("0");
 			}
-			String query="";
 			String[] obj=null;
-				query="DELETE_CRESTA_MAIN_DETAILS";
-				 obj = new String[3];
-				obj[0]=req.getProposalNo();
-				obj[1]=req.getAmendId();
-				obj[2]=req.getBranchCode();
-				queryImpl.updateQuery(query, obj);
-			query="MOVE_TO_CRESTA_MAIN_TABLE";
+				//DELETE_CRESTA_MAIN_DETAILS
+			
+				ttrnCrestazoneDetailsRepository.deleteByProposalNoAndAmendIdAndBranchCode(new BigDecimal(req.getProposalNo()),req.getAmendId(),req.getBranchCode());
 			obj = new String[12];
 			for(int i=0;i<req.getCrestaReq().size();i++){
 				if(StringUtils.isNotBlank(req.getCrestaReq().get(i).getTerritoryCode())){
@@ -3080,7 +3558,11 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 				obj[9]=req.getBranchCode();
 				obj[10]=req.getCrestaReq().get(i).getTerritoryCode();
 				obj[11]= req.getCrestaReq().get(i).getScaleSNo();
-				queryImpl.updateQuery(query, obj);
+				//MOVE_TO_CRESTA_MAIN_TABLE
+				TtrnCrestazoneDetails insert = proportionalityCustomRepository.moveToCrestaMainTable(obj);
+				if(insert!=null) {
+					ttrnCrestazoneDetailsRepository.saveAndFlush(insert);
+					}
 				}
 				}
 			response.setMessage("Success");
@@ -3092,20 +3574,47 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 				}
 			return response;
 	}
+	@Transactional
 	@Override
 	public CancelProposalRes cancelProposal(String proposalNo, String newProposal,String proposalReference) {
 		CancelProposalRes response = new CancelProposalRes();
-		String query="";
-		String args[] = new String[1];
+		
 		try{
+			CriteriaBuilder cb = this.em.getCriteriaBuilder();
+			CriteriaUpdate<PositionMaster> update = cb.createCriteriaUpdate(PositionMaster.class);
+			Root<PositionMaster> m = update.from(PositionMaster.class);
 			if(!"Layer".equalsIgnoreCase(proposalReference)){
-			query="CANCEL_OLD_PROPOSAL";
-			args[0] = proposalNo;
-			queryImpl.updateQuery(query, args);
+			//CANCEL_OLD_PROPOSAL
+				
+				update.set("renewalStatus", "1");
+				//amend
+				Subquery<Long> amend = update.subquery(Long.class); 
+				Root<PositionMaster> p = amend.from(PositionMaster.class);
+				amend.select(cb.max(p.get("amendId")));
+				Predicate d1 = cb.equal(p.get("proposalNo"), m.get("proposalNo"));
+				amend.where(d1);
+				
+				Predicate n1 = cb.equal(m.get("proposalNo"), proposalNo);
+				Predicate n2 = cb.equal(m.get("amendId"), amend);
+				update.where(n1,n2);
+				em.createQuery(update).executeUpdate();
 			}
-			query="CANCEL_PROPOSAL";
-			args[0] = newProposal;
-			queryImpl.updateQuery(query, args);
+			//CANCEL_PROPOSAL
+		
+			update.set("contractStatus", "C");
+			update.set("editMode", "N");
+			//amend
+			Subquery<Long> amend = update.subquery(Long.class); 
+			Root<PositionMaster> p = amend.from(PositionMaster.class);
+			amend.select(cb.max(p.get("amendId")));
+			Predicate d1 = cb.equal(p.get("proposalNo"), m.get("proposalNo"));
+			amend.where(d1);
+			
+			Predicate n1 = cb.equal(m.get("proposalNo"), newProposal);
+			Predicate n2 = cb.equal(m.get("amendId"), amend);
+			update.where(n1,n2);
+			em.createQuery(update).executeUpdate();
+
 			response.setMessage("Success");
 			response.setIsError(false);
 			}catch(Exception e){
@@ -3121,7 +3630,7 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 		List<Map<String,Object>>result=new ArrayList<Map<String,Object>>();
 		List<GetRetentionDetailsRes1> resList = new ArrayList<GetRetentionDetailsRes1>();
 		try {
-			String query="GET_RET_BASE_DETAILS";
+			String query="GET_RET_BASE_DETAILS"; // SELECT RT.* ,DENSE_RANK()  OVER ( ORDER BY PROPOSAL_NO DESC) RN  FROM  TTRN_CEDENT_RET RT  WHERE  EXISTS 
 			String[] obj= new String[4];
 			obj[0]=req.getBranchCode();
 			obj[1]=req.getCedingCo();
@@ -3160,46 +3669,83 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 				return response;
 	}
 	@Override
-	public GetScaleCommissionListRes getScaleCommissionList(String proposalNo, String branchCode, String pageFor) {
+	public GetScaleCommissionListRes getScaleCommissionList(String proposalNo, String branchCode, String pageFor,String referenceNo) {
 		GetScaleCommissionListRes response= new GetScaleCommissionListRes();
-		List<Map<String, Object>> result = new ArrayList<Map<String,Object>>();
 		List<GetScaleCommissionListRes1> resList = new ArrayList<GetScaleCommissionListRes1>();
-		List<BonusDetailsRes> bonusResList = new ArrayList<BonusDetailsRes>();
-		String query="";
-		String args[]=null;
+		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
+	//	List<BonusDetailsRes> bonusResList = new ArrayList<BonusDetailsRes>();
 		try{
-				args = new String[3];
-				args[0] = proposalNo;
-				args[1] =branchCode;
-				 if("scale".equalsIgnoreCase(pageFor)){
-		        	   args[2] ="SSC";
-		           }
-		           else{
-		        	   args[2]="LPC";
-		           }
-					query ="BONUS_MAIN_SELECT";
-					result = queryImpl.selectList(query,args);
+			 if("scale".equalsIgnoreCase(pageFor)){
+					//BONUS_MAIN_SELECT
+//				 	CriteriaBuilder cb = em.getCriteriaBuilder(); 
+//					CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+//					Root<TtrnBonus> pm = query.from(TtrnBonus.class);
+//					query.multiselect(pm.get("lcbId").alias("LCB_ID"),pm.get("lcbFrom").alias("LCB_FROM"),
+//							pm.get("lcbTo").alias("LCB_TO"),pm.get("lcbPercentage").alias("LCB_PERCENTAGE"),
+//							pm.get("lcbType").alias("LCB_TYPE"),pm.get("quotaShare").alias("QUOTA_SHARE"),
+//							pm.get("remarks").alias("REMARKS"),pm.get("firstProfitComm").alias("FIRST_PROFIT_COMM"),
+//							pm.get("fpcDurationType").alias("FPC_DURATION_TYPE"),pm.get("subProfitComm").alias("SUB__PROFIT_COMM"),
+//							pm.get("spcDurationType").alias("SPC_DURATION_TYPE"),pm.get("subSecCal").alias("SUB_SEC_CAL"),
+//				 			pm.get("scaleMaxPartPercent").alias("SCALE_MAX_PART_PERCENT"),pm.get("fpcType").alias("FPC_TYPE"),
+//							pm.get("fpcFixedDate").alias("FPC_FIXED_DATE"));
+//				
+//					//end
+//					Subquery<Long> end = query.subquery(Long.class);
+//					Root<TtrnBonus> rds = end.from(TtrnBonus.class);
+//					end.select(cb.max(rds.get("endorsementNo")));
+//					Predicate a1 = cb.equal(rds.get("proposalNo"), pm.get("proposalNo"));
+//					Predicate a2 = cb.equal(rds.get("branch"), pm.get("branch"));
+//					Predicate a3 = cb.equal(rds.get("type"), pm.get("type"));
+//					end.where(a1,a2,a3);
+//					List<Order> orderList = new ArrayList<Order>();
+//					orderList.add(cb.asc(pm.get("lcbId")));
+//
+//					Predicate n1 = cb.equal(pm.get("proposalNo"), proposalNo);
+//					Predicate n2 = cb.equal(pm.get("branch"), branchCode);
+//					Predicate n3 = cb.equal(pm.get("type"), "SSC");
+//					Predicate n4 = cb.equal(pm.get("endorsementNo"), end);
+//					Predicate n5 = cb.equal(pm.get("lcbType"), "SSC2");
+//					query.where(n1,n2,n3,n4,n5).orderBy(orderList);
+//					
+//					TypedQuery<Tuple> res1 = em.createQuery(query);
+//					List<Tuple> result = res1.getResultList();
+				
+				 list= queryImpl.selectList("BONUS_MAIN_SELECT",new String[] {proposalNo,branchCode,"SSC","SSC2"});
 					
-				for(int i=0;i<result.size();i++){
-		               Map<String,Object> tempMap = result.get(i);
+					if(CollectionUtils.isEmpty(list)) {
+						list= queryImpl.selectList("BONUS_MAIN_SELECT_REFERENCE",new String[] {referenceNo});
+					}
+				 }else {
+					
+					 list= queryImpl.selectList("BONUS_MAIN_SELECT_LPC",new String[] {proposalNo,branchCode,"LPC"});
+						if(CollectionUtils.isEmpty(list)) {
+							 list= queryImpl.selectList("BONUS_MAIN_SELECT_REFERENCE_LPC",new String[] {referenceNo});
+						}
+				 }
+					
+				for(int i=0;i<list.size();i++){
+					 Map<String,Object> tempMap = list.get(i);
 		               GetScaleCommissionListRes1 res = new GetScaleCommissionListRes1();
-		               BonusDetailsRes bonusRes = new BonusDetailsRes();
-		               bonusRes.setBonusSno(tempMap.get("LCB_ID")==null?"":tempMap.get("LCB_ID").toString());;
-		               bonusRes.setBonusFrom(tempMap.get("LCB_FROM")==null?"":fm.formatter(tempMap.get("LCB_FROM").toString()));;
-		               bonusRes.setBonusTo(tempMap.get("LCB_TO")==null?"":fm.formatter(tempMap.get("LCB_TO").toString()));;
-		               bonusRes.setBonusLowClaimBonus(tempMap.get("LCB_PERCENTAGE")==null?"":fm.formatter(tempMap.get("LCB_PERCENTAGE").toString()));
+		               res.setBonusSno(tempMap.get("LCB_ID")==null?"":tempMap.get("LCB_ID").toString());
+		               res.setBonusFrom(tempMap.get("LCB_FROM")==null?"":fm.formattereight(tempMap.get("LCB_FROM").toString()));
+		               res.setBonusTo(tempMap.get("LCB_TO")==null?"":fm.formatter(tempMap.get("LCB_TO").toString()));
+		               res.setBonusLowClaimBonus(tempMap.get("LCB_PERCENTAGE")==null?"":fm.formatter(tempMap.get("LCB_PERCENTAGE").toString()));
+			           res.setScaleMaxPartPercent(tempMap.get("SCALE_MAX_PART_PERCENT")==null?"":dropDowmImpl.formatter(tempMap.get("SCALE_MAX_PART_PERCENT").toString()));
+		               if(!"scale".equalsIgnoreCase(pageFor)){
 		               res.setBonusTypeId(tempMap.get("LCB_TYPE")==null?"":tempMap.get("LCB_TYPE").toString());
+		               }
 		               res.setQuotaShare(tempMap.get("QUOTA_SHARE")==null?"":tempMap.get("QUOTA_SHARE").toString());
 		               res.setBonusremarks(tempMap.get("REMARKS")==null?"":tempMap.get("REMARKS").toString());
-		               res.setFistpc(tempMap.get("FIRST_PROFIT_COMM")==null?"":tempMap.get("FIRST_PROFIT_COMM").toString());
-		               res.setProfitMont(tempMap.get("FPC_DURATION_TYPE")==null?"":tempMap.get("FPC_DURATION_TYPE").toString());
-		               res.setSubpc(tempMap.get("SUB__PROFIT_COMM")==null?"":tempMap.get("SUB__PROFIT_COMM").toString());
-		               res.setSubProfitMonth(tempMap.get("SPC_DURATION_TYPE")==null?"":tempMap.get("SPC_DURATION_TYPE").toString());
-		               res.setSubSeqCalculation(tempMap.get("SUB_SEC_CAL")==null?"":tempMap.get("SUB_SEC_CAL").toString());
+		               res.setScFistpc(tempMap.get("FIRST_PROFIT_COMM")==null?"":tempMap.get("FIRST_PROFIT_COMM").toString());
+		               res.setScProfitMont(tempMap.get("FPC_DURATION_TYPE")==null?"":tempMap.get("FPC_DURATION_TYPE").toString());
+		               res.setScSubpc(tempMap.get("SUB__PROFIT_COMM")==null?"":tempMap.get("SUB__PROFIT_COMM").toString());
+		               res.setScSubProfitMonth(tempMap.get("SPC_DURATION_TYPE")==null?"":tempMap.get("SPC_DURATION_TYPE").toString());
+		               res.setScSubSeqCalculation(tempMap.get("SUB_SEC_CAL")==null?"":tempMap.get("SUB_SEC_CAL").toString());
+		               res.setFpcType(tempMap.get("FPC_TYPE")==null?"":tempMap.get("FPC_TYPE").toString());
+		               res.setFpcfixedDate(tempMap.get("FPC_FIXED_DATE")==null?"":tempMap.get("FPC_FIXED_DATE").toString());
 		               resList.add(res);    
-		               bonusResList.add(bonusRes);
-		               res.setBonusDetails(bonusResList);	
 		               }
+		//		GetSlidingScaleMethodInfo(bean);
 				response.setCommonResponse(resList);
 				response.setMessage("Success");
 				response.setIsError(false);
@@ -3215,6 +3761,7 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 		ViewRiskDetailsRes response = new ViewRiskDetailsRes();
 		ViewRiskDetailsRes1 res = new ViewRiskDetailsRes1();
 		 //List<ViewRiskDetailsRes1> resList = new ArrayList<ViewRiskDetailsRes1>();
+		List<Tuple> list2 = new ArrayList<>();
 		try {
 			String[] args=new String[10];
 			args[0] = req.getBranchCode();
@@ -3227,8 +3774,8 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 			args[7] = req.getBranchCode();
 			args[8] = req.getProposalNo();
 			args[9] = req.getAmendId();
-			String selectQry = "RISK_SELECT_GETCOMMONDATA_PTTY";
-			List<Map<String, Object>> list = queryImpl.selectList(selectQry,args);
+			String selectQry="RISK_SELECT_GETCOMMONDATA_PTTY";//LEFT OUTER JOIN
+			List<Map<String, Object>> list = queryImpl.selectList(selectQry,args); 
 			Map<String, Object> resMap = null;
 			if(list!=null && list.size()>0)
 				resMap = (Map<String, Object>)list.get(0);
@@ -3272,7 +3819,7 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 				res.setPnoc(resMap.get("RSK_PERIOD_OF_NOTICE")==null?"":resMap.get("RSK_PERIOD_OF_NOTICE").toString());
 				res.setRiskCovered(resMap.get("RSK_RISK_COVERED")==null?"":resMap.get("RSK_RISK_COVERED").toString());
 				res.setTerritoryscope(resMap.get("RSK_TERRITORY_SCOPE")==null?"":resMap.get("RSK_TERRITORY_SCOPE").toString());
-				res.setTerritory(resMap.get("TERRITORY_DESC")==null?"":resMap.get("TERRITORY_DESC").toString());
+				res.setTerritory(resMap.get("TERRITORY_DESCR")==null?"":resMap.get("TERRITORY_DESCR").toString());
 				res.setInwardType(resMap.get("INWARD_BUS_TYPE")==null?"":resMap.get("INWARD_BUS_TYPE").toString());
 				res.setTreatyType(resMap.get("TREATYTYPE")==null?"":resMap.get("TREATYTYPE").toString());
 				res.setTreatyName(resMap.get("TREATYTYPE_NAME")==null?"":resMap.get("TREATYTYPE_NAME").toString());
@@ -3341,16 +3888,72 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 //				}
 			}
 
-			args = new String[2];
-			args[0] = req.getProposalNo();
-			args[1] = req.getAmendId();
-			selectQry = "risk.select.getSecondViewData";
 			
-			List<Map<String, Object>> res1 = queryImpl.selectList(selectQry,args);
+			//risk.select.getSecondViewData
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			Root<TtrnRiskProposal> pm = query.from(TtrnRiskProposal.class);
+			//detailName
+			Subquery<String> detailName = query.subquery(String.class);
+			Root<ConstantDetail> rds = detailName.from(ConstantDetail.class);
+			detailName.select(rds.get("detailName"));
+			Predicate a1 = cb.equal(rds.get("categoryId"), "31");
+			Predicate a2 = cb.equal(rds.get("categoryDetailId"), pm.get("rskPremiumBasis"));
+			detailName.where(a1, a2);
 			
-			Map<String, Object> secViewDataMap = null;
-			if(res1!=null && res1.size()>0)
-				secViewDataMap = (Map<String, Object>)res1.get(0);
+			query.multiselect(pm.get("rskMdInstallmentNos").alias("RSK_MD_INSTALLMENT_NOS"),
+					cb.selectCase().when(cb.equal(pm.get("rskCedretType"),"P"),"Percentage").otherwise("Amount").alias("CEDRET_TYPE"),
+					pm.get("rskLimitOc").alias("RSK_LIMIT_OC"),pm.get("rskLimitDc").alias("RSK_LIMIT_DC"),
+					pm.get("rskEpiOfferOc").alias("RSK_EPI_OFFER_OC"),pm.get("rskEpiOfferDc").alias("RSK_EPI_OFFER_DC"),
+					pm.get("rskEpiEstimate").alias("RSK_EPI_ESTIMATE"),pm.get("rskXlpremOc").alias("RSK_XLPREM_OC"),
+					pm.get("rskXlpremDc").alias("RSK_XLPREM_DC"),pm.get("rskDeducOc").alias("RSK_DEDUC_OC"),
+					pm.get("rskEpiEstOc").alias("RSK_EPI_EST_OC"),pm.get("rskEpiEstDc").alias("RSK_EPI_EST_DC"),
+					pm.get("rskXlcostOc").alias("RSK_XLCOST_OC"),pm.get("rskXlcostDc").alias("RSK_XLCOST_DC"),
+					pm.get("rskCedantRetention").alias("RSK_CEDANT_RETENTION"),pm.get("rskShareWritten").alias("RSK_SHARE_WRITTEN"),
+					pm.get("rskShareSigned").alias("RSK_SHARE_SIGNED"),pm.get("rskMdPremOc").alias("RSK_MD_PREM_OC"),
+					pm.get("rskMdPremDc").alias("RSK_MD_PREM_DC"),pm.get("rskAdjrate").alias("RSK_ADJRATE"),
+					pm.get("rskPfCovered").alias("RSK_PF_COVERED"),pm.get("rskSubjPremiumOc").alias("RSK_SUBJ_PREMIUM_OC"),
+					pm.get("rskSubjPremiumDc").alias("RSK_SUBJ_PREMIUM_DC"),pm.get("rskDeducDc").alias("RSK_DEDUC_DC"),
+					pm.get("rskLimitOsOc").alias("RSK_LIMIT_OS_OC"),pm.get("rskLimitOsDc").alias("RSK_LIMIT_OS_DC"),
+					pm.get("rskEpiOsofOc").alias("RSK_EPI_OSOF_OC"),pm.get("rskEpiOsofDc").alias("RSK_EPI_OSOF_DC"),
+					pm.get("rskEpiOsoeOc").alias("RSK_EPI_OSOE_OC"),pm.get("rskEpiOsoeDc").alias("RSK_EPI_OSOE_DC"),
+					pm.get("rskXlcostOsOc").alias("RSK_XLCOST_OS_OC"),pm.get("rskXlcostOsDc").alias("RSK_XLCOST_OS_DC"),
+					pm.get("rskMdPremOsOc").alias("RSK_MD_PREM_OS_OC"),pm.get("rskMdPremOsDc").alias("RSK_MD_PREM_OS_DC"),
+					cb.selectCase().when(cb.equal(pm.get("rskSpRetro"),"Y"),"Yes").otherwise("No").alias("RSK_SP_RETRO"),
+					pm.get("rskNoOfInsurers").alias("RSK_NO_OF_INSURERS"),pm.get("rskMaxLmtCover").alias("RSK_MAX_LMT_COVER"),
+					pm.get("egpniAsOffer").alias("EGPNI_AS_OFFER"),pm.get("egpniAsOfferDc").alias("EGPNI_AS_OFFER_DC"),
+					pm.get("ourassessment").alias("OURASSESSMENT"),pm.get("rskTreatySurpLimitOc").alias("RSK_TREATY_SURP_LIMIT_OC"),
+					pm.get("rskTreatySurpLimitOsOc").alias("RSK_TREATY_SURP_LIMIT_OS_OC"),pm.get("rskTreatySurpLimitOsDc").alias("RSK_TREATY_SURP_LIMIT_OS_DC"),
+					pm.get("rskEventLimitOc").alias("RSK_EVENT_LIMIT_OC"),pm.get("rskEventLimitDc").alias("RSK_EVENT_LIMIT_DC"),
+					pm.get("rskEventLimitOsOc").alias("RSK_EVENT_LIMIT_OS_OC"),pm.get("rskEventLimitOsDc").alias("RSK_EVENT_LIMIT_OS_DC"),
+					pm.get("rskCoverLimitUxlOsDc").alias("RSK_COVER_LIMIT_UXL_OS_DC"),pm.get("rskDeductableUxlOc").alias("RSK_DEDUCTABLE_UXL_OC"),
+					pm.get("rskDeductableUxlDc").alias("RSK_DEDUCTABLE_UXL_DC"),pm.get("rskDeductableUxlOsOc").alias("RSK_DEDUCTABLE_UXL_OS_OC"),
+					pm.get("rskDeductableUxlOsDc").alias("RSK_DEDUCTABLE_UXL_OS_DC"),
+					cb.selectCase().when(cb.equal(pm.get("rskPml"),"Y"),"Yes").otherwise("No").alias("RSK_PML"),
+					pm.get("rskPmlPercent").alias("RSK_PML_PERCENT"),	pm.get("rskEgnpiPmlOc").alias("RSK_EGNPI_PML_OC"),
+					pm.get("rskEgnpiPmlDc").alias("RSK_EGNPI_PML_DC"),pm.get("rskEgnpiPmlOsOc").alias("RSK_EGNPI_PML_OS_OC"),
+					pm.get("rskEgnpiPmlOsDc").alias("RSK_EGNPI_PML_OS_DC"),pm.get("rskPremiumBasis").alias("RSK_PREMIUM_BASIS"),
+					pm.get("rskMinimumRate").alias("RSK_MINIMUM_RATE"),pm.get("rskMaxiimumRate").alias("RSK_MAXIIMUM_RATE"),
+					pm.get("rskBurningCostLf").alias("RSK_BURNING_COST_LF"),pm.get("rskPaymentDueDays").alias("RSK_PAYMENT_DUE_DAYS"),
+					detailName.alias("RSK_PREMIUM_BASIS_Con"),pm.get("rskTrtyLmtPmlOsOc").alias("RSK_TRTY_LMT_PML_OS_OC"),
+					pm.get("rskTrtyLmtPmlOsDc").alias("RSK_TRTY_LMT_PML_OS_DC"),pm.get("rskTrtyLmtSurPmlDc").alias("RSK_TRTY_LMT_SUR_PML_DC"),
+					pm.get("rskTrtyLmtSurPmlOsOc").alias("RSK_TRTY_LMT_SUR_PML_OS_OC"),pm.get("rskTrtyLmtSurPmlOsDc").alias("RSK_TRTY_LMT_SUR_PML_OS_DC"),
+					pm.get("rskMinimumPremiumOc").alias("RSK_MINIMUM_PREMIUM_OC"),pm.get("rskMinimumPremiumDc").alias("RSK_MINIMUM_PREMIUM_DC"),
+					pm.get("rskMinimumPremiumOsOc").alias("RSK_MINIMUM_PREMIUM_OS_OC"),pm.get("rskMinimumPremiumOsDc").alias("RSK_MINIMUM_PREMIUM_OS_DC"),
+					pm.get("rskCoverLimitUxlOc").alias("RSK_COVER_LIMIT_UXL_OC"),pm.get("rskCoverLimitUxlDc").alias("RSK_COVER_LIMIT_UXL_DC"),
+					pm.get("rskCoverLimitUxlOsOc").alias("RSK_COVER_LIMIT_UXL_OS_OC"),pm.get("rskTrtyLmtPmlOc").alias("RSK_TRTY_LMT_PML_OC"),
+					pm.get("rskTrtyLmtPmlDc").alias("RSK_TRTY_LMT_PML_DC"),pm.get("rskTrtyLmtSurPmlOc").alias("RSK_TRTY_LMT_SUR_PML_OC"),
+					pm.get("rskTreatySurpLimitDc").alias("RSK_TREATY_SURP_LIMIT_DC"));
+
+			Predicate n1 = cb.equal(pm.get("rskProposalNumber"), req.getProposalNo());
+			Predicate n2 = cb.equal(pm.get("rskEndorsementNo"), req.getAmendId());
+			query.where(n1,n2);
+			TypedQuery<Tuple> res1 = em.createQuery(query);
+			List<Tuple> result1 = res1.getResultList();
+			
+			Tuple secViewDataMap = null;
+			if(result1!=null && result1.size()>0)
+				secViewDataMap = result1.get(0);
 			if (secViewDataMap != null) {
 				if( res.getTreatyType().equalsIgnoreCase("4") ||  res.getTreatyType().equalsIgnoreCase("5") ){
 					res.setFaclimitOrigCur(secViewDataMap.get("RSK_LIMIT_OC")==null?"0":fm.formatter(secViewDataMap.get("RSK_LIMIT_OC").toString()));
@@ -3380,7 +3983,7 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 				res.setSharSign(secViewDataMap.get("RSK_SHARE_SIGNED")==null?"":dropDowmImpl.formatterpercentage(secViewDataMap.get("RSK_SHARE_SIGNED").toString()));
 				res.setMdPremium(secViewDataMap.get("RSK_MD_PREM_OC")==null?"":fm.formatter(secViewDataMap.get("RSK_MD_PREM_OC").toString()));
 				res.setMdpremiumDc(secViewDataMap.get("RSK_MD_PREM_DC")==null?"":fm.formatter(secViewDataMap.get("RSK_MD_PREM_DC").toString()));
-				res.setAdjRate(secViewDataMap.get("RSK_ADJRATE")==null?"":fm.formatter(secViewDataMap.get("RSK_ADJRATE").toString()));
+				res.setAdjRate(secViewDataMap.get("RSK_ADJRATE")==null?"":fm.formattereight(secViewDataMap.get("RSK_ADJRATE").toString())); //Ri
 				res.setPortfoloCovered(secViewDataMap.get("RSK_PF_COVERED")==null?"":secViewDataMap.get("RSK_PF_COVERED").toString());
 				res.setSubPremium(secViewDataMap.get("RSK_SUBJ_PREMIUM_OC")==null?"":fm.formatter(secViewDataMap.get("RSK_SUBJ_PREMIUM_OC").toString()));
 				res.setSubPremiumDc(secViewDataMap.get("RSK_SUBJ_PREMIUM_DC")==null?"":fm.formatter(secViewDataMap.get("RSK_SUBJ_PREMIUM_DC").toString()));
@@ -3421,19 +4024,20 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 			args[1] = req.getLayerNo();
 			args[2] = req.getAmendId();
 			int number = 0;
-			selectQry = "risk.select.viewInstalmentData";
+			//risk.select.viewInstalmentData
 			
-			List<Map<String, Object>> instalmentList = queryImpl.selectList(selectQry,args);
+			List<TtrnMndInstallments> instalmentList = ttrnMndInstallmentsRepository.findByProposalNoAndLayerNoAndEndorsementNoAndEndorsementNoNotNullOrderByInstallmentNo(
+					req.getProposalNo(),new BigDecimal(req.getLayerNo()),new BigDecimal(req.getAmendId()));
 			List<InstalmentListRes> instalmentResList = new ArrayList<InstalmentListRes>();
 			if (instalmentList != null) {
 //				List<String> dateList = new ArrayList<String>();
 //				List<String> premiumList = new ArrayList<String>();
 				
 				for (number = 0; number < instalmentList.size(); number++) {
-					Map<String, Object> insMap = (Map<String, Object>)instalmentList.get(number);
+					TtrnMndInstallments insMap = instalmentList.get(number);
 					InstalmentListRes instalmentRes = new InstalmentListRes();
-					instalmentRes.setDateList(insMap.get("INSTALLMENT_DATE")==null?"":insMap.get("INSTALLMENT_DATE").toString());
-					instalmentRes.setPremiumList(insMap.get("MND_PREMIUM_OC")==null?"":fm.formatter(insMap.get("MND_PREMIUM_OC").toString()));	
+					instalmentRes.setDateList(insMap.getInstallmentDate()==null?"":insMap.getInstallmentDate().toString());
+					instalmentRes.setPremiumList(insMap.getMndPremiumOc()==null?"":fm.formatter(insMap.getMndPremiumOc().toString()));	
 					instalmentResList.add(instalmentRes);
 				}
 							res.setInstalmentList(instalmentResList);
@@ -3444,7 +4048,7 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 			args[2] = req.getAmendId();
 			args[3] = req.getProposalNo();
 			args[4] = req.getAmendId();
-			selectQry = "risk.select.getThirdPageData";
+			selectQry = "risk.select.getThirdPageData"; // LEFT OUTER JOIN 
 			
 			List<Map<String, Object>> res3 = queryImpl.selectList(selectQry,args);
 			
@@ -3452,9 +4056,9 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 			if(res3!=null && res3.size()>0)
 				thirdViewDataMap = (Map<String, Object>)res3.get(0);
 			if (thirdViewDataMap != null) {
-				for (int k = 0; k < thirdViewDataMap.size(); k++) {
+				for (int k = 0; k < res3.size(); k++) {
 					res.setBrokerage(thirdViewDataMap.get("RSK_BROKERAGE")==null?"":thirdViewDataMap.get("RSK_BROKERAGE").toString());
-					res.setTax(thirdViewDataMap.get("RSK_TAX")==null?"":dropDowmImpl.formatterpercentage(thirdViewDataMap.get("RSK_TAX").toString()));
+					res.setTax(thirdViewDataMap.get("RSK_TAX")==null?"":dropDowmImpl.formattereight(thirdViewDataMap.get("RSK_TAX").toString())); //Ri
 					res.setShareProfitCommission(thirdViewDataMap.get("RSK_PROFIT_COMM")==null?"":thirdViewDataMap.get("RSK_PROFIT_COMM").toString());
 					
 					res.setPremiumQuotaShare(thirdViewDataMap.get("RSK_PREMIUM_QUOTA_SHARE")==null?"":fm.formatter(thirdViewDataMap.get("RSK_PREMIUM_QUOTA_SHARE").toString()));
@@ -3471,15 +4075,15 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 					res.setAcquisitionCostDc(thirdViewDataMap.get("RSK_ACQUISTION_COST_DC")==null?"":thirdViewDataMap.get("RSK_ACQUISTION_COST_DC").toString());
 					res.setAcquisitionCostOSOC(getShareVal(res.getAcquisitionCost().replaceAll(",", ""),req.getSharSign(),"share"));
 					res.setAcquisitionCostOSDC(fm.formatter(getDesginationCountry(res.getAcquisitionCostOSOC().replaceAll(",",""),res.getExchRate()).toString()));
-					res.setCommissionQS(thirdViewDataMap.get("RSK_COMM_QUOTASHARE")==null?"":dropDowmImpl.formatterpercentage(thirdViewDataMap.get("RSK_COMM_QUOTASHARE").toString()));
-					res.setCommissionsurp(thirdViewDataMap.get("RSK_COMM_SURPLUS")==null?"":dropDowmImpl.formatterpercentage(thirdViewDataMap.get("RSK_COMM_SURPLUS").toString()));
-					res.setOverRidder(thirdViewDataMap.get("RSK_OVERRIDER_PERC")==null?"":dropDowmImpl.formatterpercentage(thirdViewDataMap.get("RSK_OVERRIDER_PERC").toString()));
+					res.setCommissionQS(thirdViewDataMap.get("RSK_COMM_QUOTASHARE")==null?"":dropDowmImpl.formattereight(thirdViewDataMap.get("RSK_COMM_QUOTASHARE").toString()));
+					res.setCommissionsurp(thirdViewDataMap.get("RSK_COMM_SURPLUS")==null?"":dropDowmImpl.formattereight(thirdViewDataMap.get("RSK_COMM_SURPLUS").toString()));
+					res.setOverRidder(thirdViewDataMap.get("RSK_OVERRIDER_PERC")==null?"":dropDowmImpl.formattereight(thirdViewDataMap.get("RSK_OVERRIDER_PERC").toString()));
 					
-					res.setPremiumReserve(thirdViewDataMap.get("RSK_PREMIUM_RESERVE")==null?"":dropDowmImpl.formatterpercentage(thirdViewDataMap.get("RSK_PREMIUM_RESERVE").toString()));
-					res.setLossreserve(thirdViewDataMap.get("RSK_LOSS_RESERVE")==null?"":dropDowmImpl.formatterpercentage(thirdViewDataMap.get("RSK_LOSS_RESERVE").toString()));
-					res.setInterest(thirdViewDataMap.get("RSK_INTEREST")==null?"":dropDowmImpl.formatterpercentage(thirdViewDataMap.get("RSK_INTEREST").toString()));
-					res.setPortfolioinoutPremium(thirdViewDataMap.get("RSK_PF_INOUT_PREM")==null?"":dropDowmImpl.formatterpercentage(thirdViewDataMap.get("RSK_PF_INOUT_PREM").toString()));
-					res.setPortfolioinoutLoss(thirdViewDataMap.get("RSK_PF_INOUT_LOSS")==null?"":dropDowmImpl.formatterpercentage(thirdViewDataMap.get("RSK_PF_INOUT_LOSS").toString()));
+					res.setPremiumReserve(thirdViewDataMap.get("RSK_PREMIUM_RESERVE")==null?"":dropDowmImpl.formattereight(thirdViewDataMap.get("RSK_PREMIUM_RESERVE").toString()));
+					res.setLossreserve(thirdViewDataMap.get("RSK_LOSS_RESERVE")==null?"":dropDowmImpl.formattereight(thirdViewDataMap.get("RSK_LOSS_RESERVE").toString()));
+					res.setInterest(thirdViewDataMap.get("RSK_INTEREST")==null?"":dropDowmImpl.formattereight(thirdViewDataMap.get("RSK_INTEREST").toString()));
+					res.setPortfolioinoutPremium(thirdViewDataMap.get("RSK_PF_INOUT_PREM")==null?"":dropDowmImpl.formattereight(thirdViewDataMap.get("RSK_PF_INOUT_PREM").toString()));
+					res.setPortfolioinoutLoss(thirdViewDataMap.get("RSK_PF_INOUT_LOSS")==null?"":dropDowmImpl.formattereight(thirdViewDataMap.get("RSK_PF_INOUT_LOSS").toString()));
 					res.setLossAdvise(thirdViewDataMap.get("RSK_LOSSADVICE")==null?"":fm.formatter(thirdViewDataMap.get("RSK_LOSSADVICE").toString()));
 					res.setLossAdviseDc(thirdViewDataMap.get("RSK_LOSSADVICE_DC")==null?"":fm.formatter(thirdViewDataMap.get("RSK_LOSSADVICE_DC").toString()));
 					res.setLossAdviseOSOC(getShareVal(res.getLossAdvise().replaceAll(",", ""),res.getSharSign(),"share"));
@@ -3508,7 +4112,7 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 					res.setUnderwriterRecommendations(thirdViewDataMap.get("RSK_UW_RECOMM")==null?"":thirdViewDataMap.get("RSK_UW_RECOMM").toString());
 					res.setGmsApproval(thirdViewDataMap.get("RSK_GM_APPROVAL")==null?"":thirdViewDataMap.get("RSK_GM_APPROVAL").toString());
 					res.setDecision(thirdViewDataMap.get("RSK_DECISION")==null?"":thirdViewDataMap.get("RSK_DECISION").toString()); 
-					res.setOthercost(thirdViewDataMap.get("RSK_OTHER_COST")==null?"":dropDowmImpl.formatterpercentage(thirdViewDataMap.get("RSK_OTHER_COST").toString()));
+					res.setOthercost(thirdViewDataMap.get("RSK_OTHER_COST")==null?"":dropDowmImpl.formattereight(thirdViewDataMap.get("RSK_OTHER_COST").toString()));
 					res.setReinstAdditionalPremium(thirdViewDataMap.get("RSK_REINSTATE_ADDL_PREM_PCT")==null?"":fm.formatter(thirdViewDataMap.get("RSK_REINSTATE_ADDL_PREM_PCT").toString()));
 					res.setBurningCost(thirdViewDataMap.get("RSK_BURNING_COST_PCT")==null?"":fm.formatter(thirdViewDataMap.get("RSK_BURNING_COST_PCT").toString()));
 					res.setCommissionQSAmt(thirdViewDataMap.get("COMM_QS_AMT")==null?"":fm.formatter(thirdViewDataMap.get("COMM_QS_AMT").toString()));
@@ -3521,7 +4125,7 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 				}
 					res.setReinstAditionalPremiumpercentDc(thirdViewDataMap.get("RSK_REINSTATE_ADDL_PREM_PCT")==null?"":fm.formatter(thirdViewDataMap.get("RSK_REINSTATE_ADDL_PREM_PCT").toString()));
 					res.setBurningCost(thirdViewDataMap.get("RSK_BURNING_COST_PCT")==null?"":fm.formatter(thirdViewDataMap.get("RSK_BURNING_COST_PCT").toString()));
-					res.setBrokerage(thirdViewDataMap.get("RSK_BROKERAGE")==null?"":dropDowmImpl.formatterpercentage(thirdViewDataMap.get("RSK_BROKERAGE").toString()));
+					res.setBrokerage(thirdViewDataMap.get("RSK_BROKERAGE")==null?"":dropDowmImpl.formattereight(thirdViewDataMap.get("RSK_BROKERAGE").toString()));
 					res.setLimitPerVesselOC(thirdViewDataMap.get("LIMIT_PER_VESSEL_OC")==null?"0":fm.formatter(thirdViewDataMap.get("LIMIT_PER_VESSEL_OC").toString()));
 					res.setLimitPerVesselDC(thirdViewDataMap.get("LIMIT_PER_VESSEL_DC")==null?"":fm.formatter(thirdViewDataMap.get("LIMIT_PER_VESSEL_DC").toString()));
 					res.setLimitPerVesselOSOC(getShareVal(res.getLimitPerVesselOC().replaceAll(",", ""),res.getSharSign(),"share"));
@@ -3558,7 +4162,7 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 					res.setCrestacommissionSubClass(thirdViewDataMap.get("RSK_CRESTA_COMBIN_SUB_CLASS")==null?"":thirdViewDataMap.get("RSK_CRESTA_COMBIN_SUB_CLASS").toString());
 					res.setManagementExpenses(thirdViewDataMap.get("RSK_PRO_MANAGEMENT_EXP")==null?"":thirdViewDataMap.get("RSK_PRO_MANAGEMENT_EXP").toString());
 					res.setCommissionType(thirdViewDataMap.get("RSK_PRO_COMM_TYPE")==null?"":thirdViewDataMap.get("RSK_PRO_COMM_TYPE").toString());
-					res.setProfitCommissionPer(thirdViewDataMap.get("RSK_PRO_COMM_PER")==null?"":dropDowmImpl.formatterpercentage(thirdViewDataMap.get("RSK_PRO_COMM_PER").toString()));
+					res.setProfitCommissionPer(thirdViewDataMap.get("RSK_PRO_COMM_PER")==null?"":dropDowmImpl.formattereight(thirdViewDataMap.get("RSK_PRO_COMM_PER").toString()));
 					res.setSetup(thirdViewDataMap.get("RSK_PRO_SET_UP")==null?"":thirdViewDataMap.get("RSK_PRO_SET_UP").toString());
 					res.setSuperProfitCommission(thirdViewDataMap.get("RSK_PRO_SUP_PRO_COM")==null?"":thirdViewDataMap.get("RSK_PRO_SUP_PRO_COM").toString());
 					res.setLossCarried(thirdViewDataMap.get("RSK_PRO_LOSS_CARY_TYPE")==null?"":thirdViewDataMap.get("RSK_PRO_LOSS_CARY_TYPE").toString());
@@ -3582,45 +4186,56 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 					}
 				}
 			}
-			String qry = "GET_POSITION_MASTER_CON_MAP";
-			args = new String[2];
-			args[0] = req.getProposalNo();
-			args[1] = req.getAmendId();
-			List<Map<String, Object>> result = queryImpl.selectList(qry,args);
-			if(!CollectionUtils.isEmpty(result)) {
-				res.setContractListVal(result.get(0).get("DATA_MAP_CONT_NO")==null?"":result.get(0).get("DATA_MAP_CONT_NO").toString());
+			//GET_POSITION_MASTER_CON_MAP
+			PositionMaster result = positionMasterRepository.findByProposalNoAndAmendId(new BigDecimal(req.getProposalNo()),new BigDecimal(req.getProposalNo()));
+			if(result!=null) {
+				res.setContractListVal(result.getDataMapContNo()==null?"":result.getDataMapContNo().toString());
 			}
-			
 			
 			if(StringUtils.isNotBlank(res.getContractListVal()) && !"None".equalsIgnoreCase(res.getContractListVal())){
-			qry = "GET_MAPPING_PROPOSAL_NO";
-			args = new String[4];
-			args[0] = res.getContractListVal();
-			args[1] = res.getLayerNo();
-			args[2] = res.getDepartId();
-			args[3] = res.getUwYear();
-			List<Map<String,Object>> list1 = new ArrayList<Map<String,Object>>();
-			list1 =  queryImpl.selectList(qry, args);
-			List<MappingProposalRes> mapResList = new ArrayList<MappingProposalRes>();
-			if(list1.size()>0){
-				for(int i=0;i<list1.size();i++){
-					Map<String,Object> map =list1.get(i);
-					MappingProposalRes mapRes = new MappingProposalRes();
-					mapRes.setMappingProposal(map.get("PROPOSAL_NO")==null?"":map.get("PROPOSAL_NO").toString());
-					mapRes.setMapingAmendId(map.get("AMEND_ID")==null?"":map.get("AMEND_ID").toString());
-					mapResList.add(mapRes);
-					}
-				res.setMappingProposal(mapResList);
-			}
-			}
+				//GET_MAPPING_PROPOSAL_NO
+				CriteriaQuery<Tuple> query1 = cb.createQuery(Tuple.class); 
+				Root<PositionMaster> m = query1.from(PositionMaster.class);
+				query1.multiselect(m.get("proposalNo").alias("PROPOSAL_NO"),m.get("amendId").alias("AMEND_ID"));
+				
+				//amend
+				Subquery<Long> amend = query1.subquery(Long.class); 
+				Root<PositionMaster> pms = amend.from(PositionMaster.class);
+				amend.select(cb.max(pms.get("rskEndorsementNo")));
+				Predicate b1 = cb.equal(m.get("proposalNo"), pms.get("proposalNo"));
+				Predicate b2 = cb.equal(m.get("contractNo"), pms.get("contractNo"));
+				Predicate b3 = cb.equal(m.get("layerNo"), pms.get("layerNo"));
+				amend.where(b1,b2,b3);
+
+				Predicate m1 = cb.equal(m.get("contractNo"), res.getContractListVal());
+				Predicate m2 = cb.equal(m.get("layerNo"), res.getLayerNo());
+				Predicate m3 = cb.equal(m.get("deptId"), res.getDepartId());
+				Predicate m4 = cb.equal(m.get("uwYear"), res.getUwYear());
+				Predicate m5 = cb.equal(m.get("amendId"), amend);
+				query1.where(m1,m2,m3,m4,m5);
+				
+				TypedQuery<Tuple> res2 = em.createQuery(query1);
+				List<Tuple> list1 = res2.getResultList();
 			
-			String query="GET_BASE_LAYER_DETAILS";
+				List<MappingProposalRes> mapResList = new ArrayList<MappingProposalRes>();
+				if(list1.size()>0){
+					for(int i=0;i<list1.size();i++){
+						Tuple map =list1.get(i);
+						MappingProposalRes mapRes = new MappingProposalRes();
+						mapRes.setMappingProposal(map.get("PROPOSAL_NO")==null?"":map.get("PROPOSAL_NO").toString());
+						mapRes.setMapingAmendId(map.get("AMEND_ID")==null?"":map.get("AMEND_ID").toString());
+						mapResList.add(mapRes);
+						}
+					res.setMappingProposal(mapResList);
+				}
+				}
 			
-			List<Map<String, Object>> list1 =  queryImpl.selectList(query,new String[]{req.getProductId(),req.getBranchCode(),req.getProposalNo()});
+			//GET_BASE_LAYER_DETAILS
+			list2 = proportionalityCustomRepository.getBaseLayerDetails(req.getProductId(),req.getBranchCode(),req.getProposalNo());	
 			
-			Map<String, Object> resMap1 = null;
-			if(list1!=null && list1.size()>0)
-				resMap1 = (Map<String, Object>)list1.get(0);
+			Tuple resMap1 = null;
+			if(list2!=null && list2.size()>0)
+				resMap1 = list2.get(0);
 			if (resMap1 != null) {
 					res.setBaseLayer(resMap1.get("BASE_LAYER")==null?"":resMap1.get("BASE_LAYER").toString());
 			}
@@ -3657,26 +4272,46 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 		return res;
 	}
 	public String getUGUWName(String branchCode,String ugcode) {
-		String query="";
 		String code="";
-		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
 		try{
-			query="GET_UG_UNDERWRITER";
-			String args[]=new String[2];
-			args[0] = branchCode;
-			args[1] = ugcode;
-			list = queryImpl.selectList(query,args);
+			//GET_UG_UNDERWRITER
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<String> query = cb.createQuery(String.class); 
+			Root<PersonalInfo> pm = query.from(PersonalInfo.class);
+			
+			Expression<String> e0 = cb.concat(pm.get("firstName")," ");
+			query.multiselect(cb.concat(e0, pm.get("lastName")).alias("RSK_LEAD_UW_UG"));
+			
+			//amend
+			Subquery<Long> amend = query.subquery(Long.class); 
+			Root<PersonalInfo> pms = amend.from(PersonalInfo.class);
+			amend.select(cb.max(pms.get("amendId")));
+			Predicate a1 = cb.equal(pm.get("branchCode"), pms.get("branchCode"));
+			Predicate a2 = cb.equal(pm.get("customerType"), pms.get("branchCode"));
+			Predicate a3 = cb.equal(pm.get("status"), pms.get("branchCode"));
+			Predicate a4 = cb.equal(pm.get("customerId"), pms.get("customerId"));
+			amend.where(a1,a2,a3,a4);
+
+			Predicate n1 = cb.equal(pm.get("branchCode"), branchCode);
+			Predicate n2 = cb.equal(pm.get("customerId"), ugcode);
+			Predicate n3 = cb.equal(pm.get("amendId"), amend);
+			Predicate n4 = cb.equal(pm.get("status"), "Y");
+			query.where(n1,n2,n3,n4);
+			
+			TypedQuery<String> res1 = em.createQuery(query);
+			List<String> list = res1.getResultList();
+			 
+			
 			if(list!=null && list.size()>0){
 				for(int i=0;i<list.size();i++){
-				Map<String,Object> map = list.get(i);
-				code=map.get("RSK_LEAD_UW_UG")==null?"":map.get("RSK_LEAD_UW_UG").toString();
+				String map = list.get(i);
+				code=map==null?"":map.toString();
 				}
 			}
 		}catch(Exception e){
-			logger.debug("Exception @ {" + e + "}");	
+			e.printStackTrace();
 		}
 		return code;
-		
 	}
 	public getprofitCommissionDeleteRes getprofitCommissionDelete(String proposalno, String branchCode,
 			String profitSno) {
@@ -3701,114 +4336,170 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 	}
 	@Override
 	public showSecondPageData1Res showSecondPageData1(showSecondPageData1Req req) {
-		
 		showSecondPageData1Res response = new showSecondPageData1Res();
 		ShowSecondPageData1Res1  resset= new ShowSecondPageData1Res1();
 		List<ShowSecondPageData1Res1> ressetList = new ArrayList<ShowSecondPageData1Res1>();
 		try {
-		String query = "";
-		String args [] = new String[7];
-		args[0]=req.getProposal();
-		args[1]=req.getBranchCode();
-		args[2]=req.getBranchCode();
-		args[3]=req.getProductId();
-		args[4]=req.getBranchCode();
-		args[5]=req.getBranchCode();
-		args[6]=req.getBranchCode();
-		query = "risk.select.getSecPageData";
-		List<Map<String, Object>> res = queryImpl.selectList(query,args);
-		Map<String, Object> resMap = null;
-		if(res!=null && res.size()>0) {
-			resMap = (Map<String, Object>)res.get(0);
-			if(resMap!=null) {
-				resset.setProposalno(resMap.get("RSK_PROPOSAL_NUMBER")==null?"":resMap.get("RSK_PROPOSAL_NUMBER").toString());
-				resset.setSubProfitcenter(resMap.get("TMAS_SPFC_NAME")==null?"":resMap.get("TMAS_SPFC_NAME").toString());
-				resset.setCedingCo(resMap.get("COMPANY_NAME")==null?"":resMap.get("COMPANY_NAME").toString());
-				resset.setBroker(resMap.get("BROKER")==null?"":resMap.get("BROKER").toString());
-				resset.setMonth(resMap.get("MONTH")==null?"":resMap.get("MONTH").toString());
-				resset.setUnderwriter(resMap.get("RSK_UWYEAR")==null?"":resMap.get("RSK_UWYEAR").toString());
-				resset.setPolBr(resMap.get("TMAS_POL_BRANCH_NAME")==null?"":resMap.get("TMAS_POL_BRANCH_NAME").toString());
-				resset.setDepartClass(resMap.get("TMAS_DEPARTMENT_NAME")==null?"":resMap.get("TMAS_DEPARTMENT_NAME").toString());
-				ressetList.add(resset);
-			}
-			}
-			if(StringUtils.isNotBlank(req.getNoInsurer()) && Integer.parseInt(req.getNoInsurer())>0 ){
-			if(req.getRetroFinalList().equalsIgnoreCase("No")) {
-				List<RetroFinalListres>  finalList = new ArrayList<RetroFinalListres>();
-				for(int i=0;i<Integer.parseInt(req.getNoInsurer());i++){
-					RetroFinalListres retro = new RetroFinalListres();
-					GetRetroContractDetailsListReq req2 = new GetRetroContractDetailsListReq();
-					req2.setBranchCode(req.getBranchCode());
-					req2.setIncepDate(req.getIncepDate());
-					req2.setProductid(req.getProductId());
-					req2.setRetroType(req.getRetroType());
-					req2.setUwYear(req.getUwYear());
-					GetCommonDropDownRes dropDownRes =dropDowmImpl.getRetroContractDetailsList(req2,2,"");
-				if (!CollectionUtils.isEmpty(dropDownRes.getCommonResponse())) {
-				CommonResDropDown res2= dropDownRes.getCommonResponse().get(i);
-				retro.setCONTDET1(res2.getCode());
-				retro.setCONTDET2(res2.getCodeDescription());
-				finalList.add(retro);
-					}
-			}
-			}
-			if(StringUtils.isNotBlank(req.getNoInsurer())){
-				List<RetroFinalListres>  finalList = new ArrayList<RetroFinalListres>();
-				for (int z=0;z<Integer.parseInt(req.getNoInsurer());z++){
+			
+//			(select RTRIM(XMLAGG(XMLELEMENT(E,TMAS_SPFC_NAME,',')).EXTRACT('//text()'),',')  
+//					from TMAS_SPFC_MASTER SPFC where SPFC.TMAS_SPFC_ID in( select * from table(SPLIT_TEXT_FN(replace(RK.RSK_SPFCID,' ', '')))) AND SPFC.TMAS_PRODUCT_ID 
+//					= TDM.TMAS_PRODUCT_ID AND TDM.BRANCH_CODE = SPFC.BRANCH_CODE)TMAS_SPFC_NAME,
+			
+			//risk.select.getSecPageData
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			Root<PersonalInfo> personal = query.from(PersonalInfo.class);
+			Root<TtrnRiskDetails> rk = query.from(TtrnRiskDetails.class);
+			Root<TmasPfcMaster> pfc = query.from(TmasPfcMaster.class);
+			Root<PersonalInfo> pi = query.from(PersonalInfo.class);
+			Root<TmasPolicyBranch> bran = query.from(TmasPolicyBranch.class);
+			Root<TmasDepartmentMaster> tdm = query.from(TmasDepartmentMaster.class); 
+				
+			Expression<String> e0 = cb.concat(pi.get("firstName")," ");
+			query.multiselect(rk.get("rskProposalNumber").alias("RSK_PROPOSAL_NUMBER"),    //TMAS_SPFC_NAME pending
+					pfc.get("tmasPfcName").alias("TMAS_PFC_NAME"), personal.get("companyName").alias("COMPANY_NAME"),
+					cb.concat(e0, pi.get("lastName")).alias("BROKER"),
+					rk.get("rskMonth").alias("MONTH"),bran.get("tmasPolBranchName").alias("TMAS_POL_BRANCH_NAME"),
+					rk.get("rskContractNo").alias("RSK_CONTRACT_NO"),rk.get("rskUwyear").alias("RSK_UWYEAR"),
+					tdm.get("tmasDepartmentName").alias("TMAS_DEPARTMENT_NAME"),rk.get("rsEndorsementType").alias("DETAIL_NAME"));
+			
+			//amend
+			Subquery<Long> amend = query.subquery(Long.class); 
+			Root<PersonalInfo> pms = amend.from(PersonalInfo.class);
+			amend.select(cb.max(pms.get("amendId")));
+			Predicate a1 = cb.equal(pms.get("customerId"), personal.get("customerId"));
+			Predicate a2 = cb.equal(personal.get("customerType"), pms.get("customerType"));
+			Predicate a3 = cb.equal(personal.get("branchCode"), pms.get("branchCode"));
+			amend.where(a1,a2,a3);
+			//amendPi
+			Subquery<Long> amendPi = query.subquery(Long.class); 
+			Root<PersonalInfo> pis = amendPi.from(PersonalInfo.class);
+			amendPi.select(cb.max(pis.get("amendId")));
+			Predicate b1 = cb.equal(pis.get("customerId"), pi.get("customerId"));
+			Predicate b2 = cb.equal(pi.get("customerType"), pis.get("customerType"));
+			Predicate b3 = cb.equal(pi.get("branchCode"), pis.get("branchCode"));
+			amendPi.where(b1,b2,b3);
+			//end
+			Subquery<Long> end = query.subquery(Long.class); 
+			Root<TtrnRiskDetails> rks = end.from(TtrnRiskDetails.class);
+			end.select(cb.max(rks.get("rskEndorsementNo")));
+			Predicate c1 = cb.equal(rks.get("rskProposalNumber"), rk.get("rskProposalNumber"));
+			end.where(c1);
+			
+			Predicate n1 = cb.equal(rk.get("rskProposalNumber"), req.getProposal());
+			Predicate n2 = cb.equal(pfc.get("tmasPfcId"), rk.get("rskPfcid"));
+			Predicate n3 = cb.equal(pfc.get("branchCode"), req.getBranchCode());
+			Predicate n4 = cb.equal(tdm.get("branchCode"), req.getBranchCode());
+			Predicate n5 = cb.equal(tdm.get("tmasProductId"), req.getProductId());
+			Predicate n6 = cb.equal(tdm.get("tmasDepartmentId"), rk.get("rskDeptid"));
+			Predicate n7 = cb.equal(rk.get("rskCedingid"), personal.get("customerId"));
+			Predicate n8 = cb.equal(personal.get("customerType"), "C");
+			Predicate n9 = cb.equal(personal.get("branchCode"), req.getBranchCode());
+			Predicate n10 = cb.equal(personal.get("amendId"), amend);
+			Predicate n11 = cb.equal(rk.get("rskBrokerid"), pi.get("customerId"));
+			Predicate n12 = cb.equal(pi.get("customerType"), "B");
+			Predicate n13 = cb.equal(pi.get("branchCode"), req.getBranchCode());
+			Predicate n14 = cb.equal(pi.get("amendId"), amendPi);
+			Predicate n15 = cb.equal(rk.get("rskEndorsementNo"), end);
+			Predicate n16 = cb.equal(rk.get("rskPolbranch"), bran.get("tmasPolBranchId"));
+			Predicate n17 = cb.equal(bran.get("branchCode"), req.getBranchCode());
+			query.where(n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11,n12,n13,n14,n15,n16,n17);
+			
+			TypedQuery<Tuple> res1 = em.createQuery(query);
+			List<Tuple> list = res1.getResultList();
+			
+			Tuple resMap = null;
+			if(list!=null && list.size()>0) {
+				resMap = list.get(0);
+				if(resMap!=null) {
+					resset.setProposalno(resMap.get("RSK_PROPOSAL_NUMBER")==null?"":resMap.get("RSK_PROPOSAL_NUMBER").toString());
+					resset.setSubProfitcenter(resMap.get("TMAS_SPFC_NAME")==null?"":resMap.get("TMAS_SPFC_NAME").toString());
+					resset.setCedingCo(resMap.get("COMPANY_NAME")==null?"":resMap.get("COMPANY_NAME").toString());
+					resset.setBroker(resMap.get("BROKER")==null?"":resMap.get("BROKER").toString());
+					resset.setMonth(resMap.get("MONTH")==null?"":resMap.get("MONTH").toString());
+					resset.setUnderwriter(resMap.get("RSK_UWYEAR")==null?"":resMap.get("RSK_UWYEAR").toString());
+					resset.setPolBr(resMap.get("TMAS_POL_BRANCH_NAME")==null?"":resMap.get("TMAS_POL_BRANCH_NAME").toString());
+					resset.setDepartClass(resMap.get("TMAS_DEPARTMENT_NAME")==null?"":resMap.get("TMAS_DEPARTMENT_NAME").toString());
+					ressetList.add(resset);
+				}
+				}
+				if(StringUtils.isNotBlank(req.getNoInsurer()) && Integer.parseInt(req.getNoInsurer())>0 ){
+				if(req.getRetroFinalList().equalsIgnoreCase("No")) {
+					List<RetroFinalListres>  finalList = new ArrayList<RetroFinalListres>();
+					for(int i=0;i<Integer.parseInt(req.getNoInsurer());i++){
+						RetroFinalListres retro = new RetroFinalListres();
+						GetRetroContractDetailsListReq req2 = new GetRetroContractDetailsListReq();
+						req2.setBranchCode(req.getBranchCode());
+						req2.setIncepDate(req.getIncepDate());
+						req2.setProductid(req.getProductId());
+						req2.setRetroType(req.getRetroType());
+						req2.setUwYear(req.getUwYear());
+						GetCommonDropDownRes dropDownRes =dropDowmImpl.getRetroContractDetailsList(req2,2,"");
+					if (!CollectionUtils.isEmpty(dropDownRes.getCommonResponse())) {
+					CommonResDropDown res2= dropDownRes.getCommonResponse().get(i);
+					retro.setCONTDET1(res2.getCode());
+					retro.setCONTDET2(res2.getCodeDescription());
+					finalList.add(retro);
+						}
+				}
+				}
+				if(StringUtils.isNotBlank(req.getNoInsurer())){
+					List<RetroFinalListres>  finalList = new ArrayList<RetroFinalListres>();
+					for (int z=0;z<Integer.parseInt(req.getNoInsurer());z++){
+						RetroFinalListres retro = new RetroFinalListres();
+						retro.setRetroDupYerar(req.getUwYear());
+						GetRetroContractDetailsListReq req2 = new GetRetroContractDetailsListReq();
+						req2.setBranchCode(req.getBranchCode());
+						req2.setIncepDate(req.getIncepDate());
+						req2.setProductid(req.getProductId());
+						req2.setRetroType(req.getRetroType());
+						req2.setUwYear(req.getUwYear());
+						GetCommonDropDownRes dropDownRes =dropDowmImpl.getRetroContractDetailsList(req2,3,req2.getUwYear());
+						if (!CollectionUtils.isEmpty(dropDownRes.getCommonResponse())) {
+							List<CommonResDropDown> list1= dropDownRes.getCommonResponse();
+							for (int i=0;i<list1.size();i++){
+								RetroFinalListres retro1 = new RetroFinalListres();
+									CommonResDropDown map = list1.get(i);
+									retro1.setRetroDupContract(map.getCode());
+									finalList.add(retro1);
+								}
+						resset.setRetroFinalListres(finalList);
+						}
+				}
+				}
+				if(req.getNoInsurer()!=null &&Integer.parseInt(req.getNoInsurer())==0){
+					List<RetroFinalListres>  finalList = new ArrayList<RetroFinalListres>();
 					RetroFinalListres retro = new RetroFinalListres();
 					retro.setRetroDupYerar(req.getUwYear());
+					
 					GetRetroContractDetailsListReq req2 = new GetRetroContractDetailsListReq();
 					req2.setBranchCode(req.getBranchCode());
 					req2.setIncepDate(req.getIncepDate());
 					req2.setProductid(req.getProductId());
 					req2.setRetroType(req.getRetroType());
-					req2.setUwYear(req.getUwYear());
-					GetCommonDropDownRes dropDownRes =dropDowmImpl.getRetroContractDetailsList(req2,3,req2.getUwYear());
-					if (!CollectionUtils.isEmpty(dropDownRes.getCommonResponse())) {
-						List<CommonResDropDown> list1= dropDownRes.getCommonResponse();
-						for (int i=0;i<list1.size();i++){
-							RetroFinalListres retro1 = new RetroFinalListres();
-								CommonResDropDown map = list1.get(i);
-								retro1.setRetroDupContract(map.getCode());
-								finalList.add(retro1);
-							}
-					resset.setRetroFinalListres(finalList);
+					req2.setUwYear(req.getRetroType());
+					GetCommonDropDownRes dropDownRes =dropDowmImpl.getRetroContractDetailsList(req2,3,"");
+					List<CommonResDropDown> list1= dropDownRes.getCommonResponse();
+					
+					for (int i=0;i<list1.size();i++){
+						CommonResDropDown map = list1.get(i);
+						retro.setRetroDupContract(map.getCode());
+						finalList.add(retro);
 					}
-			}
-			}
-			if(req.getNoInsurer()!=null &&Integer.parseInt(req.getNoInsurer())==0){
-				List<RetroFinalListres>  finalList = new ArrayList<RetroFinalListres>();
-				RetroFinalListres retro = new RetroFinalListres();
-				retro.setRetroDupYerar(req.getUwYear());
-				
-				GetRetroContractDetailsListReq req2 = new GetRetroContractDetailsListReq();
-				req2.setBranchCode(req.getBranchCode());
-				req2.setIncepDate(req.getIncepDate());
-				req2.setProductid(req.getProductId());
-				req2.setRetroType(req.getRetroType());
-				req2.setUwYear(req.getRetroType());
-				GetCommonDropDownRes dropDownRes =dropDowmImpl.getRetroContractDetailsList(req2,3,"");
-				List<CommonResDropDown> list1= dropDownRes.getCommonResponse();
-				
-				for (int i=0;i<list1.size();i++){
-					CommonResDropDown map = list1.get(i);
-					retro.setRetroDupContract(map.getCode());
-					finalList.add(retro);
+					
+					}
 				}
-				
-				}
+				response.setShowSecondPageData1Res1(ressetList);
+				response.setMessage("Success");
+				response.setIsError(false);
 			}
-			response.setShowSecondPageData1Res1(ressetList);
-			response.setMessage("Success");
-			response.setIsError(false);
-		}
-		
-		catch(Exception e){
-		e.printStackTrace();
-		response.setMessage("Failed");
-		response.setIsError(true);
-		}
-		return response;
+			
+			catch(Exception e){
+			e.printStackTrace();
+			response.setMessage("Failed");
+			response.setIsError(true);
+			}
+			return response;
 	}
 	@Override
 	public getprofitCommissionEditRes getprofitCommissionEdit(String proposalno, String branchCode, String profitSno) {
@@ -3817,8 +4508,26 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 		getprofitCommissionEditRes1 resset = new getprofitCommissionEditRes1();
 		List<getprofitCommissionEditRes1> ressetList = new ArrayList<getprofitCommissionEditRes1>();
 		try {
-			String query="";
-			query = "PROFIT_COMMISSION_EDIT";
+			//PROFIT_COMMISSION_EDIT
+//			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+//			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+//			Root<TtrnProfitCommissionArch> pm = query.from(TtrnFacRiskProposal.class);
+//			query.multiselect(cb.count(pm)); 
+//
+//			Subquery<Long> end = query.subquery(Long.class); 
+//			Root<TtrnFacRiskProposal> pms = end.from(TtrnFacRiskProposal.class);
+//			end.select(cb.max(pms.get("rskEndorsementNo")));
+//			Predicate a1 = cb.equal(pm.get("rskProposalNumber"), pms.get("rskProposalNumber"));
+//			end.where(a1);
+//
+//			Predicate n1 = cb.equal(pm.get("shareSigned"), leaderUnderwriterShare);
+//			Predicate n2 = cb.equal(pm.get("rskProposalNumber"), proposalNo);
+//			Predicate n3 = cb.equal(pm.get("rskEndorsementNo"), end);
+//			query.where(n1,n2,n3);
+//			
+//			TypedQuery<Tuple> res1 = em.createQuery(query);
+//			List<Tuple> list = res1.getResultList();
+			 String query = "PROFIT_COMMISSION_EDIT";
 			String [] args = new String [3];
 			args[0] = proposalno;
 			args[1] = branchCode;
@@ -3849,41 +4558,51 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 	}
 	@Override
 	public ProfitCommissionListRes ProfitCommissionList(ProfitCommissionListReq req) {
-		
 		ProfitCommissionListRes response = new ProfitCommissionListRes();
 		ProfitCommissionListRes1 resset = new ProfitCommissionListRes1();		
 		List<ProfitCommissionListRes1> relist = new ArrayList<ProfitCommissionListRes1>();
-		
-		List<Map<String, Object>> result = new ArrayList<Map<String,Object>>();
-		 String query ="";
-		 String [] args = null;
 		 try {
-			 query = "COMMISSION_TYPE_LIST";
+				//COMMISSION_TYPE_LIST
+				CriteriaBuilder cb = em.getCriteriaBuilder(); 
+				CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+				Root<TtrnCommissionDetails> c = query.from(TtrnCommissionDetails.class);
+				query.multiselect(c.get("sNo").alias("SNO"),c.get("commFrom").alias("COMM_FROM"),
+						c.get("commTo").alias("COMM_TO"),
+						c.get("profitComm").alias("PROFIT_COMM"));
+						
+				Subquery<Long> end = query.subquery(Long.class); 
+				Root<TtrnCommissionDetails> pms = end.from(TtrnCommissionDetails.class);
+				end.select(cb.max(pms.get("endorsementNo")));
+				Predicate a1 = cb.equal(c.get("proposalNo"), pms.get("proposalNo"));
+				Predicate a2 = cb.equal(c.get("branchCode"), pms.get("branchCode"));
+				end.where(a1,a2);
+				List<Order> orderList = new ArrayList<Order>();
+				orderList.add(cb.asc(c.get("sNo")));
+	
+				Predicate n1 = cb.equal(c.get("proposalNo"), req.getProposalno());
+				Predicate n2 = cb.equal(c.get("branchCode"), req.getBranchCode());
+				Predicate n3 = cb.equal(c.get("commissionType"), req.getCommissionType());
+				Predicate n4 = cb.equal(c.get("endorsementNo"), end);
+				
+				
 			 if(StringUtils.isNotBlank(req.getContractNo())){
-				 query= "COMMISSION_TYPE_LIST1";
-				 args = new String [4];
-				 
-				 args[0] = req.getProposalno();
-				 args[1] = req.getBranchCode();
-				 args[2] = req.getCommissionType();
-				 args[3] = req.getContractNo();
-				 }
+				//COMMISSION_TYPE_LIST1
+					Predicate n5 = cb.equal(c.get("contractNo"), req.getContractNo());
+					query.where(n1,n2,n3,n4,n5).orderBy(orderList);
+					}
 			 else{
-				 args = new String [3];
-				 
-				 args[0] = req.getProposalno();
-				 args[1] = req.getBranchCode();
-				 args[2] = req.getCommissionType();
+				 query.where(n1,n2,n3,n4).orderBy(orderList);
 			 }
-			 query="COMMISSION_TYPE_LIST2";
-			 result = queryImpl.selectList(query, args);
-			 for(int i=0;i<result.size();i++) {
-			Map<String,Object> tempMap = result.get(i);	
-			resset.setProfitSno(tempMap.get("S_NO")==null?"":tempMap.get("S_NO").toString());
-			resset.setFrom(tempMap.get("COMM_FROM")==null?"":tempMap.get("COMM_FROM").toString());
-			resset.setTo(tempMap.get("COMM_TO")==null?"":tempMap.get("COMM_TO").toString());
-			resset.setCom(tempMap.get("PROFIT_COMM")==null?"":tempMap.get("PROFIT_COMM").toString());
-			relist.add(resset);
+			 TypedQuery<Tuple> res1 = em.createQuery(query);
+			 List<Tuple> result = res1.getResultList();
+
+			for(int i=0;i<result.size();i++) {
+				Tuple tempMap = result.get(i);	
+				resset.setProfitSno(tempMap.get("SNO")==null?"":tempMap.get("SNO").toString());
+				resset.setFrom(tempMap.get("COMM_FROM")==null?"":tempMap.get("COMM_FROM").toString());
+				resset.setTo(tempMap.get("COMM_TO")==null?"":tempMap.get("COMM_TO").toString());
+				resset.setCom(tempMap.get("PROFIT_COMM")==null?"":tempMap.get("PROFIT_COMM").toString());
+				relist.add(resset);
 			}
 			 response.setProfitCommissionListRes1(relist);
 				response.setMessage("Success");
@@ -3897,9 +4616,8 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 		return response;
 	}
 	
-	private void MoveBonus(ScaleCommissionInsertReq req) {
-		
-		List<ScaleList> req2 = new ArrayList<ScaleList>();
+	private void MoveBonus(ScaleCommissionInsertReq req) throws ParseException {
+	//	List<ScaleList> req2 = new ArrayList<ScaleList>();
 		if(StringUtils.isBlank(req.getAmendId())){
 			req.setAmendId("0");
 		}
@@ -3911,28 +4629,45 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 		req1.setAmendId(req.getAmendId());
 		deleteMaintable(req1,req.getType());
 		
-		String query = "";
-		query = "BONUS_MAIN_INSERT_PTTY";
-		String [] args = new String [21];
+		  if(StringUtils.isBlank(req.getProposalNo()) && StringUtils.isBlank(req.getReferenceNo())) { //Ri
+	        	String referenceNo="";
+	        	String query="GET_REFERENCE_NO_SEQ";
+	        	List<Map<String, Object>> list  = queryImpl.selectSingle(query,new String[]{}); 
+	        	if (!CollectionUtils.isEmpty(list)) {
+	        		referenceNo = list.get(0).get("REFERENCENO") == null ? ""
+							: list.get(0).get("REFERENCENO").toString();
+				}
+	        	req.setReferenceNo(referenceNo);
+	        }
+		
+		//BONUS_MAIN_INSERT_PTTY
+		String [] args = new String [25];
 		for(int i=0;i<req.getScaleList().size();i++) {
 			ScaleList req3 = req.getScaleList().get(i);			
-			if(StringUtils.isNotBlank(req3.getScaleFrom()) && StringUtils.isNotBlank(req3.getScaleTo()) && StringUtils.isNotBlank(req3.getScaleLowClaimBonus())) {
+			if("MB".equals(req.getScalementhod()) ||StringUtils.isNotBlank(req3.getScaleFrom()) && StringUtils.isNotBlank(req3.getScaleTo()) && StringUtils.isNotBlank(req3.getScaleLowClaimBonus())) {
 				args[0] = req.getProposalNo();
 				args[1] = req.getContractNo();
 				args[2] = req.getProductid();
 				if("scale".equalsIgnoreCase(req.getPageFor())){
-					args[3] = "";
+					args[3] = "SSC2";
 				}
 				else {
 					args[3] = req.getBonusTypeId();				
 					}
-			}
-			args[4] = req3.getScaleFrom().replace(",", "");
-			args[5] = req3.getScaleTo().replace(",", "");
-			args[6] = req3.getScaleLowClaimBonus().replace(",", "");
-			args[7] = req.getLoginId();
-			args[8] = req.getBranchCode();
-			args[9] = req3.getScaleSNo().replace(",", "");
+				if(!"MB".equals(req.getScalementhod())) {
+					args[9] = req3.getScaleSNo().replace(",", "");		
+					args[4] = req3.getScaleFrom().replace(",", "");
+					args[5] = req3.getScaleTo().replace(",", "");
+					args[6] = req3.getScaleLowClaimBonus().replace(",", "");
+				 }else {
+		        	   args[9] = "";
+			           args[4] = "";
+			           args[5] = "";
+			           args[6] = "";
+		           }
+					args[7] = req.getLoginId();
+					args[8] = req.getBranchCode();
+			
 			if("scale".equalsIgnoreCase(req.getPageFor())){
 	        	   args[10] ="SSC";
 	           } 
@@ -3949,18 +4684,36 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 	        	   args[14]="";
 	           }
 		   args[15] =StringUtils.isEmpty(req.getBonusremarks()) ? "" :req.getBonusremarks();
-           args[16] =StringUtils.isEmpty(req.getFistpc()) ? "" :req.getFistpc();
-           args[17] =StringUtils.isEmpty(req.getProfitMont()) ? "" :req.getProfitMont();
-           args[18] =StringUtils.isEmpty(req.getSubpc()) ? "" :req.getSubpc();
-           args[19] =StringUtils.isEmpty(req.getSubProfitMonth()) ? "" :req.getSubProfitMonth();
-           args[20] =StringUtils.isEmpty(req.getSubSeqCalculation()) ? "" :req.getSubSeqCalculation();
-		           }
-				   queryImpl.updateQuery(query,args);
+           args[16] =StringUtils.isEmpty(req.getScFistpc()) ? "" :req.getScFistpc();
+           args[17] =StringUtils.isEmpty(req.getScProfitMont()) ? "" :req.getScProfitMont();
+           args[18] =StringUtils.isEmpty(req.getScSubpc()) ? "" :req.getScSubpc();
+           args[19] =StringUtils.isEmpty(req.getScSubProfitMonth()) ? "" :req.getScSubProfitMonth();
+           args[20] =StringUtils.isEmpty(req.getScSubSeqCalculation()) ? "" :req.getScSubSeqCalculation();
+           args[21]=StringUtils.isBlank(req.getReferenceNo())?"":req.getReferenceNo();
+           if("scale".equalsIgnoreCase(req.getPageFor())){
+        	   args[22]="";
+           }
+           else{
+        	   args[22] =req3.getScaleMaxPartPercent(); 
+           }
+           args[23] =req.getFpcType();
+           args[24] =req.getFpcfixedDate();
+		          
+		TtrnBonus insert = proportionalityCustomRepository.bonusMainInsertPtty(args);
+        if(insert!=null) {
+     	   ttrnBonusRepository.saveAndFlush(insert);
+     	   }
+        if("MB".equals(req.getScalementhod())) {
+			   break;
+		   }
+			}
+		} if("scale".equalsIgnoreCase(req.getPageFor())){
+			//  InsertSlidingScaleMentodInfo(req);
+		  }
 				}
 	
 	@Override
 	public ScaleCommissionInsertRes ScaleCommissionInsert(ScaleCommissionInsertReq req) {
-		
 		ScaleCommissionInsertRes response = new ScaleCommissionInsertRes();		
 		try {
 			MoveBonus(req);
@@ -3979,10 +4732,10 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 	public saveRiskDeatilsSecondFormRes saveRiskDeatilsSecondForm(saveRiskDeatilsSecondFormReq req) {
 		saveRiskDeatilsSecondFormRes response = new saveRiskDeatilsSecondFormRes();
 		saveRiskDeatilsSecondFormRes1 res = new saveRiskDeatilsSecondFormRes1();
-		
+		String query = "";
 		List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
+		List<Tuple> list2 = new ArrayList<>();
 		try {
-			String query ="";
 			String[] args=null;
 			int out=0;
 			int chkSecPageMode = checkSecondPageMode(req.getProposalno());
@@ -3991,20 +4744,53 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 				if (chkSecPageMode == 1) {
 
 					args = secondPageFirstTableAruguments(req, req.getProductId(),getMaxAmednId(req.getProposalno()));
-					query = "risk.update.pro24RskProposal";
-					out = queryImpl.updateQuery(query, args);	
-					query = "risk.insert.pro2SecComm";
+					//risk.update.pro24RskProposal
+					TtrnRiskProposal update = proportionalityCustomRepository.ttrnRiskProposalSecondPageUpdate(args);
+					if(update!=null) {
+					ttrnRiskProposalRepository.saveAndFlush(update);	
+					}
 					args = secondPageCommissionAruguments(req,req.getProductId());
-					out = queryImpl.updateQuery(query, args);
+					//risk.insert.pro2SecComm
+					TtrnRiskCommission insert = proportionalityCustomRepository.ttrnRiskCommissionSecondPageInsert(args);
+					if(insert!=null) {
+						ttrnRiskCommissionRepository.saveAndFlush(insert);	
+					}
+					
 					args = new String[3];
 					args[0] = req.getProposalno();
 					args[1] = req.getProposalno();
 					args[2] = req.getProposalno();
-					query = "risk.select.chechProposalStatus";
-					list = queryImpl.selectList(query, args);
-					Map<String, Object> resMap = null;
-					if(list!=null && list.size()>0)
-						resMap = (Map<String, Object>)list.get(0);
+					//risk.select.chechProposalStatus
+					CriteriaBuilder cb = em.getCriteriaBuilder(); 
+					CriteriaQuery<Tuple> query1 = cb.createQuery(Tuple.class); 
+					Root<TtrnRiskProposal> rd = query1.from(TtrnRiskProposal.class);
+					Root<TtrnRiskDetails> b = query1.from(TtrnRiskDetails.class);
+
+					query1.multiselect(b.get("rskStatus").alias("RSK_STATUS"),rd.get("rskShareSigned").alias("RSK_SHARE_SIGNED"),b.get("rskContractNo").alias("RSK_CONTRACT_NO")); 
+
+					Subquery<Long> endA = query1.subquery(Long.class); 
+					Root<TtrnRiskProposal> rds = endA.from(TtrnRiskProposal.class);
+					endA.select(cb.max(rds.get("rskEndorsementNo")));
+					Predicate a1 = cb.equal( rds.get("rskProposalNumber"), req.getProposalno());
+					endA.where(a1);
+					
+					Subquery<Long> endB = query1.subquery(Long.class); 
+					Root<TtrnRiskProposal> bs = endB.from(TtrnRiskProposal.class);
+					endB.select(cb.max(bs.get("rskEndorsementNo")));
+					Predicate b1 = cb.equal( bs.get("rskProposalNumber"), req.getProposalno());
+					endB.where(b1);
+
+					Predicate n1 = cb.equal(rd.get("rskProposalNumber"), req.getProposalno());
+					Predicate n3 = cb.equal(rd.get("rskProposalNumber"), b.get("rskProposalNumber"));
+					Predicate n2 = cb.equal(rd.get("rskEndorsementNo"), endA);
+					Predicate n4 = cb.equal(b.get("rskEndorsementNo"), endB);
+					query1.where(n1,n2,n3,n4);
+
+					TypedQuery<Tuple> result = em.createQuery(query1);
+					List<Tuple> list1 = result.getResultList();
+					Tuple resMap = null;
+					if(list1!=null && list1.size()>0)
+						resMap = list1.get(0);
 					if(resMap!=null){
 						res.setProStatus(resMap.get("RSK_STATUS")==null?"":resMap.get("RSK_STATUS").toString());
 						res.setSharSign(resMap.get("RSK_SHARE_SIGNED")==null?"":resMap.get("RSK_SHARE_SIGNED").toString());
@@ -4012,34 +4798,26 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 						if (res.getProStatus().matches("A")	&& !res.getSharSign().matches("0")) {
 							String maxContarctNo = null;
 							
-							query = "GET_BASE_LAYER_DETAILS";
-							args = new String[3];
-							args[0] = req.getProductId();
-							args[1] = req.getBranchCode();
-							args[2] = req.getProposalno();
-							list = queryImpl.selectList(query, args);
-							Map<String, Object> resMap1 = null;
-							if(list!=null && list.size()>0)
-								resMap1 = (Map<String, Object>)list.get(0);
+							//GET_BASE_LAYER_DETAILS
+							list2 = proportionalityCustomRepository.getBaseLayerDetails(req.getProductId(),req.getBranchCode(),req.getProposalno());	
+							Tuple resMap1 = null;
+							if(list2!=null && list2.size()>0)
+								resMap1 = list2.get(0);
 							if (resMap1 != null) {
 									res.setBaseLayerYN(resMap1.get("BASE_LAYER")==null?"":resMap1.get("BASE_LAYER").toString());
 							}
 							String prodid=req.getProductId();
-							if (req.getLayerNo().equalsIgnoreCase("layer")) {
-								logger.info("Mode Layer");
+							if ("layer".equalsIgnoreCase(req.getLay())) { //RI
 								maxContarctNo = req.getContNo();
 							}
 							else if(StringUtils.isNotBlank(req.getBaseLayerYN())){
-								query = "GET_BASE_LAYER_DETAILS";
-								args = new String [4];
-								args[0] = req.getProposalno();
-								args[1] = req.getBranchCode();
-								args[2] = req.getProductId();
-								args[3] = req.getBaseLayerYN();
-								list = queryImpl.selectList(query, args);
+								//GET_BASE_LAYER_DETAILS
+							
+								list2 = proportionalityCustomRepository.getBaseLayerDetails(req.getProductId(),req.getBranchCode(),req.getBaseLayerYN());	
+
 								resMap1 = null;
-								if(list!=null && list.size()>0)
-									resMap1 = (Map<String, Object>)list.get(0);
+								if(list2!=null && list2.size()>0)
+									resMap1 = list2.get(0);
 								if (resMap1 != null) {
 										res.setContNo(resMap1.get("CONTRACT_NO")==null?"":resMap1.get("CONTRACT_NO").toString());
 								}
@@ -4055,23 +4833,33 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 									/*}else
 									maxContarctNo=new DropDownControllor().getPolicyNo("2",prodid,beanObj.getBranchCode());*/
 									if("RI01".equalsIgnoreCase(req.getSourceId())){
-										insertSectionValue(req,maxContarctNo);
+										InsertSectionValueReq req1 = new InsertSectionValueReq();
+										req1.setBranchCode(req.getBranchCode());
+										req1.setDepartmentId(req.getDepartmentId());
+										req1.setLoginId(req.getLoginId());									
+										insertSectionValue(req1,maxContarctNo);
 									}
 								}
 							}
-							args = new String[2];
-							args[0] = maxContarctNo;
-							args[1] = req.getProposalno();
-							query = "risk.update.contNo";
-							out = queryImpl.updateQuery(query, args);
-							query = "risk.update.homeContNo";
-							args = new String[4];
-							args[0] = maxContarctNo;
+							
+							//risk.update.contNo
+							List<TtrnRiskDetails> update1 = ttrnRiskDetailsRepository.findByRskProposalNumber(req.getProposalno());	
+							if(update1.size()>0) {
+								TtrnRiskDetails u =update1.get(0);		
+								u.setRskContractNo(maxContarctNo);				
+								ttrnRiskDetailsRepository.saveAndFlush(u);
+							}							
+							//risk.update.homeContNo
+							PositionMaster update2 = positionMasterRepository.findByProposalNo(new BigDecimal(req.getProposalno()));
+							if(update2!=null) {
+								update2.setContractNo(new BigDecimal(maxContarctNo));
+								update2.setProposalStatus("A");
+								update2.setContractStatus("A");	
+								positionMasterRepository.saveAndFlush(update2)	;
+								}
+							
 							res.setContNo((String)args[0]);
-							args[1] = "A";
-							args[2] = "A";
-							args[3] = req.getProposalno();
-							out = queryImpl.updateQuery(query, args);							
+												
 							res.setContNo(maxContarctNo);
 							if("".equals(req.getRenewalcontractno())||"0".equals(req.getRenewalcontractno())||"NEWCONTNO".equals(req.getRenewalFlag())){
 								res.setContractGendration("Your Proposal is converted to Contract with Proposal No : "+req.getProposalno() +" and Contract No : "+maxContarctNo+".");
@@ -4106,22 +4894,55 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 
 				else if (chkSecPageMode == 2) {
 					args =updateRiskDetailsSecondForm(req, req.getProductId(),getMaxAmednId(req.getProposalno()));
-					query = "risk.update.pro24RskProposal";
-					out=queryImpl.updateQuery(query,args);
+					//risk.update.pro24RskProposal
+					TtrnRiskProposal update = proportionalityCustomRepository.ttrnRiskProposalSecondPageUpdate(args);
+					if(update!=null) {
+					ttrnRiskProposalRepository.saveAndFlush(update);	
+					}
 					args = updateRiskDetailsSecondFormSecondTable(req, req.getProductId(),getMaxAmednId(req.getProposalno()));
-					query = "risk.update.pro2SecComm";
-					out=queryImpl.updateQuery(query, args);
+					//risk.update.pro2SecComm
+					TtrnRiskCommission update1 = proportionalityCustomRepository.ttrnRiskCommissionSecondPageUpdate(args);
+					if(update1!=null) {
+						ttrnRiskCommissionRepository.saveAndFlush(update1);	
+					}
+					
 					args = new String[3];
 					args[0] = req.getProposalno();
 					args[1] = req.getProposalno();
 					args[2] = req.getProposalno();
-					query = "risk.select.chechProposalStatus";
-					list = queryImpl.selectList(query,args);
-					Map<String, Object> resMap = null;
-					if(list!=null && list.size()>0)
-						resMap = (Map<String, Object>)list.get(0);
+					//risk.select.chechProposalStatus
+					CriteriaBuilder cb = em.getCriteriaBuilder(); 
+					CriteriaQuery<Tuple> query1 = cb.createQuery(Tuple.class); 
+					Root<TtrnRiskProposal> rd = query1.from(TtrnRiskProposal.class);
+					Root<TtrnRiskDetails> b = query1.from(TtrnRiskDetails.class);
+
+					query1.multiselect(b.get("rskStatus").alias("RSK_STATUS"),rd.get("rskShareSigned").alias("RSK_SHARE_SIGNED"),b.get("rskContractNo").alias("RSK_CONTRACT_NO")); 
+
+					Subquery<Long> endA = query1.subquery(Long.class); 
+					Root<TtrnRiskProposal> rds = endA.from(TtrnRiskProposal.class);
+					endA.select(cb.max(rds.get("rskEndorsementNo")));
+					Predicate a1 = cb.equal( rds.get("rskProposalNumber"), req.getProposalno());
+					endA.where(a1);
+					
+					Subquery<Long> endB = query1.subquery(Long.class); 
+					Root<TtrnRiskProposal> bs = endB.from(TtrnRiskProposal.class);
+					endB.select(cb.max(bs.get("rskEndorsementNo")));
+					Predicate b1 = cb.equal( bs.get("rskProposalNumber"), req.getProposalno());
+					endB.where(b1);
+
+					Predicate n1 = cb.equal(rd.get("rskProposalNumber"), req.getProposalno());
+					Predicate n3 = cb.equal(rd.get("rskProposalNumber"), b.get("rskProposalNumber"));
+					Predicate n2 = cb.equal(rd.get("rskEndorsementNo"), endA);
+					Predicate n4 = cb.equal(b.get("rskEndorsementNo"), endB);
+					query1.where(n1,n2,n3,n4);
+
+					TypedQuery<Tuple> result = em.createQuery(query1);
+					List<Tuple> list1 = result.getResultList();
+					Tuple resMap = null;
+					if(list1!=null && list1.size()>0)
+						resMap = list1.get(0);
 					if (resMap != null) {
-						for (int i = 0; i < resMap.size(); i++) {
+						for (int i = 0; i < list1.size(); i++) {
 							res.setProStatus(resMap.get("RSK_STATUS")==null?"":resMap.get("RSK_STATUS").toString());
 							res.setSharSign(resMap.get("RSK_SHARE_SIGNED")==null?"":resMap.get("RSK_SHARE_SIGNED").toString());
 							res.setContNo(resMap.get("RSK_CONTRACT_NO")==null?"":resMap.get("RSK_CONTRACT_NO").toString());
@@ -4131,35 +4952,30 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 					if (res.getProStatus().matches("A")	&& !res.getSharSign().matches("0")) {
 						String prodid=req.getProductId();
 						String maxContarctNo=""; 
-						query = "GET_BASE_LAYER_DETAILS";
-						args = new String [3];
-						args [0] = req.getProductId();
-						args [1] = req.getBranchCode();
-						args [2] = req.getProposalno();					
-						list = queryImpl.selectList(query, args);
-						Map<String, Object> resMap1 = null;
-						if(list!=null && list.size()>0)
-							resMap1 = (Map<String, Object>)list.get(0);
+						//GET_BASE_LAYER_DETAILS
+						list2 = proportionalityCustomRepository.getBaseLayerDetails(req.getProductId(),req.getBranchCode(),req.getProposalno());	
+						Tuple resMap1 = null;
+						if(list2!=null && list2.size()>0)
+							resMap1 = list2.get(0);
 						if (resMap1 != null) {
 								res.setBaseLayerYN(resMap1.get("BASE_LAYER")==null?"":resMap1.get("BASE_LAYER").toString());
 						}
 						if(StringUtils.isNotBlank(req.getBaseLayerYN())){
-							query = "GET_BASE_LAYER_DETAILS";
-							args = new String [4];
-							args[0] = req.getProductId();
-							args[1] = req.getBranchCode();
-							args[2] = req.getProposalno();
-							args[3] = req.getBaseLayerYN();	
-							list = queryImpl.selectList(query,args);
+							//GET_BASE_LAYER_DETAILS
+							list2 = proportionalityCustomRepository.getBaseLayerDetails(req.getProductId(),req.getBranchCode(),req.getBaseLayerYN());
 							resMap1 = null;
-							if(list!=null && list.size()>0)
-								resMap1 = (Map<String, Object>)list.get(0);
+							if(list2!=null && list2.size()>0)
+								resMap1 =  list2.get(0);
 							if (resMap1 != null) {
 									res.setContNo(resMap1.get("CONTRACT_NO")==null?"":resMap1.get("CONTRACT_NO").toString());
 							}
 							maxContarctNo=req.getContNo();
 							if("RI01".equalsIgnoreCase(req.getSourceId())){
-								insertSectionValue(req,maxContarctNo); 
+								InsertSectionValueReq req1 = new InsertSectionValueReq();
+								req1.setBranchCode(req.getBranchCode());
+								req1.setDepartmentId(req.getDepartmentId());
+								req1.setLoginId(req.getLoginId());					
+								insertSectionValue(req1,maxContarctNo); 
 							}
 						}else{
 						if(!"".equals(req.getRenewalcontractno())&&!"0".equals(req.getRenewalcontractno())&&"OLDCONTNO".equals(req.getRenewalFlag())){
@@ -4172,15 +4988,21 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 							maxContarctNo=new DropDownControllor().getPolicyNo("2",prodid,beanObj.getBranchCode());*/
 						}
 						if("RI01".equalsIgnoreCase(req.getSourceId())){
-							insertSectionValue(req,maxContarctNo);
+							InsertSectionValueReq req1 = new InsertSectionValueReq();
+							req1.setBranchCode(req.getBranchCode());
+							req1.setDepartmentId(req.getDepartmentId());
+							req1.setLoginId(req.getLoginId());					
+							insertSectionValue(req1,maxContarctNo);
 						}
 						}
 						//if(StringUtils.isNotBlank(maxContarctNo) && !"0".equalsIgnoreCase(maxContarctNo)){
-						args = new String[2];
-						args[0] = maxContarctNo;
-						args[1] = req.getProposalno();
-						query = "risk.update.contNo";
-						out=queryImpl.updateQuery(query,args);
+						//risk.update.contNo
+						List<TtrnRiskDetails> update2 = ttrnRiskDetailsRepository.findByRskProposalNumber(req.getProposalno());	
+						if(update2.size()>0) {
+							TtrnRiskDetails u =update2.get(0);		
+							u.setRskContractNo(maxContarctNo);				
+							ttrnRiskDetailsRepository.saveAndFlush(u);
+						}		
 						args = new String[4];
 						args[0] = maxContarctNo;
 						args[1] = getMaxproposalStatus(req.getProposalno());
@@ -4236,8 +5058,11 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 				out=this.mytemplate.update(insertQry, obj1);*/
 
 				args = updateRiskDetailsSecondFormSecondTable(req, req.getProductId(), getMaxAmednId(req.getProposalno()));
-				query = "risk.update.pro2SecComm";
-				out=queryImpl.updateQuery(query, args);
+				//risk.update.pro2SecComm
+				TtrnRiskCommission update1 = proportionalityCustomRepository.ttrnRiskCommissionSecondPageUpdate(args);
+				if(update1!=null) {
+					ttrnRiskCommissionRepository.saveAndFlush(update1);	
+				}
 				res.setProStatus("A");
 			}
 //			RetroSaveReq sub1 = new RetroSaveReq();
@@ -4298,7 +5123,7 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 		args = new String[18];
 		args[0] =  StringUtils.isBlank(req.getLimitOurShare())?"":req.getLimitOurShare().replaceAll(",", "");
 		args[1] = getDesginationCountry(req.getLimitOurShare(), req.getExchRate());
-		args[2] = req.getEpiAsPerOffer().replaceAll(",", "");
+		args[2] = StringUtils.isBlank(req.getEpiAsPerOffer())?"0":req.getEpiAsPerOffer().replaceAll(",", "");
 		args[3] = getDesginationCountry(req.getEpiAsPerOffer(), req.getExchRate());
 		args[4] =StringUtils.isBlank(req.getEpiAsPerShare())?"0": req.getEpiAsPerShare();
 		args[5] = getDesginationCountry(req.getEpiAsPerShare(), req.getExchRate());
@@ -4319,7 +5144,7 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 	
 	public String[] secondPageCommissionAruguments(saveRiskDeatilsSecondFormReq req, String productId) {
 		String[] args=null;
-		args = new String[67];
+		args = new String[71]; //Ri
 		args[0] = req.getProposalno();
 		args[1] = "0";
 		args[2] = req.getLayerNo();
@@ -4407,10 +5232,14 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 		}
 		args[65] =StringUtils.isEmpty(req.getDocStatus())?"":req.getDocStatus();
 		args[66] =StringUtils.isEmpty(req.getLocRate())? "" :req.getLocRate();
+		args[67] =StringUtils.isEmpty(req.getPremiumResType())? "" :req.getPremiumResType();
+		args[68] = StringUtils.isEmpty(req.getPcfpcType())?"":req.getPcfpcType();
+		args[69] = StringUtils.isEmpty(req.getPcfixedDate())?"":req.getPcfixedDate();
+		args[70] = StringUtils.isEmpty(req.getPortfolioType())?"":req.getPortfolioType();
 		return args;
 	}
 	
-	private void insertSectionValue(saveRiskDeatilsSecondFormReq req, String maxContarctNo) {
+	private void insertSectionValue(InsertSectionValueReq req, String maxContarctNo) {
 		try{
 			String query = "";
 			query = "INSERT_SECTION_DETAILS";
@@ -4474,7 +5303,7 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 	public String[] updateRiskDetailsSecondFormSecondTable(saveRiskDeatilsSecondFormReq req,String productId,String endNo) {
 		String[] args=null;
 		if (productId.equalsIgnoreCase("2")) {
-			args = new String[63];
+			args = new String[67];
 			args[0] = StringUtils.isEmpty(req.getBrokerage()) ? "0": req.getBrokerage();
 			args[1] = req.getTax();
 			args[2] = req.getShareProfitCommission();
@@ -4558,26 +5387,44 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 			}
 			args[59] = StringUtils.isEmpty(req.getDocStatus())? "" :req.getDocStatus();
 			args[60] = StringUtils.isEmpty(req.getLocRate())? "" :req.getLocRate();
-			args[61] = req.getProposalno();
-			args[62] = endNo;
+			args[61] =StringUtils.isEmpty(req.getPremiumResType())? "" :req.getPremiumResType();
+			args[62] = StringUtils.isEmpty(req.getPcfpcType())?"":req.getPcfpcType();
+			args[63] = StringUtils.isEmpty(req.getPcfixedDate())?"":req.getPcfixedDate();
+			args[64] = StringUtils.isEmpty(req.getPortfolioType())?"":req.getPortfolioType();
+			args[65] = req.getProposalno();
+			args[66] = endNo;
 		} 
 		return args;
 	}
 	
 	private String getMaxproposalStatus(String proposalNo) {
 		String result="";
-		String query;
-		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
 		try{
-			 query = "risk.select.maxRskStatus";
-			String [] args = new String [1];
-			args[0] = proposalNo;
-			list =queryImpl.selectList(query,args);
-			if(!CollectionUtils.isEmpty(list)) {
-				result=list.get(0).get("RSK_STATUS")==null?"":list.get(0).get("RSK_STATUS").toString();
-			}
+			 //risk.select.maxRskStatus
+			 CriteriaBuilder cb = em.getCriteriaBuilder(); 
+				CriteriaQuery<String> query = cb.createQuery(String.class); 
+				Root<TtrnRiskDetails> rd = query.from(TtrnRiskDetails.class);
+
+				query.multiselect(rd.get("rskStatus").alias("RSK_STATUS")); 
+
+				Subquery<Long> end = query.subquery(Long.class); 
+				Root<TtrnRiskDetails> rds = end.from(TtrnRiskDetails.class);
+				end.select(cb.max(rds.get("rskEndorsementNo")));
+				Predicate a1 = cb.equal( rds.get("rskProposalNumber"), rd.get("rskProposalNumber"));
+				end.where(a1);
+
+				Predicate n1 = cb.equal(rd.get("rskProposalNumber"), proposalNo);
+				Predicate n2 = cb.equal(rd.get("rskEndorsementNo"), end);
+				query.where(n1,n2);
+
+				TypedQuery<String> res = em.createQuery(query);
+				List<String> list = res.getResultList();
+				if(!CollectionUtils.isEmpty(list)) {
+					result=list.get(0)==null?"":list.get(0);
+				}
 		}catch(Exception e){
-		}
+			e.printStackTrace();
+			}
 		return result;
 	}
 	
@@ -4615,20 +5462,20 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 		profitUpdate(bean);
 	}
 	
-	public void updateRetentionContractNo(saveRiskDeatilsSecondFormReq req){
+	public void updateRetentionContractNo(String contNo, String productId, String proposalNo, String departmentId){
 		try{
 			String query="GET_COUNT_RETENTION";
 			String args[] = new String[2];
-			args[0] = req.getProposalno();
-			args[1] = req.getProductId();
+			args[0] = proposalNo;
+			args[1] = productId;
 			int count = queryImpl.updateQuery(query,args);
 			if(count>=1){
 				query= "UPDATE_RETEN_CONTNO";
 				 	args = new String[4];
-				 	args[0] = req.getContNo();
-				 	args[1] = req.getDepartmentId();
-					args[2] = req.getProposalno();
-					args[3] = req.getProductId();
+				 	args[0] = contNo;
+				 	args[1] = departmentId;
+					args[2] = proposalNo;
+					args[3] = productId;
 					queryImpl.updateQuery(query,args);
 			}
 		}catch (Exception e) {
@@ -4661,6 +5508,735 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 		}
 		return response;
 	}
+	@Override
+	public CommonSaveRes updateOfferNo(UpdateOfferNoReq req) { //RI
+		CommonSaveRes response = new CommonSaveRes();
+		try {
+			String offerNo="";
+			
+			if(StringUtils.isBlank(req.getOfferNo())) {
+				offerNo= fm.getSequence("Offer",req.getProductId(),"0",req.getBranchCode(),"","");
+				response.setResponse("OfferNo: "+offerNo);			
+				String query="UPDATE POSITION_MASTER SET OFFER_NO=? WHERE PROPOSAL_NO=?";
+				queryImpl.updateQuery(query, new String[] {req.getOfferNo(),req.getProposalNo()});
+			}
+			response.setMessage("Success");
+			response.setIsError(false);
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.setMessage("Failed");
+			response.setIsError(true);
+		}
+		return response;
+	}
+	@Override
+	public GetSlidingScaleMethodInfoRes getSlidingScaleMethodInfo(String proposalNo, String branchCode,
+			String referenceNo) {
+		GetSlidingScaleMethodInfoRes response = new GetSlidingScaleMethodInfoRes();
+		List<GetSlidingScaleMethodInfoRes1> resList = new ArrayList<GetSlidingScaleMethodInfoRes1>();
+		String args[]=null;
+		List<Map<String, Object>> result = new ArrayList<Map<String,Object>>();
+		String query="";
+	try {
+		args = new String[4];
+		args[0] = proposalNo;
+		args[1] = branchCode;
+		args[2] ="SSC";
+		args[3] ="SSC1";
+		
+			query ="SELECT_SLIDING_SCALE_METHOD_INFO";
+			result= queryImpl.selectList(query,args);
+			if(CollectionUtils.isEmpty(result)) {
+				args[0] = referenceNo;
+				query ="SELECT_SLIDING_SCALE_METHOD_INFO_REF";
+				result= queryImpl.selectList(query,args);
+			}
+			//}
+		for(int i=0;i<result.size();i++){
+		       Map<String,Object> tempMap = result.get(i);
+		       GetSlidingScaleMethodInfoRes1 bean = new GetSlidingScaleMethodInfoRes1();
+		       bean.setProvisionCom(tempMap.get("PROVISIONAL_COMMISIION")==null?"":tempMap.get("PROVISIONAL_COMMISIION").toString());
+               bean.setScalementhod(tempMap.get("SC_METHOD_TYPE")==null?"":tempMap.get("SC_METHOD_TYPE").toString());
+               bean.setScaleminRatio(tempMap.get("SC_MIN_LOSS_RATIO")==null?"":tempMap.get("SC_MIN_LOSS_RATIO").toString());
+               bean.setScalemaxRatio(tempMap.get("SC_MAX_LOSS_RATIO")==null?"":tempMap.get("SC_MAX_LOSS_RATIO").toString());
+               bean.setScalecombine(tempMap.get("SC_COMBINE_LOSS_RATIO")==null?"":tempMap.get("SC_COMBINE_LOSS_RATIO").toString());
+               bean.setScalebanding(tempMap.get("SC_BANDING_STEP")==null?"":tempMap.get("SC_BANDING_STEP").toString());
+               bean.setScaledigit(tempMap.get("SC_NO_OF_DIGIT")==null?"":tempMap.get("SC_NO_OF_DIGIT").toString());
+               bean.setScalelossratioFrom(tempMap.get("LCB_FROM")==null?"":tempMap.get("LCB_FROM").toString());
+               bean.setScalelossratioTo(tempMap.get("LCB_TO")==null?"":tempMap.get("LCB_TO").toString());
+               bean.setScaledeltalossratio(tempMap.get("DELTA_LOSS_RATIO")==null?"":tempMap.get("DELTA_LOSS_RATIO").toString());
+               bean.setScaledeltacommission(tempMap.get("LCB_PERCENTAGE")==null?"":tempMap.get("LCB_PERCENTAGE").toString());
+               resList.add(bean);
+               }
+		response.setCommonResponse(resList);
+		response.setMessage("Success");
+		response.setIsError(false);
+	} catch (Exception e) {
+		e.printStackTrace();
+		response.setMessage("Failed");
+		response.setIsError(true);
+	}
+	return response;
+	}
+	@Override
+	public CommonResponse insertSlidingScaleMentodInfo(InsertSlidingScaleMentodInfoReq bean) {
+		CommonResponse response = new CommonResponse();
+		try {
+			 String query ="INSERT_SC_METHOD_INFO";
+			 String args[]=new String[23];
+			   args[0] =bean.getProposalNo();
+	           args[1] = bean.getContractNo();
+	           args[2] = bean.getProductId();
+	           args[3] = "SSC1";  
+	           args[4] = bean.getProvisionCom();
+	           args[5] = bean.getScalementhod();
+	           args[6] = bean.getScaleminRatio();
+	           args[7] = bean.getScalemaxRatio();
+	           args[8] = bean.getScalecombine();
+	           args[9] = bean.getScalebanding();
+	           args[10] = bean.getScaledigit();
+	           args[11] = bean.getLoginId();
+	           args[12] = bean.getBranchCode();
+	           args[13] ="SSC";
+	           args[14] = bean.getAmendId();
+	           args[15] = bean.getDepartmentId();
+	           args[16] = StringUtils.isEmpty(bean.getLayerNo()) ? "0" : bean.getLayerNo();
+	           args[17]="";
+	           args[18]=StringUtils.isBlank(bean.getReferenceNo())?"":bean.getReferenceNo();
+	           if("MB".equals(bean.getScalementhod())) {
+	        	   args[19]=bean.getScalelossratioFrom();
+	        	   args[20]=bean.getScalelossratioTo();
+	        	   args[21]=bean.getScaledeltalossratio();
+	        	   args[22]=bean.getScaledeltacommission();
+	        	   
+	           }else {
+	        	   args[19]="";
+	        	   args[20]="";
+	        	   args[21]="";
+	        	   args[22]="";
+	           }
+	           queryImpl.updateQuery(query, args);
+	           response.setMessage("Success");
+	   		response.setIsError(false);
+	   	} catch (Exception e) {
+	   		e.printStackTrace();
+	   		response.setMessage("Failed");
+	   		response.setIsError(true);
+	   	}
+	   	return response;
+	}
+	@Override
+	public GetcalculateSCRes getcalculateSC(GetcalculateSCReq bean) {
+		GetcalculateSCRes response = new GetcalculateSCRes();
+		List<GetcalculateSCRes1> resList = new ArrayList<GetcalculateSCRes1>();
+		  List<String> bonusFrom = new ArrayList<String>();
+	        List<String> bonusTo = new ArrayList<String>();
+	        List<String> bonusLowClaimBonus = new ArrayList<String>();
+	        List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
+			try {
+				int j=0;
+				double bandToprevious=0;
+				String bandToNext="";
+			
+					String bandFrom="0",bandTo="",slidingScaleCom="";
+					int a=Integer.parseInt(bean.getScaleminRatio());int b=Integer.parseInt(bean.getScalemaxRatio());int c=Integer.parseInt(bean.getScalebanding()),d=Integer.parseInt(bean.getScaledigit()),e=Integer.parseInt(bean.getScalecombine()),f=999;
+					bonusFrom.add(bandFrom);
+					bonusTo.add(bean.getScaleminRatio());
+					bonusLowClaimBonus.add(String.valueOf((e-(a+0))));
+					Map<String,Object> string = new HashMap<String,Object>();
+					string.put("1","1");
+					list.add(string);
+					j++;
+				for(int i=a;i<=b;i+=c) {
+					if(j==1) {
+						bandToprevious=a;
+						bandToNext=String.valueOf(((i+c)));	
+						
+					}else {
+						bandToprevious=Double.parseDouble(bandTo);
+						bandToNext=String.valueOf(((Double.parseDouble(bandTo)+c)));	
+					}
+					
+					if(bandTo.equals(fm.formattereight(String.valueOf(f)))) {
+						bandFrom="";
+					}else {
+						bandFrom=String.valueOf((bandToprevious)+(1/Math.pow(10, d)));
+						System.out.println(j+"A==>"+fm.formattereight(bandFrom));
+					}
+					
+					
+					if(((Double.parseDouble(bandToNext)))>b) {
+						bandTo=fm.formattereight(String.valueOf(f));
+						
+					}else {
+						bandTo=fm.formattereight(bandToNext);
+					}
+					System.out.println(j+"B==>"+bandTo);
+					if(e<(i+c)) {
+						slidingScaleCom=String.valueOf((e-b));
+					}else {
+						slidingScaleCom=String.valueOf((e-((i+c))));
+					}
+					System.out.println(j+"C==>"+slidingScaleCom);
+					bonusFrom.add(bandFrom);
+					bonusTo.add(bandTo);
+					bonusLowClaimBonus.add(slidingScaleCom);
+					string = new HashMap<String,Object>();
+					string.put("1","1");
+					list.add(string);
+					j++;
+				}
+				for(int i= 0; i<bonusFrom.size();i++){
+					GetcalculateSCRes1 res = new GetcalculateSCRes1();
+					res.setScaleFrom(bonusFrom.get(i));
+					res.setScaleTo(bonusTo.get(i));
+					res.setScaleLowClaimBonus(bonusLowClaimBonus.get(i));
+					resList.add(res);
+					}
+				
+//				bean.setScaleFrom(bonusFrom);
+//				bean.setScaleTo(bonusTo);
+//				bean.setScaleLowClaimBonus(bonusLowClaimBonus);
+			//	bean.setScaleCommissionList(list);
+					response.setCommonResponse(resList);
+					response.setMessage("Success");
+			   		response.setIsError(false);
+			   	} catch (Exception e) {
+			   		e.printStackTrace();
+			   		response.setMessage("Failed");
+			   		response.setIsError(true);
+			   	}
+			   	return response;
+	}
+	@Override
+	public GetSectionEditModeRes getSectionEditMode(String proposalNo) {
+		GetSectionEditModeRes response = new GetSectionEditModeRes();
+		GetSectionEditModeRes1 beanObj = new GetSectionEditModeRes1();
+		try {
+			List<Map<String, Object>> res = queryImpl.selectList(GetRiskDetailsEditQuery(false),new String[] {proposalNo,proposalNo,proposalNo});
+		
+			Map<String, Object> resMap = null;
+			if(res!=null && res.size()>0)
+				resMap = (Map<String, Object>)res.get(0);
+			if (resMap!=null) {
+				beanObj.setCedingCo(resMap.get("RSK_CEDINGID")==null?"":resMap.get("RSK_CEDINGID").toString());
+				beanObj.setIncepDate(resMap.get("RSK_INCEPTION_DATE")==null?"":resMap.get("RSK_INCEPTION_DATE").toString());
+				beanObj.setExpDate(resMap.get("RSK_EXPIRY_DATE")==null?"":resMap.get("RSK_EXPIRY_DATE").toString());
+				beanObj.setUwYear(resMap.get("RSK_UWYEAR")==null?"":resMap.get("RSK_UWYEAR").toString());
+				beanObj.setUwYearTo(resMap.get("UW_YEAR_TO")==null?"":resMap.get("UW_YEAR_TO").toString());
+				beanObj.setBouquetModeYN(resMap.get("BOUQUET_MODE_YN")==null?"N":resMap.get("BOUQUET_MODE_YN").toString());
+				beanObj.setBouquetNo(resMap.get("BOUQUET_NO")==null?"":resMap.get("BOUQUET_NO").toString());
+				beanObj.setProposalNo(resMap.get("RSK_PROPOSAL_NUMBER")==null?"":resMap.get("RSK_PROPOSAL_NUMBER").toString());
+				beanObj.setBaseLayer(resMap.get("BASE_LAYER")==null?"":resMap.get("BASE_LAYER").toString());
+				beanObj.setEndorsmentno(resMap.get("RSK_ENDORSEMENT_NO")==null?"":resMap.get("RSK_ENDORSEMENT_NO").toString());
+				beanObj.setContNo(resMap.get("RSK_CONTRACT_NO")==null?"":resMap.get("RSK_CONTRACT_NO").toString());
+				beanObj.setLayerNo(resMap.get("RSK_LAYER_NO")==null?"":resMap.get("RSK_LAYER_NO").toString());
+				beanObj.setProductId(resMap.get("RSK_PRODUCTID")==null?"":resMap.get("RSK_PRODUCTID").toString());
+				beanObj.setDepartId(resMap.get("RSK_DEPTID")==null?"":resMap.get("RSK_DEPTID").toString());
+				response.setCommonResponse(beanObj);
+			}
+			response.setMessage("Success");
+	   		response.setIsError(false);
+	   	} catch (Exception e) {
+	   		e.printStackTrace();
+	   		response.setMessage("Failed");
+	   		response.setIsError(true);
+	   	}
+	   	return response;
+	}
+	public String GetRiskDetailsEditQuery(boolean contractMode) {
+
+		String query = "";
+		query = "risk.select.getEditModeData";
+		if(contractMode){
+			query = "risk.select.getEditModeData1";
+		}
+		else {
+			query = "risk.select.getEditModeData2";
+		}
+		return query.toString();
+	}
+	@Override
+	public CommonSaveRes getSectionDuplicationCheck(GetSectionDuplicationCheckReq formObj) {
+		CommonSaveRes response = new CommonSaveRes();
+		boolean result=false;
+		String query="";
+		List<Map<String, Object>> list=null;
+		try{
+			if (StringUtils.isNotBlank(formObj.getProposalNo()) && StringUtils.isNotBlank(formObj.getSectionNo()) ) {
+				query= "risk.select.getSectionDupcheckByProNo";
+				
+				list=  queryImpl.selectList(query,new String[]{formObj.getSectionNo(),formObj.getProposalNo(),StringUtils.isBlank(formObj.getBaseLayer())?formObj.getProposalNo():formObj.getBaseLayer()});
+				if(list!=null && list.size()>0){
+					for(int i=0;i<list.size();i++){
+						Map<String, Object> map=(Map<String, Object>)list.get(i);
+						String res=map.get("SECTION_NO")==null?"":map.get("SECTION_NO").toString();
+						if(res.equalsIgnoreCase(formObj.getSectionNo())){
+							result=true;
+						}
+					}
+				}
+			}else if (StringUtils.isNotBlank(formObj.getBaseLayer()) && StringUtils.isNotBlank(formObj.getSectionNo()) ){
+				query= "risk.select.getSectionDupcheckByBaseLayer";
+				
+				list= queryImpl.selectList(query,new String[]{formObj.getSectionNo(),formObj.getBaseLayer()});
+				if(list!=null && list.size()>0){
+					for(int i=0;i<list.size();i++){
+						Map<String, Object> map=(Map<String, Object>)list.get(i);
+						String res=map.get("SECTION_NO")==null?"":map.get("SECTION_NO").toString();
+						if(res.equalsIgnoreCase(formObj.getSectionNo())){
+							result=true;
+						}
+					}
+				}
+			}else if (StringUtils.isNotBlank(formObj.getProposalNo()) && StringUtils.isNotBlank(formObj.getSectionNo())){
+				query= "risk.select.getSectionDupcheckByBaseLayer";
+				
+				list= queryImpl.selectList(query,new String[]{formObj.getSectionNo(),formObj.getProposalNo()});
+				if(list!=null && list.size()>0){
+					for(int i=0;i<list.size();i++){
+						Map<String, Object> map=(Map<String, Object>)list.get(i);
+						String res=map.get("SECTION_NO")==null?"":map.get("SECTION_NO").toString();
+						if(res.equalsIgnoreCase(formObj.getSectionNo())){
+							result=true;
+						}
+					}
+				}
+			}
+			response.setResponse(String.valueOf(result));
+			response.setMessage("Success");
+	   		response.setIsError(false);
+	   	} catch (Exception e) {
+	   		e.printStackTrace();
+	   		response.setMessage("Failed");
+	   		response.setIsError(true);
+	   	}
+	   	return response;
+	}
+	@Override
+	public ConvertPolicyRes convertPolicy(ConvertPolicyReq beanObj) {
+		ConvertPolicyRes response = new ConvertPolicyRes();
+		ConvertPolicyRes1 res = new ConvertPolicyRes1();
+		try {
+			try {
+				String updateQry = "",insertQry = "",selectQry="",endom="";
+				String[] args=null;
+				String[] obj=null,obj1=null;
+				int out=0;
+				int chkSecPageMode = checkSecondPageMode(beanObj.getProposalNo()); //commission table count 0 mode=1 else 2
+				int ContractEditMode = contractEditMode(beanObj.getProposalNo()); // get contract no from risk details if empty mode=1 else 2
+				if (ContractEditMode == 1) {
+					if (chkSecPageMode == 2) {
+
+						selectQry = "risk.select.chechProposalStatus";
+						List<Map<String, Object>> result = queryImpl.selectList(selectQry,new String[] {beanObj.getProposalNo(),beanObj.getProposalNo(),beanObj.getProposalNo()});
+						
+						Map<String, Object> resMap = null;
+						if(result!=null &&result.size()>0)
+							resMap = (Map<String, Object>)result.get(0);
+						if(resMap!=null){
+							res.setProStatus(resMap.get("RSK_STATUS")==null?"":resMap.get("RSK_STATUS").toString());
+							res.setSharSign(resMap.get("RSK_SHARE_SIGNED")==null?"":resMap.get("RSK_SHARE_SIGNED").toString());
+							res.setContNo(resMap.get("RSK_CONTRACT_NO")==null?"":resMap.get("RSK_CONTRACT_NO").toString());
+							if (res.getProStatus().matches("A") /* && !beanObj.getSharSign().matches("0") */) {
+								String maxContarctNo = null;
+								
+								String query="GET_BASE_LAYER_DETAILS";
+								List<Map<String, Object>> res1 =  queryImpl.selectList(query,new String[]{beanObj.getProductId(),beanObj.getBranchCode(),beanObj.getProposalNo()});
+							
+								Map<String, Object> resMap1 = null;
+								if(res1!=null && res1.size()>0)
+									resMap1 = (Map<String, Object>)res1.get(0);
+								if (resMap1 != null) {
+										res.setBaseLayerYN(resMap1.get("BASE_LAYER")==null?"":resMap1.get("BASE_LAYER").toString());
+								}
+								
+								
+								String prodid=beanObj.getProductId();
+								if ("layer".equalsIgnoreCase(beanObj.getLay())) {
+								
+									maxContarctNo = beanObj.getContractno();
+								}
+								else if(StringUtils.isNotBlank(beanObj.getBaseLayerYN())){
+									query="GET_BASE_LAYER_DETAILS";
+								
+									res1 = queryImpl.selectList(query,new String[]{beanObj.getProductId(),beanObj.getBranchCode(),beanObj.getBaseLayerYN()});
+									
+									resMap1 = null;
+									if(res1!=null && res1.size()>0)
+										resMap1 = (Map<String, Object>)res1.get(0);
+									if (resMap1 != null) {
+											res.setContNo(resMap1.get("CONTRACT_NO")==null?"":resMap1.get("CONTRACT_NO").toString());
+									}
+									maxContarctNo=res.getContNo();
+								}
+								
+								else {
+									
+									if(!"".equals(beanObj.getRenewalContractNo())&&!"0".equals(beanObj.getRenewalContractNo())&&"OLDCONTNO".equals(beanObj.getRenewalFlag())){
+										maxContarctNo=beanObj.getRenewalContractNo();
+									}else{
+										
+											maxContarctNo=fm.getSequence("Contract",prodid,beanObj.getDepartmentId(), beanObj.getBranchCode(),beanObj.getProposalNo(),beanObj.getUwYear());
+									
+										if("RI01".equalsIgnoreCase(beanObj.getSourceId())){
+											InsertSectionValueReq req1 = new InsertSectionValueReq();
+											req1.setBranchCode(beanObj.getBranchCode());
+											req1.setDepartmentId(beanObj.getDepartmentId());
+											req1.setLoginId(beanObj.getLoginId());					
+											insertSectionValue(req1,maxContarctNo);
+										}
+									}
+								}
+							
+								args = new String[2];
+								args[0] = maxContarctNo;
+								args[1] = beanObj.getProposalNo();
+								updateQry = "risk.update.contNo";
+								
+								out=queryImpl.updateQuery(updateQry,args);
+							
+								updateQry="risk.update.homeContNo";
+								args = new String[4];
+								args[0] = maxContarctNo;
+								res.setContNo((String)args[0]);
+								args[1] = "A";
+								args[2] = "A";
+								args[3] = beanObj.getProposalNo();
+								
+								out=queryImpl.updateQuery(updateQry,args);
+						
+								res.setContNo(maxContarctNo);
+								if("".equals(beanObj.getRenewalContractNo())||"0".equals(beanObj.getRenewalContractNo())||"NEWCONTNO".equals(beanObj.getRenewalFlag())){
+									res.setContractGendration("Your Proposal is converted to Contract with Proposal No : "+beanObj.getProposalNo() +" and Contract No : "+maxContarctNo+".");
+								}else{
+									res.setContractGendration("Your Proposal is Renewaled with Proposal No : "+beanObj.getProposalNo() +", Old Contract No:"+maxContarctNo+" and New Contract No : "+maxContarctNo+".");
+								}
+								updateQry ="risk.update.mndInstallments";
+								
+								out=queryImpl.updateQuery(updateQry,new String[]{maxContarctNo,beanObj.getProposalNo()});	
+							} else {
+								args = new String[4];
+								args[0] = res.getContNo();
+								args[1] = getproposalStatus(beanObj
+										.getProposalNo());
+								args[2] = args[1];
+								if (args != null) {
+
+									if (((String) args[1]).equalsIgnoreCase("P")) {
+										res.setContractGendration("Your Proposal is saved in Pending Stage with Proposal No : "+ beanObj.getProposalNo());
+									}	if (((String) args[1]).equalsIgnoreCase("N")) {
+										res.setContractGendration("Your Proposal is saved in Not Taken Up Stage with Proposal No : "+ beanObj.getProposalNo());
+									}  else if (((String) args[1]).equalsIgnoreCase("A")) {
+										res.setContractGendration("Your Contract is updated with Proposal No : "+beanObj.getProposalNo()+" and Contract No : "+res.getContNo()+".");
+									} else if (((String) args[1]).equalsIgnoreCase("R")) {
+										res.setContractGendration("Your Proposal is saved in Rejected Stage with Proposal No : "+ beanObj.getProposalNo());
+									}
+								}
+								args[3] = beanObj.getProposalNo();
+								updateQry="risk.update.homeContNo";
+								
+								int k=0;
+								for(Object str:args)
+								out=queryImpl.updateQuery("risk.update.homeContNo",args);
+							}
+						}
+					}
+				}else if (ContractEditMode == 2) {
+					String endtNo= "";
+					endom="risk.select.endo";
+					List<Map<String, Object>> list = queryImpl.selectList(endom, new String[]{beanObj.getProposalNo()});
+					if(!CollectionUtils.isEmpty(list)) {
+						endtNo=list.get(0).get("RSK_ENDORSEMENT_NO")==null?"":list.get(0).get("RSK_ENDORSEMENT_NO").toString();
+					}
+
+					obj = updateContractRiskDetailsSecondForm(beanObj,beanObj.getProductId(),endtNo);
+					updateQry = "risk.update.pro24ContSecPage";
+					out=queryImpl.updateQuery(updateQry, obj);
+						res.setContractGendration("Your Contract is updated with Proposal No : "+beanObj.getProposalNo()+", Contract No : "+res.getContNo()+".");
+
+					obj1 = updateRiskDetailsSecondFormSecondTable(beanObj, beanObj.getProductId(), getMaxAmednId(beanObj.getProposalNo()));
+					updateQry = "risk.update.pro2SecComm";
+					out=queryImpl.updateQuery(updateQry, obj1);
+
+					res.setProStatus("A");
+				}
+				InsertPlacement(beanObj);
+				insertRiDetails(beanObj);
+				updateRiContractStatus(beanObj);
+				
+				res.setProductId(beanObj.getProductId());
+				
+				updateRetentionContractNo(beanObj.getContNo(),beanObj.getProductId(),beanObj.getProposalNo(),beanObj.getDepartmentId());						
+						
+				updateShareSign(beanObj.getProposalNo());
+				dropDowmImpl.updatepositionMasterEndtStatus(beanObj.getProposalNo(),beanObj.getEndorsementDate(),beanObj.getCeaseStatus());
+				if(StringUtils.isNotBlank(res.getContNo())){
+					dropDowmImpl.getSOATableInsert(beanObj.getProposalNo(), res.getContNo(),beanObj.getBranchCode());
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			response.setCommonResponse(res);
+			response.setMessage("Success");
+	   		response.setIsError(false);
+	   	} catch (Exception e) {
+	   		e.printStackTrace();
+	   		response.setMessage("Failed");
+	   		response.setIsError(true);
+	   	}
+	   	return response;
+	}
+
+	public String[] updateContractRiskDetailsSecondForm(ConvertPolicyReq req, String productId, String endNo) {
+		String[] args=null;
+		args = new String[18];
+		args[0] = req.getLimitOurShare();
+		args[1] = getDesginationCountry(req.getLimitOurShare(), req.getExchRate());
+		args[2] = req.getEpiAsPerOffer();
+		args[3] = getDesginationCountry(req.getEpiAsPerOffer(), req.getExchRate());
+		args[4] =StringUtils.isBlank(req.getEpiAsPerShare())?"0": req.getEpiAsPerShare();
+		args[5] = getDesginationCountry(req.getEpiAsPerShare(), req.getExchRate());
+		args[6] = "";
+		args[7] = "";
+		args[8] = StringUtils.isBlank(req.getPremiumQuotaShare())?"0":req.getPremiumQuotaShare();
+		args[9] = StringUtils.isBlank(req.getPremiumSurplus())?"0":req.getPremiumSurplus();
+		args[10]= StringUtils.isEmpty(req.getPremiumQuotaShare())|| StringUtils.isEmpty(req.getExchRate()) ? "0": getDesginationCountry(req.getPremiumQuotaShare(), req.getExchRate());
+		args[11]= StringUtils.isEmpty(req.getPremiumSurplus())|| StringUtils.isEmpty(req.getExchRate()) ? "0": getDesginationCountry(req.getPremiumSurplus(), req.getExchRate());
+		args[12]=StringUtils.isBlank(req.getCommissionQSAmt())?"0":req.getCommissionQSAmt();
+		args[13]=StringUtils.isBlank(req.getCommissionsurpAmt())?"0":req.getCommissionsurpAmt();
+		args[14]= StringUtils.isEmpty(req.getCommissionQSAmt())|| StringUtils.isEmpty(req.getExchRate()) ? "0": getDesginationCountry(req.getCommissionQSAmt(), req.getExchRate());
+		args[15]= StringUtils.isEmpty(req.getCommissionsurpAmt())|| StringUtils.isEmpty(req.getExchRate()) ? "0": getDesginationCountry(req.getCommissionsurpAmt(), req.getExchRate());
+		args[16]=endNo;
+		args[17] = req.getProposalNo();
+		return args;
+	}
+	public String[] updateRiskDetailsSecondFormSecondTable(ConvertPolicyReq req,String productId,String endNo) {
+		String[] args=null;
+		if (productId.equalsIgnoreCase("2")) {
+			args = new String[67];
+			args[0] = StringUtils.isEmpty(req.getBrokerage()) ? "0": req.getBrokerage();
+			args[1] = req.getTax();
+			args[2] = req.getShareProfitCommission();
+			args[3] = req.getAcquisitionCost();
+			args[4] = getDesginationCountry(req.getAcquisitionCost().replaceAll(",",""),req.getExchRate());
+			args[5] =StringUtils.isEmpty(req.getCommissionQS()) ? "0": req.getCommissionQS();
+			args[6] = StringUtils.isEmpty(req.getCommissionsurp()) ? "0":req.getCommissionsurp();
+			args[7] = StringUtils.isEmpty(req.getOverRidder())?"0":req.getOverRidder();
+			//args[8] = StringUtils.isEmpty(req.getManagement_Expenses()) ? "0": req.getManagement_Expenses();
+			//args[9] = StringUtils.isEmpty(req.getLossC_F()) ? "0" : req.getLossC_F();
+			args[8] = req.getPremiumReserve();
+			args[9] = req.getLossreserve();
+			args[10] = req.getInterest();
+			args[11] = StringUtils.isEmpty(req.getPortfolioinoutPremium()) ? "0": req.getPortfolioinoutPremium();
+			args[12] = StringUtils.isEmpty(req.getPortfolioinoutLoss()) ? "0": req.getPortfolioinoutLoss();
+			args[13] = req.getLossAdvise();
+			args[14] = req.getCashLossLimit();
+			args[15] = getDesginationCountry(req.getCashLossLimit(),req.getExchRate());
+			args[16] = req.getLeaderUnderwriter();
+			args[17] = req.getLeaderUnderwritershare();
+			args[18] = req.getAccounts();
+			args[19] = req.getExclusion();
+			args[20] = StringUtils.isEmpty(req.getRemarks())?"":req.getRemarks();
+			args[21] = req.getUnderwriterRecommendations();
+			args[22] = req.getGmsApproval();
+			//args[25] = StringUtils.isEmpty(req.getProfit_commission()) ? "0"	: req.getProfit_commission();
+			args[23] = StringUtils.isEmpty(req.getOthercost()) ? "0"	: req.getOthercost();
+			args[24] =req.getCrestaStatus();
+			args[25] = req.getEventlimit();
+			args[26] =getDesginationCountry(req.getEventlimit(),req.getExchRate());
+			args[27] = req.getAggregateLimit();
+			args[28] =getDesginationCountry(req.getAggregateLimit(),req.getExchRate());
+			args[29] = req.getOccurrentLimit();
+			args[30] =getDesginationCountry(req.getOccurrentLimit(),req.getExchRate());
+			args[31] = req.getSlideScaleCommission();
+			args[32] = req.getLossParticipants();
+			args[33] = StringUtils.isEmpty(req.getCommissionSubClass()) ? "": req.getCommissionSubClass();
+			args[34] =  req.getDepartmentId();
+			args[35] = req.getLoginId();
+			args[36] = req.getBranchCode();
+			args[37] = StringUtils.isEmpty(req.getLeaderUnderwritercountry())?"":req.getLeaderUnderwritercountry();
+			args[38] =StringUtils.isEmpty(req.getOrginalacqcost())?"":req.getOrginalacqcost();
+			args[39] = StringUtils.isEmpty(req.getOurassessmentorginalacqcost())?"":req.getOurassessmentorginalacqcost();
+			args[40] = StringUtils.isEmpty(req.getOuracqCost())?"":req.getOuracqCost();
+			args[41] = StringUtils.isEmpty(req.getLosscommissionSubClass())?"":req.getLosscommissionSubClass();
+			args[42] = StringUtils.isEmpty(req.getSlidecommissionSubClass())?"":req.getSlidecommissionSubClass();
+			args[43] = StringUtils.isEmpty(req.getCrestacommissionSubClass())?"":req.getCrestacommissionSubClass();
+			if("1".equalsIgnoreCase(req.getShareProfitCommission())){
+			args[44] = StringUtils.isEmpty(req.getManagementExpenses())?"":req.getManagementExpenses();
+			args[45] = StringUtils.isEmpty(req.getCommissionType())?"":req.getCommissionType();
+			args[46] = StringUtils.isEmpty(req.getProfitCommissionPer())?"":req.getProfitCommissionPer();
+			args[47] = StringUtils.isEmpty(req.getSetup())?"":req.getSetup();
+			args[48] = StringUtils.isEmpty(req.getSuperProfitCommission())?"":req.getSuperProfitCommission();
+			args[49] = StringUtils.isEmpty(req.getLossCarried())?"":req.getLossCarried();
+			args[50] = StringUtils.isEmpty(req.getLossyear())?"":req.getLossyear();
+			args[51] = StringUtils.isEmpty(req.getProfitCarried())?"":req.getProfitCarried();
+			args[52] = StringUtils.isEmpty(req.getProfitCarriedForYear())?"":req.getProfitCarriedForYear();
+			args[53] = StringUtils.isEmpty(req.getFistpc())?"":req.getFistpc();
+			args[54] = StringUtils.isEmpty(req.getProfitMont())?"":req.getProfitMont();
+			args[55] = StringUtils.isEmpty(req.getSubProfitMonth())?"":req.getSubProfitMonth();
+			args[56] = StringUtils.isEmpty(req.getSubpc())?"":req.getSubpc();
+			args[57] = StringUtils.isEmpty(req.getSubSeqCalculation())?"":req.getSubSeqCalculation();
+			args[58] = StringUtils.isEmpty(req.getProfitCommission())?"":req.getProfitCommission();
+			}
+			else{
+				args[44] = "";
+				args[45] =  "";
+				args[46] =  "";
+				args[47] =  "";
+				args[48] =  "";
+				args[49] =  "";
+				args[50] =  "";
+				args[51] =  "";
+				args[52] =  "";
+				args[53] =  "";
+				args[54] =  "";
+				args[55] =  "";
+				args[56] =  "";
+				args[57] =  "";
+				args[58] =  "";
+			}
+			args[59] = StringUtils.isEmpty(req.getDocStatus())? "" :req.getDocStatus();
+			args[60] = StringUtils.isEmpty(req.getLocRate())? "" :req.getLocRate();
+			args[61] =StringUtils.isEmpty(req.getPremiumResType())? "" :req.getPremiumResType();
+			args[62] = StringUtils.isEmpty(req.getPcfpcType())?"":req.getPcfpcType();
+			args[63] = StringUtils.isEmpty(req.getPcfixedDate())?"":req.getPcfixedDate();
+			args[64] = StringUtils.isEmpty(req.getPortfolioType())?"":req.getPortfolioType();
+			args[65] = req.getProposalNo();
+			args[66] = endNo;
+		} 
+		return args;
+	}
+	private void InsertPlacement(ConvertPolicyReq beanObj) {
+		UpdatePlacementReq bean = new UpdatePlacementReq();
+		List<UpdatePlacementListReq> reqList = new ArrayList<UpdatePlacementListReq>();
+		try {
+			String statusNo=fm.getSequence("StatusNo","0","0", beanObj.getBranchCode(),"","");
+			
+			for(int i=0;i<beanObj.getConvertPolicyReq1().size();i++) {
+				ConvertPolicyReq1 req1 = beanObj.getConvertPolicyReq1().get(i);
+				UpdatePlacementListReq req = new UpdatePlacementListReq();
+				if("CSL".equalsIgnoreCase(req1.getCurrentStatus()) || "CSL".equalsIgnoreCase(req1.getNewStatus())) {
+					req.setSno(req1.getSnos());	
+					req.setBaseproposalNo(req1.getBaseproposalNos());
+					req.setBouquetNo(req1.getBouquetNos());
+					req.setReinsurerId(req1.getReinsurerIds());
+					req.setBrokerId(req1.getBrokerIds());
+					req.setProposalNo(req1.getProposalNo());
+					req.setShareOffered(req1.getShareOffered());
+					req.setWrittenLine(req1.getWrittenLine());
+					req.setBrokerage(req1.getBrokerages());
+					req.setWrittenvaliditydate("");
+					req.setWrittenvalidityRemarks("");
+					req.setProposedWL(req1.getProposedWL());	
+					req.setSignedLine(req1.getSignedLine());
+					req.setSignedLineValidity("");
+					req.setSignedLineRemarks("");
+					req.setProposedSL(req1.getProposedSL());	
+					req.setPsignedLine("");			
+					reqList.add(req);
+				}
+			//	statusNos.add(statusNo);
+			}
+			bean.setPlacementListReq(reqList);
+			
+			
+//			bean.setEmailStatus(emailStatus);
+			bean.setBranchCode(beanObj.getBranchCode());
+			bean.setNewStatus("C");
+			bean.setCurrentStatus("CSL");
+			bean.setUserId(beanObj.getLoginId());
+			beanObj.setStatusNo(statusNo); //doubt
+			bean.setStatusNo(statusNo);
+			placeImple.updatePlacement(bean);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	private void insertRiDetails(ConvertPolicyReq bean) {
+		String query="";
+		try {
+			query="INSERT_RI_DETAILS";
+			for(int i=0;i<bean.getConvertPolicyReq1().size();i++) {
+				ConvertPolicyReq1 req = bean.getConvertPolicyReq1().get(i);
+				if("CSL".equalsIgnoreCase(req.getCurrentStatus()) || "CSL".equalsIgnoreCase(req.getNewStatus())) {
+					bean.setSubcontractNo(bean.getContNo()+(StringUtils.isBlank(bean.getLayerNo())?bean.getSectionNo():bean.getLayerNo())+req.getSnos());
+					String obj[]=new String[23];
+					obj[0]=req.getStatusNo();
+					obj[1]=req.getSnos();
+					obj[2]=req.getBouquetNos();
+					obj[3]=req.getBaseproposalNos();
+					obj[4]=bean.getProposalNo();
+					obj[5]=bean.getContNo();
+					obj[6]=bean.getSubcontractNo();
+					obj[7]=bean.getLayerNo();
+					obj[8]=bean.getSectionNo();
+					obj[9]=bean.getAmendId();
+					obj[10]=req.getReinsurerIds();
+					obj[11]=req.getBrokerIds();
+					obj[12]=req.getShareOffered();
+					obj[13]=req.getWrittenLine();
+					obj[14]=req.getProposedWL();
+					obj[15]=req.getSignedLine();
+					obj[16]=req.getProposedSL();
+					obj[17]=req.getBrokerages();
+					obj[18]="CSL";
+					obj[19]="C";
+					obj[20]="Y";
+					obj[21]=bean.getLoginId();
+					obj[22]=bean.getBranchCode();
+					queryImpl.updateQuery(query,obj);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	private void updateRiContractStatus(ConvertPolicyReq bean) {
+		String query="";
+		try {
+			for(int i=0;i<bean.getConvertPolicyReq1().size();i++) {
+				ConvertPolicyReq1 req = bean.getConvertPolicyReq1().get(i);
+				if("CSL".equalsIgnoreCase(req.getCurrentStatus())|| "CSL".equalsIgnoreCase(req.getNewStatus())) {
+					String obj[]=new String[7];
+					obj[0]=bean.getContNo();
+					obj[1]=bean.getAmendId();
+					obj[2]=bean.getProposalNo();
+					obj[3]=req.getReinsurerIds();
+					obj[4]=req.getBrokerIds();
+					obj[5]=bean.getBranchCode();
+					obj[6]=req.getStatusNo();
+					query="UPDATE_RI_CONTRACT";
+				
+					queryImpl.updateQuery(query,obj);
+					obj=new String[6];
+					obj[0]=bean.getContNo();
+					obj[1]=bean.getProposalNo();
+					obj[2]=req.getReinsurerIds();
+					obj[3]=req.getBrokerIds();
+					obj[4]=bean.getBranchCode();
+					obj[5]=req.getStatusNo();
+					query="UPDATE_MAIL_CONTRACT";
+				
+					queryImpl.updateQuery(query,obj);
+				}
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	private void updateShareSign(String prroposalNo) {
+		String query="";
+		try {
+			query="UPDATE_SHARE_SHIGN";
+			queryImpl.updateQuery(query,new String[] {prroposalNo});			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 }
 
 

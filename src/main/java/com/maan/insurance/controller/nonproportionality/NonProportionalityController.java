@@ -323,5 +323,9 @@ public class NonProportionalityController {
 					throw new CommonValidationException("error",error);
 				}
 				return nonPropService.insertBonusDetails(req);
-			}
+			} 
+			@GetMapping("/getLayerDuplicationCheck/{proposalNo}/{layerNo}/{baseLayer}")
+			public CommonSaveRes getLayerDuplicationCheck(@PathVariable ("proposalNo") String proposalNo,@PathVariable ("layerNo") String layerNo,@PathVariable ("baseLayer") String baseLayer) throws CommonValidationException {
+							return nonPropService.getLayerDuplicationCheck(proposalNo,layerNo,baseLayer);
+				}
 }

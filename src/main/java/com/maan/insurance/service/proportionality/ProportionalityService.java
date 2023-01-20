@@ -4,12 +4,16 @@ package com.maan.insurance.service.proportionality;
 import org.springframework.stereotype.Service;
 import com.maan.insurance.model.req.proportionality.BonusSaveReq;
 import com.maan.insurance.model.req.proportionality.CedentSaveReq;
+import com.maan.insurance.model.req.proportionality.ConvertPolicyReq;
 import com.maan.insurance.model.req.proportionality.CrestaSaveReq;
 import com.maan.insurance.model.req.proportionality.FirstpageSaveReq;
 import com.maan.insurance.model.req.proportionality.GetCrestaDetailListReq;
 import com.maan.insurance.model.req.proportionality.GetRetentionDetailsReq;
+import com.maan.insurance.model.req.proportionality.GetSectionDuplicationCheckReq;
+import com.maan.insurance.model.req.proportionality.GetcalculateSCReq;
 import com.maan.insurance.model.req.proportionality.GetprofitCommissionEnableReq;
 import com.maan.insurance.model.req.proportionality.InsertCrestaDetailsReq;
+import com.maan.insurance.model.req.proportionality.InsertSlidingScaleMentodInfoReq;
 import com.maan.insurance.model.req.proportionality.ProfitCommissionSaveReq;
 import com.maan.insurance.model.req.proportionality.RemarksSaveReq;
 import com.maan.insurance.model.req.proportionality.RetroSaveReq;
@@ -17,6 +21,7 @@ import com.maan.insurance.model.req.proportionality.SecondpageSaveReq;
 import com.maan.insurance.model.req.proportionality.ShowRetroContractsReq;
 import com.maan.insurance.model.req.proportionality.ShowSecondPageDataReq;
 import com.maan.insurance.model.res.proportionality.CommonSaveRes;
+import com.maan.insurance.model.res.proportionality.ConvertPolicyRes;
 import com.maan.insurance.model.res.proportionality.FirstpagesaveRes;
 import com.maan.insurance.model.res.proportionality.FirstpageupdateRes;
 import com.maan.insurance.model.res.proportionality.GetRemarksDetailsRes;
@@ -36,10 +41,14 @@ import com.maan.insurance.model.res.proportionality.GetCrestaDetailListRes;
 import com.maan.insurance.model.res.proportionality.GetRetDetailsRes;
 import com.maan.insurance.model.res.proportionality.GetRetentionDetailsRes;
 import com.maan.insurance.model.res.proportionality.GetScaleCommissionListRes;
+import com.maan.insurance.model.res.proportionality.GetSectionEditModeRes;
+import com.maan.insurance.model.res.proportionality.GetSlidingScaleMethodInfoRes;
+import com.maan.insurance.model.res.proportionality.GetcalculateSCRes;
 import com.maan.insurance.model.res.proportionality.GetprofitCommissionEnableRes;
 import com.maan.insurance.model.res.proportionality.InsertCrestaDetailsRes;
 import com.maan.insurance.model.res.proportionality.RiskDetailsEditModeRes;
 import com.maan.insurance.model.res.proportionality.ShowSecondpageEditItemsRes;
+import com.maan.insurance.model.res.proportionality.UpdateOfferNoReq;
 import com.maan.insurance.model.res.proportionality.ViewRiskDetailsRes;
 import com.maan.insurance.model.res.proportionality.checkAvialabilityRes;
 import com.maan.insurance.model.req.proportionality.ProfitCommissionListReq;
@@ -52,6 +61,7 @@ import com.maan.insurance.model.res.proportionality.getprofitCommissionDeleteRes
 import com.maan.insurance.model.res.proportionality.getprofitCommissionEditRes;
 import com.maan.insurance.model.res.proportionality.saveRiskDeatilsSecondFormRes;
 import com.maan.insurance.model.res.proportionality.showSecondPageData1Res;
+import com.maan.insurance.model.res.retro.CommonResponse;
 
 @Service
 public interface ProportionalityService {
@@ -106,7 +116,7 @@ public interface ProportionalityService {
 
 	GetRetentionDetailsRes getRetentionDetails(GetRetentionDetailsReq req);
 
-	GetScaleCommissionListRes getScaleCommissionList(String proposalNo, String branchCode, String pageFor);
+	GetScaleCommissionListRes getScaleCommissionList(String proposalNo, String branchCode, String pageFor, String referenceNo);
 
 	ViewRiskDetailsRes viewRiskDetails(ViewRiskDetailsReq req);
 	
@@ -123,4 +133,18 @@ public interface ProportionalityService {
 	saveRiskDeatilsSecondFormRes saveRiskDeatilsSecondForm(saveRiskDeatilsSecondFormReq req);
 
 	checkAvialabilityRes checkAvialability(String proposalno, String pid);
+
+	CommonSaveRes updateOfferNo(UpdateOfferNoReq req);
+
+	GetSlidingScaleMethodInfoRes getSlidingScaleMethodInfo(String proposalNo, String branchCode, String referenceNo);
+
+	CommonResponse insertSlidingScaleMentodInfo(InsertSlidingScaleMentodInfoReq req);
+
+	GetcalculateSCRes getcalculateSC(GetcalculateSCReq req);
+
+	GetSectionEditModeRes getSectionEditMode(String proposalNo);
+
+	CommonSaveRes getSectionDuplicationCheck(GetSectionDuplicationCheckReq req);
+
+	ConvertPolicyRes convertPolicy(ConvertPolicyReq req);
 }

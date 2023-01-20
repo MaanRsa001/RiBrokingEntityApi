@@ -5,10 +5,11 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
+
 @Data
-public class ShowRetroContractsRes {
+public class GetcalculateSCRes {
 	@JsonProperty("Result")
-	private List<ShowRetroContractsRes1> commonResponse;
+	private List<GetcalculateSCRes1> commonResponse;
 		
 	@JsonProperty("Message")
 	private String message;

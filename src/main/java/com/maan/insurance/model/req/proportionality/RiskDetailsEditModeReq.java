@@ -11,10 +11,17 @@ import lombok.Data;
 public class RiskDetailsEditModeReq {
 	@JsonProperty("ContractMode")
 	private Boolean contractMode;
-	
 	@JsonProperty("ContractNo")
 	private String contNo;
 	@JsonProperty("ProposalNo")
-	private String proposalNo;
+	private String proposalNo; 
+	@JsonProperty("SectionMode")
+	private String sectionMode;  
+
+	
+	@JsonProperty("LayerProposalNo")
+	private String layerProposalNo;
+	@JsonProperty("Flag")
+	private String flag;
 
 }

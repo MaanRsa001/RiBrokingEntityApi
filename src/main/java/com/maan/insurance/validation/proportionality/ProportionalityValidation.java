@@ -20,6 +20,7 @@ import com.maan.insurance.model.req.proportionality.BonusSaveReq;
 import com.maan.insurance.model.req.proportionality.CedentRetentReq;
 import com.maan.insurance.model.req.proportionality.CedentSaveReq;
 import com.maan.insurance.model.req.proportionality.ContractReq;
+import com.maan.insurance.model.req.proportionality.ConvertPolicyReq;
 import com.maan.insurance.model.req.proportionality.CrestaReq;
 import com.maan.insurance.model.req.proportionality.CrestaSaveReq;
 import com.maan.insurance.model.req.proportionality.FirstpageSaveReq;
@@ -27,8 +28,11 @@ import com.maan.insurance.model.req.proportionality.GetBonusListCountReq;
 import com.maan.insurance.model.req.proportionality.GetCrestaCountReq;
 import com.maan.insurance.model.req.proportionality.GetCrestaDetailListReq;
 import com.maan.insurance.model.req.proportionality.GetRetentionDetailsReq;
+import com.maan.insurance.model.req.proportionality.GetSectionDuplicationCheckReq;
+import com.maan.insurance.model.req.proportionality.GetcalculateSCReq;
 import com.maan.insurance.model.req.proportionality.GetprofitCommissionEnableReq;
 import com.maan.insurance.model.req.proportionality.InsertCrestaDetailsReq;
+import com.maan.insurance.model.req.proportionality.InsertSlidingScaleMentodInfoReq;
 import com.maan.insurance.model.req.proportionality.ProfitCommissionSaveReq;
 import com.maan.insurance.model.req.proportionality.RemarksReq;
 import com.maan.insurance.model.req.proportionality.RemarksSaveReq;
@@ -45,6 +49,7 @@ import com.maan.insurance.model.res.DropDown.GetCommonValueRes;
 import com.maan.insurance.model.res.DropDown.GetContractValRes;
 import com.maan.insurance.model.res.DropDown.GetContractValidationRes;
 import com.maan.insurance.model.res.DropDown.GetOpenPeriodRes;
+import com.maan.insurance.model.res.proportionality.UpdateOfferNoReq;
 import com.maan.insurance.service.impl.QueryImplemention;
 import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
 import com.maan.insurance.service.impl.proportionality.ProportionalityServiceImpl;
@@ -3236,5 +3241,129 @@ return list;
 			
 			}
 		return list;
+	}
+
+	public List<ErrorCheck> updateOfferNoVali(UpdateOfferNoReq req) {
+		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
+		if (StringUtils.isBlank(req.getProductId())) {
+			list.add(new ErrorCheck("Please Enter ProductId", "ProductId", "1"));
+		}
+		if (StringUtils.isBlank(req.getProposalNo())) {
+			list.add(new ErrorCheck("Please Enter ProposalNo", "ProposalNo", "2"));
+		}
+		if (StringUtils.isBlank(req.getBranchCode())) {
+			list.add(new ErrorCheck("Please Enter BranchCode", "BranchCode", "3"));
+		}
+		if (StringUtils.isBlank(req.getOfferNo())) {
+			list.add(new ErrorCheck("Please Enter OfferNo", "OfferNo", "4"));
+		}
+		return list;
+	}
+
+	public List<ErrorCheck> insertSlidingScaleMentodInfoVali(InsertSlidingScaleMentodInfoReq req) {
+		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
+		if (StringUtils.isBlank(req.getProductId())) {
+			list.add(new ErrorCheck("Please Enter ProductId", "ProductId", "1"));
+		}
+		if (StringUtils.isBlank(req.getProposalNo())) {
+			list.add(new ErrorCheck("Please Enter ProposalNo", "ProposalNo", "2"));
+		}
+		if (StringUtils.isBlank(req.getBranchCode())) {
+			list.add(new ErrorCheck("Please Enter BranchCode", "BranchCode", "3"));
+		}
+		if (StringUtils.isBlank(req.getAmendId())) {
+			list.add(new ErrorCheck("Please Enter AmendId", "AmendId", "4"));
+		}
+		if (StringUtils.isBlank(req.getContractNo())) {
+			list.add(new ErrorCheck("Please Enter ContractNo", "ContractNo", "5"));
+		}
+		if (StringUtils.isBlank(req.getDepartmentId())) {
+			list.add(new ErrorCheck("Please Enter DepartmentId", "DepartmentId", "6"));
+		}
+		if (StringUtils.isBlank(req.getLayerNo())) {
+			list.add(new ErrorCheck("Please Enter LayerNo", "LayerNo", "7"));
+		}
+		if (StringUtils.isBlank(req.getLoginId())) {
+			list.add(new ErrorCheck("Please Enter LoginId", "LoginId", "8"));
+		}
+		if (StringUtils.isBlank(req.getProvisionCom())) {
+			list.add(new ErrorCheck("Please Enter ProvisionCom", "ProvisionCom", "9"));
+		}
+		if (StringUtils.isBlank(req.getReferenceNo())) {
+			list.add(new ErrorCheck("Please Enter ReferenceNo", "ReferenceNo", "10"));
+		}
+		if (StringUtils.isBlank(req.getScalebanding())) {
+			list.add(new ErrorCheck("Please Enter Scalebanding", "Scalebanding", "11"));
+		}
+		
+		if (StringUtils.isBlank(req.getScalecombine())) {
+			list.add(new ErrorCheck("Please Enter Scalecombine", "Scalecombine", "12"));
+		}
+		if (StringUtils.isBlank(req.getScaledeltacommission())) {
+			list.add(new ErrorCheck("Please Enter Scaledeltacommission", "Scaledeltacommission", "13"));
+		}
+		if (StringUtils.isBlank(req.getScaledeltalossratio())) {
+			list.add(new ErrorCheck("Please Enter Scaledeltalossratio", "Scaledeltalossratio", "14"));
+		}
+		if (StringUtils.isBlank(req.getScaledigit())) {
+			list.add(new ErrorCheck("Please Enter Scaledigit", "Scaledigit", "15"));
+		}
+		if (StringUtils.isBlank(req.getScalelossratioFrom())) {
+			list.add(new ErrorCheck("Please Enter ScalelossratioFrom", "ScalelossratioFrom", "16"));
+		}
+		if (StringUtils.isBlank(req.getScalelossratioTo())) {
+			list.add(new ErrorCheck("Please Enter ScalelossratioTo", "ScalelossratioTo", "17"));
+		}
+		if (StringUtils.isBlank(req.getScalemaxRatio())) {
+			list.add(new ErrorCheck("Please Enter ScalemaxRatio", "ScalemaxRatio", "18"));
+		}
+		if (StringUtils.isBlank(req.getScalementhod())) {
+			list.add(new ErrorCheck("Please Enter Scalementhod", "Scalementhod", "19"));
+		}if (StringUtils.isBlank(req.getScaleminRatio())) {
+			list.add(new ErrorCheck("Please Enter ScaleminRatio", "ScaleminRatio", "20"));
+		}
+		
+		return list;
+	}
+
+
+	public List<ErrorCheck> getcalculateSCVali(GetcalculateSCReq req) {
+		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
+		if (StringUtils.isBlank(req.getScalebanding())) {
+			list.add(new ErrorCheck("Please Enter Scalebanding", "Scalebanding", "1"));
+		}
+		if (StringUtils.isBlank(req.getScalecombine())) {
+			list.add(new ErrorCheck("Please Enter Scalecombine", "Scalecombine", "2"));
+		}
+		if (StringUtils.isBlank(req.getScaledigit())) {
+			list.add(new ErrorCheck("Please Enter Scaledigit", "Scaledigit", "3"));
+		}
+		if (StringUtils.isBlank(req.getScalemaxRatio())) {
+			list.add(new ErrorCheck("Please Enter ScalemaxRatio", "ScalemaxRatio", "4"));
+		}
+		if (StringUtils.isBlank(req.getScaleminRatio())) {
+			list.add(new ErrorCheck("Please Enter ScaleminRatio", "ScaleminRatio", "5"));
+		}
+		return list;
+	}
+
+	public List<ErrorCheck> getSectionDuplicationCheckVali(GetSectionDuplicationCheckReq req) {
+		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
+		if (StringUtils.isBlank(req.getBaseLayer())) {
+			list.add(new ErrorCheck("Please Enter BaseLayer", "BaseLayer", "1"));
+		}
+		if (StringUtils.isBlank(req.getProposalNo())) {
+			list.add(new ErrorCheck("Please Enter ProposalNo", "ProposalNo", "2"));
+		}
+		if (StringUtils.isBlank(req.getSectionNo())) {
+			list.add(new ErrorCheck("Please Enter SectionNo", "SectionNo", "3"));
+		}
+		return list;
+	}
+
+
+	public List<ErrorCheck> convertPolicyVali(ConvertPolicyReq req) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

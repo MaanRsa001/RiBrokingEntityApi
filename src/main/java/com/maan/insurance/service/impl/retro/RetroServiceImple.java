@@ -231,7 +231,7 @@ public class RetroServiceImple implements RetroService {
 		try {
 			String[] args = new String[1];
 			args[0] = beanObj.getProposalNo();
-			TtrnRiskDetails list = rdRepo.findByRskProposalNumber(beanObj.getProposalNo());
+			List<TtrnRiskDetails> list = rdRepo.findByRskProposalNumber(beanObj.getProposalNo());
 			if ( list == null) {
 				editSaveMode = false;
 			} else {
@@ -3101,9 +3101,9 @@ private String getMaxproposalStatus(String proposalNo) {
 	private String getproposalStatus(final String proposalNo) {
 		String result="";
 		try{
-			TtrnRiskDetails list = rdRepo.findByRskProposalNumber(proposalNo);
+			List<TtrnRiskDetails> list = rdRepo.findByRskProposalNumber(proposalNo);
 		if(list != null) {
-			result =	list.getRskStatus();
+			result =	list.get(0).getRskStatus();
 		}
 		}catch(Exception e){
 			e.printStackTrace();
@@ -3593,10 +3593,14 @@ private String getMaxproposalStatus(String proposalNo) {
 								}
 							}
 							//RISK_UPDATE_CONTNO
-							TtrnRiskDetails rdentity = rdRepo.findByRskProposalNumber(beanObj.getProposalNo());
-							rdentity.setRskContractNo(maxContarctNo);
-							//rdentity.setRskProposalNumber(beanObj.getProposalNo());			
-							rdRepo.save(rdentity);
+							List<TtrnRiskDetails> rdentity = rdRepo.findByRskProposalNumber(beanObj.getProposalNo());
+							if(rdentity.size()>0) {
+								TtrnRiskDetails u = rdentity.get(0);
+								u.setRskContractNo(maxContarctNo);			
+								rdRepo.saveAndFlush(u);
+							}
+							
+							
 							//RISK_UPDATE_HOMECONTNO
 							PositionMaster pmEntity = pmRepo.findByProposalNo(new BigDecimal(beanObj.getProposalNo()));
 							pmEntity.setContractNo(new BigDecimal(maxContarctNo));
@@ -3710,10 +3714,14 @@ private String getMaxproposalStatus(String proposalNo) {
 						}
 					
 						//RISK_UPDATE_CONTNO
-						TtrnRiskDetails rdentity = rdRepo.findByRskProposalNumber(beanObj.getProposalNo());
-						rdentity.setRskContractNo(maxContarctNo);
-					//	rdentity.setRskProposalNumber(beanObj.getProposalNo());			
-						rdRepo.save(rdentity);
+						List<TtrnRiskDetails> rdentity = rdRepo.findByRskProposalNumber(beanObj.getProposalNo());
+						if(rdentity.size()>0) {
+							TtrnRiskDetails u = rdentity.get(0);
+							u.setRskContractNo(maxContarctNo);			
+							rdRepo.saveAndFlush(u);
+						}
+						
+				
 						//RISK_UPDATE_HOMECONTNO
 						PositionMaster pmEntity = pmRepo.findByProposalNo(new BigDecimal(beanObj.getProposalNo()));
 						pmEntity.setContractNo(new BigDecimal(maxContarctNo));
@@ -3769,10 +3777,12 @@ private String getMaxproposalStatus(String proposalNo) {
 				if(StringUtils.isBlank(beanObj.getContractNo())&&"Renewal".equals(beanObj.getReMode())){
 					beanObj.setContractNo(fm.getSequence("Contract", "SR".equalsIgnoreCase(beanObj.getRetroType()) ? "5" : "4", beanObj.getDepartmentId(), beanObj.getBranchCode(),beanObj.getProposalNo(),beanObj.getUwYear()));
 					//RISK_UPDATE_CONTNO
-					TtrnRiskDetails rdentity = rdRepo.findByRskProposalNumber(beanObj.getProposalNo());
-					rdentity.setRskContractNo(beanObj.getContractNo());
-				//	rdentity.setRskProposalNumber(beanObj.getProposalNo());				
-					rdRepo.save(rdentity);
+					List<TtrnRiskDetails> rdentity = rdRepo.findByRskProposalNumber(beanObj.getProposalNo());
+					if(rdentity.size()>0) {
+						TtrnRiskDetails u = rdentity.get(0);
+						u.setRskContractNo(beanObj.getContractNo());			
+						rdRepo.saveAndFlush(u);
+					}
 				
 					//RISK_UPDATE_HOMECONTNO
 					PositionMaster pmEntity = pmRepo.findByProposalNo(new BigDecimal(beanObj.getProposalNo()));

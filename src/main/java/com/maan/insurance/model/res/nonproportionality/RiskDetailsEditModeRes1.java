@@ -235,4 +235,34 @@ public class RiskDetailsEditModeRes1 {
 	@JsonProperty("OurAssessment")
 	private String ourAssessment;
 	
+	@JsonProperty("BouquetNo") //RI
+	private String bouquetNo;
+	
+	@JsonProperty("BouquetModeYN")
+	private String bouquetModeYN; 
+	
+	@JsonProperty("OfferNo")
+	private String offerNo; 
+	
+	@JsonProperty("UwYearTo")
+	private String uwYearTo; 
+	
+	@JsonProperty("PaymentPartner")
+	private String paymentPartner;
+	@JsonProperty("RateOnLine")
+	private String rateOnLine;
+	@JsonProperty("RiskdetailYN")
+	private String riskdetailYN;
+	@JsonProperty("BrokerdetYN")
+	private String brokerdetYN;
+	
+	@JsonProperty("PremiumdetailYN")
+	private String premiumdetailYN;
+	@JsonProperty("InstallYN")
+	private String installYN;
+	@JsonProperty("AcqdetailYN")
+	private String acqdetailYN;
+	@JsonProperty("ReinstdetailYN")
+	private String reinstdetailYN;
+	
 }
