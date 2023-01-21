@@ -33,6 +33,7 @@ import com.maan.insurance.model.res.DropDown.GetBouquetExistingListRes;
 import com.maan.insurance.model.res.DropDown.GetBouquetListRes;
 import com.maan.insurance.model.res.DropDown.GetCommonDropDownRes;
 import com.maan.insurance.model.res.DropDown.GetCommonValueRes;
+import com.maan.insurance.model.res.DropDown.GetCompanyInfoRes;
 import com.maan.insurance.model.res.DropDown.GetContractValRes;
 import com.maan.insurance.model.res.DropDown.GetNewContractInfoRes;
 import com.maan.insurance.model.res.DropDown.GetNotPlacedProposalListRes;
@@ -84,7 +85,7 @@ public interface DropDownService {
 
 	GetCommonValueRes getDisableStatus1(String contractNo, String layerNo);
 
-	CommonResponse riskDetailsEndorsement(String proposalNo, String endtStatus);
+	CommonResponse riskDetailsEndorsement(String proposalNo, String endtStatus, String branchCode);
 
 	CommonResponse updateSubClass(String proposalNo, String type);
 
@@ -224,4 +225,6 @@ public interface DropDownService {
 	GetNewContractInfoRes getNewContractInfo(String branchCode, String proposalNo);
 
 	GetPlacementInfoListRes getPlacementInfoList(String branchCode, String layerProposalNo);
+
+	GetCompanyInfoRes getCompanyInfo(String branchCode);
 }

@@ -47,4 +47,6 @@ public class LowClaimBonusInserReq {
 	private String month;
 	@JsonProperty("UwYear")
 	private String uwYear;
+	@JsonProperty("ReferenceNo")
+	private String referenceNo; 
 }

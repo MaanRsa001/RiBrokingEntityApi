@@ -21,6 +21,7 @@ import com.maan.insurance.model.req.nonproportionality.CoverLimitAmount;
 import com.maan.insurance.model.req.nonproportionality.CoverLimitAmountreq;
 import com.maan.insurance.model.req.nonproportionality.CoverLimitOCReq;
 import com.maan.insurance.model.req.nonproportionality.CrestaSaveReq;
+import com.maan.insurance.model.req.nonproportionality.GetLayerInfoReq;
 import com.maan.insurance.model.req.nonproportionality.CoverLimitAmount;
 import com.maan.insurance.model.req.nonproportionality.CoverLimitAmountreq;
 import com.maan.insurance.model.req.nonproportionality.CoverLimitOCReq;
@@ -878,7 +879,7 @@ public class NonProportionalityValidation {
 				}
 			}
 			if (!val.isNull(req.getLayerNo()).equalsIgnoreCase("")) {
-				if (nonPropImple.getLayerDuplicationCheck(req.getBaseLayer(),req.getLayerNo(),req.getLayerMode())) {
+				if (nonPropImple.getLayerDuplicationCheck(req.getBaseLayer(),req.getLayerNo(),req.getLayerMode()).getResponse().equalsIgnoreCase("true")) {
 				
 					list.add(new ErrorCheck(prop.getProperty("error.layer.duplicate"),"","01"));
 				}
@@ -1492,7 +1493,7 @@ public class NonProportionalityValidation {
 					}
 				}
 				if (!val.isNull(req.getLayerNo()).equalsIgnoreCase("")) {
-					if (nonPropImple.getLayerDuplicationCheck(req.getBaseLayer(),req.getLayerNo(),req.getLayerMode())) {
+					if (nonPropImple.getLayerDuplicationCheck(req.getBaseLayer(),req.getLayerNo(),req.getLayerMode()).getResponse().equalsIgnoreCase("true")) {
 						list.add(new ErrorCheck(prop.getProperty("error.layer.duplicate"),"LayerDuplicationCheck","01"));
 					}
 				}
@@ -1855,7 +1856,7 @@ public class NonProportionalityValidation {
 					if(StringUtils.isBlank(req.getReinsPopUp())){
 	                    list.add(new ErrorCheck(prop.getProperty("reins.popup.recheck"),"popup","01"));
 	                }else{
-					int count= nonPropImple.getReInstatementCount(req.getAmendId(),req.getProposalNo(),req.getBranchCode());
+					int count= nonPropImple.getReInstatementCount(req.getAmendId(),req.getProposalNo(),req.getBranchCode(),req.getReferenceNo());
 					if(count<=0){
 						list.add(new ErrorCheck(prop.getProperty("errors.reinstatement.schedule"),"reinstatement","01"));
 					}
@@ -2268,7 +2269,7 @@ public class NonProportionalityValidation {
 							if(StringUtils.isBlank(req.getReinsPopUp())){
 			                    list.add(new ErrorCheck(prop.getProperty("reins.popup.recheck"),"popup","01"));
 			                }else{
-							int count=nonPropImple.getReInstatementCount(req.getAmendId(),req.getProposalNo(),req.getBranchCode());
+							int count=nonPropImple.getReInstatementCount(req.getAmendId(),req.getProposalNo(),req.getBranchCode(), req.getReferenceNo());
 							if(count<=0){
 								list.add(new ErrorCheck(prop.getProperty("errors.reinstatement.schedule"),"reinstatement","01"));
 							}
@@ -3225,7 +3226,7 @@ public class NonProportionalityValidation {
 				}
 			}
 			if (!val.isNull(req.getLayerNo()).equalsIgnoreCase("")) {
-				if (nonPropImple.getLayerDuplicationCheck(req.getBaseLayer(),req.getLayerNo(),req.getLayerMode())) {
+				if (nonPropImple.getLayerDuplicationCheck(req.getBaseLayer(),req.getLayerNo(),req.getLayerMode()).getResponse().equalsIgnoreCase("true")) {
 				
 					list.add(new ErrorCheck(prop.getProperty("error.layer.duplicate"),"","01"));
 				}
@@ -3839,7 +3840,7 @@ public class NonProportionalityValidation {
 					}
 				}
 				if (!val.isNull(req.getLayerNo()).equalsIgnoreCase("")) {
-					if (nonPropImple.getLayerDuplicationCheck(req.getBaseLayer(),req.getLayerNo(),req.getLayerMode())) {
+					if (nonPropImple.getLayerDuplicationCheck(req.getBaseLayer(),req.getLayerNo(),req.getLayerMode()).getResponse().equalsIgnoreCase("true")) {
 						list.add(new ErrorCheck(prop.getProperty("error.layer.duplicate"),"LayerDuplicationCheck","01"));
 					}
 				}
@@ -4236,5 +4237,9 @@ public class NonProportionalityValidation {
 			list.add(new ErrorCheck("Please Enter Endorsmentno", "Endorsmentno", "9"));
 		}
 		return list;
+	}
+	public List<ErrorCheck> getLayerInfoVali(GetLayerInfoReq req) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

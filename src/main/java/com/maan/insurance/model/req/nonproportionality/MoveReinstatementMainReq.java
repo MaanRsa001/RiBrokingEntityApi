@@ -33,5 +33,8 @@ public class MoveReinstatementMainReq {
 	private String layerNo;
 	
 	@JsonProperty("ReinstatementOption")
-	private String reinstatementOption;
+	private String reinstatementOption; 
+	
+	@JsonProperty("ReferenceNo")
+	private String referenceNo;
 }

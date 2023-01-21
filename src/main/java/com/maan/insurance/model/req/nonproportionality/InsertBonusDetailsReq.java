@@ -27,5 +27,6 @@ public class InsertBonusDetailsReq {
 	private String loginId;
 	@JsonProperty("DepartmentId")
 	private String departmentId;
-
+	@JsonProperty("ReferenceNo")
+	private String referenceNo;
 }

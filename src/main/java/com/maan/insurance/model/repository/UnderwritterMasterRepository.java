@@ -38,4 +38,10 @@ public interface UnderwritterMasterRepository  extends JpaRepository<Underwritte
 	List<UnderwritterMaster> findByBranchCodeAndUwrStatusAndUnderwritterIgnoreCaseContaining(String branchCode,
 			String string, String underwriterSearch);
 
+	List<UnderwritterMaster> findDistinctByBranchCodeAndUwrStatusAndUwrCodeInOrderByUnderwritterAsc(String branchCode,
+			String string, List<String> attachedUWList);
+
+	List<UnderwritterMaster> findDistinctByBranchCodeAndUwrStatusOrderByUnderwritterAsc(String branchCode,
+			String string);
+
 }

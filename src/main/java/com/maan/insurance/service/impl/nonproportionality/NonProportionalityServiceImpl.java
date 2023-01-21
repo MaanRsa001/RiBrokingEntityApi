@@ -27,6 +27,7 @@ import com.maan.insurance.model.req.nonproportionality.CoverLimitAmount;
 import com.maan.insurance.model.req.nonproportionality.CoverList;
 import com.maan.insurance.model.req.nonproportionality.CoverdepartIdList;
 import com.maan.insurance.model.req.nonproportionality.CrestaSaveReq;
+import com.maan.insurance.model.req.nonproportionality.GetLayerInfoReq;
 import com.maan.insurance.model.req.nonproportionality.GetRetroContractDetailsListReq;
 import com.maan.insurance.model.req.nonproportionality.GetRetroContractDetailsReq;
 import com.maan.insurance.model.req.nonproportionality.InsertBonusDetailsReq;
@@ -67,6 +68,8 @@ import com.maan.insurance.model.res.nonproportionality.GetClassLimitDetailsRes1;
 import com.maan.insurance.model.res.nonproportionality.GetCommonValueRes;
 import com.maan.insurance.model.res.nonproportionality.GetInclusionExListRes;
 import com.maan.insurance.model.res.nonproportionality.GetInclusionExListRes1;
+import com.maan.insurance.model.res.nonproportionality.GetLayerInfoRes;
+import com.maan.insurance.model.res.nonproportionality.GetLayerInfoRes1;
 import com.maan.insurance.model.res.nonproportionality.GetLowClaimBonusListRes;
 import com.maan.insurance.model.res.nonproportionality.GetLowClaimBonusListRes1;
 import com.maan.insurance.model.res.nonproportionality.GetReInstatementDetailsListRes;
@@ -516,7 +519,9 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			response.setMessage("Success");
 			response.setIsError(false);
 			}catch(Exception e){
-				e.printStackTrace();;
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
 			}
 		return response;
 	}
@@ -975,7 +980,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 				if(!"5".equalsIgnoreCase(intreq.getBusinessType())){
 				for(int i=0;i<intreq.getCoverList().size();i++){
 					CoverList reqlist3 = intreq.getCoverList().get(i);
-					String[] args1= new String[14];
+					String[] args1= new String[15]; //ri
 					args1[0]=intreq.getProposalno();
 					args1[1]=(getMaxAmednId(intreq.getProposalno()))+"";
 					args1[2]=intreq.getContNo();
@@ -990,7 +995,8 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 					args1[11]=String.valueOf(i+1);
 					args1[12]=reqlist3.getEgnpiAsPerOff().replace(",", "");
 					args1[13]=reqlist3.getGnpiAsPO()==null?"0":reqlist3.getGnpiAsPO().replace(",", "");
-					logger.info("Args[]=>" + StringUtils.join(args1,","));
+					args1[14]=reqlist3.getNetMaxRetentPer().replace(",", ""); //ri
+
 					queryImpl.updateQuery(query, args1);
 					String val = reqlist3.getCoverLimitOC().replace(",", "");
 				}
@@ -1014,6 +1020,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 						args2[11]=String.valueOf(i+1);
 						args2[12]=covreq.getEgnpiAsPerOffSlide().replace(",", "");
 						args2[13]=covreq.getGnpiAsPOSlide().replace(",", "");
+						args2[14]="";
 						queryImpl.updateQuery(query, args2);
 					
 			}
@@ -1028,7 +1035,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			return response;
 			}
 	
-	private String[] getFirstPageInsertAruguments(insertProportionalTreatyReq req) { t
+	private String[] getFirstPageInsertAruguments(insertProportionalTreatyReq req) { 
 
 		String[] args= new String[59]; //ri
 		if (req.getAmendStatus()) {
@@ -1054,7 +1061,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		args[6] = StringUtils.isEmpty(req.getSubProfitcenter()) ? "0" : req.getSubProfitcenter();
 		args[7] = StringUtils.isEmpty(req.getPolBr()) ? "0" : req.getPolBr();
 		args[8] = StringUtils.isEmpty(req.getCedingCo()) ? "0" : req.getCedingCo();
-		args[9] = StringUtils.isEmpty(req.getBroker()) ? "0" : req.getBroker();
+		args[9] = StringUtils.isEmpty(req.getBroker()) ? "63" : req.getBroker();
 		args[10] = StringUtils.isEmpty(req.getTreatyNametype()) ? "" : req.getTreatyNametype();
 		args[11] = StringUtils.isEmpty(req.getMonth()) ? "" : req.getMonth();
 		args[12] = StringUtils.isEmpty(req.getUwYear()) ? "0" : req.getUwYear();
@@ -1097,7 +1104,8 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		args[54]="";
 		args[55]="";
 		args[56]=StringUtils.isEmpty(req.getRetentionYN()) ? ""	:req.getRetentionYN();
-		logger.info("Args[]=>" +StringUtils.join(args,","));
+		args[57] = req.getAccountingPeriodNotes();
+		args[58] = req.getStatementConfirm();
 		return args;	
 	}
 		
@@ -1115,7 +1123,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		boolean updateStatus = true;
 		int res=0;
 		String query = "UPDATE_RISK_PROPOSAL_DETAILS";
-		String[] args= new String[41];
+		String[] args= new String[55]; //ri
 		try {
 		args[0] = StringUtils.isEmpty(req.getEventlimit()) ? "": req.getEventlimit();
 		args[1] = StringUtils.isEmpty(req.getEventlimit())	|| StringUtils.isEmpty(req.getExchRate()) ? "0"	: getDesginationCountry(req.getEventlimit(), req.getExchRate());
@@ -1163,8 +1171,22 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		args[36] = StringUtils.isEmpty(req.getEpipml())|| StringUtils.isEmpty(req.getExchRate()) ? "0": getDesginationCountry(req.getEpipml(), req.getExchRate());
 		args[37] =StringUtils.isEmpty(req.getEpipmlOS()) ? "0": req.getEpipmlOS();
 		args[38] = StringUtils.isEmpty(req.getEpipmlOS())|| StringUtils.isEmpty(req.getExchRate()) ? "0": getDesginationCountry(req.getEpipmlOS(), req.getExchRate());
-		args[39] = req.getProposalNo();
-		args[40]=endNo;
+		args[39]=req.getRiskdetailYN();
+		args[40]=req.getBrokerdetYN();
+		args[41]=req.getCoverdetYN();
+		args[42]=req.getPremiumdetailYN();
+		args[43]=req.getAcqdetailYN();
+		args[44]=req.getCommissiondetailYN();
+		args[45]=req.getDepositdetailYN();
+		args[46]=req.getLossdetailYN();
+		args[47]=req.getDocdetailYN();
+		args[48] = req.getPaymentPartner();
+		args[49] = req.getInstallYN();
+		args[50] = req.getReinstdetailYN();
+		args[51] = req.getRateOnLine();
+		args[52] =StringUtils.isEmpty(req.getQuotesharePercent()) ? "0": req.getQuotesharePercent();
+		args[53] = req.getProposalNo();
+		args[54]=endNo;
 		res = queryImpl.updateQuery(query, args);
 		if (res> 0) {
 		updateStatus = true;
@@ -2699,7 +2721,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		}
 		return result;
 	}
-	public int getReInstatementCount(String amendId, String proposalNo,String branchCode) {
+	public int getReInstatementCount(String amendId, String proposalNo,String branchCode,String referenceNo) {
 		String query ="";
 		String args[]=null;
 		int result=0;
@@ -2715,6 +2737,13 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 				List<Map<String, Object>> list= queryImpl.selectList(query,args);
 				if(!CollectionUtils.isEmpty(list)) {
 					result= Integer.valueOf(list.get(0).get("COUNT")==null?"":list.get(0).get("COUNT").toString());
+				}
+				if(result==0) { //ri
+					query = "REINSTATEMENT_COUNT_MAIN_REFERENCE";
+					list= queryImpl.selectList(query,new String[] {referenceNo});
+					if(!CollectionUtils.isEmpty(list)) {
+						result= Integer.valueOf(list.get(0).get("COUNT")==null?"":list.get(0).get("COUNT").toString());
+					}
 				}
 		}
 		catch(Exception e){
@@ -2740,6 +2769,14 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			List<Map<String, Object>> list= queryImpl.selectList(query,args);
 			if(!CollectionUtils.isEmpty(list)) {
 				result= Integer.valueOf(list.get(0).get("COUNT")==null?"":list.get(0).get("COUNT").toString());
+			}
+			if(result==0) {
+				query = "BONUS_COUNT_MAIN_REFERENCE"; //ri
+				args[0] = bean.getReferenceNo();
+				list= queryImpl.selectList(query,args);
+				if(!CollectionUtils.isEmpty(list)) {
+					result= Integer.valueOf(list.get(0).get("COUNT")==null?"":list.get(0).get("COUNT").toString());
+				}
 			}
 		}
 		catch(Exception e){
@@ -2943,7 +2980,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 	}
 
 	@Override
-	public GetReInstatementDetailsListRes getReInstatementDetailsList(String proposalNo, String branchCode) {
+	public GetReInstatementDetailsListRes getReInstatementDetailsList(String proposalNo, String branchCode, String referenceNo) {
 		GetReInstatementDetailsListRes response = new GetReInstatementDetailsListRes();
 		List<Map<String, Object>> result = new ArrayList<Map<String,Object>>();
 		List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
@@ -2957,6 +2994,10 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 				args[1] = branchCode;
 					query = "REINSTATEMENT_MAIN_SELECT_A";
 					result = queryImpl.selectList(query,args);
+					if(CollectionUtils.isEmpty(result)) { //Ri
+						query = "REINSTATEMENT_MAIN_SELECT_A_REFERENCE";
+						result = queryImpl.selectList(query,new String[] {referenceNo});
+					}
 					List<ReInStatementRes> reInstResList=new ArrayList<ReInStatementRes>();
 				for(int i=0;i<result.size();i++){
 		               Map<String,Object> tempMap = result.get(i);
@@ -2970,51 +3011,50 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		               reInstResList.add(reInstRes);
 		               res.setReInStatementRes(reInstResList);
 		               resList.add(res);
-		               
 		               }
 				
-				query ="REINSTATEMENT_MAIN_SELECT_B";
-	               list = queryImpl.selectList(query,args);
-	              List <CoverListInstate> coverListRes = new ArrayList<CoverListInstate>();
-	               for(int i=0;i<list.size();i++){
-	            	   CoverListInstate coverList = new CoverListInstate();
-		               Map<String,Object> tempMap = list.get(i);
-		               coverList.setCoverdepartId(tempMap.get("DEPARTMENT_CLASS")==null?"":tempMap.get("DEPARTMENT_CLASS").toString());
-		               coverList.setCoverLimitOC(tempMap.get("ANNUAL_AGGRE_LAIBLE")==null?"":fm.formatter(tempMap.get("ANNUAL_AGGRE_LAIBLE").toString()));
-		               coverListRes.add(coverList);
-		               res.setCoverList(coverListRes);
-		               resList.add(res);
-		               }
-	             
-	               if(!"U".equalsIgnoreCase(res.getReinstatementOption())){
-	               res.setBusinessType("1");
-	         //      getClassLimitDetails(req);
-	               if(result!=null && result.size()>0){
-	            	   double coverLimit=0.00;
-	            	   List<CoverLimitAmountInstate> CoverLimitAmountList = new ArrayList<CoverLimitAmountInstate>();
-	            	   CoverLimitAmountInstate coverLimitAmount = new CoverLimitAmountInstate();
-	            	   if(res.getCoverList()!=null && res.getCoverList().size()>0){
-	            		   for(int i=0;i<res.getCoverList().size();i++){
-	            			   if(StringUtils.isNotBlank(res.getReinstatementOption()) && "S".equalsIgnoreCase(res.getReinstatementOption())){
-		            			   coverLimit= Double.parseDouble(res.getCoverList().get(i).getCoverLimitOC().replace(",", "")) *(double)(result.size()+1);
-		            			   coverLimitAmount.setCoverLimitAmount(Double.toString(coverLimit));
-	            			   }else{
-	            				  if(StringUtils.isNotBlank(res.getCoverList().get(i).getCoverLimitOC())) {
-	            				   coverLimit= Double.parseDouble(res.getCoverList().get(i).getCoverLimitOC().replace(",", "")) *1;
-	            				   coverLimitAmount.setCoverLimitAmount(Double.toString(coverLimit));
-	            				  }
-	            			   }
-	            			   CoverLimitAmountList.add(coverLimitAmount);
-	            			   res.setCoverLimitAmount(CoverLimitAmountList);
-	            			   resList.add(res);
-	            		   }
-	            		  
-	            	   }
-	               }
-	              }else{
-	            	  res.setBusinessType("1");
-	            	//  getClassLimitDetails(req);
-	              }
+//					query ="REINSTATEMENT_MAIN_SELECT_B";
+//	               list = queryImpl.selectList(query,args);
+//	              List <CoverListInstate> coverListRes = new ArrayList<CoverListInstate>();
+//	               for(int i=0;i<list.size();i++){
+//	            	   CoverListInstate coverList = new CoverListInstate();
+//		               Map<String,Object> tempMap = list.get(i);
+//		               coverList.setCoverdepartId(tempMap.get("DEPARTMENT_CLASS")==null?"":tempMap.get("DEPARTMENT_CLASS").toString());
+//		               coverList.setCoverLimitOC(tempMap.get("ANNUAL_AGGRE_LAIBLE")==null?"":fm.formatter(tempMap.get("ANNUAL_AGGRE_LAIBLE").toString()));
+//		               coverListRes.add(coverList);
+//		               res.setCoverList(coverListRes);
+//		               resList.add(res);
+//		               }
+//	             
+//	               if(!"U".equalsIgnoreCase(res.getReinstatementOption())){
+//	               res.setBusinessType("1");
+//	         //      getClassLimitDetails(req);
+//	               if(result!=null && result.size()>0){
+//	            	   double coverLimit=0.00;
+//	            	   List<CoverLimitAmountInstate> CoverLimitAmountList = new ArrayList<CoverLimitAmountInstate>();
+//	            	   CoverLimitAmountInstate coverLimitAmount = new CoverLimitAmountInstate();
+//	            	   if(res.getCoverList()!=null && res.getCoverList().size()>0){
+//	            		   for(int i=0;i<res.getCoverList().size();i++){
+//	            			   if(StringUtils.isNotBlank(res.getReinstatementOption()) && "S".equalsIgnoreCase(res.getReinstatementOption())){
+//		            			   coverLimit= Double.parseDouble(res.getCoverList().get(i).getCoverLimitOC().replace(",", "")) *(double)(result.size()+1);
+//		            			   coverLimitAmount.setCoverLimitAmount(Double.toString(coverLimit));
+//	            			   }else{
+//	            				  if(StringUtils.isNotBlank(res.getCoverList().get(i).getCoverLimitOC())) {
+//	            				   coverLimit= Double.parseDouble(res.getCoverList().get(i).getCoverLimitOC().replace(",", "")) *1;
+//	            				   coverLimitAmount.setCoverLimitAmount(Double.toString(coverLimit));
+//	            				  }
+//	            			   }
+//	            			   CoverLimitAmountList.add(coverLimitAmount);
+//	            			   res.setCoverLimitAmount(CoverLimitAmountList);
+//	            			   resList.add(res);
+//	            		   }
+//	            		  
+//	            	   }
+//	               }
+//	              }else{
+//	            	  res.setBusinessType("1");
+//	            	//  getClassLimitDetails(req);
+//	              }
 	               resList.add(res);
 	               response.setCommonResponse(resList);
 	               response.setMessage("Success");
@@ -3036,8 +3076,20 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			req.setAmendId("0");
 		}
 	  //  deleteMainTable(bean);
+		if(StringUtils.isBlank(req.getProposalNo()) && StringUtils.isBlank(req.getReferenceNo())) { //ri
+        	String referenceNo="";
+        	String query="GET_REFERENCE_NO_SEQ"; 
+        	
+        	List<Map<String, Object>> list  = queryImpl.selectSingle(query,new String[]{});
+        	if (!CollectionUtils.isEmpty(list)) {
+        		referenceNo = list.get(0).get("REFERENCENO") == null ? ""
+        				: list.get(0).get("REFERENCENO").toString();
+        	}
+        	req.setReferenceNo(referenceNo);
+        }
+		
 	    String query = "INSERT_REINSTATEMENT_MAIN";
-	    String args[] = new String[14];
+	    String args[] = new String[15];
 			for(int i=0;i<req.getReinstatementNo().size();i++){
 			ReinstatementNoList req1 = req.getReinstatementNo().get(i);
 			args[0] = req1.getReinstatementNo();
@@ -3054,24 +3106,27 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			args[11] = StringUtils.isEmpty(req.getLayerNo()) ? "0"	: req.getLayerNo();
 			args[12] = req.getReinstatementOption();
 			args[13] = "A";
+			args[14]=StringUtils.isBlank(req.getReferenceNo())?"":req.getReferenceNo();
+
 			 queryImpl.updateQuery(query, args);
 			}
-			query = "INSERT_REINSTATEMENT_MAIN_B";
-			 String args1[] = new String[10];
-			for(int i=0;i<req.getCoverdepartIdList().size();i++){
-				CoverdepartIdList req2 = req.getCoverdepartIdList().get(i)	;
-				args1[0] = req2.getCoverdepartId();
-				args1[1] = req2.getCoverLimitOC().replaceAll(",", "");
-				args1[2] = req.getProposalNo();
-				args1[3] = req.getBranchCode();
-				args1[4] = req.getAmendId();
-				args1[5] = req.getDepartmentId();
-				args1[6] ="";
-				args1[7] = req.getProductId();
-				args1[8] = StringUtils.isEmpty(req.getLayerNo()) ? "0"	: req.getLayerNo();
-				args1[9] = "B";
-				 queryImpl.updateQuery(query, args1);		
-			}
+//			query = "INSERT_REINSTATEMENT_MAIN_B";
+//			 String args1[] = new String[11];
+//			for(int i=0;i<req.getCoverdepartIdList().size();i++){
+//				CoverdepartIdList req2 = req.getCoverdepartIdList().get(i)	;
+//				args1[0] = req2.getCoverdepartId();
+//				args1[1] = req2.getCoverLimitOC().replaceAll(",", "");
+//				args1[2] = req.getProposalNo();
+//				args1[3] = req.getBranchCode();
+//				args1[4] = req.getAmendId();
+//				args1[5] = req.getDepartmentId();
+//				args1[6] ="";
+//				args1[7] = req.getProductId();
+//				args1[8] = StringUtils.isEmpty(req.getLayerNo()) ? "0"	: req.getLayerNo();
+//				args1[9] = "B";
+//				args[10]=StringUtils.isBlank(bean.getReferenceNo())?"":bean.getReferenceNo();
+//				 queryImpl.updateQuery(query, args1);		
+//			}
 			    response.setMessage("Success");
 	   			response.setIsError(false);
 	   			}catch(Exception e){
@@ -3085,7 +3140,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 
 
 	@Override
-	public CommonResponse deleteMainTable(String proposalNo, String amendId, String branchCode) {
+	public CommonResponse deleteMainTable(String proposalNo, String amendId, String branchCode, String referenceNo) {
 		CommonResponse response = new CommonResponse();
 		String query1="";
 		String arg[]=null;
@@ -3094,6 +3149,11 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 				query1 ="REINSTATEMENT_MAIN_DELETE";
 				 arg = new String[2];
 				 arg[0] = proposalNo;
+				 arg[1] = branchCode;
+			}else if(StringUtils.isBlank(proposalNo)) {
+				query1 = "REINSTATEMENT_MAIN_DELETE_REF";
+				 arg = new String[2];
+				 arg[0] = referenceNo;
 				 arg[1] = branchCode;
 			}
 			else{
@@ -3116,7 +3176,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 
 
 	@Override
-	public GetLowClaimBonusListRes getLowClaimBonusList(String proposalNo, String branchCode, String acqBonus) {
+	public GetLowClaimBonusListRes getLowClaimBonusList(String proposalNo, String branchCode, String acqBonus,String referenceNo) {
 		GetLowClaimBonusListRes response = new GetLowClaimBonusListRes();
 		List<Map<String, Object>> result = new ArrayList<Map<String,Object>>();
 		String query="";
@@ -3124,12 +3184,18 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
          GetLowClaimBonusListRes1 res = new GetLowClaimBonusListRes1();
          List<GetLowClaimBonusListRes1> resList= new ArrayList<GetLowClaimBonusListRes1>();
 		try{
-				args = new String[3];
+				args = new String[4];
 				args[0] = proposalNo;
 				args[1] = branchCode;
 				args[2] = acqBonus;
+				args[3] = "LR"; //ri
 					query = "BONUS_MAIN_SELECT";
 					result = queryImpl.selectList(query,args);
+					if(CollectionUtils.isEmpty(result)) {
+						args[0] = referenceNo;
+						query = "BONUS_MAIN_SELECT_REFERENCE";
+						result = queryImpl.selectList(query,args);
+					} //ri
 					List<BonusRes> bonusResList = new ArrayList<BonusRes>();
 					for(int i=0;i<result.size();i++){
 					BonusRes bonusRes = new BonusRes();
@@ -3170,10 +3236,24 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 	           if(!CollectionUtils.isEmpty(list)) {
 	        	   bean.setEndorsmentNo(list.get(0).get("AMEND_ID")==null?"":list.get(0).get("AMEND_ID").toString());
 				}
+	           if(StringUtils.isBlank(bean.getEndorsmentNo())) {
+	        	   bean.setEndorsmentNo("0");
+	           }
 			}
 	      //  deleteMaintable(bean);
+			 if(StringUtils.isBlank(bean.getProposalNo()) && StringUtils.isBlank(bean.getReferenceNo())) {
+		        	String referenceNo="";
+		        	String query="GET_REFERENCE_NO_SEQ";  //ri
+		        	List<Map<String, Object>> list  = queryImpl.selectSingle(query,new String[]{});
+		        	if (!CollectionUtils.isEmpty(list)) {
+		        		referenceNo = list.get(0).get("REFERENCENO") == null ? ""
+		        				: list.get(0).get("REFERENCENO").toString();
+		        	}
+		        	bean.setReferenceNo(referenceNo);
+		        }
+			 
 	        String query = "BONUS_MAIN_INSERT";
-			String args[]=new String[14];
+			String args[]=new String[15];
 			for(int i=0;i<bean.getBonusReq().size();i++){
 				BonusReq req = bean.getBonusReq().get(i);
 				if(StringUtils.isNotBlank(req.getBonusFrom()) && StringUtils.isNotBlank(req.getBonusTo()) &&StringUtils.isNotBlank(req.getBonusLowClaimBonus()) ){
@@ -3191,6 +3271,8 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			           args[11] = bean.getEndorsmentNo();
 			           args[12] =bean.getDepartmentId();
 			           args[13] =StringUtils.isEmpty(bean.getLayerNo())?"0":bean.getLayerNo();
+			           args[14]=StringUtils.isBlank(bean.getReferenceNo())?"":bean.getReferenceNo();
+
 			           queryImpl.updateQuery(query,args);
 				}}
 						 response.setMessage("Success");
@@ -3644,7 +3726,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 					res.setTotalLoopCount(String.valueOf(i+1));
 					resList.add(res);
 					}
-			}
+			} //doubt
 //				if(!req.getBusinessType().equalsIgnoreCase("5") && !req.getBusinessType().equalsIgnoreCase("Stop Loss")){
 //					beanObj.setCoverdepartId(coverdepartId);
 //					 if(StringUtils.isNotBlank(req.getReinstatementOption()) && "U".equalsIgnoreCase(req.getReinstatementOption())){
@@ -4358,7 +4440,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			updateTotalReinstatement(beanObj);
 		}
 		else{
-			deleteMainTable(beanObj.getProposalNo(),beanObj.getAmendId(),beanObj.getBranchCode());
+			deleteMainTable(beanObj.getProposalNo(),beanObj.getAmendId(),beanObj.getBranchCode(),beanObj.getReferenceNo());
 			MoveReinstatementEmptyData(beanObj);
 		}
 		updateContractNumber(beanObj);
@@ -4391,8 +4473,20 @@ public void MoveReinstatementEmptyData(ReInstatementMainInsertReq bean) {
 	if(StringUtils.isBlank(bean.getAmendId())){
 		bean.setAmendId("0");
 	}
+	if(StringUtils.isBlank(bean.getProposalNo()) && StringUtils.isBlank(bean.getReferenceNo())) { //ri
+    	String referenceNo="";
+    	String query="GET_REFERENCE_NO_SEQ"; 
+    	
+    	List<Map<String, Object>> list  = queryImpl.selectSingle(query,new String[]{});
+    	if (!CollectionUtils.isEmpty(list)) {
+    		referenceNo = list.get(0).get("REFERENCENO") == null ? ""
+    				: list.get(0).get("REFERENCENO").toString();
+    	}
+    	
+    	bean.setReferenceNo(referenceNo);
+    }
 	 String query = "INSERT_REINSTATEMENT_MAIN";
-	 String args[] = new String[14];
+	 String args[] = new String[15]; //ri
 		args[0] = "";
 		args[1] = "";
 		args[2] = "";
@@ -4407,10 +4501,12 @@ public void MoveReinstatementEmptyData(ReInstatementMainInsertReq bean) {
 		args[11] = StringUtils.isEmpty(bean.getLayerNo()) ? ""	: bean.getLayerNo();
 		args[12] ="";
 		args[13] = "A";
+		args[14]=StringUtils.isBlank(bean.getReferenceNo())?"":bean.getReferenceNo();
+
 		queryImpl.updateQuery(query,args);
 		//getClassLimitDetails(bean);
 		query = "INSERT_REINSTATEMENT_MAIN_B";
-		String args1[] = new String[10];
+		String args1[] = new String[11];
 		for(int i=0;i<bean.getCoverdepartIdList().size();i++){
 			CoverdepartIdList req =bean.getCoverdepartIdList().get(i);
 			args1[0] = req.getCoverdepartId();
@@ -4423,6 +4519,8 @@ public void MoveReinstatementEmptyData(ReInstatementMainInsertReq bean) {
 			args1[7] = bean.getProductId();
 			args1[8] = StringUtils.isEmpty(bean.getLayerNo()) ? "0"	: bean.getLayerNo();
 			args1[9] = "B";
+			args[10]=StringUtils.isBlank(bean.getReferenceNo())?"":bean.getReferenceNo();
+
 			queryImpl.updateQuery(query,args1);
 		}
 	}
@@ -4525,9 +4623,20 @@ public void insetNOClaimBonusMainTable(InsertBonusDetailsReq bean) {
 					bean.setEndorsmentno(list.get(0).get("AMEND_ID")==null?"":list.get(0).get("AMEND_ID").toString());
 				}
 		}
-		deleteMainTable(bean.getProposalNo(),bean.getAmendId(),bean.getBranchCode());
+		deleteMainTable(bean.getProposalNo(),bean.getAmendId(),bean.getBranchCode(),bean.getReferenceNo());
+		if(StringUtils.isBlank(bean.getProposalNo()) && StringUtils.isBlank(bean.getReferenceNo())) {
+        	String referenceNo="";
+        	String query="GET_REFERENCE_NO_SEQ";  //ri
+        	
+        	List<Map<String, Object>> list  = queryImpl.selectSingle(query,new String[]{});
+        	if (!CollectionUtils.isEmpty(list)) {
+        		referenceNo = list.get(0).get("REFERENCENO") == null ? ""
+        				: list.get(0).get("REFERENCENO").toString();
+        	}
+        	bean.setReferenceNo(referenceNo);
+        }
 		String query = "BONUS_MAIN_INSERT";
-		String args[]=new String[14];
+		String args[]=new String[15]; //ri
 	           args[0] =bean.getProposalNo();
 	           args[1] = bean.getContractNo();	
 	           args[2] = bean.getProductId();
@@ -4542,6 +4651,8 @@ public void insetNOClaimBonusMainTable(InsertBonusDetailsReq bean) {
 	           args[11] = bean.getAmendId();
 	           args[12] = bean.getDepartmentId();
 	           args[13] = StringUtils.isEmpty(bean.getLayerNo())?"0":bean.getLayerNo();
+	           args[14] = StringUtils.isEmpty(bean.getReferenceNo())?"0":bean.getReferenceNo();
+
 	           queryImpl.updateQuery(query,args);
 }
 	catch(Exception e){
@@ -4566,9 +4677,92 @@ private boolean checkEditSaveModeMethod(final insertProportionalTreatyReq req) {
 		logger.debug("Exception @ {" + e + "}");
 
 	}
-	logger.info("checkEditSaveModeMethod() || Exit");
 	return editSaveMode;
 }
+
+	@Override
+	public GetLayerInfoRes getLayerInfo(GetLayerInfoReq bean) {
+		GetLayerInfoRes response = new GetLayerInfoRes();
+		List<GetLayerInfoRes1> resList = new ArrayList<GetLayerInfoRes1>();
+		List<Map<String, Object>>result=new ArrayList<Map<String, Object>>();
+		String query="";
+		String[] obj=null;
+		try {
+			if(StringUtils.isBlank(bean.getContNo())) {
+				query="GET_LAYER_INFO";
+				obj= new String[2];
+				if("Y".equals(bean.getContractMode())) {
+					obj[0]=bean.getBaseLayer();
+					obj[1]=bean.getBaseLayer();
+				}else {
+					obj[0]=bean.getProposalNo();
+					obj[1]=bean.getProposalNo();
+				}
+			}else {
+				query="GET_LAYER_CONTRACT_INFO";
+				obj= new String[2];
+				if("Y".equals(bean.getContractMode())) {
+					obj[0]=bean.getBaseLayer();
+					obj[1]=bean.getBaseLayer();
+				}else {
+					obj[0]=bean.getProposalNo();
+					obj[1]=bean.getProposalNo();
+				}
+			}
+			result  = queryImpl.selectList(query,obj);
+			if(result!=null && result.size()>0){
+				for (int i = 0; i < result.size(); i++) {
+					Map<String, Object> insMap = (Map<String, Object>)result.get(i);
+					GetLayerInfoRes1 res = new GetLayerInfoRes1();
+					 res.setOfferNo(insMap.get("OFFER_NO")==null?"":insMap.get("OFFER_NO").toString());	 
+					  res.setLayerNo(insMap.get("LAYER_NO")==null?"":insMap.get("LAYER_NO").toString());	 
+					  res.setProposalNo(insMap.get("PROPOSAL_NO")==null?"":insMap.get("PROPOSAL_NO").toString());	 
+					  res.setCedingCompanyId(insMap.get("CEDING_COMPANY_ID")==null?"":insMap.get("CEDING_COMPANY_ID").toString());	 
+					  res.setBaseLayer(insMap.get("BASE_LAYER")==null?"":insMap.get("BASE_LAYER").toString());	 
+					  res.setContractNo(insMap.get("CONTRACT_NO")==null?"":insMap.get("CONTRACT_NO").toString());	 
+					  res.setDeptId(insMap.get("DEPT_ID")==null?"":insMap.get("DEPT_ID").toString());	 
+					  res.setProductId(insMap.get("PRODUCT_ID")==null?"":insMap.get("PRODUCT_ID").toString());	 
+					  res.setSectionNo(insMap.get("SECTION_NO")==null?"":insMap.get("SECTION_NO").toString());	 
+					  res.setTmasDepartmentName(insMap.get("TMAS_DEPARTMENT_NAME")==null?"":insMap.get("TMAS_DEPARTMENT_NAME").toString());	 
+					  res.setTreatyType(insMap.get("TREATY_TYPE")==null?"":insMap.get("TREATY_TYPE").toString());	 
+					  res.setRskTreatyid(insMap.get("RSK_TREATYID")==null?"":insMap.get("RSK_TREATYID").toString());	
+					  resList.add(res);
+					}
+			}
+			response.setCommonResponse(resList);
+			response.setMessage("Success");
+			response.setIsError(false);
+			}catch(Exception e){
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	}
+
+	@Override
+	public CommonResponse cancelProposal(String proposalNo, String proposalReference, String newProposal) {
+		CommonResponse response = new CommonResponse();
+		String query="";
+		String args[] = new String[1];
+		try{
+			if(!"Layer".equalsIgnoreCase(proposalReference)){
+			query= "CANCEL_OLD_PROPOSAL";
+			args[0] = proposalNo;
+			queryImpl.updateQuery(query,args);
+			}
+			query= "CANCEL_PROPOSAL";
+			args[0] = newProposal;
+			queryImpl.updateQuery(query,args);
+			response.setMessage("Success");
+			response.setIsError(false);
+			}catch(Exception e){
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	}
 
 
 }

@@ -17,8 +17,10 @@ public class CoverList {
 	private String deductableLimitOC;
 	
 	@JsonProperty("EgnpiAsPerOff")
-	private String egnpiAsPerOff;
+	private String egnpiAsPerOff; 
 	
 	@JsonProperty("GnpiAsPO")
 	private String gnpiAsPO;
+	@JsonProperty("NetMaxRetentPer")
+	private String netMaxRetentPer; //ri
 }

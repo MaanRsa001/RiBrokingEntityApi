@@ -46,6 +46,7 @@ import com.maan.insurance.model.res.DropDown.GetBouquetExistingListRes;
 import com.maan.insurance.model.res.DropDown.GetBouquetListRes;
 import com.maan.insurance.model.res.DropDown.GetCommonDropDownRes;
 import com.maan.insurance.model.res.DropDown.GetCommonValueRes;
+import com.maan.insurance.model.res.DropDown.GetCompanyInfoRes;
 import com.maan.insurance.model.res.DropDown.GetContractValRes;
 import com.maan.insurance.model.res.DropDown.GetNewContractInfoRes;
 import com.maan.insurance.model.res.DropDown.GetNotPlacedProposalListRes;
@@ -240,10 +241,10 @@ public class DropDownController {
 //	public GetCommonValueRes editModeStatus(@PathVariable ("proposalNo") String proposalNo, @PathVariable ("layerNo") String layerNo) throws CommonValidationException {
 //				return dropDownservice.editModeStatus(proposalNo, layerNo);
 //		}
-	@GetMapping("/riskDetailsEndorsement/{proposalNo}/{endtStatus}")
+	@GetMapping("/riskDetailsEndorsement/{proposalNo}/{endtStatus}/{branchCode}")
 	public CommonResponse riskDetailsEndorsement(@PathVariable("proposalNo") String proposalNo,
-			@PathVariable("endtStatus") String endtStatus) throws CommonValidationException {
-		return dropDownservice.riskDetailsEndorsement(proposalNo, endtStatus);
+			@PathVariable("endtStatus") String endtStatus,@PathVariable("branchCode") String branchCode) throws CommonValidationException {
+		return dropDownservice.riskDetailsEndorsement(proposalNo, endtStatus,branchCode);
 	}
 
 	@GetMapping("/updateSubClass/{proposalNo}/{type}")
@@ -714,5 +715,9 @@ public class DropDownController {
 	@GetMapping("/getPlacementInfoList/{branchCode}/{layerProposalNo}")
 	public GetPlacementInfoListRes getPlacementInfoList(@PathVariable("branchCode") String branchCode, @PathVariable("layerProposalNo") String layerProposalNo)throws CommonValidationException {
 		return dropDownservice.getPlacementInfoList(branchCode,layerProposalNo);
+	} 
+	@GetMapping("/getCompanyInfo/{branchCode}")
+	public GetCompanyInfoRes getCompanyInfo(@PathVariable("branchCode") String branchCode)throws CommonValidationException {
+		return dropDownservice.getCompanyInfo(branchCode);
 	}
 }

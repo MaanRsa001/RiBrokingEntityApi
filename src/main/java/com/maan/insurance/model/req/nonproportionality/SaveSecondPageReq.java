@@ -233,4 +233,7 @@ public class SaveSecondPageReq {
 	private List<InstalmentperiodReq> instalmentperiod;
 	@JsonProperty("NoRetroCessReq")
 	private List<NoRetroCessReq> noRetroCessReq;
+	
+	@JsonProperty("ReferenceNo")
+	private String referenceNo; //ri
 }

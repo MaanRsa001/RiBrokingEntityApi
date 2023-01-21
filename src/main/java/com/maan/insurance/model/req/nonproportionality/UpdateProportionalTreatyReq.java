@@ -242,4 +242,33 @@ public class UpdateProportionalTreatyReq {
 	private String accountingPeriodNotes;
 	@JsonProperty("StatementConfirm")
 	private String statementConfirm; 
+	
+	@JsonProperty("RiskdetailYN") 
+	private String riskdetailYN;
+	@JsonProperty("BrokerdetYN")
+	private String brokerdetYN;
+	@JsonProperty("CoverdetYN")
+	private String coverdetYN;
+	@JsonProperty("PremiumdetailYN")
+	private String premiumdetailYN;
+	@JsonProperty("AcqdetailYN")
+	private String acqdetailYN; 
+	@JsonProperty("CommissiondetailYN") 
+	private String commissiondetailYN;
+	@JsonProperty("DepositdetailYN")
+	private String depositdetailYN;
+	@JsonProperty("LossdetailYN")
+	private String lossdetailYN;
+	@JsonProperty("DocdetailYN")
+	private String docdetailYN;
+	@JsonProperty("PaymentPartner")
+	private String paymentPartner; 
+	@JsonProperty("InstallYN")
+	private String installYN;
+	@JsonProperty("ReinstdetailYN")
+	private String reinstdetailYN;
+	@JsonProperty("RateOnLine")
+	private String rateOnLine; 
+	@JsonProperty("QuotesharePercent")
+	private String quotesharePercent;
 }

@@ -38,12 +38,14 @@ import com.maan.insurance.model.req.nonproportionality.ViewRiskDetailsReq;
 import com.maan.insurance.model.req.nonproportionality.insertClassLimitReq;
 import com.maan.insurance.model.req.nonproportionality.insertProportionalTreatyReq;
 import com.maan.insurance.model.req.nonproportionality.CrestaSaveReq;
+import com.maan.insurance.model.req.nonproportionality.GetLayerInfoReq;
 import com.maan.insurance.model.req.proportionality.GetClassLimitDetailsReq;
 import com.maan.insurance.model.req.nonproportionality.RemarksSaveReq;
 import com.maan.insurance.model.res.nonproportionality.CheckAvialabilityRes;
 import com.maan.insurance.model.res.nonproportionality.CommonResponse;
 import com.maan.insurance.model.res.nonproportionality.GetCommonValueRes;
 import com.maan.insurance.model.res.nonproportionality.GetInclusionExListRes;
+import com.maan.insurance.model.res.nonproportionality.GetLayerInfoRes;
 import com.maan.insurance.model.res.nonproportionality.GetLowClaimBonusListRes;
 import com.maan.insurance.model.res.nonproportionality.GetReInstatementDetailsListRes;
 import com.maan.insurance.model.res.nonproportionality.GetRemarksDetailsRes;
@@ -69,7 +71,6 @@ import com.maan.insurance.validation.nonproportionality.NonProportionalityValida
 @RequestMapping("/Insurance/Nonproportionality")
 public class NonProportionalityController {
 	Gson gson = new Gson();
-	private Logger log = LogManager.getLogger(NonProportionalityController.class);
 	
 	@Autowired
 	private NonProportionalityService nonPropService;
@@ -200,9 +201,9 @@ public class NonProportionalityController {
 //		}
 //		return nonPropService.getReInstatementDetailsList(req);
 //	}
-	@GetMapping("/getReInstatementDetailsList/{proposalNo}/{branchCode}")
-	public GetReInstatementDetailsListRes getReInstatementDetailsList(@PathVariable ("proposalNo") String proposalNo,@PathVariable ("branchCode") String branchCode) throws CommonValidationException {
-					return nonPropService.getReInstatementDetailsList(proposalNo,branchCode);
+	@GetMapping("/getReInstatementDetailsList/{proposalNo}/{branchCode}/{referenceNo}")
+	public GetReInstatementDetailsListRes getReInstatementDetailsList(@PathVariable ("proposalNo") String proposalNo,@PathVariable ("branchCode") String branchCode,@PathVariable ("referenceNo") String referenceNo) throws CommonValidationException {
+					return nonPropService.getReInstatementDetailsList(proposalNo,branchCode,referenceNo);
 		}
 	@PostMapping("/moveReinstatementMain")
 	public CommonResponse moveReinstatementMain(@RequestBody MoveReinstatementMainReq req) throws CommonValidationException {
@@ -212,13 +213,13 @@ public class NonProportionalityController {
 		}
 		return nonPropService.moveReinstatementMain(req);
 	}
-	@GetMapping("/deleteMainTable/{proposalNo}/{amendId}/{branchCode}")
-	public CommonResponse deleteMainTable(@PathVariable ("proposalNo") String proposalNo,@PathVariable ("amendId") String amendId,@PathVariable ("branchCode") String branchCode) throws CommonValidationException {
-					return nonPropService.deleteMainTable(proposalNo,amendId,branchCode);
+	@GetMapping("/deleteMainTable/{proposalNo}/{amendId}/{branchCode}/{referenceNo}")
+	public CommonResponse deleteMainTable(@PathVariable ("proposalNo") String proposalNo,@PathVariable ("amendId") String amendId,@PathVariable ("branchCode") String branchCode,@PathVariable ("referenceNo") String referenceNo) throws CommonValidationException {
+					return nonPropService.deleteMainTable(proposalNo,amendId,branchCode,referenceNo);
 		}
-	@GetMapping("/getLowClaimBonusList/{proposalNo}/{branchCode}/{acqBonus}")
-	public GetLowClaimBonusListRes getLowClaimBonusList(@PathVariable ("proposalNo") String proposalNo,@PathVariable ("branchCode") String branchCode,@PathVariable ("acqBonus") String acqBonus) throws CommonValidationException {
-					return nonPropService.getLowClaimBonusList(proposalNo,branchCode,acqBonus);
+	@GetMapping("/getLowClaimBonusList/{proposalNo}/{branchCode}/{acqBonus}/{referenceNo}")
+	public GetLowClaimBonusListRes getLowClaimBonusList(@PathVariable ("proposalNo") String proposalNo,@PathVariable ("branchCode") String branchCode,@PathVariable ("acqBonus") String acqBonus,@PathVariable ("referenceNo") String referenceNo) throws CommonValidationException {
+					return nonPropService.getLowClaimBonusList(proposalNo,branchCode,acqBonus,referenceNo);
 		}
 	@PostMapping("/LowClaimBonusInser")
 		public CommonResponse lowClaimBonusInser(@RequestBody LowClaimBonusInserReq req) throws CommonValidationException {
@@ -327,5 +328,17 @@ public class NonProportionalityController {
 			@GetMapping("/getLayerDuplicationCheck/{proposalNo}/{layerNo}/{baseLayer}")
 			public CommonSaveRes getLayerDuplicationCheck(@PathVariable ("proposalNo") String proposalNo,@PathVariable ("layerNo") String layerNo,@PathVariable ("baseLayer") String baseLayer) throws CommonValidationException {
 							return nonPropService.getLayerDuplicationCheck(proposalNo,layerNo,baseLayer);
-				}
+				} 
+			@PostMapping("/getLayerInfo")
+				public GetLayerInfoRes getLayerInfo(@RequestBody GetLayerInfoReq req) throws CommonValidationException {
+					List<ErrorCheck> error=nonPropValidation.getLayerInfoVali(req);
+					if(error!=null && error.size()>0) {
+						throw new CommonValidationException("error",error);
+					}
+					return nonPropService.getLayerInfo(req);
+				} 
+			@GetMapping("/CancelProposal/{proposalNo}/{proposalReference}/{newProposal}")
+			public CommonResponse cancelProposal(@PathVariable ("proposalNo") String proposalNo,@PathVariable ("proposalReference") String proposalReference,@PathVariable ("newProposal") String newProposal) throws CommonValidationException {
+							return nonPropService.cancelProposal(proposalNo,proposalReference,newProposal);
+				} 
 }

@@ -36,8 +36,11 @@ public class ReInstatementMainInsertReq {
 	private String contractNo;
 	
 	@JsonProperty("LayerNo")
-	private String layerNo;
+	private String layerNo; 
 	
 	@JsonProperty("CoverdepartIdList")
 	private List<CoverdepartIdList> coverdepartIdList;
+
+	@JsonProperty("ReferenceNo")
+	private String referenceNo;
 }

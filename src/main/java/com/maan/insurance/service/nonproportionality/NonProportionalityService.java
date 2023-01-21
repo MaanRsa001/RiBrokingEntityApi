@@ -3,6 +3,7 @@ package com.maan.insurance.service.nonproportionality;
 import org.springframework.stereotype.Service;
 
 import com.maan.insurance.model.req.nonproportionality.CrestaSaveReq;
+import com.maan.insurance.model.req.nonproportionality.GetLayerInfoReq;
 import com.maan.insurance.model.req.nonproportionality.GetRetroContractDetailsListReq;
 import com.maan.insurance.model.req.nonproportionality.GetRetroContractDetailsReq;
 import com.maan.insurance.model.req.nonproportionality.InsertBonusDetailsReq;
@@ -32,6 +33,7 @@ import com.maan.insurance.model.res.nonproportionality.CommonSaveRes;
 import com.maan.insurance.model.res.nonproportionality.GetClassLimitDetailsRes;
 import com.maan.insurance.model.res.nonproportionality.GetCommonValueRes;
 import com.maan.insurance.model.res.nonproportionality.GetInclusionExListRes;
+import com.maan.insurance.model.res.nonproportionality.GetLayerInfoRes;
 import com.maan.insurance.model.res.nonproportionality.GetLowClaimBonusListRes;
 import com.maan.insurance.model.res.nonproportionality.GetReInstatementDetailsListRes;
 import com.maan.insurance.model.res.nonproportionality.GetRemarksDetailsRes;
@@ -89,11 +91,11 @@ public interface NonProportionalityService {
 
 	CommonResponse moveReinstatementMain(MoveReinstatementMainReq req);
 
-	CommonResponse deleteMainTable(String proposalNo, String amendId, String branchCode);
+	CommonResponse deleteMainTable(String proposalNo, String amendId, String branchCode, String referenceNo);
 
-	GetReInstatementDetailsListRes getReInstatementDetailsList(String proposalNo, String branchCode);
+	GetReInstatementDetailsListRes getReInstatementDetailsList(String proposalNo, String branchCode, String referenceNo);
 
-	GetLowClaimBonusListRes getLowClaimBonusList(String proposalNo, String branchCode, String acqBonus);
+	GetLowClaimBonusListRes getLowClaimBonusList(String proposalNo, String branchCode, String acqBonus, String referenceNo);
 
 	CommonResponse lowClaimBonusInser(LowClaimBonusInserReq req);
 
@@ -122,6 +124,10 @@ public interface NonProportionalityService {
 	CommonResponse insertBonusDetails(InsertBonusDetailsReq req);
 
 	CommonSaveRes getLayerDuplicationCheck(String proposalNo, String layerNo, String baseLayer);
+
+	GetLayerInfoRes getLayerInfo(GetLayerInfoReq req);
+
+	CommonResponse cancelProposal(String proposalNo, String proposalReference, String newProposal);
 
 
 }
