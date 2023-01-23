@@ -18,7 +18,7 @@ public class TtrnClaimAccMapper {
 		ttrnClaimAcc.setClaimNo(new BigDecimal(req.getClaimNo()));
 		ttrnClaimAcc.setContractNo(req.getPolicyContractNo());
 		ttrnClaimAcc.setLayerNo(StringUtils.isEmpty(req.getLayerNo())?BigDecimal.ZERO:new BigDecimal(req.getLayerNo()));
-		ttrnClaimAcc.setSubClass(new BigDecimal(req.getDepartmentId()));
+		ttrnClaimAcc.setSubClass(new BigDecimal(req.getSectionNo()));
 		ttrnClaimAcc.setRiskCode(req.getRiskCode());
 		ttrnClaimAcc.setAggregateCode(req.getAccumulationCode());
 		ttrnClaimAcc.setEventCode(req.getEventCode());

@@ -330,11 +330,11 @@ public class PremiumServiceImple implements PremiumService{
 			//tempBean.setTransactionNumber(tempMap.get("TRANSACTION_NO")==null?"":tempMap.get("TRANSACTION_NO").toString());
 			tempBean.setTransactionType(bean.getTransactionType());
 			tempBean.setDeptId(tempMap.get("TMAS_DEPARTMENT_NAME")==null?"":tempMap.get("TMAS_DEPARTMENT_NAME").toString());
-			tempBean.setExpiryDate(tempMap.get("EXPIRY_DATE")==null?"":tempMap.get("EXPIRY_DATE").toString());
-			tempBean.setInceptionDate(tempMap.get("INCEPTION_DATE")==null?"":tempMap.get("INCEPTION_DATE").toString());
+			tempBean.setExpiryDate(tempMap.get("EXPIRY_DATE")==null?"":formatDate(tempMap.get("EXPIRY_DATE")));
+			tempBean.setInceptionDate(tempMap.get("INCEPTION_DATE")==null?"":formatDate(tempMap.get("INCEPTION_DATE")));
 			//tempBean.setTransactionDate(tempMap.get("TRANSACTION_DATE")==null?"":tempMap.get("TRANSACTION_DATE").toString());
 			tempBean.setUnderwritingYear(tempMap.get("UW_YEAR")==null?"":tempMap.get("UW_YEAR").toString());
-			tempBean.setUnderwriter(tempMap.get("UNDERWRITTER")==null?"":tempMap.get("UNDERWRITTER").toString());
+			//tempBean.setUnderwriter(tempMap.get("UNDERWRITTER")==null?"":tempMap.get("UNDERWRITTER").toString());
 			tempBean.setOldContract(tempMap.get("OLD_CONTRACTNO")==null?"":tempMap.get("OLD_CONTRACTNO").toString());
 			tempBean.setDepartmentId(tempMap.get("DEPT_ID")==null?"":tempMap.get("DEPT_ID").toString());
 			finalList.add(tempBean);
@@ -400,6 +400,8 @@ public class PremiumServiceImple implements PremiumService{
 			
 			tempBean.setTransactionDate(tempMap.get("TRANSACTION_DATE")==null?"":formatDate(tempMap.get("TRANSACTION_DATE")));
 			tempBean.setRitransactionNo(tempMap.get("RI_TRANSCATION_NO")==null?"":tempMap.get("RI_TRANSCATION_NO").toString());
+			tempBean.setRiBroker(tempMap.get("RI_BROKER_NAME")==null?"":tempMap.get("RI_BROKER_NAME").toString());
+			tempBean.setReinsuranceName(tempMap.get("RI_COMPANY_NAME")==null?"":tempMap.get("RI_COMPANY_NAME").toString());
 			
 			int count= dropDowmImpl.Validatethree(bean.getBranchCode(), tempBean.getTransactionDate());
 			if("Main".equalsIgnoreCase(bean.getTableType())){

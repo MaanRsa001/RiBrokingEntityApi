@@ -189,6 +189,9 @@ public class GetPremiumDetailsRes1 {
 	private String sumOfPaidPremium;
 	@JsonProperty("CurrencyName")
 	private String currencyName;
-	
+	@JsonProperty("ReinsuranceName")
+	private String reinsuranceName;
+	@JsonProperty("RiBroker")
+	private String riBroker;
 	
 }

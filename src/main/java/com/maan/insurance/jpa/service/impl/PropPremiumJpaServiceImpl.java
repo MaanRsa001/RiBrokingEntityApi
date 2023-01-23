@@ -69,7 +69,6 @@ import com.maan.insurance.model.repository.TtrnClaimPaymentRepository;
 import com.maan.insurance.model.req.premium.CashLossmailTriggerReq;
 import com.maan.insurance.model.req.premium.ClaimTableListReq;
 import com.maan.insurance.model.req.premium.ContractDetailsReq;
-import com.maan.insurance.model.req.premium.GetCashLossCreditReq;
 import com.maan.insurance.model.req.premium.GetCashLossCreditReq1;
 import com.maan.insurance.model.req.premium.GetCassLossCreditReq;
 import com.maan.insurance.model.req.premium.GetConstantPeriodDropDownReq;
@@ -84,12 +83,10 @@ import com.maan.insurance.model.req.premium.InsertLossReserved;
 import com.maan.insurance.model.req.premium.InsertPremiumReq;
 import com.maan.insurance.model.req.premium.InsertReverseCashLossCreditReq;
 import com.maan.insurance.model.req.premium.PremiumEditReq;
-import com.maan.insurance.model.req.premium.PremiumUpdateMethodRiReq;
 import com.maan.insurance.model.req.premium.SubmitPremiumReservedReq;
 import com.maan.insurance.model.req.premium.SubmitPremiumReservedReq1;
 import com.maan.insurance.model.res.ClaimlistRes;
 import com.maan.insurance.model.res.DropDown.GetCommonValueRes;
-import com.maan.insurance.model.res.facPremium.SettlementstatusRes;
 import com.maan.insurance.model.res.premium.ClaimNosListRes;
 import com.maan.insurance.model.res.premium.ClaimTableListMode1Res;
 import com.maan.insurance.model.res.premium.ContractDetailsRes;
@@ -125,7 +122,6 @@ import com.maan.insurance.model.res.premium.GetPremiumReservedRes1;
 import com.maan.insurance.model.res.premium.GetPremiumedListRes;
 import com.maan.insurance.model.res.premium.GetPremiumedListRes1;
 import com.maan.insurance.model.res.premium.GetPreviousPremiumRes;
-import com.maan.insurance.model.res.premium.GetRIPremiumListRes;
 import com.maan.insurance.model.res.premium.GetRetroContractsRes;
 import com.maan.insurance.model.res.premium.GetRetroContractsRes1;
 import com.maan.insurance.model.res.premium.GetSPRetroListRes;
@@ -149,7 +145,6 @@ import com.maan.insurance.model.res.premium.getCurrencyShortNameRes;
 import com.maan.insurance.model.res.premium.getReverseCassLossCreditRes;
 import com.maan.insurance.model.res.premium.premiumUpdateMethodRes;
 import com.maan.insurance.model.res.premium.premiumUpdateMethodRes1;
-import com.maan.insurance.model.res.proportionality.CommonSaveRes;
 import com.maan.insurance.model.res.retro.CommonResponse;
 import com.maan.insurance.model.res.premium.GetPremiumDetailsRes1;
 import com.maan.insurance.service.impl.QueryImplemention;
@@ -1792,6 +1787,7 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 				res.setProfitCenter(
 						tempMap.get("TMAS_PFC_NAME") == null ? "" : tempMap.get("TMAS_PFC_NAME").toString());
 				res.setSubProfitCenter(tempMap.get("RSK_SPFCID") == null ? "" : tempMap.get("RSK_SPFCID").toString());
+				res.setDepartmentName(tempMap.get("TMAS_DEPARTMENT_NAME") == null ? "" : tempMap.get("TMAS_DEPARTMENT_NAME").toString());
 				if (!"ALL".equalsIgnoreCase(res.getSubProfitCenter())) {
 					res.setSubProfitCenter(
 							tempMap.get("TMAS_SPFC_NAME") == null ? "" : tempMap.get("TMAS_SPFC_NAME").toString());
@@ -3975,6 +3971,8 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 			   	for (int i = 0; i < list.size(); i++) {
 			   		Tuple tempMap=list.get(i);
 					GetPremiumDetailsRes1 res = new GetPremiumDetailsRes1();
+					res.setRiBroker(tempMap.get("RI_BROKER_NAME")==null?"":tempMap.get("RI_BROKER_NAME").toString());
+					res.setReinsuranceName(tempMap.get("RI_COMPANY_NAME")==null?"":tempMap.get("RI_COMPANY_NAME").toString());
 						res.setContNo(tempMap.get("CONTRACT_NO")==null?"":tempMap.get("CONTRACT_NO").toString());
 						res.setTransactionNo(tempMap.get("RI_TRANSACTION_NO")==null?"":tempMap.get("RI_TRANSACTION_NO").toString());
 						res.setTransaction(tempMap.get("TRANS_DATE")==null?"":formatDate(tempMap.get("TRANS_DATE")));

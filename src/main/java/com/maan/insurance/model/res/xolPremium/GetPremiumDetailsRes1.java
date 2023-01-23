@@ -147,6 +147,9 @@ public class GetPremiumDetailsRes1 {
 	private String departmentId;
 	@JsonProperty("GnpiDate")
 	private String gnpiDate;
-	
+	@JsonProperty("ReinsuranceName")
+	private String reinsuranceName;
+	@JsonProperty("RiBroker")
+	private String riBroker;
 }
 

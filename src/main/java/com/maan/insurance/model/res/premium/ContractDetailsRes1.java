@@ -142,4 +142,7 @@ public class ContractDetailsRes1 {
 	private String brokerId;
 	@JsonProperty("VatRate")
 	private String vatRate; 
+	
+	@JsonProperty("DepartmentName")
+	private String departmentName; 
 }

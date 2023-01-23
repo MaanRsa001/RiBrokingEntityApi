@@ -53,4 +53,10 @@ public class ClaimPaymentListRes {
 	private String statusofclaim;
 	@JsonProperty("TransOpenperiodStatus")
 	private String transOpenperiodStatus;
+	@JsonProperty("SectionNo")
+	private String sectionNo;
+	@JsonProperty("ClaimPaymentRiNo")
+	private String claimPaymentRiNo;
+	@JsonProperty("Currency")
+	private String currency;
 }

@@ -2725,9 +2725,28 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 						   cb.equal(dSubRoot.get("type"), traRoot.get("accountPeriodQtr")),
 						   cb.equal(dSubRoot.get("status"), "Y"));
 		
+		Subquery<String> fNameSq = cq.subquery(String.class);
+		Root<PersonalInfo> fNameSubRoot = fNameSq.from(PersonalInfo.class);
+
+		fNameSq.select(cb.concat(cb.concat(fNameSubRoot.get("firstName"), " "),
+				fNameSubRoot.get("lastName")))
+			   .where( cb.equal(fNameSubRoot.get("customerId"), traRoot.get("brokerId")),
+					   cb.equal(fNameSubRoot.get("customerType"), "B"),
+					   cb.equal(fNameSubRoot.get("branchCode"), traRoot.get("branchCode")));
+		
+		Subquery<String> fCNameSq = cq.subquery(String.class);
+		Root<PersonalInfo> fCNameSubRoot = fCNameSq.from(PersonalInfo.class);
+
+		fCNameSq.select(fCNameSubRoot.get("companyName"))
+			   .where( cb.equal(fCNameSubRoot.get("customerId"), traRoot.get("reinsurerId")),
+					   cb.equal(fCNameSubRoot.get("customerType"), "R"),
+					   cb.equal(fCNameSubRoot.get("branchCode"), traRoot.get("branchCode")));
+		
 		cq.multiselect(rkRoot.get("rskContractNo").alias("RSK_CONTRACT_NO"),
 				personalRoot.get("companyName").alias("COMPANY_NAME"),
 				nameExpression.alias("BROKER_NAME"),
+				fNameSq.alias("RI_BROKER_NAME"),
+				fCNameSq.alias("RI_COMPANY_NAME"),
 				rkRoot.get("rskProposalNumber").alias("RSK_PROPOSAL_NUMBER"),
 				rkRoot.get("rskLayerNo").alias("RSK_LAYER_NO"),
 				pmroot.get("sectionNo").alias("SECTION_NO"),
@@ -2837,7 +2856,7 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 			Root<TmasDepartmentMaster> b = query.from(TmasDepartmentMaster.class);
 			Root<PersonalInfo> c = query.from(PersonalInfo.class);
 			Root<TtrnRiskDetails> d = query.from(TtrnRiskDetails.class);
-			Root<UnderwritterMaster> e = query.from(UnderwritterMaster.class);
+			//Root<UnderwritterMaster> e = query.from(UnderwritterMaster.class);
 			Root<PersonalInfo> c1 = query.from(PersonalInfo.class);
 			
 			Expression<String> e0 = cb.concat(c1.get("firstName"), " ")	;	
@@ -2850,7 +2869,7 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 					a.get("layerNo").alias("LAYER_NO"),a.get("baseLayer").alias("BASE_LAYER"),a.get("oldContractno").alias("OLD_CONTRACTNO"),
 					a.get("renewalStatus").alias("RENEWAL_STATUS"), //cb.diff(a.get("expiryDate"), new Date()).alias("RENWALDATE"),
 					cb.selectCase().when(cb.notEqual(a.get("uwYear"),"0"), a.get("uwYear")) .otherwise("").alias("UW_YEAR"),
-					a.get("uwMonth").alias("UW_MONTH"),e.get("underwritter").alias("UNDERWRITTER"),a.get("amendId").alias("AMEND_ID"));
+					a.get("uwMonth").alias("UW_MONTH"),a.get("amendId").alias("AMEND_ID"));
 					
 			Subquery<Long> amend = query.subquery(Long.class); 
 			Root<PersonalInfo> pi = amend.from(PersonalInfo.class);
@@ -2886,51 +2905,46 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 			end.where(f1,f2);
 			List<Order> orderList = new ArrayList<Order>();
 			orderList.add(cb.desc(a.get("contractNo")));
-
-			Predicate n1 = cb.equal(a.get("deptId"), b.get("tmasDepartmentId"));
-			Predicate n2 = cb.equal(c.get("customerId"), a.get("cedingCompanyId"));
-			Predicate n3 = cb.equal(a.get("productId"), d.get("rskProductid"));
-			Predicate n4 = cb.equal(a.get("contractNo"), d.get("rskContractNo"));
-			Predicate n5 = cb.equal(a.get("layerNo"), d.get("rskLayerNo"));
-			Predicate n6 = cb.equal(a.get("amendId"), d.get("rskEndorsementNo"));
-			Predicate n7 = cb.equal(a.get("deptId"), d.get("rskDeptid"));
-			Predicate n8 = cb.equal(d.get("rskUnderwritter"), e.get("uwrCode"));
-			Predicate n9 = cb.equal(c1.get("customerId"), a.get("brokerId"));
-			Predicate n10 = cb.equal(a.get("productId"), bean.getTransactionType());
-			Predicate n11 = cb.equal(a.get("contractStatus"), "A");
-			Predicate n12 = cb.greaterThan(a.get("contractNo"), 0);
-			Predicate n13 = cb.equal(b.get("tmasProductId"), bean.getTransactionType());
-			Predicate n14 = cb.equal(b.get("branchCode"), bean.getBranchCode());
-			Predicate n15 = cb.equal(b.get("tmasStatus"), "Y");
-			Predicate n16 = cb.equal(c.get("branchCode"), bean.getBranchCode());
-			Predicate n17 = cb.equal(c.get("customerType"), "C");
-			Predicate n18 = cb.equal(c.get("amendId"), amend);
-			Predicate n19 = cb.equal(e.get("branchCode"), bean.getBranchCode());
-			Predicate n20 = cb.equal(a.get("branchCode"), bean.getBranchCode());
+			List<Predicate> predicates = new ArrayList<>();
+			
+			predicates.add(cb.equal(a.get("deptId"), b.get("tmasDepartmentId")));
+			predicates.add(cb.equal(c.get("customerId"), a.get("cedingCompanyId")));
+			predicates.add(cb.equal(a.get("productId"), d.get("rskProductid")));
+			predicates.add(cb.equal(a.get("contractNo"), d.get("rskContractNo")));
+			predicates.add(cb.equal(a.get("layerNo"), d.get("rskLayerNo")));
+			predicates.add(cb.equal(a.get("amendId"), d.get("rskEndorsementNo")));
+			predicates.add(cb.equal(a.get("deptId"), d.get("rskDeptid")));
+			predicates.add(cb.equal(c1.get("customerId"), a.get("brokerId")));
+			predicates.add(cb.equal(a.get("productId"), bean.getTransactionType()));
+			predicates.add(cb.equal(a.get("contractStatus"), "A"));
+			predicates.add(cb.greaterThan(a.get("contractNo"), 0));
+			predicates.add(cb.equal(b.get("tmasProductId"), bean.getTransactionType()));
+			predicates.add(cb.equal(b.get("branchCode"), bean.getBranchCode()));
+			predicates.add(cb.equal(b.get("tmasStatus"), "Y"));
+			predicates.add(cb.equal(c.get("branchCode"), bean.getBranchCode()));
+			predicates.add(cb.equal(c.get("customerType"), "C"));
+			predicates.add(cb.equal(c.get("amendId"), amend));
+			predicates.add(cb.equal(a.get("branchCode"), bean.getBranchCode()));
 			//in
 			Expression<String> e1= a.get("amendId");
-			Predicate n21 = e1.in(amenId==null?null:amenId);
-			Predicate n22 = cb.equal(c1.get("branchCode"), bean.getBranchCode());
-			Predicate n23 = cb.equal(c1.get("amendId"), amendC1);
-			Predicate n24 = cb.equal(d.get("rskEndorsementNo"), end);
-			Predicate n25 = null;
-			if(!"N".equalsIgnoreCase(bean.getCedingCompanyName())&&!"".equalsIgnoreCase(bean.getCedingCompanyName())){
-				 n25 = cb.equal(d.get("rskCedingid"), bean.getCedingCompanyName());
-				 query.where(n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11,n12,n13,n14,n15,n16,n17,n18,n19,n20,n21,n22,n23,n24,n25).orderBy(orderList);
+			predicates.add(e1.in(amenId==null?null:amenId));
+			predicates.add(cb.equal(c1.get("branchCode"), bean.getBranchCode()));
+			predicates.add(cb.equal(c1.get("amendId"), amendC1));
+			predicates.add(cb.equal(d.get("rskEndorsementNo"), end));
+			 
+			if(!"N".equalsIgnoreCase(bean.getCedingCompanyName()) && StringUtils.isNotBlank(bean.getCedingCompanyName())){
+				predicates.add(cb.equal(d.get("rskCedingid"), bean.getCedingCompanyName()));
 			}
-			if(!"N".equalsIgnoreCase(bean.getBrokerCode())&&!"".equalsIgnoreCase(bean.getBrokerCode())){
-				 n25 = cb.equal(d.get("rskBrokerId"), bean.getBrokerCode());
-				 query.where(n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11,n12,n13,n14,n15,n16,n17,n18,n19,n20,n21,n22,n23,n24,n25).orderBy(orderList);
+			if(!"N".equalsIgnoreCase(bean.getBrokerCode()) && StringUtils.isNotBlank(bean.getBrokerCode())){
+				predicates.add(cb.equal(d.get("rskBrokerid"), bean.getBrokerCode()));
 			}
-			if(!"N".equalsIgnoreCase(bean.getUnderwritingYear())&&!"".equalsIgnoreCase(bean.getUnderwritingYear())){
-				 n25 = cb.equal(d.get("rskUwyear"), bean.getUnderwritingYear());
-				 query.where(n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11,n12,n13,n14,n15,n16,n17,n18,n19,n20,n21,n22,n23,n24,n25).orderBy(orderList);
+			if(!"N".equalsIgnoreCase(bean.getUnderwritingYear()) && StringUtils.isNotBlank(bean.getUnderwritingYear())){
+				predicates.add(cb.equal(d.get("rskUwyear"), bean.getUnderwritingYear()));
 			}
-			if(!"N".equalsIgnoreCase(bean.getDeptId())&&!"".equalsIgnoreCase(bean.getDeptId())){
-				 n25 = cb.equal(d.get("rskDeptid"), bean.getDeptId());
-				 query.where(n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11,n12,n13,n14,n15,n16,n17,n18,n19,n20,n21,n22,n23,n24,n25).orderBy(orderList);
+			if(!"N".equalsIgnoreCase(bean.getDeptId()) && StringUtils.isNotBlank(bean.getDeptId())){
+				predicates.add(cb.equal(d.get("rskDeptid"), bean.getDeptId()));
 			}
-			query.where(n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11,n12,n13,n14,n15,n16,n17,n18,n19,n20,n21,n22,n23,n24).orderBy(orderList);	
+			query.where(cb.and(predicates.toArray(new Predicate[predicates.size()]))).orderBy(orderList);	
 		
 
 			TypedQuery<Tuple> result = em.createQuery(query);
@@ -3115,6 +3129,23 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		Predicate j2 = cb.equal( name.get("type"), root.get("accountPeriodQtr")); //
 		act.where(j1,j2);
 		
+		Subquery<String> fNameSq = cq.subquery(String.class);
+		Root<PersonalInfo> fNameSubRoot = fNameSq.from(PersonalInfo.class);
+
+		fNameSq.select(cb.concat(cb.concat(fNameSubRoot.get("firstName"), " "),
+				fNameSubRoot.get("lastName")))
+			   .where( cb.equal(fNameSubRoot.get("customerId"), root.get("brokerId")),
+					   cb.equal(fNameSubRoot.get("customerType"), "B"),
+					   cb.equal(fNameSubRoot.get("branchCode"), root.get("branchCode")));
+		
+		Subquery<String> fCNameSq = cq.subquery(String.class);
+		Root<PersonalInfo> fCNameSubRoot = fCNameSq.from(PersonalInfo.class);
+
+		fCNameSq.select(fCNameSubRoot.get("companyName"))
+			   .where( cb.equal(fCNameSubRoot.get("customerId"), root.get("reinsurerId")),
+					   cb.equal(fCNameSubRoot.get("customerType"), "R"),
+					   cb.equal(fCNameSubRoot.get("branchCode"), root.get("branchCode")));		
+		
 		cq.multiselect(root.get("contractNo").alias("CONTRACT_NO"),
 				root.get("ritransactionNo").alias("RI_TRANSACTION_NO"),
 				root.get("statementDate").alias("STATEMENT_DATE"),
@@ -3132,6 +3163,8 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 				root.get("layerNo").alias("LAYER_NO"),
 				root.get("enteringMode").alias("ENTERING_MODE"),
 				act.alias("ACCOUNT_PERIOD_QTR"),
+				fNameSq.alias("RI_BROKER_NAME"),
+				fCNameSq.alias("RI_COMPANY_NAME"),
 				root.get("currencyId").alias("CURRENCY_ID"),
 				root.get("otherCostOc").alias("OTHER_COST_OC"),
 				root.get("brokerageAmtDc").alias("BROKERAGE_AMT_DC"),

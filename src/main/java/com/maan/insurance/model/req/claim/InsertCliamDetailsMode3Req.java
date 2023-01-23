@@ -19,8 +19,8 @@ public class InsertCliamDetailsMode3Req {
 	@JsonProperty("ProductId")
 	private String productId;
 	
-	@JsonProperty("DepartmentId")
-	private String departmentId;
+	@JsonProperty("SectionNo")
+	private String sectionNo;
 	
 	@JsonProperty("Date")
 	private String date;
@@ -90,5 +90,8 @@ public class InsertCliamDetailsMode3Req {
 	
 	@JsonProperty("BusinessMode")
 	private String businessMode;
+	
+	@JsonProperty("ProposalNo")
+	private String proposalNo;
 
 }

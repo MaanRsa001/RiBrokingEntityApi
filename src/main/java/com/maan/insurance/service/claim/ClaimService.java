@@ -145,5 +145,7 @@ public interface ClaimService {
 
 	InsertCliamDetailsMode3Res claimUpdatePaymentRi(InsertCliamDetailsMode3Req req);
 
+	ClaimPaymentListRes1 claimPaymentRiList(ClaimPaymentListReq req);
+
 
 }

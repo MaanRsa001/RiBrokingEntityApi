@@ -54,7 +54,7 @@ public class TtrnClaimDetailsMapper extends AbstractEntityMapper<TtrnClaimDetail
 			ttrnClaimDetails.setAccumulationCode(req.getAccumulationCode()==null?"":req.getAccumulationCode());
 			ttrnClaimDetails.setEventCode(req.getEventCode()==null?"":req.getEventCode());
 			ttrnClaimDetails.setInsuredName(req.getInsuredName());
-			ttrnClaimDetails.setSubClass(new BigDecimal(req.getDepartmentId()));
+			ttrnClaimDetails.setSubClass(new BigDecimal(req.getSectionNo()));
 			ttrnClaimDetails.setBranchCode(req.getBranchCode());
 			ttrnClaimDetails.setLoginId(req.getLoginId());
 			ttrnClaimDetails.setRecordFeesCreReserve(req.getRecordFees()==null?"":req.getRecordFees());
@@ -78,7 +78,7 @@ public class TtrnClaimDetailsMapper extends AbstractEntityMapper<TtrnClaimDetail
 			 if("2".equalsIgnoreCase(req.getProductId())){
 				 ttrnClaimDetails.setClaimClass(req.getClaimdepartId());
 			 }else if("1".equalsIgnoreCase(req.getProductId())){
-				 ttrnClaimDetails.setClaimClass(req.getDepartmentId());
+				 ttrnClaimDetails.setClaimClass(req.getClaimdepartId());
 			 }else if("3".equalsIgnoreCase(req.getProductId())){
 				 ttrnClaimDetails.setClaimClass(req.getDepartmentClass()); //
 			 }

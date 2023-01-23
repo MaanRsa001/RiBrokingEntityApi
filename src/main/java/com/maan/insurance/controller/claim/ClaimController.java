@@ -2,8 +2,6 @@ package com.maan.insurance.controller.claim;
 
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.gson.Gson;
 import com.maan.insurance.error.CommonValidationException;
 import com.maan.insurance.error.ErrorCheck;
-import com.maan.insurance.jpa.service.impl.ClaimJpaServiceImpl;
 import com.maan.insurance.model.req.claim.AllocListReq;
 import com.maan.insurance.model.req.claim.AllocationListReq;
 import com.maan.insurance.model.req.claim.ClaimListMode4Req;
@@ -35,21 +32,14 @@ import com.maan.insurance.model.req.claim.InsertCliamDetailsMode3Req;
 import com.maan.insurance.model.req.claim.InsertCliamDetailsMode8Req;
 import com.maan.insurance.model.req.claim.ProposalNoReq;
 import com.maan.insurance.model.req.claim.claimNoListReq;
-import com.maan.insurance.model.res.ClaimPaymentListRes;
 import com.maan.insurance.model.res.GetShortnameRes;
-import com.maan.insurance.model.res.claim.AllocListRes;
 import com.maan.insurance.model.res.claim.AllocListRes1;
 import com.maan.insurance.model.res.claim.AllocationListRes;
-import com.maan.insurance.model.res.claim.ClaimListMode3Res;
 import com.maan.insurance.model.res.claim.ClaimListMode3Response;
-import com.maan.insurance.model.res.claim.ClaimListMode4Res;
 import com.maan.insurance.model.res.claim.ClaimListMode4Response;
-import com.maan.insurance.model.res.claim.ClaimListMode5Res;
 import com.maan.insurance.model.res.claim.ClaimListMode5Response;
-import com.maan.insurance.model.res.claim.ClaimListMode6Res;
 import com.maan.insurance.model.res.claim.ClaimListMode6Response;
 import com.maan.insurance.model.res.claim.ClaimListRes;
-import com.maan.insurance.model.res.claim.ClaimPaymentEditRes;
 import com.maan.insurance.model.res.claim.ClaimPaymentEditRes1;
 import com.maan.insurance.model.res.claim.ClaimPaymentListRes1;
 import com.maan.insurance.model.res.claim.ClaimTableListMode1Res;
@@ -61,15 +51,12 @@ import com.maan.insurance.model.res.claim.ContractDetailsMode4Res;
 import com.maan.insurance.model.res.claim.ContractDetailsMode5Res;
 import com.maan.insurance.model.res.claim.ContractDetailsMode6Res;
 import com.maan.insurance.model.res.claim.ContractDetailsMode7Res;
-import com.maan.insurance.model.res.claim.ContractidetifierlistRes;
 import com.maan.insurance.model.res.claim.ContractidetifierlistRes1;
-import com.maan.insurance.model.res.claim.GetContractNoRes;
 import com.maan.insurance.model.res.claim.GetContractNoRes1;
 import com.maan.insurance.model.res.claim.InsertCliamDetailsMode12Res;
 import com.maan.insurance.model.res.claim.InsertCliamDetailsMode2Res;
 import com.maan.insurance.model.res.claim.InsertCliamDetailsMode3Res;
 import com.maan.insurance.model.res.claim.InsertCliamDetailsMode8Res;
-import com.maan.insurance.model.res.claim.ProductIdListRes;
 import com.maan.insurance.model.res.claim.ProductIdListRes1;
 import com.maan.insurance.model.res.claim.ProposalNoRes;
 import com.maan.insurance.model.res.claim.claimNoListRes;
@@ -362,5 +349,14 @@ public class ClaimController {
 			throw new CommonValidationException("error",error);
 		}
 		return claimService.claimUpdatePaymentRi(req);
+	}
+	@PostMapping("/claimPaymentRiList")
+	public ClaimPaymentListRes1 claimPaymentRiList(@RequestBody ClaimPaymentListReq req) throws CommonValidationException {
+		List<ErrorCheck> error = claimValidation.claimPaymentListVali(req);
+		if(error != null && error.size() > 0) {
+			
+			throw new CommonValidationException("error",error);
+		}
+		return claimService.claimPaymentRiList(req);
 	}
 }

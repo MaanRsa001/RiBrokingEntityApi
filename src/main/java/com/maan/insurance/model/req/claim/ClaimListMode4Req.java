@@ -14,6 +14,6 @@ public class ClaimListMode4Req {
 	private String contractNo;
 //	@JsonProperty("ClaimPaymentNo")
 //	private String claimPaymentNo;
-//	@JsonProperty("LayerNo")
-//	private String layerNo;
+	@JsonProperty("LayerNo")
+	private String layerNo;
 }

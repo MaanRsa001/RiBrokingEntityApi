@@ -436,7 +436,7 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 			tempBean.setStatusofclaim(tempMap.get("STATUS_OF_CLAIM")==null?"":tempMap.get("STATUS_OF_CLAIM").toString());
 			tempBean.setPolicyContractNo(tempMap.get("CONTRACT_NO")==null?"":tempMap.get("CONTRACT_NO").toString());
 			tempBean.setEditMode(tempMap.get("EDITVIEW")==null?"":tempMap.get("EDITVIEW").toString());
-			tempBean.setLayerNo(tempMap.get("LAYER_NO")==null?"":tempMap.get("LAYER_NO").toString());
+			tempBean.setLayerNo(tempMap.get("LAYER_NO")==null?"0":tempMap.get("LAYER_NO").toString());
 			tempBean.setProposalNo(tempMap.get("PROPOSAL_NO")==null?"":tempMap.get("PROPOSAL_NO").toString());
 			tempBean.setCedingcompanyName(tempMap.get("CUSTOMER_NAME")==null?"":tempMap.get("CUSTOMER_NAME").toString());
 			tempBean.setBrokerName(tempMap.get("BROKER_NAME")==null?"":tempMap.get("BROKER_NAME").toString());
@@ -700,6 +700,8 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 					bean.setClaimPaymentNo(map.get("CLAIM_PAYMENT_NO")==null?"":map.get("CLAIM_PAYMENT_NO").toString());
 					bean.setReinstPremiumOCOS(map.get("REINSPREMIUM_OURSHARE_OC")==null?"":map.get("REINSPREMIUM_OURSHARE_OC").toString());
 					bean.setPaymentType(map.get("PAYMENT_TYPE")==null?"":map.get("PAYMENT_TYPE").toString());
+					bean.setReinstType(map.get("REINSTATEMENT_TYPE")==null?"":map.get("REINSTATEMENT_TYPE").toString());
+					bean.setReinstTypeName(map.get("REINSTATEMENT_TYPE_NAME")==null?"":map.get("REINSTATEMENT_TYPE_NAME").toString());
 					response.add(bean);
 					
 				}
@@ -854,8 +856,8 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 		try {
 			req.setExcRate(getExcRateForCliam(req.getClaimNo(), req.getPolicyContractNo()));
 			TtrnClaimUpdation ttrnClaimUpdation = ttrnClaimUpdationMapper.toEntity(req);
-			ttrnClaimUpdation
-					.setSlNo(ttrnClaimUpdationMapper.format(GetSl_no(req.getClaimNo(), req.getPolicyContractNo())));
+			String maxId = claimCustomRepository.selectMaxResvId(req.getClaimNo(), req.getPolicyContractNo());
+			ttrnClaimUpdation.setSlNo(ttrnClaimUpdationMapper.format(maxId));
 
 			// query -- claim.insert.getUpdationQuery
 			ttrnClaimUpdationRepository.save(ttrnClaimUpdation);
@@ -901,8 +903,8 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 
 				req.setExcRate(getExcRateForCliam(req.getClaimNo(), req.getPolicyContractNo()));
 				TtrnClaimUpdation ttrnClaimUpdation = ttrnClaimUpdationMapper.insertCliamDetailsMode8(req);
-				ttrnClaimUpdation
-						.setSlNo(ttrnClaimUpdationMapper.format(GetSl_no(req.getClaimNo(), req.getPolicyContractNo())));
+				String maxId = claimCustomRepository.selectMaxResvId(req.getClaimNo(), req.getPolicyContractNo());
+				ttrnClaimUpdation.setSlNo(ttrnClaimUpdationMapper.format(maxId));
 
 				// query -- claim.insert.getUpdationQuery
 				ttrnClaimUpdationRepository.save(ttrnClaimUpdation);
@@ -913,8 +915,8 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 				// CliamDetailsArugumentsmode12
 				// query -- claim.insert.getUpdationQuery
 				TtrnClaimUpdation ttrnClaimUpdation = ttrnClaimUpdationMapper.insertCliamDetailsMode8(req);
-				ttrnClaimUpdation
-						.setSlNo(ttrnClaimUpdationMapper.format(GetSl_no(req.getClaimNo(), req.getPolicyContractNo())));
+				String maxId = claimCustomRepository.selectMaxResvId(req.getClaimNo(), req.getPolicyContractNo());
+				ttrnClaimUpdation.setSlNo(ttrnClaimUpdationMapper.format(maxId));
 
 				// query -- claim.update.closeClaim
 				claimCustomRepository.updateCloseClaim("Closed",
@@ -947,7 +949,7 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 			if (checking) {
 				if ("new".equalsIgnoreCase(req.getPaymentFlag())) {
 
-					req.setClaimPaymentNo(fm.getSequence("ClaimPayment", req.getProductId(), req.getDepartmentId(),
+					req.setClaimPaymentNo(fm.getSequence("ClaimPayment", req.getProductId(), "",
 							req.getBranchCode(), "", req.getDate()));
 
 					// CliamDetailsAruguments(req,mode);
@@ -956,7 +958,7 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 							ttrnClaimPayemntMapper.format(GetSl_no(req.getClaimNo(), req.getPolicyContractNo()))));
 
 					// query -- claim.select.maxResvId
-					String maxId = claimCustomRepository.selectMaxResvId(req.getClaimNo(), req.getPolicyContractNo());
+					String maxId = claimCustomRepository.selectMaxReservevId(req.getClaimNo(), req.getPolicyContractNo());
 					maxId = maxId == null ? "" : maxId;
 
 					ttrnClaimPayment.setReserveId(new BigDecimal(maxId));
@@ -966,7 +968,8 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 				} else {
 
 					// query -- CLAIN_ARCH_INSERT
-					TtrnClaimPayment payment = claimCustomRepository.clainArchInsert(req);
+					//List<TtrnClaimPayment>list=claimCustomRepository.clainArchInsert(req);
+					TtrnClaimPayment payment = ttrnClaimPaymentRepository.findByContractNoAndClaimPaymentNo(req.getPolicyContractNo(), new BigDecimal(req.getClaimPaymentNo()));
 					TtrnClaimPaymentArchive ttrnClaimPaymentArchive = ttrnClaimPaymentArchiveMapper.toEntity(payment);
 					ttrnClaimPaymentArchive.setAmendId(
 							ttrnClaimPaymentArchiveMapper.formatLong(claimCustomRepository.selectMaxIdArchive(req)));
@@ -1260,6 +1263,44 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 					bean.setClaimPaymentNo(
 							result.get("CLAIM_PAYMENT_NO") == null ? "" : result.get("CLAIM_PAYMENT_NO").toString());
 					bean.setSNo(result.get("RESERVE_ID") == null ? "" : result.get("RESERVE_ID").toString());
+					
+					bean.setSettlementStatus(result.get("SETTLEMENT_STATUS").toString());
+					bean.setTransactionType(result.get("TRANS_TYPE").toString());
+					bean.setTransactionNumber(result.get("TRANSACTION_NO")==null?"":result.get("TRANSACTION_NO").toString());
+					
+					
+					int count=0;
+					String output = "";
+					try {
+						// query -- payment.select.count.allocatedYN
+						output = claimCustomRepository.selectCountAllocatedYN(req.getContractNo(),
+								req.getClaimNo(), req.getLayerNo());
+						count = Integer.valueOf(output == null ? "0" : output);
+
+						if (count == 0) {
+							bean.setAllocatedYN("N");
+						} else if (count >= 1) {
+							bean.setAllocatedYN("Y");
+						}
+
+						// query -- GET_STATUS_OF_CLAIM
+						output = claimCustomRepository.getStatusOfClaim(req.getContractNo(),
+								req.getClaimNo(), req.getLayerNo());
+						bean.setStatusofClaim(output == null ? "" : output);
+
+					} catch (Exception e) {
+						e.printStackTrace();
+						log.debug("Exception " + e);
+					}
+					if (StringUtils.isNotBlank(bean.getDate())) {
+						if (Integer.valueOf(dropDowmImpl.Validatethree(req.getBranchCode(), bean.getDate())) == 0) {
+							bean.setTransOpenperiodStatus("N");
+						} else if (!result.get("RESERVE_ID").toString().equalsIgnoreCase(maxno)) {
+							bean.setTransOpenperiodStatus("N");
+						} else {
+							bean.setTransOpenperiodStatus("Y");
+						}
+					}
 					response.add(bean);
 
 				}
@@ -1537,7 +1578,7 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 				tempBean.setClaimNo(tempMap.get("CLAIM_NO") == null ? "" : tempMap.get("CLAIM_NO").toString());
 				tempBean.setPolicyContractNo(
 						tempMap.get("CONTRACT_NO") == null ? "" : tempMap.get("CONTRACT_NO").toString());
-				tempBean.setLayerNo(tempMap.get("LAYER_NO") == null ? "" : tempMap.get("LAYER_NO").toString());
+				tempBean.setLayerNo(tempMap.get("LAYER_NO") == null ? "0" : tempMap.get("LAYER_NO").toString());
 				tempBean.setProposalNo(tempMap.get("PROPOSAL_NO") == null ? "" : tempMap.get("PROPOSAL_NO").toString());
 				tempBean.setCedingcompanyName(
 						tempMap.get("CUSTOMER_NAME") == null ? "" : tempMap.get("CUSTOMER_NAME").toString());
@@ -1567,6 +1608,8 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 				tempBean.setTransactionNumber(
 						tempMap.get("RECEIPT_NO") == null ? "" : tempMap.get("RECEIPT_NO").toString());
 				tempBean.setDepartmentId(tempMap.get("DEPT_ID") == null ? "" : tempMap.get("DEPT_ID").toString());
+				tempBean.setSectionNo(tempMap.get("SECTION_NO") == null ? "" : tempMap.get("SECTION_NO").toString());
+				tempBean.setCurrency(tempMap.get("CURRENCY") == null ? "" : tempMap.get("CURRENCY").toString());
 				String maxno = "";
 				String output = "";
 				try {
@@ -1634,7 +1677,7 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 			tempBean.setContractNo(tempMap.get("CONTRACT_NO")==null?"":tempMap.get("CONTRACT_NO").toString());
 			tempBean.setCedingcompanyName(tempMap.get("COMPANY_NAME")==null?"":tempMap.get("COMPANY_NAME").toString());
 			tempBean.setBrokerName(tempMap.get("BROKER_NAME")==null?"":tempMap.get("BROKER_NAME").toString());
-			tempBean.setLayerNo(tempMap.get("LAYER_NO")==null?"":tempMap.get("LAYER_NO").toString());
+			tempBean.setLayerNo(tempMap.get("LAYER_NO")==null?"0":tempMap.get("LAYER_NO").toString());
 		//	tempBean.setTransactionNumber(tempMap.get("TRANSACTION_NO")==null?"":tempMap.get("TRANSACTION_NO").toString());
 			tempBean.setProductId(req.getProductId());
 			tempBean.setDeptId(tempMap.get("TMAS_DEPARTMENT_NAME")==null?"":tempMap.get("TMAS_DEPARTMENT_NAME").toString());
@@ -1671,18 +1714,19 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 					
 					if(StringUtils.isEmpty(req.getClaimNo()))
 					{
-					req.setClaimNo(fm.getSequence("ClaimBooking",req.getProductId(),req.getDepartmentId(), req.getBranchCode(),"",req.getCreatedDate()));
+						req.setClaimNo(fm.getSequence("ClaimBooking",req.getProductId(),"", req.getBranchCode(),"",req.getCreatedDate()));
 				
 						TtrnClaimDetails ttrnClaimDetails = ttrnClaimDetailsMapper.toEntity(req);
 						
-						req.setClaimNo(fm.getSequence("ClaimBooking",req.getProductId(),req.getDepartmentId(), req.getBranchCode(),"",req.getCreatedDate()));
+						//req.setClaimNo(fm.getSequence("ClaimBooking",req.getProductId(),req.getDepartmentId(), req.getBranchCode(),"",req.getCreatedDate()));
 						ttrnClaimDetails.setClaimNo(new BigDecimal(req.getClaimNo()));
 						ttrnClaimDetailsRepository.saveAndFlush(ttrnClaimDetails); //queryImpl.updateQuery(query, arg); CliamDetailsArugumentsmode2 arg
 						
 						//claim.insert.getUpdationQuery
 						
 						TtrnClaimUpdation ttrnClaimUpdation = ttrnClaimUpdationMapper.toEntity(req);
-						ttrnClaimUpdation.setSlNo(ttrnClaimUpdationMapper.format(GetSl_no(req.getClaimNo(), req.getPolicyContractNo())));
+						String maxId = claimCustomRepository.selectMaxResvId(req.getClaimNo(), req.getPolicyContractNo());
+						ttrnClaimUpdation.setSlNo(ttrnClaimUpdationMapper.format(maxId));
 
 						ttrnClaimUpdationRepository.save(ttrnClaimUpdation);
 					
@@ -1693,13 +1737,12 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 							//claim.update.cliamDetailsUpdate
 							TtrnClaimDetails ttrnClaimDetails = ttrnClaimDetailsRepository.findByContractNoAndClaimNoAndLayerNo(req.getPolicyContractNo(),new BigDecimal(req.getClaimNo()),new BigDecimal(req.getLayerNo()));
 							ttrnClaimDetails = ttrnClaimDetailsMapper.toEntity(req);
-							req.setClaimNo(fm.getSequence("ClaimBooking",req.getProductId(),req.getDepartmentId(), req.getBranchCode(),"",req.getCreatedDate()));
+							//req.setClaimNo(fm.getSequence("ClaimBooking",req.getProductId(),req.getDepartmentId(), req.getBranchCode(),"",req.getCreatedDate()));
 							ttrnClaimDetails.setClaimNo(new BigDecimal(req.getClaimNo()));
 							ttrnClaimDetailsRepository.saveAndFlush(ttrnClaimDetails); 
 							
 							insertAggregate(req);
 						}
-					response.setClaimNo(req.getClaimNo());
 					response.setClaimNo(req.getClaimNo());
 					response.setMessage("Success");
 					response.setIsError(false);
@@ -1724,7 +1767,7 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 				
 					//SELECT NVL(MAX(AMEND_ID)+1,0) FROM TTRN_CLAIM_ACC WHERE CLAIM_NO=? AND CONTRACT_NO=?AND LAYER_NO=? AND SUB_CLASS=?)
 					TtrnClaimAcc list = ttrnClaimAccRepository.findTop1ByClaimNoAndContractNoAndLayerNoAndSubClass(
-							new BigDecimal(req.getClaimNo()),req.getPolicyContractNo(),StringUtils.isEmpty(req.getLayerNo())?BigDecimal.ZERO:new BigDecimal(req.getLayerNo()),new BigDecimal(req.getDepartmentId()));
+							new BigDecimal(req.getClaimNo()),req.getPolicyContractNo(),StringUtils.isEmpty(req.getLayerNo())?BigDecimal.ZERO:new BigDecimal(req.getLayerNo()),new BigDecimal(req.getSectionNo()));
 					if(list!=null) {
 						ttrnClaimAcc.setAmendId(list.getAmendId()==null?BigDecimal.ZERO:new BigDecimal(list.getAmendId().intValue()+1));
 						}else {
@@ -2036,6 +2079,7 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 					bean.setPaidAmountOrigCurr(map.get("PAID_AMOUNT_OC")==null?"":fm.formatter(map.get("PAID_AMOUNT_OC").toString()));
 					bean.setRemarks(map.get("REMARKS")==null?"":map.get("REMARKS").toString());
 					bean.setClaimPaymentNo(map.get("CLAIM_PAYMENT_NO")==null?"":map.get("CLAIM_PAYMENT_NO").toString());
+					bean.setClaimPaymentRiNo(map.get("CLAIM_PAYMENTRI_NO")==null?"":map.get("CLAIM_PAYMENTRI_NO").toString());
 					bean.setReinstPremiumOCOS(map.get("REINSPREMIUM_OURSHARE_OC")==null?"":map.get("REINSPREMIUM_OURSHARE_OC").toString());
 					bean.setPaymentType(map.get("PAYMENT_TYPE")==null?"":map.get("PAYMENT_TYPE").toString());
 					response.add(bean);
@@ -2069,5 +2113,103 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 			response.setIsError(true);
 		}
 		return response;
+	}
+	@Override
+	public ClaimPaymentListRes1 claimPaymentRiList(ClaimPaymentListReq req) {
+		ClaimPaymentListRes1 res = new ClaimPaymentListRes1();
+		List<Map<String, Object>> allocists = new ArrayList<Map<String, Object>>();
+		List<ClaimPaymentListRes> finalList = new ArrayList<ClaimPaymentListRes>();
+		int count = 0;
+		try {
+			allocists = claimCustomRepository.partialSelectGetpaymentRilist(req);
+			for (int i = 0; i < allocists.size(); i++) {
+				Map<String, Object> tempMap = (Map<String, Object>) allocists.get(i);
+				ClaimPaymentListRes tempBean = new ClaimPaymentListRes();
+				tempBean.setClaimNo(tempMap.get("CLAIM_NO") == null ? "" : tempMap.get("CLAIM_NO").toString());
+				tempBean.setPolicyContractNo(
+						tempMap.get("CONTRACT_NO") == null ? "" : tempMap.get("CONTRACT_NO").toString());
+				tempBean.setLayerNo(tempMap.get("LAYER_NO") == null ? "0" : tempMap.get("LAYER_NO").toString());
+				tempBean.setProposalNo(tempMap.get("PROPOSAL_NO") == null ? "" : tempMap.get("PROPOSAL_NO").toString());
+				tempBean.setCedingcompanyName(
+						tempMap.get("CUSTOMER_NAME") == null ? "" : tempMap.get("CUSTOMER_NAME").toString());
+				tempBean.setBrokerName(tempMap.get("BROKER_NAME") == null ? "" : tempMap.get("BROKER_NAME").toString());
+				tempBean.setInceptionDate(
+						tempMap.get("INCEPTION_DATE") == null ? "" : tempMap.get("INCEPTION_DATE").toString());
+				tempBean.setExpiryDate(tempMap.get("EXPIRY_DATE") == null ? "" : tempMap.get("EXPIRY_DATE").toString());
+				tempBean.setProductId(tempMap.get("PRODUCT_ID") == null ? "" : tempMap.get("PRODUCT_ID").toString());
+				tempBean.setProductName(
+						tempMap.get("TMAS_PRODUCT_NAME") == null ? "" : tempMap.get("TMAS_PRODUCT_NAME").toString());
+				tempBean.setPaymentRequestNo(
+						tempMap.get("PAYMENT_REQUEST_NO") == null ? "" : tempMap.get("PAYMENT_REQUEST_NO").toString());
+				tempBean.setPaidAmountOrigcurr(fm.formatter(
+						tempMap.get("PAID_AMOUNT_OC") == null ? "" : tempMap.get("PAID_AMOUNT_OC").toString()));
+				tempBean.setLossEstimateRevisedOrigCurr(
+						fm.formatter(tempMap.get("LOSS_ESTIMATE_REVISED_OC") == null ? ""
+								: tempMap.get("LOSS_ESTIMATE_REVISED_OC").toString()));
+				tempBean.setInceptionDt(
+						tempMap.get("INCEPTION_DT") == null ? "" : tempMap.get("INCEPTION_DT").toString());
+				tempBean.setClaimPaymentNo(
+						tempMap.get("CLAIM_PAYMENT_NO") == null ? "" : tempMap.get("CLAIM_PAYMENT_NO").toString());
+				tempBean.setSNo(tempMap.get("RESERVE_ID") == null ? "" : tempMap.get("RESERVE_ID").toString());
+				tempBean.setSettlementStatus(
+						tempMap.get("SETTLEMENT_STATUS") == null ? "" : tempMap.get("SETTLEMENT_STATUS").toString());
+				tempBean.setTransactionType(
+						tempMap.get("TRANS_TYPE") == null ? "" : tempMap.get("TRANS_TYPE").toString());
+				tempBean.setTransactionNumber(
+						tempMap.get("RECEIPT_NO") == null ? "" : tempMap.get("RECEIPT_NO").toString());
+				tempBean.setDepartmentId(tempMap.get("DEPT_ID") == null ? "" : tempMap.get("DEPT_ID").toString());
+				tempBean.setSectionNo(tempMap.get("SECTION_NO") == null ? "" : tempMap.get("SECTION_NO").toString());
+				tempBean.setClaimPaymentRiNo(tempMap.get("RI_TRANSACTION_NO") == null ? "" : tempMap.get("RI_TRANSACTION_NO").toString());
+				tempBean.setCurrency(tempMap.get("CURRENCY") == null ? "" : tempMap.get("CURRENCY").toString());
+				
+				String maxno = "";
+				String output = "";
+				try {
+					// query -- payment.select.count.allocatedYN
+					output = claimCustomRepository.selectCountAllocatedYN(tempBean.getPolicyContractNo(),
+							tempBean.getClaimNo(), tempBean.getLayerNo());
+					count = Integer.valueOf(output == null ? "0" : output);
+
+					if (count == 0) {
+						tempBean.setAllocatedYN("N");
+					} else if (count >= 1) {
+						tempBean.setAllocatedYN("Y");
+					}
+
+					// query -- GET_STATUS_OF_CLAIM
+					output = claimCustomRepository.getStatusOfClaim(tempBean.getPolicyContractNo(),
+							tempBean.getClaimNo(), tempBean.getLayerNo());
+					tempBean.setStatusofclaim(output == null ? "" : output);
+
+					// query -- claim.select.maxno
+					output = claimCustomRepository.selectMaxno(tempBean.getClaimNo(), tempBean.getPolicyContractNo());
+					maxno = output == null ? "" : output;
+				} catch (Exception e) {
+					e.printStackTrace();
+					log.debug("Exception " + e);
+				}
+				if (StringUtils.isNotBlank(tempBean.getInceptionDt())) {
+					if (Integer.valueOf(dropDowmImpl.Validatethree(req.getBranchCode(), req.getDate())) == 0) {
+						tempBean.setTransOpenperiodStatus("N");
+					} else if (!tempMap.get("RESERVE_ID").toString().equalsIgnoreCase(maxno)) {
+						tempBean.setTransOpenperiodStatus("N");
+					} else {
+						tempBean.setTransOpenperiodStatus("Y");
+					}
+				}
+				finalList.add(tempBean);
+			}
+
+			res.setCommonResponse(finalList);
+			res.setMessage("Success");
+			res.setIsError(false);
+
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+			res.setMessage("Failed");
+			res.setIsError(true);
+		}
+		return res;
 	}
 }

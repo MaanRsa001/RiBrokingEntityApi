@@ -12,8 +12,8 @@ public class InsertCliamDetailsMode2Req {
 	@JsonProperty("ProductId")
 	private String productId;
 	
-	@JsonProperty("DepartmentId")
-	private String departmentId;
+	@JsonProperty("SectionNo")
+	private String sectionNo;
 	
 	@JsonProperty("BranchCode")
 	private String branchCode;

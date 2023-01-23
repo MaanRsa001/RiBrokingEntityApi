@@ -1303,7 +1303,6 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 		double Jnt=StringUtils.isEmpty(args[36]) ? 0 :Double.parseDouble(args[36]) ;
 		double Knt =StringUtils.isEmpty(args[38]) ? 0 :Double.parseDouble(args[38]) ;
 		double Lnt =StringUtils.isEmpty(args[43]) ? 0 :Double.parseDouble(args[43]) ;
-			
 		double c=(Ant+Bnt+Cnt+Int+Jnt)-(Dnt+Ent+Fnt+Gnt+Knt+Lnt);
 		return String.valueOf(c);
 	}
@@ -1647,9 +1646,9 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 		final double Hnt=StringUtils.isEmpty(args[37]) ? 0 :Double.parseDouble(args[37]) ;
 		final double Int=StringUtils.isEmpty(args[43]) ? 0 :Double.parseDouble(args[43]) ;
 		final double Jnt=StringUtils.isEmpty(args[45]) ? 0 :Double.parseDouble(args[45]) ;
-		 double Knt =0.00;
-		 Knt=StringUtils.isEmpty(args[47]) ? 0 :Double.parseDouble(args[47]) ;
-	    final double cnt=(Ant+Bnt+Cnt+Int+Jnt)-(Dnt+Ent+Fnt+Gnt+Hnt+Knt);
+		final double Knt=StringUtils.isEmpty(args[47]) ? 0 :Double.parseDouble(args[47]) ;
+		final double lnt=StringUtils.isEmpty(args[58]) ? 0 :Double.parseDouble(args[58]) ;
+	    final double cnt=(Ant+Bnt+Cnt+Int+Jnt)-(Dnt+Ent+Fnt+Gnt+Hnt+Knt+lnt);
 		return String.valueOf(cnt);
 	}
 	
@@ -1983,6 +1982,8 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 			
 		    if(list!=null && list.size()>0) {
 				Tuple xolView= list.get(0);
+				bean.setRiBroker(xolView.get("RI_BROKER_NAME")==null?"":xolView.get("RI_BROKER_NAME").toString());
+				bean.setReinsuranceName(xolView.get("RI_COMPANY_NAME")==null?"":xolView.get("RI_COMPANY_NAME").toString());
 							bean.setContNo(xolView.get("CONTRACT_NO")==null?"":xolView.get("CONTRACT_NO").toString());
 							bean.setTransactionNo(xolView.get("RI_TRANSACTION_NO")==null?"":xolView.get("RI_TRANSACTION_NO").toString());
 							bean.setTransaction(xolView.get("TRANS_DATE")==null?"":formatDate(xolView.get("TRANS_DATE")).toString()); 

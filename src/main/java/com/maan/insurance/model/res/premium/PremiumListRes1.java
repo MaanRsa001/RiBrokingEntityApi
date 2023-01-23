@@ -50,5 +50,9 @@ public class PremiumListRes1 {
 	private String ceaseStatus;
 	@JsonProperty("RiTransactionNo")
 	private String ritransactionNo; 
+	@JsonProperty("ReinsuranceName")
+	private String reinsuranceName;
+	@JsonProperty("RiBroker")
+	private String riBroker;
 	
 }

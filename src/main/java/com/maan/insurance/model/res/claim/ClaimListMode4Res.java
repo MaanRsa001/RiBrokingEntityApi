@@ -18,17 +18,17 @@ public class ClaimListMode4Res {
 	private String claimPaymentNo;
 	@JsonProperty("SNo")
 	private String sNo;
-//	@JsonProperty("SettlementStatus")
-//	private String settlementStatus;
-//	@JsonProperty("TransactionType")
-//	private String transactionType;
-//	@JsonProperty("TransactionNumber")
-//	private String transactionNumber;
-//	@JsonProperty("StatusofClaim")
-//	private String statusofClaim;
-//	@JsonProperty("AllocatedYN")
-//	private String allocatedYN;
-//	@JsonProperty("TransOpenperiodStatus")
-//	private String transOpenperiodStatus;
+	@JsonProperty("SettlementStatus")
+	private String settlementStatus;
+	@JsonProperty("TransactionType")
+	private String transactionType;
+	@JsonProperty("TransactionNumber")
+	private String transactionNumber;
+	@JsonProperty("StatusofClaim")
+	private String statusofClaim;
+	@JsonProperty("AllocatedYN")
+	private String allocatedYN;
+	@JsonProperty("TransOpenperiodStatus")
+	private String transOpenperiodStatus;
 	
 }

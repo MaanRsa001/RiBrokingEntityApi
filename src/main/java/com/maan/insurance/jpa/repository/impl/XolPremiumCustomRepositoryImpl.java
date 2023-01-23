@@ -2340,7 +2340,26 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 				cb.equal(pDeptSubRoot.get("tmasStatus"), "Y"),
 				cb.equal(pDeptSubRoot.get("tmasDepartmentId"), root.get("premiumClass")));
 
+		Subquery<String> fNameSq = cq.subquery(String.class);
+		Root<PersonalInfo> fNameSubRoot = fNameSq.from(PersonalInfo.class);
+
+		fNameSq.select(cb.concat(cb.concat(fNameSubRoot.get("firstName"), " "),
+				fNameSubRoot.get("lastName")))
+			   .where( cb.equal(fNameSubRoot.get("customerId"), root.get("brokerId")),
+					   cb.equal(fNameSubRoot.get("customerType"), "B"),
+					   cb.equal(fNameSubRoot.get("branchCode"), root.get("branchCode")));
+		
+		Subquery<String> fCNameSq = cq.subquery(String.class);
+		Root<PersonalInfo> fCNameSubRoot = fCNameSq.from(PersonalInfo.class);
+
+		fCNameSq.select(fCNameSubRoot.get("companyName"))
+			   .where( cb.equal(fCNameSubRoot.get("customerId"), root.get("reinsurerId")),
+					   cb.equal(fCNameSubRoot.get("customerType"), "R"),
+					   cb.equal(fCNameSubRoot.get("branchCode"), root.get("branchCode")));
+		
 		cq.multiselect(root.get("contractNo").alias("CONTRACT_NO"),
+				fNameSq.alias("RI_BROKER_NAME"),
+				fCNameSq.alias("RI_COMPANY_NAME"),
 				root.get("ritransactionNo").alias("RI_TRANSACTION_NO"),
 				root.get("statementDate").alias("STATEMENT_DATE"),
 				root.get("transactionMonthYear").alias("TRANS_DATE"),

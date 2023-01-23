@@ -73,11 +73,11 @@ public interface ClaimCustomRepository {
 
 	public Integer updateTotalAmtPaidTillDate(String amt, String claimNo, String contractNo);
 
-	public Integer claimUpdatePayment(InsertCliamDetailsMode3Req req);
+	public Integer claimUpdatePayment(InsertCliamDetailsMode3Req req) throws ParseException;
 
 	public String selectMaxResvId(String claimNo, String contractNo);
 
-	public TtrnClaimPayment clainArchInsert(InsertCliamDetailsMode3Req req);
+	public List<TtrnClaimPayment> clainArchInsert(InsertCliamDetailsMode3Req req);
 
 	public String selectMaxIdArchive(InsertCliamDetailsMode3Req req);
 
@@ -119,5 +119,9 @@ public interface ClaimCustomRepository {
 	public int claimUpdatePaymentRi(InsertCliamDetailsMode3Req req)  throws ParseException;
 
 	public void getPremiumRiSplit(InsertCliamDetailsMode3Req req);
+
+	public String selectMaxReservevId(String claimNo, String policyContractNo);
+
+	public List<Map<String, Object>> partialSelectGetpaymentRilist(ClaimPaymentListReq req);
 	
 }

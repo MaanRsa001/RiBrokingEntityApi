@@ -27,6 +27,7 @@ import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
+import javax.transaction.Transactional;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -702,7 +703,7 @@ public class ClaimCustomRepositoryImpl implements ClaimCustomRepository{
 	public String selectMaxSnoDTB3(String claimNo, String contractNo) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<String> cq = cb.createQuery(String.class);
-		Root<TtrnClaimUpdation> root = cq.from(TtrnClaimUpdation.class);
+		Root<TtrnClaimPayment> root = cq.from(TtrnClaimPayment.class);
 		
 		Expression<Integer> exp = cb.sum(cb.<Integer>selectCase().when(cb.isNull(cb.max(root.<Integer>get("slNo"))),0)
 		.otherwise(cb.max(root.<Integer>get("slNo"))), 1);
@@ -741,34 +742,35 @@ public class ClaimCustomRepositoryImpl implements ClaimCustomRepository{
 		
 		return em.createQuery(cq).getSingleResult();
 	}
-	
+	@Transactional
 	@Override
-	public Integer claimUpdatePayment(InsertCliamDetailsMode3Req req) {
+	public Integer claimUpdatePayment(InsertCliamDetailsMode3Req req) throws ParseException {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaUpdate<TtrnClaimPayment> update = cb.createCriteriaUpdate(TtrnClaimPayment.class);
 		Root<TtrnClaimPayment> root = update.from(TtrnClaimPayment.class);
-		
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy") ;
 		boolean condition = "3".equalsIgnoreCase(req.getProductId());
 		
-		update.set(root.get("inceptionDate"), req.getDate())
+		java.util.Date date = sdf.parse(req.getDate());
+		update.set(root.get("inceptionDate"), date)
 		.set(root.get("paymentReference"), req.getPaymentReference())
 		.set(root.get("paymentRequestNo"), req.getPaymentRequestNo())
-		.set(root.get("paidClaimOsOc"), req.getPaidClaimOs())
-		.set(root.get("paidClaimOsDc"), GetDesginationCountry(req.getPaidClaimOs(),req.getExcRate()))
-		.set(root.get("safOsOc"), req.getSurveyorfeeos())
-		.set(root.get("safOsDc"), GetDesginationCountry(req.getSurveyorfeeos(),req.getExcRate()))
-		.set(root.get("othFeeOsOc"), req.getOtherproffeeos())
-		.set(root.get("othFeeOsDc"), GetDesginationCountry(req.getOtherproffeeos(),req.getExcRate()))
+		.set(root.get("paidClaimOsOc"), formatBigDecimal(req.getPaidClaimOs()))
+		.set(root.get("paidClaimOsDc"), formatBigDecimal(GetDesginationCountry(req.getPaidClaimOs(),req.getExcRate())))
+		.set(root.get("safOsOc"), formatBigDecimal(req.getSurveyorfeeos()))
+		.set(root.get("safOsDc"), formatBigDecimal(GetDesginationCountry(req.getSurveyorfeeos(),req.getExcRate())))
+		.set(root.get("othFeeOsOc"), formatBigDecimal(req.getOtherproffeeos()))
+		.set(root.get("othFeeOsDc"), formatBigDecimal(GetDesginationCountry(req.getOtherproffeeos(),req.getExcRate())))
 		.set(root.get("branchCode"), req.getBranchCode())
 		.set(root.get("loginId"), req.getLoginId())
 		.set(root.get("sysDate"), new java.sql.Date(Calendar.getInstance().getTime().getTime()))
-		.set(root.get("paidAmountOc"), req.getPaidAmountOrigcurr())
-		.set(root.get("paidAmountDc"), GetDesginationCountry(req.getPaidAmountOrigcurr(),req.getExcRate()))
+		.set(root.get("paidAmountOc"), formatBigDecimal(req.getPaidAmountOrigcurr()))
+		.set(root.get("paidAmountDc"), formatBigDecimal(GetDesginationCountry(req.getPaidAmountOrigcurr(),req.getExcRate())))
 		.set(root.get("remarks"), req.getRemarks())
 		
 		.set(root.get("reinstatementType"), condition ? req.getReinstType() : "")
-		.set(root.get("reinspremiumOurshareOc"),  condition ? req.getReinstPremiumOCOS() : "")
-		.set(root.get("reinspremiumOurshareDc"), condition ? GetDesginationCountry(req.getReinstPremiumOCOS(),req.getExcRate()) : "")
+		.set(root.get("reinspremiumOurshareOc"),  formatBigDecimal(condition ? req.getReinstPremiumOCOS() : ""))
+		.set(root.get("reinspremiumOurshareDc"), formatBigDecimal(condition ? GetDesginationCountry(req.getReinstPremiumOCOS(),req.getExcRate()) : ""))
 		.set(root.get("paymentType"), req.getPaymentType());
 				
 		update.where(cb.equal(root.get("contractNo"), req.getPolicyContractNo()),
@@ -786,7 +788,7 @@ public class ClaimCustomRepositoryImpl implements ClaimCustomRepository{
 		CriteriaUpdate<TtrnClaimDetails> update = cb.createCriteriaUpdate(TtrnClaimDetails.class);
 		Root<TtrnClaimDetails> root = update.from(TtrnClaimDetails.class);
 
-		update.set(root.get("totalAmtPaidTillDate"), new BigDecimal(amt));
+		update.set(root.get("totalAmtPaidTillDate"), formatBigDecimal(amt));
 				
 		update.where(cb.equal(root.get("claimNo"), claimNo),
 				     cb.equal(root.get("contractNo"), contractNo));
@@ -882,9 +884,23 @@ public class ClaimCustomRepositoryImpl implements ClaimCustomRepository{
 		
 		return em.createQuery(cq).getSingleResult();
 	}
-
 	@Override
-	public TtrnClaimPayment clainArchInsert(InsertCliamDetailsMode3Req req) {
+	public String selectMaxReservevId(String claimNo, String contractNo) {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<String> cq = cb.createQuery(String.class);
+		Root<TtrnClaimUpdation> root = cq.from(TtrnClaimUpdation.class);
+		
+		Expression<Integer> exp = cb.sum(cb.<Integer>selectCase().when(cb.isNull(cb.max(root.<Integer>get("slNo"))),0)
+		.otherwise(cb.max(root.<Integer>get("slNo"))), 0);
+		
+		cq.multiselect(exp.as(String.class).alias("SL_NO"))
+		.where(cb.equal(root.get("claimNo"), claimNo),
+			   cb.equal(root.get("contractNo"), contractNo));
+		
+		return em.createQuery(cq).getSingleResult();
+	}
+	@Override
+	public List<TtrnClaimPayment> clainArchInsert(InsertCliamDetailsMode3Req req) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<TtrnClaimPayment> cq = cb.createQuery(TtrnClaimPayment.class);
 		Root<TtrnClaimPayment> root = cq.from(TtrnClaimPayment.class);
@@ -894,7 +910,7 @@ public class ClaimCustomRepositoryImpl implements ClaimCustomRepository{
 									cb.equal(root.get("layerNo"), req.getLayerNo()),
 									cb.equal(root.get("claimPaymentNo"), req.getClaimPaymentNo()));
 		
-		return em.createQuery(cq).getSingleResult();
+		return em.createQuery(cq).getResultList();
 	}
 
 	@Override
@@ -1223,7 +1239,7 @@ public class ClaimCustomRepositoryImpl implements ClaimCustomRepository{
 				+ "RK.RSK_BASIS, RC.RSK_CASHLOSS_LMT_OC,RC.RSK_CASHLOSS_LMT_DC,(select TMAS_DEPARTMENT_NAME "
 				+ "from TMAS_DEPARTMENT_MASTER where TMAS_DEPARTMENT_ID=RK.RSK_DEPTID AND RK.RSK_PRODUCTID="
 				+ "TMAS_PRODUCT_ID and Branch_code=PERSONAL.BRANCH_CODE and TMAS_STATUS='Y')"
-				+ " TMAS_DEPARTMENT_NAME,RK.RSK_SPFCID,RK.RSK_DEPTID,RK.RSK_UWYEAR ,RC.RSK_REINSTATEMENT_PREMIUM  "
+				+ " TMAS_DEPARTMENT_NAME,RK.RSK_SPFCID,RK.RSK_DEPTID,RK.RSK_UWYEAR ,RC.RSK_REINSTATEMENT_PREMIUM,RK.RSK_ORIGINAL_CURR "
 				+ "FROM TTRN_RISK_DETAILS RK, PERSONAL_INFO PERSONAL, TTRN_RISK_PROPOSAL RP,PERSONAL_INFO PI"
 				+ ",TTRN_RISK_COMMISSION RC  WHERE RK.RSK_PROPOSAL_NUMBER = ?  AND RK.RSK_PRODUCTID = ?"
 				+ "  AND RK.RSK_CEDINGID = PERSONAL.CUSTOMER_ID  AND PERSONAL.BRANCH_CODE=? AND"
@@ -1299,9 +1315,9 @@ public class ClaimCustomRepositoryImpl implements ClaimCustomRepository{
 				+ "    CUSTOMER_TYPE \\= 'B'    AND pm.Broker_id \\= Pi.CUSTOMER_ID  AND pi.branch_code \\="
 				+ " pm.branch_code  AND amend_id \\=  (SELECT   MAX (Amend_id)   FROM   personal_info p WHERE "
 				+ "      p.CUSTOMER_TYPE \\= pi.CUSTOMER_TYPE  AND p.customer_id \\= pi.customer_id   AND p.branch_code "
-				+ "\\= pm.branch_code))   Broker_name,  Pm.Proposal_no, Pm.layer_no,PM.DEPT_ID  FROM  "
-				+ " TTRN_CLAIM_PAYMENT TCD,   POSITION_MASTER PM, TMAS_PRODUCT_MASTER TPM WHERE      TCD.Contract_No "
-				+ "\\= Pm.Contract_No   AND NVL (tcd.layer_no, 0) \\= NVL (pm.layer_no, 0)   AND Pm.branch_code \\= ? "
+				+ "\\= pm.branch_code))   Broker_name,  Pm.Proposal_no, Pm.layer_no,PM.DEPT_ID,PM.SECTION_NO,TCP.CURRENCY  FROM  "
+				+ " TTRN_CLAIM_PAYMENT TCD,   POSITION_MASTER PM, TMAS_PRODUCT_MASTER TPM,TTRN_CLAIM_DETAILS TCP WHERE      TCD.Contract_No "
+				+ "\\= Pm.Contract_No   AND NVL (tcd.layer_no, 0) \\= NVL (pm.layer_no, 0)   AND Pm.branch_code \\= ? AND TCD.CLAIM_NO=TCP.CLAIM_NO "
 				+ " AND TPM.BRANCH_CODE \\= Pm.branch_code  AND TPM.Tmas_Product_id \\= pm.Product_id AND Pm.Amend_Id"
 				+ " \\=  (SELECT   MAX (Amend_Id)  FROM   Position_Master P   WHERE   P.Contract_No \\= Pm.Contract_No "
 				+ "AND NVL (P.layer_no, 0) \\= NVL (pm.layer_no, 0)) ORDER BY   CLAIM_NO DESC)where  rownum<\\=100 "; 
@@ -1563,6 +1579,7 @@ public class ClaimCustomRepositoryImpl implements ClaimCustomRepository{
 				root.get("reinstatementType").alias("REINSTATEMENT_TYPE"),
 				exp.alias("REINSTATEMENT_TYPE_NAME"),
 				root.get("claimPaymentNo").alias("CLAIM_PAYMENT_NO"),
+				root.get("riTransactionNo").alias("CLAIM_PAYMENTRI_NO"),
 				root.get("paymentRequestNo").alias("PAYMENT_REQUEST_NO"),
 				root.get("paidAmountOc").alias("PAID_AMOUNT_OC"),
 				root.get("paidClaimOsOc").alias("PAID_CLAIM_OS_OC"),
@@ -1582,7 +1599,7 @@ public class ClaimCustomRepositoryImpl implements ClaimCustomRepository{
 		
 		return em.createQuery(cq).getResultList();
 	}
-
+	@Transactional
 	@Override
 	public int claimUpdatePaymentRi(InsertCliamDetailsMode3Req req) throws ParseException {
 		 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy") ;
@@ -1595,22 +1612,22 @@ public class ClaimCustomRepositoryImpl implements ClaimCustomRepository{
 		update.set(root.get("inceptionDate"), date)
 		.set(root.get("paymentReference"), req.getPaymentReference())
 		.set(root.get("paymentRequestNo"), req.getPaymentRequestNo())
-		.set(root.get("paidClaimOsOc"), new BigDecimal(req.getPaidClaimOs()))
-		.set(root.get("paidClaimOsDc"), GetDesginationCountry(req.getPaidClaimOs(),req.getExcRate()))
-		.set(root.get("safOsOc"), req.getSurveyorfeeos())
-		.set(root.get("safOsDc"), GetDesginationCountry(req.getSurveyorfeeos(),req.getExcRate()))
-		.set(root.get("othFeeOsOc"), req.getOtherproffeeos())
-		.set(root.get("othFeeOsDc"), GetDesginationCountry(req.getOtherproffeeos(),req.getExcRate()))
+		.set(root.get("paidClaimOsOc"), formatBigDecimal(req.getPaidClaimOs()))
+		.set(root.get("paidClaimOsDc"), formatBigDecimal(GetDesginationCountry(req.getPaidClaimOs(),req.getExcRate())))
+		.set(root.get("safOsOc"), formatBigDecimal(req.getSurveyorfeeos()))
+		.set(root.get("safOsDc"), formatBigDecimal(GetDesginationCountry(req.getSurveyorfeeos(),req.getExcRate())))
+		.set(root.get("othFeeOsOc"), formatBigDecimal(req.getOtherproffeeos()))
+		.set(root.get("othFeeOsDc"), formatBigDecimal(GetDesginationCountry(req.getOtherproffeeos(),req.getExcRate())))
 		.set(root.get("branchCode"), req.getBranchCode())
 		.set(root.get("loginId"), req.getLoginId())
 		.set(root.get("sysDate"), new java.sql.Date(Calendar.getInstance().getTime().getTime()))
-		.set(root.get("paidAmountOc"), req.getPaidAmountOrigcurr())
-		.set(root.get("paidAmountDc"), GetDesginationCountry(req.getPaidAmountOrigcurr(),req.getExcRate()))
+		.set(root.get("paidAmountOc"), formatBigDecimal(req.getPaidAmountOrigcurr()))
+		.set(root.get("paidAmountDc"), formatBigDecimal(GetDesginationCountry(req.getPaidAmountOrigcurr(),req.getExcRate())))
 		.set(root.get("remarks"), req.getRemarks())
 		
 		.set(root.get("reinstatementType"), condition ? req.getReinstType() : "")
-		.set(root.get("reinspremiumOurshareOc"),  condition ? req.getReinstPremiumOCOS() : "")
-		.set(root.get("reinspremiumOurshareDc"), condition ? GetDesginationCountry(req.getReinstPremiumOCOS(),req.getExcRate()) : "")
+		.set(root.get("reinspremiumOurshareOc"),  formatBigDecimal(condition ? req.getReinstPremiumOCOS() : ""))
+		.set(root.get("reinspremiumOurshareDc"), formatBigDecimal(condition ? GetDesginationCountry(req.getReinstPremiumOCOS(),req.getExcRate()) : ""))
 		.set(root.get("paymentType"), req.getPaymentType());
 				
 		update.where(cb.equal(root.get("contractNo"), req.getPolicyContractNo()),
@@ -1625,7 +1642,7 @@ public class ClaimCustomRepositoryImpl implements ClaimCustomRepository{
 		StoredProcedureQuery sp = em.createStoredProcedureQuery("RI_SPLIT_INSERT");
 
 		// Assign parameters
-		sp.registerStoredProcedureParameter("V_CONTRACT_NO", String.class, ParameterMode.IN);
+		sp.registerStoredProcedureParameter("V_PROPOSAL_NO", String.class, ParameterMode.IN);
 		sp.registerStoredProcedureParameter("V_LAYER_NO", Integer.class, ParameterMode.IN);
 		sp.registerStoredProcedureParameter("V_PRODUCT_ID", String.class, ParameterMode.IN);
 		sp.registerStoredProcedureParameter("V_TRANSACTION_NO", String.class, ParameterMode.IN);
@@ -1633,18 +1650,89 @@ public class ClaimCustomRepositoryImpl implements ClaimCustomRepository{
 		sp.registerStoredProcedureParameter("V_TYPE", String.class, ParameterMode.IN);
 		
 		// Set parameters
-		sp.setParameter("V_CONTRACT_NO", req.getPolicyContractNo());
+		sp.setParameter("V_PROPOSAL_NO", req.getProposalNo());
 		sp.setParameter("V_LAYER_NO", Integer.parseInt(StringUtils.isEmpty(req.getLayerNo())?"0":req.getLayerNo()));
 		sp.setParameter("V_PRODUCT_ID", req.getProductId());
 		sp.setParameter("V_TRANSACTION_NO", req.getClaimPaymentNo());
 		sp.setParameter("V_BRANCH_CODE", req.getBranchCode());
 		sp.setParameter("V_TYPE", "C");
 		
-		System.out.println("V_CONTRACT_NO: "+sp.getParameterValue("V_CONTRACT_NO"));
+		System.out.println("V_PROPOSAL_NO: "+sp.getParameterValue("V_PROPOSAL_NO"));
 		System.out.println("V_LAYER_NO: "+sp.getParameterValue("V_LAYER_NO"));
 		System.out.println("V_PRODUCT_ID: "+sp.getParameterValue("V_PRODUCT_ID"));
 		System.out.println("V_TRANSACTION_NO: "+sp.getParameterValue("V_TRANSACTION_NO"));
 		System.out.println("V_BRANCH_CODE: "+sp.getParameterValue("V_BRANCH_CODE"));
 		sp.execute();
+	}
+	public BigDecimal formatBigDecimal(String input) {
+		if(StringUtils.isBlank(input))
+			return new BigDecimal("0.0");
+		return new BigDecimal(input);
+	}
+
+	@Override
+	public List<Map<String, Object>> partialSelectGetpaymentRilist(ClaimPaymentListReq req) {
+
+		List<Map<String,Object>> resultList = new ArrayList<>();
+		String searchQuery = "";
+		String searchKey = null;
+		
+		if("S".equalsIgnoreCase(req.getSearchType())){
+			if(StringUtils.isNotBlank(req.getCompanyNameSearch())){
+				searchQuery= " AND UPPER(CUSTOMER_NAME) LIKE UPPER (?) ";
+				searchKey = "%"+req.getCompanyNameSearch()+"%";
+			}
+			if(StringUtils.isNotBlank(req.getBrokerNameSearch())){
+				searchQuery= " AND UPPER(BROKER_NAME) LIKE UPPER (?) ";
+				searchKey = "%"+req.getBrokerNameSearch()+"%";
+			}
+			if(StringUtils.isNotBlank(req.getContractNoSearch())){
+				searchQuery = " AND CONTRACT_NO LIKE ? ";
+				searchKey = "%"+req.getContractNoSearch()+"%";
+			}
+			if(StringUtils.isNotBlank(req.getClaimNoSearch())){
+				searchQuery = " AND CLAIM_NO LIKE ? ";
+				searchKey = "%"+req.getClaimNoSearch()+"%";
+			}
+			if(StringUtils.isNotBlank(req.getPaymentNoSearch())){
+				searchQuery = " AND CLAIM_PAYMENT_NO LIKE ? ";
+				searchKey = "%"+req.getPaymentNoSearch()+"%";
+			}
+			if(StringUtils.isNotBlank(req.getPaymentDateSearch())){
+				searchQuery = " AND INCEPTION_DT LIKE ? ";
+				searchKey = "%"+req.getPaymentDateSearch()+"%";
+			}
+		}
+		
+		String nativeQuery = "select * from (SELECT   DISTINCT PAID_AMOUNT_OC,TCD.CLAIM_NO,TCD.CONTRACT_NO,"
+				+ " PAYMENT_REQUEST_NO, LOSS_ESTIMATE_REVISED_OC,TO_CHAR (TCD.INCEPTION_DATE, 'DD/MM/YYYY')"
+				+ " AS INCEPTION_DT,  CLAIM_NOTE_RECOMM, PAYMENT_REFERENCE, ADVICE_TREASURY, PAID_AMOUNT_DC,"
+				+ " LOSS_ESTIMATE_REVISED_DC, CLAIM_PAYMENT_NO, RESERVE_ID,SETTLEMENT_STATUS,  pm.Product_id,"
+				+ " TPM.TMAS_PRODUCT_NAME, TO_CHAR (PM.INCEPTION_DATE, 'DD/MM/YYYY') INCEPTION_DATE, TO_CHAR"
+				+ " (PM.Expiry_date, 'DD/MM/YYYY') Expiry_date,  (SELECT   COMPANY_NAME FROM   personal_info Pi"
+				+ " WHERE       CUSTOMER_TYPE \\= 'C'  AND pm.CEDING_COMPANY_ID \\= Pi.CUSTOMER_ID AND pi.branch_code"
+				+ " \\= pm.branch_code AND amend_id \\= (SELECT   MAX (Amend_id)  FROM   personal_info p WHERE  "
+				+ "     p.CUSTOMER_TYPE \\= pi.CUSTOMER_TYPE  AND p.customer_id \\= pi.customer_id AND p.branch_code "
+				+ "\\= pm.branch_code))  Customer_name,(SELECT   FIRST_NAME  FROM   personal_info Pi  WHERE   "
+				+ "    CUSTOMER_TYPE \\= 'B'    AND pm.Broker_id \\= Pi.CUSTOMER_ID  AND pi.branch_code \\="
+				+ " pm.branch_code  AND amend_id \\=  (SELECT   MAX (Amend_id)   FROM   personal_info p WHERE "
+				+ "      p.CUSTOMER_TYPE \\= pi.CUSTOMER_TYPE  AND p.customer_id \\= pi.customer_id   AND p.branch_code "
+				+ "\\= pm.branch_code))   Broker_name,  Pm.Proposal_no, Pm.layer_no,PM.DEPT_ID,PM.SECTION_NO,RI_TRANSACTION_NO,TCP.CURRENCY  FROM  "
+				+ " TTRN_CLAIM_PAYMENT_RI TCD,   POSITION_MASTER PM, TMAS_PRODUCT_MASTER TPM,TTRN_CLAIM_DETAILS TCP WHERE      TCD.Contract_No "
+				+ "\\= Pm.Contract_No   AND NVL (tcd.layer_no, 0) \\= NVL (pm.layer_no, 0)   AND Pm.branch_code \\= ? AND TCD.CLAIM_NO=TCP.CLAIM_NO "
+				+ " AND TPM.BRANCH_CODE \\= Pm.branch_code  AND TPM.Tmas_Product_id \\= pm.Product_id AND Pm.Amend_Id"
+				+ " \\=  (SELECT   MAX (Amend_Id)  FROM   Position_Master P   WHERE   P.Contract_No \\= Pm.Contract_No "
+				+ "AND NVL (P.layer_no, 0) \\= NVL (pm.layer_no, 0)) ORDER BY   CLAIM_NO DESC)where  rownum<\\=100 "; 
+		
+		nativeQuery+=searchQuery;
+		
+	    Query query = em.createNativeQuery(nativeQuery);
+	    query.setParameter(1,req.getBranchCode());
+	    if(Objects.nonNull(searchKey))
+	    	query.setParameter(2,searchKey);
+
+	    query.unwrap(NativeQueryImpl.class).setResultTransformer(AliasToEntityMapResultTransformer.INSTANCE);
+	    resultList =  query.getResultList();
+		return resultList;
 	}
 }

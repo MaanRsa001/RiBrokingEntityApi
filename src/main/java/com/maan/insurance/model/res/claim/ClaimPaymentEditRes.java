@@ -24,10 +24,14 @@ public class ClaimPaymentEditRes {
 	private String date;
 	@JsonProperty("ClaimPaymentNo")
 	private String claimPaymentNo;
-//	@JsonProperty("ReinstType")
-//	private String reinstType;
+	@JsonProperty("ReinstType")
+	private String reinstType;
+	@JsonProperty("ReinstTypeName")
+	private String reinstTypeName;
 	@JsonProperty("ReinstPremiumOCOS")
 	private String reinstPremiumOCOS;
 	@JsonProperty("PaymentType")
 	private String paymentType;
+	@JsonProperty("ClaimPaymentRiNo")
+	private String claimPaymentRiNo;
 }
