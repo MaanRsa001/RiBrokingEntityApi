@@ -3,11 +3,13 @@ package com.maan.insurance.service.portFolio;
 import org.springframework.stereotype.Service;
 
 import com.maan.insurance.model.req.portFolio.GetAutoPendingListReq;
+import com.maan.insurance.model.req.portFolio.GetConfirmedListReq;
 import com.maan.insurance.model.req.portFolio.GetContractsListReq;
 import com.maan.insurance.model.req.portFolio.GetHistoryListReq;
 import com.maan.insurance.model.req.portFolio.GetPendingListReq;
 import com.maan.insurance.model.req.portFolio.ProcAutoReq;
 import com.maan.insurance.model.res.portFolio.GetAutoPendingListRes;
+import com.maan.insurance.model.res.portFolio.GetConfirmedListRes;
 import com.maan.insurance.model.res.portFolio.GetContractsListRes;
 import com.maan.insurance.model.res.portFolio.GetHistoryListRes;
 import com.maan.insurance.model.res.portFolio.GetPendingListRes;
@@ -28,5 +30,7 @@ public interface PortFolioService {
 	GetHistoryListRes getHistoryList(GetHistoryListReq req);
 
 	CommonResponse procAuto(ProcAutoReq req);
+
+	GetConfirmedListRes getConfirmedList(GetConfirmedListReq req);
 
 }

@@ -1,27 +1,19 @@
 package com.maan.insurance.model.req.portFolio;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.maan.insurance.model.res.portFolio.GetAutoPendingListRes;
-import com.maan.insurance.model.res.portFolio.GetAutoPendingListResponse;
+import com.maan.insurance.model.res.portFolio.GetHistoryListRes;
+import com.maan.insurance.model.res.portFolio.GetHistoryListRes1;
 
 import lombok.Data;
 
 @Data
-public class GetContractsListReq {
-
+public class GetConfirmedListReq {
 	@JsonProperty("ProductId")
 	private String productId;
 	@JsonProperty("BranchCode")
 	private String branchCode;
-	@JsonProperty("Flag")
-	private String flag;
-	@JsonProperty("DeptId")
-	private String deptId;
-	@JsonProperty("DepartmentId")
-	private List<BigDecimal> departmentId;
 	@JsonProperty("SearchType")
 	private String searchType;
 	@JsonProperty("ProposalNoSearch")
@@ -31,9 +23,14 @@ public class GetContractsListReq {
 	@JsonProperty("CompanyNameSearch")
 	private String companyNameSearch;
 	@JsonProperty("BrokerNameSearch")
-	private String brokerNameSearch; 
+	private String brokerNameSearch;
 	@JsonProperty("DepartmentNameSearch")
 	private String departmentNameSearch;
+	@JsonProperty("BouquetNoSearch")
+	private String bouquetNoSearch;
+	
+	@JsonProperty("SubclassSearch")
+	private String subclassSearch;
 	@JsonProperty("InsuredNameSearch")
 	private String insuredNameSearch;
 	@JsonProperty("UwYearSearch")
@@ -44,23 +41,12 @@ public class GetContractsListReq {
 	private String uwYearSearch1;
 	@JsonProperty("UnderwriterSearch1")
 	private String underwriterSearch1;
-	@JsonProperty("AttachedUW")
-	private String attachedUW;
-	@JsonProperty("CompanyNameSearch1")
-	private String companyNameSearch1;
-	@JsonProperty("BrokerNameSearch1")
-	private String brokerNameSearch1;
-	@JsonProperty("DepartmentNameSearch1")
-	private String departmentNameSearch1;
-	@JsonProperty("UwYearSearch2")
-	private String uwYearSearch2;
-	@JsonProperty("UwYearSearch3")
-	private String uwYearSearch3; 
-	@JsonProperty("MenuRights")
-	private List<String> 	menuRights; 
-	@JsonProperty("SubclassSearch") //ri
-	private String subclassSearch; 
 	@JsonProperty("OfferNoSearch")
 	private String offerNoSearch;
-
+	@JsonProperty("Flag")
+	private String flag;
+	@JsonProperty("AttachedUW")
+	private String attachedUW;
+	@JsonProperty("MenuRights")
+	private List<String> 	menuRights; 
 }

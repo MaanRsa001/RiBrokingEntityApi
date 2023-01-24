@@ -3,23 +3,27 @@ package com.maan.insurance.model.res.portFolio;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.maan.insurance.model.res.xolPremium.GetPremiumDetailsRes;
-import com.maan.insurance.model.res.xolPremium.GetPremiumDetailsRes1;
 
 import lombok.Data;
 
 @Data
-public class GetPendingListRes1 {
+public class GetConfirmedListRes1 {
+	@JsonProperty("ContractNo")
+	private String contractNo;
 	@JsonProperty("ProposalNo")
 	private String proposalNo;
+	@JsonProperty("OfferNo")
+	private String offerNo;
+	@JsonProperty("BouquetNo")
+	private String bouquetNo;
 	@JsonProperty("AmendId")
 	private String amendId;
-	@JsonProperty("Flag")
-	private String flag;
 	@JsonProperty("CedingCompanyName")
 	private String cedingCompanyName;
 	@JsonProperty("DepartmentName")
 	private String departmentName;
+	@JsonProperty("SubClass")
+	private String subClass;
 	@JsonProperty("DepartmentId")
 	private String departmentId;
 	@JsonProperty("InceptionDate")
@@ -27,18 +31,21 @@ public class GetPendingListRes1 {
 	@JsonProperty("ExpiryDate")
 	private String expiryDate;
 	@JsonProperty("InsuredName")
-	private String insuredName; 
-	@JsonProperty("QuoteGendrateddate")
-	private String quoteGendrateddate;
-	@JsonProperty("Ceddingcompanyid")
-	private String ceddingcompanyid;
+	private String insuredName;
+	@JsonProperty("QuoteGendratedDate")
+	private String quoteGendratedDate;
+	@JsonProperty("CeddingCompanyId")
+	private String ceddingCompanyId;
 	@JsonProperty("LayerNo")
 	private String layerNo;
+	@JsonProperty("SectionNo")
+	private String sectionNo;
+	@JsonProperty("Flag")
+	private String flag;
 	@JsonProperty("Title")
 	private String title;
 	@JsonProperty("BaseLayer")
 	private String baseLayer;
-	
 	@JsonProperty("Contractno1")
 	private String contractno1;
 	@JsonProperty("Lay1")
@@ -53,13 +60,6 @@ public class GetPendingListRes1 {
 	private String brokerName;
 	@JsonProperty("OldContract")
 	private String oldContract;
-	
-	@JsonProperty("OfferNo")
-	private String offerNo;
-	@JsonProperty("BouquetNo")
-	private String bouquetNo;
-	@JsonProperty("SubClass")
-	private String subClass;
 	@JsonProperty("ButtonSelectionList")
-	private List<ButtonSelectionListRes> ButtonSelectionList;
+	private List<ButtonSelectionListRes> buttonSelectionList;
 }

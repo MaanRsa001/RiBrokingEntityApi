@@ -42,7 +42,6 @@ public class GetPendingListReq {
 	private String underwriterSearch1;
 	@JsonProperty("AttachedUW")
 	private String attachedUW;
-	
 	@JsonProperty("CompanyNameSearch1")
 	private String companyNameSearch1;
 	@JsonProperty("BrokerNameSearch1")
@@ -53,6 +52,15 @@ public class GetPendingListReq {
 	private String uwYearSearch2;
 	@JsonProperty("UwYearSearch3")
 	private String uwYearSearch3;
+
+	@JsonProperty("BouquetNoSearch")
+	private String bouquetNoSearch;
+	@JsonProperty("SubclassSearch")
+	private String subclassSearch; 
+	@JsonProperty("OfferNoSearch")
+	private String offerNoSearch;
+	@JsonProperty("MenuRights")
+	private List<String> menuRights;
 
 	
 	

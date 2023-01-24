@@ -4239,7 +4239,19 @@ public class NonProportionalityValidation {
 		return list;
 	}
 	public List<ErrorCheck> getLayerInfoVali(GetLayerInfoReq req) {
-		// TODO Auto-generated method stub
-		return null;
+		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
+		if (StringUtils.isBlank(req.getBaseLayer())) {
+			list.add(new ErrorCheck("Please Enter BaseLayer", "BaseLayer", "1"));
+		}
+		if (StringUtils.isBlank(req.getContNo())) {
+			list.add(new ErrorCheck("Please Enter ContNo", "ContNo", "2"));
+		}
+		if (StringUtils.isBlank(req.getContractMode())) {
+			list.add(new ErrorCheck("Please Enter ContractMode", "ContractMode", "3"));
+		}
+		if (StringUtils.isBlank(req.getProposalNo())) {
+			list.add(new ErrorCheck("Please Enter ProposalNo", "ProposalNo", "4"));
+		}
+		return list;
 	}
 }

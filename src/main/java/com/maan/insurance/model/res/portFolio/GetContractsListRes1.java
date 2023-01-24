@@ -123,4 +123,14 @@ public class GetContractsListRes1 {
 	@JsonProperty("ButtonSelectionList")
 	private List<ButtonSelectionListRes> ButtonSelectionList;
 	
+	@JsonProperty("OfferNo") 
+	private String offerNo;
+	@JsonProperty("BouquetNo")
+	private String bouquetNo;
+	@JsonProperty("ContractNo")
+	private String contractNo;
+	@JsonProperty("SubClass")
+	private String subClass;
+	@JsonProperty("SectionNo")
+	private String sectionNo;
 }

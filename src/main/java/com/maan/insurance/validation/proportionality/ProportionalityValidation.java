@@ -3363,7 +3363,7 @@ return list;
 
 
 	public List<ErrorCheck> convertPolicyVali(ConvertPolicyReq req) {
-		// TODO Auto-generated method stub
-		return null;
+		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
+		return list;
 	}
 }

@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,9 +16,12 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
 import javax.persistence.StoredProcedureQuery;
+import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
@@ -32,6 +36,11 @@ import org.hibernate.transform.AliasToEntityMapResultTransformer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.maan.insurance.model.entity.PersonalInfo;
+import com.maan.insurance.model.entity.PositionMaster;
+import com.maan.insurance.model.entity.TmasDepartmentMaster;
+import com.maan.insurance.model.entity.TtrnRiPlacement;
+import com.maan.insurance.model.entity.TtrnRiskDetails;
 import com.maan.insurance.model.entity.TtrnRskClassLimits;
 import com.maan.insurance.model.entity.UnderwritterMaster;
 import com.maan.insurance.model.repository.RskPremiumDetailsRepository;
@@ -41,6 +50,7 @@ import com.maan.insurance.model.repository.TtrnRiskDetailsRepository;
 import com.maan.insurance.model.repository.UnderwritterMasterRepository;
 
 import com.maan.insurance.model.req.portFolio.GetAutoPendingListReq;
+import com.maan.insurance.model.req.portFolio.GetConfirmedListReq;
 import com.maan.insurance.model.req.portFolio.GetContractsListReq;
 import com.maan.insurance.model.req.portFolio.GetHistoryListReq;
 import com.maan.insurance.model.req.portFolio.GetPendingListReq;
@@ -51,6 +61,9 @@ import com.maan.insurance.model.res.portFolio.ButtonSelectionListRes;
 import com.maan.insurance.model.res.portFolio.GetAutoPendingListRes;
 import com.maan.insurance.model.res.portFolio.GetAutoPendingListRes1;
 import com.maan.insurance.model.res.portFolio.GetAutoPendingListResponse;
+import com.maan.insurance.model.res.portFolio.GetConfirmedListRes;
+import com.maan.insurance.model.res.portFolio.GetConfirmedListRes1;
+import com.maan.insurance.model.res.portFolio.GetConfirmedListResponse;
 import com.maan.insurance.model.res.portFolio.GetContractsListRes;
 import com.maan.insurance.model.res.portFolio.GetContractsListRes1;
 import com.maan.insurance.model.res.portFolio.GetContractsListResponse;
@@ -159,6 +172,14 @@ public class PortFolioServiceImple implements PortFolioService{
             		obj = dropDowmImpl.getIncObjectArray(obj, new String[]{("%" + beanObj.getDepartmentNameSearch() + "%")});
             		 qutext += " AND UPPER(B.TMAS_DEPARTMENT_NAME) LIKE UPPER(?) ";
             	}
+        		if(StringUtils.isNotBlank(beanObj.getBouquetNoSearch())){ //ri
+            		obj = dropDowmImpl.getIncObjectArray(obj, new String[]{("%" + beanObj.getBouquetNoSearch() + "%")});
+            		qutext += " AND UPPER(A.Bouquet_No) LIKE UPPER(?)";
+            	}
+        		if(StringUtils.isNotBlank(beanObj.getSubclassSearch())){
+            		obj = dropDowmImpl.getIncObjectArray(obj, new String[]{("%" + beanObj.getSubclassSearch() + "%")});
+            		qutext += " AND UPPER((select RTRIM(XMLAGG(XMLELEMENT(E,TMAS_SPFC_NAME,',')).EXTRACT('//text()'),',')  from TMAS_SPFC_MASTER SPFC where SPFC.TMAS_SPFC_ID in(select * from table(SPLIT_TEXT_FN(replace(E.RSK_SPFCID,' ', '')))) AND  SPFC.TMAS_PRODUCT_ID = E.RSK_PRODUCTID AND SPFC.BRANCH_CODE = E.BRANCH_CODE)) LIKE UPPER(?)";
+            	}
             	if("1".equalsIgnoreCase(beanObj.getProductId())){
         		if(StringUtils.isNotBlank(beanObj.getInsuredNameSearch())){
             		obj = dropDowmImpl.getIncObjectArray(obj, new String[]{("%" + beanObj.getInsuredNameSearch() + "%")});
@@ -192,6 +213,10 @@ public class PortFolioServiceImple implements PortFolioService{
                 		obj = dropDowmImpl.getIncObjectArray(obj, new String[]{("%" + res + "%")});
                 		 qutext += " AND UPPER(E.RSK_UNDERWRITTER) LIKE UPPER(?) ";
                 	}
+            	} if(StringUtils.isNotBlank(beanObj.getOfferNoSearch())){
+            		obj = dropDowmImpl.getIncObjectArray(obj, new String[]{("%" + beanObj.getOfferNoSearch() + "%")});
+            		qutext += " AND A.OFFER_NO LIKE ? ";
+            		
             	}
             	
             	res1.setType("Yes");
@@ -206,11 +231,12 @@ public class PortFolioServiceImple implements PortFolioService{
             	beanObj.setUnderwriterSearch("");
             	beanObj.setUwYearSearch1("");
             	beanObj.setUnderwriterSearch1("");
+            	beanObj.setOfferNoSearch("");
             }
             if ("RP".equalsIgnoreCase(beanObj.getFlag())) {
-            	qutext += " " +prop.getProperty("portfolio.select.renewalPending");
+            //	qutext += " " +prop.getProperty("portfolio.select.renewalPending");
             } else {
-            	qutext += " " +prop.getProperty("portfolio.select.pending");
+            //	qutext += " " +prop.getProperty("portfolio.select.pending");
             }
             if(StringUtils.isNotBlank(beanObj.getAttachedUW()) && !"ALL".equalsIgnoreCase(beanObj.getAttachedUW())) {
         		obj = dropDowmImpl.getIncObjectArray(obj, new String[]{(beanObj.getAttachedUW())});
@@ -231,9 +257,12 @@ public class PortFolioServiceImple implements PortFolioService{
                 Map<String, Object> tempMap = list.get(i);
                 GetPendingListRes1 tempBean = new GetPendingListRes1();
                 tempBean.setProposalNo(tempMap.get("PROPOSAL_NO") == null ? "" : tempMap.get("PROPOSAL_NO").toString());
+                tempBean.setOfferNo(tempMap.get("OFFER_NO") == null ? "" : tempMap.get("OFFER_NO").toString());
+                tempBean.setBouquetNo(tempMap.get("Bouquet_No") == null ? "" : tempMap.get("Bouquet_No").toString());
                 tempBean.setAmendId(tempMap.get("AMEND_ID") == null ? "" : tempMap.get("AMEND_ID").toString());
                 tempBean.setCedingCompanyName(tempMap.get("COMPANY_NAME") == null ? "" : tempMap.get("COMPANY_NAME").toString());
                 tempBean.setDepartmentName(tempMap.get("TMAS_DEPARTMENT_NAME") == null ? "" : tempMap.get("TMAS_DEPARTMENT_NAME").toString());
+                tempBean.setSubClass(tempMap.get("TMAS_SPFC_NAME") == null ? "" : tempMap.get("TMAS_SPFC_NAME").toString());
                 tempBean.setDepartmentId(tempMap.get("TMAS_DEPARTMENT_ID") == null ? "" : tempMap.get("TMAS_DEPARTMENT_ID").toString());
                 tempBean.setInceptionDate(tempMap.get("INCEPTION_DATE") == null ? "" : tempMap.get("INCEPTION_DATE").toString());
                 tempBean.setExpiryDate(tempMap.get("EXPIRY_DATE") == null ? "" : tempMap.get("EXPIRY_DATE").toString());
@@ -262,6 +291,7 @@ public class PortFolioServiceImple implements PortFolioService{
                 tempBean.setUnderwritter(tempMap.get("UNDERWRITTER") == null ? "" : tempMap.get("UNDERWRITTER").toString());
                 tempBean.setBrokerName(tempMap.get("BROKER_NAME") == null ? "" : tempMap.get("BROKER_NAME").toString());
                 tempBean.setOldContract(tempMap.get("OLD_CONTRACTNO") == null ? "" : "0".equals(tempMap.get("OLD_CONTRACTNO")) == true ? "" : tempMap.get("OLD_CONTRACTNO").toString());
+                tempBean.setButtonSelectionList(getPendingButtonList(beanObj.getMenuRights()));
                 finalList.add(tempBean);
             }
             res1.setPendingList(finalList);
@@ -275,7 +305,53 @@ public class PortFolioServiceImple implements PortFolioService{
     }
     return response;
 	}
-
+	 private List<ButtonSelectionListRes> getPendingButtonList( List<String> menuRights) {
+		 List<ButtonSelectionListRes> pendingList = new ArrayList<ButtonSelectionListRes>();
+	    	List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
+			Map<String,Object> map=new HashMap<String,Object>();
+			try{
+				
+				if( menuRights.toString().contains("EN") ){//&&"N".equalsIgnoreCase(tempBean.getEditMode())&&!"".equalsIgnoreCase(tempBean.getEditMode())){
+					map.put("TYPE","E");
+					map.put("DETAIL_NAME","Edit");
+					list.add(map);
+					map=new HashMap<String,Object>();
+				}
+				if( menuRights.toString().contains("V")){
+					map.put("TYPE","V");
+					map.put("DETAIL_NAME","View");
+					list.add(map);
+					map=new HashMap<String,Object>();
+				}
+				if( menuRights.toString().contains("V")){
+					map.put("TYPE","RI");
+					map.put("DETAIL_NAME","Reinsurer");
+					list.add(map);
+					map=new HashMap<String,Object>();
+				}
+				if( menuRights.toString().contains("V")){
+					map.put("TYPE","PL");
+					map.put("DETAIL_NAME","Placement");
+					list.add(map);
+					map=new HashMap<String,Object>();
+				}
+				
+    			if(list.size()>0&&list!=null) {
+    			for(int i=0; i<list.size(); i++) {
+    				Map<String,Object> tempMap = (Map<String,Object>) list.get(i);
+    				ButtonSelectionListRes button = new ButtonSelectionListRes();
+    				button.setType(tempMap.get("TYPE")==null?"":tempMap.get("TYPE").toString());	
+    				button.setDetailName(tempMap.get("DETAIL_NAME")==null?"":tempMap.get("DETAIL_NAME").toString());
+    				pendingList.add(button);
+    			}
+    			}
+			}
+			catch(Exception e){
+				e.printStackTrace();
+			}
+			return pendingList;
+		}
+	
 	@Override
 	public GetRejectedListRes getRejectedList(GetPendingListReq beanObj) {
 		GetRejectedListRes response = new GetRejectedListRes();
@@ -558,10 +634,10 @@ public class PortFolioServiceImple implements PortFolioService{
             String[] obj = new String[0];
             obj = new String[8];
             obj[0] = beanObj.getProductId();
-            obj[1] = beanObj.getProductId();
+            obj[1] = beanObj.getBranchCode();
             obj[2] = beanObj.getBranchCode();
             obj[3] = beanObj.getBranchCode();
-            obj[4] = beanObj.getBranchCode();
+            obj[4] = beanObj.getProductId();
             obj[5] = beanObj.getBranchCode();
             obj[6] = beanObj.getProductId();
             obj[7] = beanObj.getBranchCode();
@@ -603,20 +679,20 @@ public class PortFolioServiceImple implements PortFolioService{
             		obj = dropDowmImpl.getIncObjectArray(obj, new String[]{("%" + beanObj.getContractNoSearch() + "%")});
             		qutext += " " +prop.getProperty("portfolio.select.conno");
             	}
-            	if("3".equalsIgnoreCase(beanObj.getProductId()) || "5".equalsIgnoreCase(beanObj.getProductId())){
-	            	if(StringUtils.isNotBlank(beanObj.getCompanyNameSearch1())){
-	            		obj = dropDowmImpl.getIncObjectArray(obj, new String[]{("%" + beanObj.getCompanyNameSearch1() + "%")});
-	            		qutext += " " +prop.getProperty("portfolio.select.comname=");
-	            	}
-	            	if(StringUtils.isNotBlank(beanObj.getBrokerNameSearch1())){
-	            		obj = dropDowmImpl.getIncObjectArray(obj, new String[]{("%" + beanObj.getBrokerNameSearch1() + "%")});
-	            		qutext += " " +prop.getProperty("portfolio.select.broname");
-	            	}
-	            	if(StringUtils.isNotBlank(beanObj.getDepartmentNameSearch1())){
-	            		obj = dropDowmImpl.getIncObjectArray(obj, new String[]{("%" + beanObj.getDepartmentNameSearch1() + "%")});
-	            		qutext += " AND UPPER(B.TMAS_DEPARTMENT_NAME) LIKE UPPER(?)";
-	            	}
-            	}else{
+//            	if("3".equalsIgnoreCase(beanObj.getProductId()) || "5".equalsIgnoreCase(beanObj.getProductId())){
+//	            	if(StringUtils.isNotBlank(beanObj.getCompanyNameSearch1())){
+//	            		obj = dropDowmImpl.getIncObjectArray(obj, new String[]{("%" + beanObj.getCompanyNameSearch1() + "%")});
+//	            		qutext += " " +prop.getProperty("portfolio.select.comname=");
+//	            	}
+//	            	if(StringUtils.isNotBlank(beanObj.getBrokerNameSearch1())){
+//	            		obj = dropDowmImpl.getIncObjectArray(obj, new String[]{("%" + beanObj.getBrokerNameSearch1() + "%")});
+//	            		qutext += " " +prop.getProperty("portfolio.select.broname");
+//	            	}
+//	            	if(StringUtils.isNotBlank(beanObj.getDepartmentNameSearch1())){
+//	            		obj = dropDowmImpl.getIncObjectArray(obj, new String[]{("%" + beanObj.getDepartmentNameSearch1() + "%")});
+//	            		qutext += " AND UPPER(B.TMAS_DEPARTMENT_NAME) LIKE UPPER(?)";
+//	            	}
+//            	}else{
             		if(StringUtils.isNotBlank(beanObj.getCompanyNameSearch())){
                 		obj = dropDowmImpl.getIncObjectArray(obj, new String[]{("%" + beanObj.getCompanyNameSearch() + "%")});
                 		qutext += " " +prop.getProperty("portfolio.select.comname");
@@ -629,7 +705,11 @@ public class PortFolioServiceImple implements PortFolioService{
                 		obj = dropDowmImpl.getIncObjectArray(obj, new String[]{("%" + beanObj.getDepartmentNameSearch() + "%")});
                 		qutext += " AND UPPER(B.TMAS_DEPARTMENT_NAME) LIKE UPPER(?)";
                 	}
-            	}
+            		if(StringUtils.isNotBlank(beanObj.getSubclassSearch())){
+                		obj = dropDowmImpl.getIncObjectArray(obj, new String[]{("%" + beanObj.getSubclassSearch() + "%")});
+                		qutext += " AND UPPER((select RTRIM(XMLAGG(XMLELEMENT(E,TMAS_SPFC_NAME,',')).EXTRACT('//text()'),',')  from TMAS_SPFC_MASTER SPFC where SPFC.TMAS_SPFC_ID in(select * from table(SPLIT_TEXT_FN(replace(E.RSK_SPFCID,' ', '')))) AND  SPFC.TMAS_PRODUCT_ID = E.RSK_PRODUCTID AND SPFC.BRANCH_CODE = E.BRANCH_CODE)) LIKE UPPER(?)";
+                	}
+           // 	}
             	if("1".equalsIgnoreCase(beanObj.getProductId()) ){
             	if(StringUtils.isNotBlank(beanObj.getInsuredNameSearch())){
             		obj = dropDowmImpl.getIncObjectArray(obj, new String[]{("%" + beanObj.getInsuredNameSearch() + "%")});
@@ -661,6 +741,11 @@ public class PortFolioServiceImple implements PortFolioService{
                 		obj = dropDowmImpl.getIncObjectArray(obj, new String[]{("%" + res + "%")});
                 		qutext += " AND UPPER(D.RSK_UNDERWRITTER) LIKE UPPER(?) ";
                 	}
+            	}
+            	if(StringUtils.isNotBlank(beanObj.getOfferNoSearch())){
+            		obj = dropDowmImpl.getIncObjectArray(obj, new String[]{("%" + beanObj.getOfferNoSearch() + "%")});
+            		query += " AND A.OFFER_NO LIKE ? ";
+            		
             	}
             	res1.setType("Yes");
             }else{
@@ -698,13 +783,18 @@ public class PortFolioServiceImple implements PortFolioService{
             for (int i = 0; i < list.size(); i++) {
                 Map<String, Object> tempMap = list.get(i);
                 GetContractsListRes1 tempBean = new GetContractsListRes1();
-                tempBean.setProposalNo(tempMap.get("CONTRACT_NO") == null ? "" : tempMap.get("CONTRACT_NO").toString());
+                tempBean.setProposalNo(tempMap.get("PROPOSAL_NO") == null ? "" : tempMap.get("PROPOSAL_NO").toString());
+                tempBean.setOfferNo(tempMap.get("OFFER_NO") == null ? "" : tempMap.get("OFFER_NO").toString());
+                tempBean.setBouquetNo(tempMap.get("BOUQUET_NO") == null ? "" : tempMap.get("BOUQUET_NO").toString());
+                tempBean.setContractNo(tempMap.get("CONTRACT_NO") == null ? "" : tempMap.get("CONTRACT_NO").toString());
                 tempBean.setProposalId(tempMap.get("PROPOSAL_NO") == null ? "" : tempMap.get("PROPOSAL_NO").toString());
                 tempBean.setAmendId(tempMap.get("AMEND_ID") == null ? "" : tempMap.get("AMEND_ID").toString());
                 tempBean.setProposalStatus(tempMap.get("PROPOSAL_STATUS")==null?"":tempMap.get("PROPOSAL_STATUS").toString());
                 tempBean.setContractStatus(tempMap.get("CONTRACT_STATUS")==null?"":tempMap.get("CONTRACT_STATUS").toString());
                 tempBean.setCedingCompanyName(tempMap.get("COMPANY_NAME") == null ? "" : tempMap.get("COMPANY_NAME").toString());
                 tempBean.setDepartmentName(tempMap.get("TMAS_DEPARTMENT_NAME") == null ? "" : tempMap.get("TMAS_DEPARTMENT_NAME").toString());
+                tempBean.setSubClass(tempMap.get("TMAS_SPFC_NAME") == null ? "" : tempMap.get("TMAS_SPFC_NAME").toString());
+
                 tempBean.setDepartmentId(tempMap.get("TMAS_DEPARTMENT_ID") == null ? "" : tempMap.get("TMAS_DEPARTMENT_ID").toString());
                 tempBean.setInceptionDate(tempMap.get("INCEPTION_DATE") == null ? "" : tempMap.get("INCEPTION_DATE").toString());
                 tempBean.setExpiryDate(tempMap.get("EXPIRY_DATE") == null ? "" : tempMap.get("EXPIRY_DATE").toString());
@@ -732,6 +822,8 @@ public class PortFolioServiceImple implements PortFolioService{
                 tempBean.setUnderwritter(tempMap.get("UNDERWRITTER") == null ? "" : tempMap.get("UNDERWRITTER").toString());
                 tempBean.setBrokerName(tempMap.get("BROKER_NAME") == null ? "" : tempMap.get("BROKER_NAME").toString());
                 tempBean.setEditMode(tempMap.get("EDIT_MODE") == null ? "" : tempMap.get("EDIT_MODE").toString());
+                tempBean.setLayerNo(tempMap.get("LAYER_NO") == null ? "" : tempMap.get("LAYER_NO").toString());
+                tempBean.setSectionNo(tempMap.get("SECTION_NO") == null ? "" : tempMap.get("SECTION_NO").toString());
                 if ("C".equalsIgnoreCase(beanObj.getFlag())) {
                     tempBean.setFlag("C");
                 } else if ("RD".equalsIgnoreCase(beanObj.getFlag())) {
@@ -786,9 +878,9 @@ public class PortFolioServiceImple implements PortFolioService{
             }
             res1.setGetContractsList(finalList);
             }      
-            response.setCommonResponse(res1);
-    		response.setMessage("Success");
-    		response.setIsError(false);
+	            response.setCommonResponse(res1);
+	    		response.setMessage("Success");
+	    		response.setIsError(false);
             }  catch (Exception e) {
             		e.printStackTrace();
             		response.setMessage("Failed");
@@ -813,6 +905,12 @@ public class PortFolioServiceImple implements PortFolioService{
     				list.add(map);
     				map=new HashMap<String,Object>();
     			}
+    			if( menuRights.toString().contains("EN") ){//&&"N".equalsIgnoreCase(tempBean.getEditMode())&&!"".equalsIgnoreCase(tempBean.getEditMode())){
+    				map.put("TYPE","E");
+    				map.put("DETAIL_NAME","Edit");
+    				list.add(map);
+    				map=new HashMap<String,Object>();
+    			}
     			if(!"0".equalsIgnoreCase(tempBean.getAmendId())){
     				map=new HashMap<String,Object>();
     				map.put("TYPE","H");
@@ -832,50 +930,56 @@ public class PortFolioServiceImple implements PortFolioService{
     				list.add(map);
     				map=new HashMap<String,Object>();
     			}
-    			if("5".equalsIgnoreCase(tempBean.getProductId())){
-    				map.put("TYPE","IE");
-    				map.put("DETAIL_NAME","IE Module");
-    				list.add(map);
-    				map=new HashMap<String,Object>();
-    			}
-    			if( menuRights.toString().contains("ST")){
-    				map.put("TYPE","S");
-    				map.put("DETAIL_NAME","Stats & Calc.");
-    				list.add(map);
-    				map=new HashMap<String,Object>();
-    			}
-    			if( menuRights.toString().contains("CS") &&!"Y".equalsIgnoreCase(tempBean.getDisableStatus()) &&!"Y".equalsIgnoreCase(tempBean.getCombinedClassCount()) && "2".equalsIgnoreCase(tempBean.getProductId()) &&StringUtils.isBlank(tempBean.getBaseLayer())){
-    				if( "1".equalsIgnoreCase(tempBean.getRenewalStatus())){
-    				map.put("TYPE","CS");
-    				map.put("DETAIL_NAME","Classes");
-    				list.add(map);
-    				map=new HashMap<String,Object>();
-    				}
-    			}
-    			if(("3".equalsIgnoreCase(tempBean.getProductId())||"5".equalsIgnoreCase(tempBean.getProductId()))&&"0".equalsIgnoreCase(tempBean.getGnpiFlag())&&StringUtils.isBlank(tempBean.getBaseLayer()) &&!"Y".equalsIgnoreCase(tempBean.getDisableStatus()) &&"1".equalsIgnoreCase(tempBean.getRenewalStatus())){
-    				map.put("TYPE","L");
-    				map.put("DETAIL_NAME","Duplicate Layer");
-    				list.add(map);
-    				map=new HashMap<String,Object>();
-    			}
     			if( menuRights.toString().contains("R")&&"N".equalsIgnoreCase(tempBean.getDisableStatus()) &&"N".equalsIgnoreCase(tempBean.getRenewaldisable())&&"1".equalsIgnoreCase(tempBean.getRenewalStatus())&&"1".equalsIgnoreCase(tempBean.getRenewalPeriod())){
-    				if(StringUtils.isBlank(tempBean.getBaseLayer())){
-    					map.put("TYPE","R");
-    					map.put("DETAIL_NAME","Renewal");
-    					list.add(map);
-    					map=new HashMap<String,Object>();
-    				}
-    			}
-    			if( menuRights.toString().contains("CP")&&StringUtils.isBlank(tempBean.getBaseLayer())){
-    				map.put("TYPE","CP");
-    				map.put("DETAIL_NAME","Copy");
+    				map.put("TYPE","R");
+    				map.put("DETAIL_NAME","Renewal");
     				list.add(map);
     				map=new HashMap<String,Object>();
     			}
-    			map.put("TYPE","D");
-    			map.put("DETAIL_NAME","Document");
-    			list.add(map);
-    			map=new HashMap<String,Object>();
+//    			if("5".equalsIgnoreCase(tempBean.getProductId())){
+//    				map.put("TYPE","IE");
+//    				map.put("DETAIL_NAME","IE Module");
+//    				list.add(map);
+//    				map=new HashMap<String,Object>();
+//    			}
+//    			if( menuRights.toString().contains("ST")){
+//    				map.put("TYPE","S");
+//    				map.put("DETAIL_NAME","Stats & Calc.");
+//    				list.add(map);
+//    				map=new HashMap<String,Object>();
+//    			}
+//    			if( menuRights.toString().contains("CS") &&!"Y".equalsIgnoreCase(tempBean.getDisableStatus()) &&!"Y".equalsIgnoreCase(tempBean.getCombinedClassCount()) && "2".equalsIgnoreCase(tempBean.getProductId()) &&StringUtils.isBlank(tempBean.getBaseLayer())){
+//    				if( "1".equalsIgnoreCase(tempBean.getRenewalStatus())){
+//    				map.put("TYPE","CS");
+//    				map.put("DETAIL_NAME","Classes");
+//    				list.add(map);
+//    				map=new HashMap<String,Object>();
+//    				}
+//    			}
+//    			if(("3".equalsIgnoreCase(tempBean.getProductId())||"5".equalsIgnoreCase(tempBean.getProductId()))&&"0".equalsIgnoreCase(tempBean.getGnpiFlag())&&StringUtils.isBlank(tempBean.getBaseLayer()) &&!"Y".equalsIgnoreCase(tempBean.getDisableStatus()) &&"1".equalsIgnoreCase(tempBean.getRenewalStatus())){
+//    				map.put("TYPE","L");
+//    				map.put("DETAIL_NAME","Duplicate Layer");
+//    				list.add(map);
+//    				map=new HashMap<String,Object>();
+//    			}
+//    			if( menuRights.toString().contains("R")&&"N".equalsIgnoreCase(tempBean.getDisableStatus()) &&"N".equalsIgnoreCase(tempBean.getRenewaldisable())&&"1".equalsIgnoreCase(tempBean.getRenewalStatus())&&"1".equalsIgnoreCase(tempBean.getRenewalPeriod())){
+//    				if(StringUtils.isBlank(tempBean.getBaseLayer())){
+//    					map.put("TYPE","R");
+//    					map.put("DETAIL_NAME","Renewal");
+//    					list.add(map);
+//    					map=new HashMap<String,Object>();
+//    				}
+//    			}
+//    			if( menuRights.toString().contains("CP")&&StringUtils.isBlank(tempBean.getBaseLayer())){
+//    				map.put("TYPE","CP");
+//    				map.put("DETAIL_NAME","Copy");
+//    				list.add(map);
+//    				map=new HashMap<String,Object>();
+//    			}
+//    			map.put("TYPE","D");
+//    			map.put("DETAIL_NAME","Document");
+//    			list.add(map);
+//    			map=new HashMap<String,Object>();
     			if(list.size()>0&&list!=null) {
     			for(int i=0; i<list.size(); i++) {
     				Map<String,Object> tempMap = (Map<String,Object>) list.get(i);
@@ -969,7 +1073,7 @@ public class PortFolioServiceImple implements PortFolioService{
 	                tempBean.setRenewalStatus(tempMap.get("RENEWAL_STATUS") == null ? "" : tempMap.get("RENEWAL_STATUS").toString());
 	                if (tempMap.get("RENWALDATE") != null) {
 	                    final float RenwalPreiod = Float.parseFloat(tempMap.get("RENWALDATE") == null ? "" : tempMap.get("RENWALDATE").toString());
-	                    if (RenwalPreiod <= 60) {
+	                    if (RenwalPreiod <= 365) {
 	                        tempBean.setRenewalPeriod("1");
 	                    } else {
 	                        tempBean.setRenewalPeriod("0");
@@ -979,6 +1083,8 @@ public class PortFolioServiceImple implements PortFolioService{
 	                tempBean.setUwMonth(tempMap.get("UW_MONTH") == null ? "" : tempMap.get("UW_MONTH").toString());
 	                tempBean.setUnderwritter(tempMap.get("UNDERWRITTER") == null ? "" : tempMap.get("UNDERWRITTER").toString());
 	                tempBean.setBrokerName(tempMap.get("BROKER_NAME") == null ? "" : tempMap.get("BROKER_NAME").toString());
+	                tempBean.setLayerNo(tempMap.get("LAYER_NO") == null ? "" : tempMap.get("LAYER_NO").toString());
+	                tempBean.setSectionNo(tempMap.get("SECTION_NO") == null ? "" : tempMap.get("SECTION_NO").toString());
 	                if ("C".equalsIgnoreCase(beanObj.getFlag())) {
 	                    tempBean.setFlag("C");
 	                } else if ("RD".equalsIgnoreCase(beanObj.getFlag())) {
@@ -1171,4 +1277,299 @@ public class PortFolioServiceImple implements PortFolioService{
 		        }
 		        return total;
 		    }
+
+		@Override
+		public GetConfirmedListRes getConfirmedList(GetConfirmedListReq beanObj) {
+			GetConfirmedListRes response = new GetConfirmedListRes();
+			GetConfirmedListResponse res1 = new GetConfirmedListResponse();
+			List<GetConfirmedListRes1> finalList = new ArrayList<GetConfirmedListRes1>();
+			String res ="";
+	        try {
+	           
+	           //GET_NEW_CONTRACT_LIST
+	            CriteriaBuilder cb = em.getCriteriaBuilder(); 
+	      		CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+	      		
+	      		Root<PersonalInfo> c = query.from(PersonalInfo.class);
+	      		Root<PersonalInfo> c1 = query.from(PersonalInfo.class);
+	      		Root<PositionMaster> a = query.from(PositionMaster.class);
+	      		Root<TtrnRiskDetails> e = query.from(TtrnRiskDetails.class);
+	      		Root<TmasDepartmentMaster> b = query.from(TmasDepartmentMaster.class);
+	      	//	Root<UnderwritterMaster> d = query.from(UnderwritterMaster.class);
+	      		
+	      		Expression<String> e0 = cb.concat(c1.get("firstName"), " ");
+	      		
+	      		query.multiselect(a.get("offerNo").alias("OFFER_NO"),
+	      				a.get("proposalNo").alias("PROPOSAL_NO"),
+	      				b.get("tmasDepartmentId").alias("TMAS_DEPARTMENT_ID"),
+	      				b.get("tmasDepartmentName").alias("TMAS_DEPARTMENT_NAME"),
+	      				a.get("cedingCompanyId").alias("CEDING_COMPANY_ID"),
+	      				cb.concat(e0,c1.get("lastName")).alias("BROKER_NAME"),
+	      				c.get("companyName").alias("COMPANY_NAME"),
+	      				a.get("inceptionDate").alias("INCEPTION_DATE"),
+	      				a.get("accountDate").alias("ACCOUNT_DATE"),
+	      				a.get("expiryDate").alias("EXPIRY_DATE"),
+	      				cb.coalesce(a.get("baseLayer"),a.get("proposalNo")).alias("BASE_LAYER"),
+	      				a.get("contractNo").alias("CONTRACT_NO"),
+	      				cb.selectCase().when(cb.notEqual(a.get("uwYear"), 0),a.get("uwYear")).otherwise("null").alias("UW_YEAR"),	      				
+	      				a.get("uwMonth").alias("UW_MONTH"),
+	      				a.get("sectionNo").alias("SECTION_NO"),
+	      		//		d.get("underwritter").alias("UNDERWRITTER"),	
+	      				a.get("layerNo").alias("LAYER_NO"),
+	      				a.get("oldContractno").alias("OLD_CONTRACTNO"),
+	      				a.get("amendId").alias("AMEND_ID"),
+	      				e.get("rskInsuredName").alias("RSK_INSURED_NAME"),
+	      				a.get("bouquetNo").alias("Bouquet_No"),
+	      				cb.coalesce(a.get("baseLayer"),a.get("proposalNo")).alias("BASE_LAYER_DESC")
+	      				); 
+
+	      		// MAXAmend ID
+	      		Subquery<Long> amendC = query.subquery(Long.class); 
+	      		Root<PersonalInfo> pms = amendC.from(PersonalInfo.class);
+	      		amendC.select(cb.max(pms.get("amendId")));
+	      		Predicate a1 = cb.equal( c.get("customerId"), pms.get("customerId"));
+	      		Predicate a2 = cb.equal( c.get("branchCode"), pms.get("branchCode"));
+	      		Predicate a3 = cb.equal( c.get("customerType"), pms.get("customerType"));
+	      		amendC.where(a3,a1,a2);
+	      		
+	      		Subquery<Long> amendA = query.subquery(Long.class); 
+	      		Root<PositionMaster> pm = amendA.from(PositionMaster.class);
+	      		amendA.select(cb.max(pm.get("amendId")));
+	      		Predicate b1 = cb.equal( a.get("proposalNo"), pm.get("proposalNo"));
+	      		Predicate b2 = cb.equal( a.get("branchCode"), pm.get("branchCode"));
+	      		amendA.where(b1,b2);
+	      		
+	      		Subquery<Long> amendC1 = query.subquery(Long.class); 
+	      		Root<PersonalInfo> pi = amendC1.from(PersonalInfo.class);
+	      		amendC1.select(cb.max(pi.get("amendId")));
+	      		Predicate d1 = cb.equal( c1.get("customerId"), pi.get("customerId"));
+	      		Predicate d2 = cb.equal( c1.get("branchCode"), pi.get("branchCode"));
+	      		Predicate d3 = cb.equal( c1.get("customerType"), pi.get("customerType"));
+	      		amendC1.where(d3,d1,d2);
+	      		
+	      		Subquery<Long> prop = query.subquery(Long.class); 
+	      		Root<TtrnRiPlacement> ri = prop.from(TtrnRiPlacement.class);
+	      		prop.select(ri.get("proposalNo")).distinct(true);
+	      		
+	      		Subquery<Long> statusNo = query.subquery(Long.class); 
+	      		Root<TtrnRiPlacement> ri1 = statusNo.from(TtrnRiPlacement.class);
+	      		statusNo.select(cb.max(ri1.get("statusNo")));
+	      		Predicate g1 = cb.equal( ri.get("proposalNo"), ri1.get("proposalNo"));
+	      		Predicate g2 = cb.equal( ri.get("sno"), ri1.get("sno"));
+	      		Predicate g3 = cb.equal( ri.get("branchCode"), ri1.get("branchCode"));
+	      		statusNo.where(g3,g1,g2);
+	      		Predicate f1 = cb.equal( a.get("proposalNo"), ri.get("proposalNo"));
+	      		Predicate f2 = cb.equal( ri.get("status"), "CSL");
+	      		Expression<String> e1 = ri.get("statusNo");
+ 	      		Predicate f3 = e1.in(statusNo);
+	      		prop.where(f3,f1,f2);
+	      		
+	      		List<Predicate> predicateList = new ArrayList<Predicate>();
+	      		predicateList.add(cb.equal(e.get("rskDeptid"), b.get("tmasDepartmentId")));
+	      		predicateList.add(cb.equal(b.get("tmasProductId"), beanObj.getProductId()));
+	      		predicateList.add(cb.equal(b.get("branchCode"), beanObj.getBranchCode()));
+	      		predicateList.add(cb.equal(b.get("tmasStatus"), "Y"));
+//	      		predicateList.add(cb.equal(d.get("uwrCode"), e.get("rskUnderwritter")));
+//	      		predicateList.add(cb.equal(d.get("branchCode"),  beanObj.getBranchCode()));
+	      		predicateList.add(cb.equal(a.get("productId"), beanObj.getProductId()));      		
+	      		predicateList.add(cb.or(cb.equal(a.get("contractStatus"), "P"),cb.isNull(a.get("contractStatus"))));
+		        predicateList.add(cb.equal(c.get("customerId"), a.get("cedingCompanyId")));
+		      	predicateList.add(cb.equal(c.get("branchCode"),  beanObj.getBranchCode()));
+		      	predicateList.add(cb.equal(c.get("customerType"),  "C"));
+		      	predicateList.add(cb.equal(c.get("amendId"),  amendC));
+		      	predicateList.add(cb.equal(a.get("proposalNo"), e.get("rskProposalNumber")));
+		      	predicateList.add(cb.equal(a.get("amendId"), e.get("rskEndorsementNo")));
+		      	predicateList.add(cb.equal(a.get("productId"), e.get("rskProductid")));
+		      	predicateList.add(cb.equal(a.get("branchCode"), beanObj.getBranchCode()));
+		      
+		      	predicateList.add(cb.equal(a.get("amendId"), amendA));
+		      	predicateList.add(cb.equal(c1.get("customerId"), a.get("brokerId")));
+		      	predicateList.add(cb.equal(c1.get("branchCode"),  beanObj.getBranchCode()));
+		      	predicateList.add(cb.equal(c1.get("amendId"), amendC1));
+		        predicateList.add(cb.or(cb.isNull(e.get("oldContractno")),cb.equal(e.get("oldContractno"), "0")));
+		      	predicateList.add(cb.equal(a.get("proposalNo"), prop));	           		
+	            
+	            if(StringUtils.isNotBlank(beanObj.getSearchType()) && null !=beanObj.getSearchType()){
+	            	if(StringUtils.isNotBlank(beanObj.getProposalNoSearch())){
+	            		predicateList.add(cb.like(a.get("proposalNo"), beanObj.getProposalNoSearch()));	            		
+	            	}	
+	            	if(StringUtils.isNotBlank(beanObj.getContractNoSearch())){
+	                    predicateList.add(cb.like(a.get("contractNo"), beanObj.getContractNoSearch()));	        
+	            	}
+	        		if(StringUtils.isNotBlank(beanObj.getCompanyNameSearch())){
+	                    predicateList.add(cb.like(cb.upper(c.get("companyName")), beanObj.getCompanyNameSearch().toUpperCase()));	     
+	            	}
+	        		if(StringUtils.isNotBlank(beanObj.getBrokerNameSearch())){ 
+	                    predicateList.add(cb.like(cb.upper(c1.get("firstName")), beanObj.getBrokerNameSearch().toUpperCase()));	 
+	            	}
+	        		if(StringUtils.isNotBlank(beanObj.getDepartmentNameSearch())){
+	            		 predicateList.add(cb.like(cb.upper(b.get("tmasDepartmentName")), beanObj.getDepartmentNameSearch().toUpperCase()));	 
+	            	}
+	        		if(StringUtils.isNotBlank(beanObj.getBouquetNoSearch())){
+	            		 predicateList.add(cb.like(cb.upper(a.get("bouquetNo")), beanObj.getBouquetNoSearch().toUpperCase()));	 
+	            	}
+	        		if(StringUtils.isNotBlank(beanObj.getSubclassSearch())){ //pending
+//	            		obj = dropDowmImpl.getIncObjectArray(obj, new String[]{("%" + beanObj.getSubclassSearch() + "%")});
+//	            		 query += " AND UPPER((select RTRIM(XMLAGG(XMLELEMENT(E,TMAS_SPFC_NAME,',')).EXTRACT('//text()'),',')  from TMAS_SPFC_MASTER SPFC where SPFC.TMAS_SPFC_ID in(select * from table(SPLIT_TEXT_FN(replace(E.RSK_SPFCID,' ', '')))) AND  SPFC.TMAS_PRODUCT_ID = E.RSK_PRODUCTID AND SPFC.BRANCH_CODE = E.BRANCH_CODE)) LIKE UPPER(?)";
+	            	}
+	            	if("1".equalsIgnoreCase(beanObj.getProductId())){
+	        		if(StringUtils.isNotBlank(beanObj.getInsuredNameSearch())){
+	            		 predicateList.add(cb.like(cb.upper(e.get("rskInsuredName")), beanObj.getInsuredNameSearch().toUpperCase()));	
+	            	}
+	            	if(StringUtils.isNotBlank(beanObj.getUwYearSearch())){  
+	                    predicateList.add(cb.like(a.get("uwYear"), beanObj.getUwYearSearch()));	        
+	            	
+	            	}if(StringUtils.isNotBlank(beanObj.getUnderwriterSearch())){
+	            		List<UnderwritterMaster> list = uwRepo.findByBranchCodeAndUwrStatusAndUnderwritterIgnoreCaseContaining(beanObj.getBranchCode(),"Y",beanObj.getUnderwriterSearch());
+                		 if (!CollectionUtils.isEmpty(list)) {
+                			 res =  list.get(0).getUwrCode();
+                			}
+	            		 predicateList.add(cb.like(cb.upper(e.get("rskUnderwritter")), res.toUpperCase()));	
+	            	}
+	            	}else{
+	            		if(StringUtils.isNotBlank(beanObj.getUwYearSearch1())){
+	                        predicateList.add(cb.like(a.get("uwYear"), beanObj.getUwYearSearch1()));	  
+	                	}if(StringUtils.isNotBlank(beanObj.getUnderwriterSearch1())){
+	                		List<UnderwritterMaster> list = uwRepo.findByBranchCodeAndUwrStatusAndUnderwritterIgnoreCaseContaining(beanObj.getBranchCode(),"Y",beanObj.getUnderwriterSearch1());
+	                		 if (!CollectionUtils.isEmpty(list)) {
+	                			 res =  list.get(0).getUwrCode();
+	                			}
+	                		 predicateList.add(cb.like(cb.upper(e.get("rskUnderwritter")), res.toUpperCase()));	
+	                	}
+	            	}if(StringUtils.isNotBlank(beanObj.getOfferNoSearch())){
+	            		  predicateList.add(cb.like(a.get("offerNo"), beanObj.getOfferNoSearch()));	  
+	            	}
+	            	
+	            	res1.setType("Yes");
+	            }else{
+//	            	beanObj.setProposalNoSearch("");
+//	            	beanObj.setContractNoSearch("");
+//	            	beanObj.setCompanyNameSearch("");
+//	            	beanObj.setBrokerNameSearch("");
+//	            	beanObj.setDepartmentNameSearch("");
+//	            	beanObj.setInsuredNameSearch("");
+//	            	beanObj.setUwYearSearch("");
+//	            	beanObj.setUnderwriterSearch("");
+//	            	beanObj.setUwYearSearch1("");
+//	            	beanObj.setUnderwriterSearch1("");
+//	            	beanObj.setOfferNoSearch("");
+	            }
+	            if ("RP".equalsIgnoreCase(beanObj.getFlag())) {
+	                predicateList.add(cb.isNotNull(e.get("oldContractno")));	
+	                predicateList.add(cb.notEqual(e.get("oldContractno"), "0"));	
+	            } else { 
+//		            predicateList.add(cb.isNull(e.get("oldContractno")));	
+//	                predicateList.add(cb.equal(e.get("oldContractno"),"0"));	
+	            }
+	            if(StringUtils.isNotBlank(beanObj.getAttachedUW()) && !"ALL".equalsIgnoreCase(beanObj.getAttachedUW())) {
+	        		Expression<String> e2 = cb.upper(e.get("rskUnderwritter"));
+	        		List<String> attachedUW =new ArrayList<String>(Arrays.asList(beanObj.getAttachedUW().split(",") )) ;
+	        		predicateList.add(e2.in(attachedUW));
+	        	}
+	            List<Order> orderList = new ArrayList<Order>();
+				orderList.add(cb.desc(a.get("offerNo")));
+				orderList.add(cb.asc(a.get("proposalNo")));
+	         
+	            query.where(predicateList.toArray(new Predicate[0])).orderBy(orderList);
+	      		
+	      		TypedQuery<Tuple> result = em.createQuery(query);
+	      		List<Tuple> list = result.getResultList();
+	      			
+	            for (int i = 0; i < list.size(); i++) {
+	            	Tuple tempMap = list.get(i);
+	                GetConfirmedListRes1 tempBean = new GetConfirmedListRes1();
+	                tempBean.setContractNo(tempMap.get("CONTRACT_NO") == null ? "" : tempMap.get("CONTRACT_NO").toString());
+	                tempBean.setProposalNo(tempMap.get("PROPOSAL_NO") == null ? "" : tempMap.get("PROPOSAL_NO").toString());
+	                tempBean.setOfferNo(tempMap.get("OFFER_NO") == null ? "" : tempMap.get("OFFER_NO").toString());
+	                tempBean.setBouquetNo(tempMap.get("Bouquet_No") == null ? "" : tempMap.get("Bouquet_No").toString());
+	                tempBean.setAmendId(tempMap.get("AMEND_ID") == null ? "" : tempMap.get("AMEND_ID").toString());
+	                tempBean.setCedingCompanyName(tempMap.get("COMPANY_NAME") == null ? "" : tempMap.get("COMPANY_NAME").toString());
+	                tempBean.setDepartmentName(tempMap.get("TMAS_DEPARTMENT_NAME") == null ? "" : tempMap.get("TMAS_DEPARTMENT_NAME").toString());
+	     //pending  tempBean.setSubClass(tempMap.get("TMAS_SPFC_NAME") == null ? "" : tempMap.get("TMAS_SPFC_NAME").toString());
+	                tempBean.setDepartmentId(tempMap.get("TMAS_DEPARTMENT_ID") == null ? "" : tempMap.get("TMAS_DEPARTMENT_ID").toString());
+	                tempBean.setInceptionDate(tempMap.get("INCEPTION_DATE") == null ? "" : tempMap.get("INCEPTION_DATE").toString());
+	                tempBean.setExpiryDate(tempMap.get("EXPIRY_DATE") == null ? "" : tempMap.get("EXPIRY_DATE").toString());
+	                tempBean.setInsuredName(tempMap.get("RSK_INSURED_NAME") == null ? "" : tempMap.get("RSK_INSURED_NAME").toString());
+	                tempBean.setQuoteGendratedDate(tempMap.get("ACCOUNT_DATE") == null ? "" : tempMap.get("ACCOUNT_DATE").toString());
+	                tempBean.setCeddingCompanyId(tempMap.get("CEDING_COMPANY_ID") == null ? "" : tempMap.get("CEDING_COMPANY_ID").toString());
+	                tempBean.setLayerNo(tempMap.get("LAYER_NO") == null ? "" : tempMap.get("LAYER_NO").toString());
+	                tempBean.setSectionNo(tempMap.get("SECTION_NO") == null ? "" : tempMap.get("SECTION_NO").toString());
+	                if (beanObj.getFlag() != null && "N".equalsIgnoreCase(beanObj.getFlag())) {
+	                    tempBean.setFlag("N");
+	                } else if ("RP".equalsIgnoreCase(beanObj.getFlag())) {
+	                    tempBean.setFlag("RP");
+	                    tempBean.setTitle("RP");
+	                   
+	                } else {
+	                    tempBean.setFlag("P");
+	                }
+					
+	                if (tempMap.get("BASE_LAYER") != null) {
+	                    tempBean.setBaseLayer(tempMap.get("BASE_LAYER").toString());
+	                    tempBean.setContractno1(tempMap.get("CONTRACT_NO") == null ? "" : tempMap.get("CONTRACT_NO").toString());
+	                    tempBean.setLay1("layer");
+	                } else {
+	                    tempBean.setBaseLayer("");
+	                }
+	                tempBean.setUwYear(tempMap.get("UW_YEAR") == null ? "" : tempMap.get("UW_YEAR").toString());
+	                tempBean.setUwMonth(tempMap.get("UW_MONTH") == null ? "" : tempMap.get("UW_MONTH").toString());
+	        //        tempBean.setUnderwritter(tempMap.get("UNDERWRITTER") == null ? "" : tempMap.get("UNDERWRITTER").toString());
+	                tempBean.setBrokerName(tempMap.get("BROKER_NAME") == null ? "" : tempMap.get("BROKER_NAME").toString());
+	                tempBean.setOldContract(tempMap.get("OLD_CONTRACTNO") == null ? "" : "0".equals(tempMap.get("OLD_CONTRACTNO")) == true ? "" : tempMap.get("OLD_CONTRACTNO").toString());
+	                tempBean.setButtonSelectionList(getConfimedButtonList(tempBean,beanObj.getMenuRights()));
+	                finalList.add(tempBean);
+	            }
+	            res1.setConfirmedList(finalList);
+	            response.setCommonResponse(res1);
+	    		response.setMessage("Success");
+	    		response.setIsError(false);
+	            }  catch (Exception e) {
+	            		e.printStackTrace();
+	            		response.setMessage("Failed");
+	            		response.setIsError(true);
+	        }
+	        return response;
+		}
+
+		private List<ButtonSelectionListRes> getConfimedButtonList(GetConfirmedListRes1 tempBean, List<String> menuRights) {
+			List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
+			Map<String,Object> map=new HashMap<String,Object>();
+			List<ButtonSelectionListRes> buttonList = new ArrayList<ButtonSelectionListRes>();
+			try{
+				
+				
+				if( menuRights.toString().contains("V")){
+					map.put("TYPE","V");
+					map.put("DETAIL_NAME","View");
+					list.add(map);
+					map=new HashMap<String,Object>();
+				}
+				if( menuRights.toString().contains("V")){
+					map.put("TYPE","PL");
+					map.put("DETAIL_NAME","Pl. Summar");
+					list.add(map);
+					map=new HashMap<String,Object>();
+				}
+				if( menuRights.toString().contains("V")){
+					map.put("TYPE","C");
+					map.put("DETAIL_NAME","Contract");
+					list.add(map);
+					map=new HashMap<String,Object>();
+				}
+				if(list.size()>0&&list!=null) {
+	    			for(int i=0; i<list.size(); i++) {
+	    				Map<String,Object> tempMap = (Map<String,Object>) list.get(i);
+	    				ButtonSelectionListRes button = new ButtonSelectionListRes();
+	    				button.setType(tempMap.get("TYPE")==null?"":tempMap.get("TYPE").toString());	
+	    				button.setDetailName(tempMap.get("DETAIL_NAME")==null?"":tempMap.get("DETAIL_NAME").toString());
+	    				buttonList.add(button);
+	    			}
+	    			}
+			}
+			catch(Exception e){
+				e.printStackTrace();
+			}
+			return buttonList;
+		}
+		
 }

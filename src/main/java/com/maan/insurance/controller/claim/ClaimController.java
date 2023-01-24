@@ -350,6 +350,7 @@ public class ClaimController {
 		}
 		return claimService.claimUpdatePaymentRi(req);
 	}
+
 	@PostMapping("/claimPaymentRiList")
 	public ClaimPaymentListRes1 claimPaymentRiList(@RequestBody ClaimPaymentListReq req) throws CommonValidationException {
 		List<ErrorCheck> error = claimValidation.claimPaymentListVali(req);
@@ -359,4 +360,5 @@ public class ClaimController {
 		}
 		return claimService.claimPaymentRiList(req);
 	}
+
 }

@@ -53,5 +53,7 @@ public class GetHistoryListRes1 {
 	private String renewalStatus;
 	@JsonProperty("RenewalPeriod")
 	private String renewalPeriod;
+	@JsonProperty("SectionNo")
+	private String sectionNo;
 
 }

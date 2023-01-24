@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import com.maan.insurance.error.ErrorCheck;
 import com.maan.insurance.model.req.portFolio.GetAutoPendingListReq;
+import com.maan.insurance.model.req.portFolio.GetConfirmedListReq;
 import com.maan.insurance.model.req.portFolio.GetContractsListReq;
 import com.maan.insurance.model.req.portFolio.GetHistoryListReq;
 import com.maan.insurance.model.req.portFolio.GetPendingListReq;
@@ -169,5 +170,19 @@ public class PortFolioValidation {
 			list.add(new ErrorCheck("Please Enter PortfolioList", "PortfolioList", "8"));
 		}
 		return null;
+	}
+
+	public List<ErrorCheck> getConfirmedListVali(GetConfirmedListReq req) {
+		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
+		if (StringUtils.isBlank(req.getBranchCode())) {
+			list.add(new ErrorCheck("Please Enter BranchCode", "BranchCode", "2"));
+		}
+		if (CollectionUtils.isEmpty(req.getMenuRights())) {
+			list.add(new ErrorCheck("Please Enter MenuRights", "MenuRights", "3"));
+		}
+		if (StringUtils.isBlank(req.getProductId())) {
+			list.add(new ErrorCheck("Please Enter ProductId", "ProductId", "4"));
+		}
+		return list;
 	}
 }

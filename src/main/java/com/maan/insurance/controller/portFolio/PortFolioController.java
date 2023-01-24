@@ -15,11 +15,13 @@ import com.maan.insurance.controller.XolPremium.Xolpremiumcontroller;
 import com.maan.insurance.error.CommonValidationException;
 import com.maan.insurance.error.ErrorCheck;
 import com.maan.insurance.model.req.portFolio.GetAutoPendingListReq;
+import com.maan.insurance.model.req.portFolio.GetConfirmedListReq;
 import com.maan.insurance.model.req.portFolio.GetContractsListReq;
 import com.maan.insurance.model.req.portFolio.GetHistoryListReq;
 import com.maan.insurance.model.req.portFolio.GetPendingListReq;
 import com.maan.insurance.model.req.portFolio.ProcAutoReq;
 import com.maan.insurance.model.res.portFolio.GetAutoPendingListRes;
+import com.maan.insurance.model.res.portFolio.GetConfirmedListRes;
 import com.maan.insurance.model.res.portFolio.GetContractsListRes;
 import com.maan.insurance.model.res.portFolio.GetHistoryListRes;
 import com.maan.insurance.model.res.portFolio.GetPendingListRes;
@@ -89,7 +91,15 @@ public class PortFolioController {
 		List<ErrorCheck> error= portVali.procAutoVali(req);
 		if(error!=null && error.size()>0) {
 			throw new CommonValidationException("error",error);
-		}
+		} 
 		return portServ.procAuto(req);
+	}
+	@PostMapping("/getConfirmedList")
+	public GetConfirmedListRes getConfirmedList(@RequestBody GetConfirmedListReq req) throws CommonValidationException {
+		List<ErrorCheck> error= portVali.getConfirmedListVali(req);
+		if(error!=null && error.size()>0) {
+			throw new CommonValidationException("error",error);
+		}
+		return portServ.getConfirmedList(req);
 	}
 }
