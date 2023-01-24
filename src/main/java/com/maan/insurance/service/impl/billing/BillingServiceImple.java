@@ -18,26 +18,36 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import com.maan.insurance.jpa.entity.treasury.TtrnAllocatedTransaction;
+import com.maan.insurance.jpa.mapper.TtrnAllocatedTransactionMapper;
+import com.maan.insurance.jpa.repository.treasury.TreasuryCustomRepository;
 import com.maan.insurance.model.entity.PersonalInfo;
 import com.maan.insurance.model.entity.PositionMaster;
 import com.maan.insurance.model.entity.RskPremiumDetails;
 import com.maan.insurance.model.entity.TmasProductMaster;
 import com.maan.insurance.model.entity.TtrnBillingDetails;
 import com.maan.insurance.model.entity.TtrnBillingInfo;
+import com.maan.insurance.model.entity.TtrnBillingTransaction;
 import com.maan.insurance.model.entity.TtrnClaimDetails;
 import com.maan.insurance.model.entity.TtrnClaimPayment;
 import com.maan.insurance.model.repository.TtrnBillingDetailsRepository;
 import com.maan.insurance.model.repository.TtrnBillingInfoRepository;
+import com.maan.insurance.model.repository.TtrnBillingTransactionRepository;
+import com.maan.insurance.model.req.GetAllTransContractReq;
 import com.maan.insurance.model.req.GetTransContractListReq;
 import com.maan.insurance.model.req.GetTransContractReq;
 import com.maan.insurance.model.req.billing.GetTransContractReqRi;
 import com.maan.insurance.model.req.billing.InsertBillingInfoReq;
+import com.maan.insurance.model.res.GetAllTransContractRes;
+import com.maan.insurance.model.res.GetAllTransContractRes1;
 import com.maan.insurance.model.res.GetTransContractRes;
 import com.maan.insurance.model.res.GetTransContractRes1;
+import com.maan.insurance.model.res.DropDown.CommonResponse;
 import com.maan.insurance.model.res.billing.GetTransContractRes1Ri;
 import com.maan.insurance.model.res.billing.GetTransContractResRi;
 import com.maan.insurance.model.res.billing.InsertBillingInfoRes;
@@ -61,9 +71,19 @@ public class BillingServiceImple implements  BillingService {
 	private EntityManager em;
 	
 	@Autowired
+	private TreasuryCustomRepository treasuryCustomRepository;
+	
+	@Autowired
 	private TtrnBillingDetailsRepository ttrnBillingDetailsRepository;
 	@Autowired
 	private TtrnBillingInfoRepository ttrnBillingInfoRepository;
+	@Autowired
+	private TtrnAllocatedTransactionMapper ttrnAllocatedTransactionMapper;
+	@Autowired
+	private TtrnBillingTransactionRepository ttrnBillingTransactionRepository;
+	
+	
+	
 	SimpleDateFormat sdf=new SimpleDateFormat("dd/MM/yyyy");
 	
 	@Override
@@ -91,6 +111,8 @@ public class BillingServiceImple implements  BillingService {
 			info.setTranscationtype(req.getTranscationtype()==null?"":req.getTranscationtype());
 			info.setTransType(req.getTransType()==null?"":req.getTransType());
 			ttrnBillingInfoRepository.saveAndFlush(info);
+			
+			getAllocateTransaction(req);
 			
 		}catch(Exception e) {
 			e.printStackTrace();
@@ -334,5 +356,138 @@ public class BillingServiceImple implements  BillingService {
 		
 		return em.createQuery(cq).getResultList();
 	}
+	
+	public CommonResponse getAllocateTransaction(InsertBillingInfoReq req) {
+		CommonResponse response = new CommonResponse();
+		try{
+			GetTransContractReqRi request=new GetTransContractReqRi();
+			request.setAlloccurrencyId(req.getAlloccurrencyId());
+			request.setBranchCode(req.getBranchCode());
+			request.setBrokerId(req.getBrokerId());
+			request.setCedingId(req.getCedingId());
+			GetTransContractResRi res= getTransContract(request);
+			List<GetTransContractRes1Ri> payList = res.getCommonResponse();
+			String serialNo;
+			Double a=0.0,b=0.0,c=0.0;
+		
+			serialNo=queryImpl.getSequenceNo("TreasuryARP","","", req.getBranchCode(),"",req.getAccountDate());
+		
+			req.setSerialno(serialNo);
+			String [] args = null;
+		
+			for(int i=0;i<payList.size();i++) {
+		
+				GetTransContractRes1Ri form= payList.get(i);
+		
+			List<GetTransContractListReq> filterTrack = req.getTransContractListReq().stream().filter( o -> form.getTransactionNo().equalsIgnoreCase(o.getTransactionNo()) ).collect(Collectors.toList());
+			if(!CollectionUtils.isEmpty(filterTrack)) {
+		
+			//if(receivePayAmountMap.containsKey(form.getTransactionNo())) {	 
+			 args=new String[17];
+			 args[0]=serialNo;	
+			 args[1]=form.getContractNo();
+			 args[2]=StringUtils.isBlank(form.getMode())?"0":form.getMode();
+		
+			 args[3]=form.getProductName();
+			 args[4]=form.getTransactionNo();
+			 args[5]=req.getAccountDate();
+			if("P".equalsIgnoreCase(form.getCheckPC())){
+				args[6]= filterTrack.get(0).getReceivePayAmounts();
+			 	args[7]="P";
+			 	String[] updateArgs = new String[5];
+		
+			 	updateArgs[0] = filterTrack.get(0).getReceivePayAmounts();
+			 	updateArgs[1] = req.getLoginId();
+			 	updateArgs[2] = req.getBranchCode();
+			 	updateArgs[3] = form.getContractNo();
+			 	updateArgs[4] = form.getTransactionNo();
+			 	treasuryCustomRepository.updatePremiumDetails(updateArgs);
+			
+			 	
+				updateArgs = new String[5];
+				updateArgs[0] = "Allocated";
+				updateArgs[1] = req.getLoginId();
+				updateArgs[2] = req.getBranchCode();
+				updateArgs[3] = form.getContractNo();
+				updateArgs[4] = form.getTransactionNo();
+				treasuryCustomRepository.updatepreSetStatus(updateArgs);
+			
+			 	a=a+Double.parseDouble(filterTrack.get(0).getReceivePayAmounts());
+			}
+			else if("C".equalsIgnoreCase(form.getCheckPC())) {
+				args[6] = filterTrack.get(0).getReceivePayAmounts();
+				args[7]="C";
+				
+				String[] updateArgs = new String[5];
+				updateArgs[0] = filterTrack.get(0).getReceivePayAmounts();
+				updateArgs[1] = req.getBranchCode();
+				updateArgs[2] = req.getLoginId();
+				updateArgs[3] = form.getContractNo();
+				updateArgs[4] = form.getTransactionNo();
+			
+				treasuryCustomRepository.updateclaimPymtAlloDtls(updateArgs);
+			
+				updateArgs = new String[5];
+				updateArgs[0] = "Allocated";
+				updateArgs[1] = req.getBranchCode();
+				updateArgs[2] = req.getLoginId();
+				updateArgs[3] = form.getContractNo();
+				updateArgs[4] = form.getTransactionNo();
+				treasuryCustomRepository.updateclaimSetStatus(updateArgs);
+			
+				b = b + Double.parseDouble(filterTrack.get(0).getReceivePayAmounts());
+			}
+			args[8]="Y";
+			args[9]="0";
+			args[10]=req.getPolicyno();//Receipt No
+			req.setPayrecno(req.getPolicyno());
+			args[11]=req.getAlloccurrencyId();//Currency ID
+			args[12]=StringUtils.isBlank(req.getHideprocessType())?"I":"O";
+			args[13]=form.getSubClass();
+			args[14]=req.getLoginId();
+			args[15]=req.getBranchCode();
+			args[16]=form.getProposalNo();
+//			TtrnAllocatedTransaction ttrnAllocatedTransaction = ttrnAllocatedTransactionMapper.toEntity(args);
+//			ttrnAllocatedTransactionRepository.save(ttrnAllocatedTransaction);
+			
+			TtrnBillingTransaction ttrnBillingTransaction = ttrnAllocatedTransactionMapper.toEntityBilling(args);
+			ttrnBillingTransactionRepository.saveAndFlush(ttrnBillingTransaction);
+			
+			}
+			}
+		
+			if("RT".equalsIgnoreCase(req.getTransType()))
+			{
+			c=a-b;
+			//c=a+b;
+			}
+			else if("PT".equalsIgnoreCase(req.getTransType()))
+			{
+			c=b-a;
+			//c=b+a;
+			}
+			String[] updateArgs = new String[5];
+			updateArgs[0] = String.valueOf(c);
+			updateArgs[1] = req.getLoginId();
+			updateArgs[2] = req.getBranchCode();
+			updateArgs[3] = req.getPolicyno();
+			updateArgs[4] = req.getAlloccurrencyId();
+			//queryImpl.updateQuery("payment.update.AlloTranDtls", updateArgs);
+			treasuryCustomRepository.updateAlloTranDtls(updateArgs);
+		
+			//queryImpl.updateQuery("payment.update.rskPremChkyn");
+			treasuryCustomRepository.updateRskPremChkyn();
+			
+			response.setMessage(serialNo);
+			response.setIsError(false);
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+		
+			}
+			return response;
+		}
 	
 }

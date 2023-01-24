@@ -54,8 +54,7 @@ public class GetTransContractReq {
 	private String policyno;
 	@JsonProperty("Payrecno")
 	private String payrecno;
-//	@JsonProperty("Alloccurrencyid")
-//	private String alloccurrencyid;
+
 	@JsonProperty("HideprocessType")
 	private String hideprocessType;
 	
