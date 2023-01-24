@@ -15,6 +15,7 @@ import com.maan.insurance.error.CommonValidationException;
 import com.maan.insurance.error.ErrorCheck;
 import com.maan.insurance.model.req.claim.AllocListReq;
 import com.maan.insurance.model.req.claim.AllocationListReq;
+import com.maan.insurance.model.req.claim.CedentNoListReq;
 import com.maan.insurance.model.req.claim.ClaimListMode4Req;
 import com.maan.insurance.model.req.claim.ClaimListReq;
 import com.maan.insurance.model.req.claim.ClaimPaymentEditReq;
@@ -24,7 +25,9 @@ import com.maan.insurance.model.req.claim.ClaimTableListReq;
 import com.maan.insurance.model.req.claim.ContractDetailsModeReq;
 import com.maan.insurance.model.req.claim.ContractDetailsReq;
 import com.maan.insurance.model.req.claim.ContractidetifierlistReq;
+import com.maan.insurance.model.req.claim.GetClaimAuthViewReq;
 import com.maan.insurance.model.req.claim.GetContractNoReq;
+import com.maan.insurance.model.req.claim.GetPaymentNoListReq;
 import com.maan.insurance.model.req.claim.GetReInsValueReq;
 import com.maan.insurance.model.req.claim.InsertCliamDetailsMode12Req;
 import com.maan.insurance.model.req.claim.InsertCliamDetailsMode2Req;
@@ -35,6 +38,7 @@ import com.maan.insurance.model.req.claim.claimNoListReq;
 import com.maan.insurance.model.res.GetShortnameRes;
 import com.maan.insurance.model.res.claim.AllocListRes1;
 import com.maan.insurance.model.res.claim.AllocationListRes;
+import com.maan.insurance.model.res.claim.CedentNoListRes;
 import com.maan.insurance.model.res.claim.ClaimListMode3Response;
 import com.maan.insurance.model.res.claim.ClaimListMode4Response;
 import com.maan.insurance.model.res.claim.ClaimListMode5Response;
@@ -52,7 +56,9 @@ import com.maan.insurance.model.res.claim.ContractDetailsMode5Res;
 import com.maan.insurance.model.res.claim.ContractDetailsMode6Res;
 import com.maan.insurance.model.res.claim.ContractDetailsMode7Res;
 import com.maan.insurance.model.res.claim.ContractidetifierlistRes1;
+import com.maan.insurance.model.res.claim.GetClaimAuthViewRes;
 import com.maan.insurance.model.res.claim.GetContractNoRes1;
+import com.maan.insurance.model.res.claim.GetPaymentNoListRes;
 import com.maan.insurance.model.res.claim.InsertCliamDetailsMode12Res;
 import com.maan.insurance.model.res.claim.InsertCliamDetailsMode2Res;
 import com.maan.insurance.model.res.claim.InsertCliamDetailsMode3Res;
@@ -360,5 +366,31 @@ public class ClaimController {
 		}
 		return claimService.claimPaymentRiList(req);
 	}
-
+	@PostMapping("/cedentNoList")
+	public CedentNoListRes cedentNoList(@RequestBody CedentNoListReq req) throws CommonValidationException {
+		List<ErrorCheck> error = claimValidation.cedentNoListVali(req);
+		if(error != null && error.size() > 0) {
+			
+			throw new CommonValidationException("error",error);
+		}
+		return claimService.cedentNoList(req);
+	}	 
+	@PostMapping("/getPaymentNoList")
+	public GetPaymentNoListRes getPaymentNoList(@RequestBody GetPaymentNoListReq req) throws CommonValidationException {
+		List<ErrorCheck> error = claimValidation.getPaymentNoListVali(req);
+		if(error != null && error.size() > 0) {
+			
+			throw new CommonValidationException("error",error);
+		}
+		return claimService.getPaymentNoList(req);
+	}
+	@PostMapping("/getClaimAuthView")
+	public GetClaimAuthViewRes getClaimAuthView(@RequestBody GetClaimAuthViewReq req) throws CommonValidationException {
+		List<ErrorCheck> error = claimValidation.getClaimAuthViewVali(req);
+		if(error != null && error.size() > 0) {
+			
+			throw new CommonValidationException("error",error);
+		}
+		return claimService.getClaimAuthView(req);
+	}
 }

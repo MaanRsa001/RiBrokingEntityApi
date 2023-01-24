@@ -16,6 +16,7 @@ import com.maan.insurance.error.ErrorCheck;
 import com.maan.insurance.jpa.service.impl.ClaimJpaServiceImpl;
 import com.maan.insurance.model.req.claim.AllocListReq;
 import com.maan.insurance.model.req.claim.AllocationListReq;
+import com.maan.insurance.model.req.claim.CedentNoListReq;
 import com.maan.insurance.model.req.claim.ClaimListMode4Req;
 import com.maan.insurance.model.req.claim.ClaimListReq;
 import com.maan.insurance.model.req.claim.ClaimPaymentEditReq;
@@ -25,7 +26,9 @@ import com.maan.insurance.model.req.claim.ClaimTableListReq;
 import com.maan.insurance.model.req.claim.ContractDetailsModeReq;
 import com.maan.insurance.model.req.claim.ContractDetailsReq;
 import com.maan.insurance.model.req.claim.ContractidetifierlistReq;
+import com.maan.insurance.model.req.claim.GetClaimAuthViewReq;
 import com.maan.insurance.model.req.claim.GetContractNoReq;
+import com.maan.insurance.model.req.claim.GetPaymentNoListReq;
 import com.maan.insurance.model.req.claim.GetReInsValueReq;
 import com.maan.insurance.model.req.claim.InsertCliamDetailsMode12Req;
 import com.maan.insurance.model.req.claim.InsertCliamDetailsMode2Req;
@@ -48,9 +51,7 @@ public class ClaimValidation {
 	private Properties prop = new Properties();
 	@Autowired
 	private ClaimJpaServiceImpl claimImpl;
-	
-	@Autowired
-	private DropDownServiceImple dropDowmImpl;
+
 	
 	@Autowired
 	private Formatters fm;
@@ -445,7 +446,7 @@ public ClaimValidation() {
 			 */
 			 if(!"Reopened".equalsIgnoreCase(req.getStatusofClaim()) && !"Repudiate".equalsIgnoreCase(req.getStatusofClaim())){
 			if(!val.isNull(openPeriodRes.getOpenPeriodDate()).equalsIgnoreCase("") && !val.isNull(req.getCreatedDate()).equalsIgnoreCase("")){
-				if(dropDowmImpl.Validatethree(req.getBranchCode(), req.getCreatedDate())==0){
+				if(dropDownImple.Validatethree(req.getBranchCode(), req.getCreatedDate())==0){
 					list.add(new ErrorCheck(prop.getProperty("errors.open.period.date.Claim.reg")+openPeriodRes.getOpenPeriodDate(),"OpenPeriodDate","01"));
 				}	
 			}
@@ -713,7 +714,7 @@ public ClaimValidation() {
 				}
 				else{
 					if(!val.isNull(openPeriodRes.getOpenPeriodDate()).equalsIgnoreCase("") && !val.isNull(req.getReOpenDate()).equalsIgnoreCase("")){
-					if(dropDowmImpl.Validatethree(req.getBranchCode(), req.getReOpenDate())==0){
+					if(dropDownImple.Validatethree(req.getBranchCode(), req.getReOpenDate())==0){
 						list.add(new ErrorCheck(prop.getProperty("errors.open.period.date.Claim.reopen")+req.getOpenPeriodDate(), "OpenPeriodDate", "01"));
 					}
 				}
@@ -740,7 +741,7 @@ public ClaimValidation() {
 				}
 				else{
 					if(!val.isNull(openPeriodRes.getOpenPeriodDate()).equalsIgnoreCase("") && !val.isNull(req.getReputedDate()).equalsIgnoreCase("")){
-					if(dropDowmImpl.Validatethree(req.getBranchCode(), req.getReputedDate())==0){
+					if(dropDownImple.Validatethree(req.getBranchCode(), req.getReputedDate())==0){
 						list.add(new ErrorCheck(prop.getProperty("errors.open.period.date.Claim.repudiate")+req.getOpenPeriodDate(),"OpenPeriodDate","01"));
 					}
 				}
@@ -989,7 +990,7 @@ public ClaimValidation() {
 					list.add(new ErrorCheck(prop.getProperty("errors.reservepositionDate.Error3"),"ClaimDate,ReservePositionDate","01"));
 				}
 				if(!val.isNull(openPeriodRes.getOpenPeriodDate()).equalsIgnoreCase("") && !val.isNull(req.getCliamupdateDate()).equalsIgnoreCase("")){
-					int res = dropDowmImpl.Validatethree(req.getBranchCode(), req.getCliamupdateDate());
+					int res = dropDownImple.Validatethree(req.getBranchCode(), req.getCliamupdateDate());
 					if(res == 0){
 						list.add(new ErrorCheck(prop.getProperty("errors.open.period.date.Claim.update")+openPeriodRes.getOpenPeriodDate(),"OpenPeriodDate","01"));
 					}
@@ -1167,7 +1168,7 @@ public ClaimValidation() {
 					list.add(new ErrorCheck(prop.getProperty("errors.payDtGrELastPayDt"),"ClaimDate","01"));
 				}
 				if(!val.isNull(openPeriodRes.getOpenPeriodDate()).equalsIgnoreCase("") && !val.isNull(req.getDate()).equalsIgnoreCase("")){
-					if(dropDowmImpl.Validatethree(req.getBranchCode(), req.getDate())==0){
+					if(dropDownImple.Validatethree(req.getBranchCode(), req.getDate())==0){
 						list.add(new ErrorCheck(prop.getProperty("errors.open.period.date.Claim.pay")+openPeriodRes.getOpenPeriodDate(),"OpenPeriodDate","01"));
 					}
 					}
@@ -1297,7 +1298,7 @@ public ClaimValidation() {
 					list.add(new ErrorCheck(prop.getProperty("errors.payDtGrELastPayDt"),"ClaimDate","01"));
 				}
 				if(!val.isNull(openPeriodRes.getOpenPeriodDate()).equalsIgnoreCase("") && !val.isNull(req.getDate()).equalsIgnoreCase("")){
-					if(dropDowmImpl.Validatethree(req.getBranchCode(), req.getDate())==0){
+					if(dropDownImple.Validatethree(req.getBranchCode(), req.getDate())==0){
 						list.add(new ErrorCheck(prop.getProperty("errors.open.period.date.Claim.pay")+openPeriodRes.getOpenPeriodDate(),"OpenPeriodDate","01"));
 					}
 					}
@@ -1335,5 +1336,69 @@ public ClaimValidation() {
 			}
 		return list;
 	}
+	public List<ErrorCheck> cedentNoListVali(CedentNoListReq req) {
+		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
+		if (StringUtils.isBlank(req.getBranchCode())) {
+			list.add(new ErrorCheck("Please Enter BranchCode", "BranchCode", "1"));
+		}
+		if (StringUtils.isBlank(req.getClaimNo())) {
+			list.add(new ErrorCheck("Please Enter ClaimNo", "ClaimNo", "2"));
+		}
+		if (StringUtils.isBlank(req.getCedentClaimNo())) {
+			list.add(new ErrorCheck("Please Enter CedentClaimNo", "CedentClaimNo", "3"));
+		}
+		if (StringUtils.isBlank(req.getCedingCompanyCode())) {
+			list.add(new ErrorCheck("Please Enter CedingCompanyCode", "CedingCompanyCode", "4"));
+		}
+		if (StringUtils.isBlank(req.getDateOfLoss())) {
+			list.add(new ErrorCheck("Please Enter DateOfLoss", "DateOfLoss", "5"));
+		}
+		return list;
+	}
+
+	public List<ErrorCheck> getPaymentNoListVali(GetPaymentNoListReq req) {
+		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
+		if (StringUtils.isBlank(req.getBranchCode())) {
+			list.add(new ErrorCheck("Please Enter BranchCode", "BranchCode", "1"));
+		}
+		if (StringUtils.isBlank(req.getContarctno())) {
+			list.add(new ErrorCheck("Please Enter Contarctno", "Contarctno", "2"));
+		}
+		if (StringUtils.isBlank(req.getCurrecny())) {
+			list.add(new ErrorCheck("Please Enter Currecny", "Currecny", "3"));
+		}
+		if (StringUtils.isBlank(req.getLayerNo())) {
+			list.add(new ErrorCheck("Please Enter LayerNo", "LayerNo", "4"));
+		}
+		if (StringUtils.isBlank(req.getProposalNo())) {
+			list.add(new ErrorCheck("Please Enter ProposalNo", "ProposalNo", "5"));
+		}
+		return list;
+	}
+
+
+	public List<ErrorCheck> getClaimAuthViewVali(GetClaimAuthViewReq req) {
+		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
+		if (StringUtils.isBlank(req.getBranchCode())) {
+			list.add(new ErrorCheck("Please Enter BranchCode", "BranchCode", "1"));
+		}
+		if (StringUtils.isBlank(req.getContarctno())) {
+			list.add(new ErrorCheck("Please Enter Contarctno", "Contarctno", "2"));
+		}
+		if (StringUtils.isBlank(req.getCurrecny())) {
+			list.add(new ErrorCheck("Please Enter Currecny", "Currecny", "3"));
+		}
+		if (StringUtils.isBlank(req.getLayerNo())) {
+			list.add(new ErrorCheck("Please Enter LayerNo", "LayerNo", "4"));
+		}
+		if (StringUtils.isBlank(req.getProposalNo())) {
+			list.add(new ErrorCheck("Please Enter ProposalNo", "ProposalNo", "5"));
+		}
+		if (StringUtils.isBlank(req.getPaymentNo())) {
+			list.add(new ErrorCheck("Please Enter PaymentNo", "PaymentNo", "6"));
+		}
+		return list;
+	}
+	
 	}
 

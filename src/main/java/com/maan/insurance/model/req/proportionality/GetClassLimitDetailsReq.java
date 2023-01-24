@@ -11,18 +11,25 @@ import lombok.Data;
 @Data
 public class GetClassLimitDetailsReq {
 	@JsonProperty("ProposalNo")
-	private String proposalNo;
+	private String proposalNo; 
 	
 	@JsonProperty("LayerNo")
 	private String layerNo;
 	
-//	@JsonProperty("BusinessType")
-//	private String businessType;
-//
-//	@JsonProperty("ReinstatementOption")
-//	private String reinstatementOption;
-//	
-//	@JsonProperty("ProductId")
-//	private String productId;
+	@JsonProperty("BusinessType")
+	private String businessType;
+
+	@JsonProperty("ReinstatementOption")
+	private String reinstatementOption;
 	
+	@JsonProperty("ProductId")
+	private String productId;
+	
+	@JsonProperty("Flag")
+	private String flag;
+	
+	@JsonProperty("BaseLayer")
+	private String baseLayer;
+
+
 }

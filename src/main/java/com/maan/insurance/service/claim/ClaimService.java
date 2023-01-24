@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import com.maan.insurance.model.req.claim.AllocListReq;
 import com.maan.insurance.model.req.claim.AllocationListReq;
+import com.maan.insurance.model.req.claim.CedentNoListReq;
 import com.maan.insurance.model.req.claim.ClaimListMode4Req;
 import com.maan.insurance.model.req.claim.ClaimListReq;
 import com.maan.insurance.model.req.claim.ClaimPaymentEditReq;
@@ -14,7 +15,9 @@ import com.maan.insurance.model.req.claim.ClaimTableListReq;
 import com.maan.insurance.model.req.claim.ContractDetailsModeReq;
 import com.maan.insurance.model.req.claim.ContractDetailsReq;
 import com.maan.insurance.model.req.claim.ContractidetifierlistReq;
+import com.maan.insurance.model.req.claim.GetClaimAuthViewReq;
 import com.maan.insurance.model.req.claim.GetContractNoReq;
+import com.maan.insurance.model.req.claim.GetPaymentNoListReq;
 import com.maan.insurance.model.req.claim.GetReInsValueReq;
 import com.maan.insurance.model.req.claim.InsertCliamDetailsMode12Req;
 import com.maan.insurance.model.req.claim.InsertCliamDetailsMode2Req;
@@ -25,6 +28,7 @@ import com.maan.insurance.model.req.claim.claimNoListReq;
 import com.maan.insurance.model.res.GetShortnameRes;
 import com.maan.insurance.model.res.claim.AllocListRes1;
 import com.maan.insurance.model.res.claim.AllocationListRes;
+import com.maan.insurance.model.res.claim.CedentNoListRes;
 import com.maan.insurance.model.res.claim.ClaimListMode3Response;
 import com.maan.insurance.model.res.claim.ClaimListMode4Response;
 import com.maan.insurance.model.res.claim.ClaimListMode5Response;
@@ -42,7 +46,9 @@ import com.maan.insurance.model.res.claim.ContractDetailsMode5Res;
 import com.maan.insurance.model.res.claim.ContractDetailsMode6Res;
 import com.maan.insurance.model.res.claim.ContractDetailsMode7Res;
 import com.maan.insurance.model.res.claim.ContractidetifierlistRes1;
+import com.maan.insurance.model.res.claim.GetClaimAuthViewRes;
 import com.maan.insurance.model.res.claim.GetContractNoRes1;
+import com.maan.insurance.model.res.claim.GetPaymentNoListRes;
 import com.maan.insurance.model.res.claim.InsertCliamDetailsMode12Res;
 import com.maan.insurance.model.res.claim.InsertCliamDetailsMode2Res;
 import com.maan.insurance.model.res.claim.InsertCliamDetailsMode3Res;
@@ -146,6 +152,12 @@ public interface ClaimService {
 	InsertCliamDetailsMode3Res claimUpdatePaymentRi(InsertCliamDetailsMode3Req req);
 
 	ClaimPaymentListRes1 claimPaymentRiList(ClaimPaymentListReq req);
+
+	CedentNoListRes cedentNoList(CedentNoListReq req);
+
+	GetPaymentNoListRes getPaymentNoList(GetPaymentNoListReq req);
+
+	GetClaimAuthViewRes getClaimAuthView(GetClaimAuthViewReq req);
 
 
 }

@@ -30,5 +30,19 @@ public class GetClassLimitDetailsRes1 {
 	private String gnpi;
 	
 	@JsonProperty("TotalLoopCount")
-	private String totalLoopCount;
+	private String totalLoopCount;  
+	
+	@JsonProperty("HcoverLimitOC")
+	private String hcoverLimitOC; 
+	@JsonProperty("NetMaxRetentPer")
+	private String netMaxRetentPer; 
+	
+	@JsonProperty("CoverdepartIdRe")
+	private String coverdepartIdRe;
+	
+	@JsonProperty("CoverLimitAmountRe")
+	private String coverLimitAmountRe;
+	
+	@JsonProperty("HcoverLimitOCRe")
+	private String hcoverLimitOCRe; 
 }

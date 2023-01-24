@@ -106,6 +106,8 @@ import com.maan.insurance.model.res.nonproportionality.UpdateProportionalTreatyR
 import com.maan.insurance.model.res.nonproportionality.ViewRiskDetailsRes;
 import com.maan.insurance.model.res.nonproportionality.ViewRiskDetailsRes1;
 import com.maan.insurance.model.res.nonproportionality.insertProportionalTreatyRes;
+import com.maan.insurance.model.res.xolPremium.GetClassLimitDetailsRes2;
+import com.maan.insurance.model.res.xolPremium.GetClassLimitDetailsResponse;
 import com.maan.insurance.service.impl.QueryImplemention;
 import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
 import com.maan.insurance.service.impl.proportionality.ProportionalityServiceImpl;
@@ -3704,10 +3706,12 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 	@Override
 	public GetClassLimitDetailsRes getClassLimitDetails(GetClassLimitDetailsReq req) {
 		GetClassLimitDetailsRes response = new GetClassLimitDetailsRes();
-		GetClassLimitDetailsRes1 res = new GetClassLimitDetailsRes1();
+		GetClassLimitDetailsResponse com = new GetClassLimitDetailsResponse();
 		List<GetClassLimitDetailsRes1> resList = new ArrayList<GetClassLimitDetailsRes1>();
+		List<GetClassLimitDetailsRes2> res2List = new ArrayList<GetClassLimitDetailsRes2>();
 		try {
 			List<Map<String,Object>>result=new ArrayList<Map<String,Object>>();
+			List<Map<String,Object>>list=new ArrayList<Map<String,Object>>();
 			String query= "GET_CLASS_LIMIT_DETAILS";
 			String[] obj= new String[2];
 			obj[0]=req.getProposalNo();
@@ -3716,6 +3720,26 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			if(result!=null && result.size()>0){
 				for (int i = 0; i < result.size(); i++) {
 					Map<String, Object> insMap = (Map<String, Object>)result.get(i);
+					GetClassLimitDetailsRes1 res = new GetClassLimitDetailsRes1();
+					if(!req.getBusinessType().equalsIgnoreCase("5") && !req.getBusinessType().equalsIgnoreCase("Stop Loss")){
+						res.setCoverdepartId(insMap.get("RSK_COVER_CLASS")==null?"":insMap.get("RSK_COVER_CLASS").toString());
+						res.setCoverdepartIdRe(insMap.get("RSK_COVER_CLASS")==null?"":insMap.get("RSK_COVER_CLASS").toString());
+						 if(StringUtils.isNotBlank(req.getReinstatementOption()) && "U".equalsIgnoreCase(req.getReinstatementOption())){
+								 res.setHcoverLimitOC(insMap.get("RSK_COVER_LIMT")==null?"0.00":fm.formatter(insMap.get("RSK_COVER_LIMT").toString()));
+								 res.setHcoverLimitOCRe(insMap.get("RSK_COVER_LIMT")==null?"0.00":fm.formatter(insMap.get("RSK_COVER_LIMT").toString()));
+						 }else{
+							 res.setCoverLimitAmount(insMap.get("RSK_COVER_LIMT")==null?"0.00":fm.formatter(insMap.get("RSK_COVER_LIMT").toString()));
+							 res.setHcoverLimitOC(insMap.get("RSK_COVER_LIMT")==null?"0.00":fm.formatter(insMap.get("RSK_COVER_LIMT").toString()));
+							 
+							 res.setCoverLimitAmountRe(insMap.get("RSK_COVER_LIMT")==null?"0.00":fm.formatter(insMap.get("RSK_COVER_LIMT").toString()));
+							 res.setHcoverLimitOCRe(insMap.get("RSK_COVER_LIMT")==null?"0.00":fm.formatter(insMap.get("RSK_COVER_LIMT").toString()));
+						 }
+						 res.setDeductableLimitPercent(insMap.get("RSK_DEDUCTABLE_PERCENTAGE")==null?"0.00":insMap.get("RSK_DEDUCTABLE_PERCENTAGE").toString());
+							res.setEgnpi(insMap.get("RSK_EGNPI_AS_OFF")==null?"0.00":fm.formatter(insMap.get("RSK_EGNPI_AS_OFF").toString()));
+							res.setGnpi(insMap.get("RSK_GNPI_AS_OFF")==null?"0.00":fm.formatter(insMap.get("RSK_GNPI_AS_OFF").toString()));	
+							res.setNetMaxRetentPer(insMap.get("RSK_NET_MAX_RETENT_PERCENT")==null?"0.00":fm.formatter(insMap.get("RSK_GNPI_AS_OFF").toString()));
+							res.setTotalLoopCount(String.valueOf(i+1));
+					}else{
 					res.setCoverdepartId(insMap.get("RSK_COVER_CLASS")==null?"":insMap.get("RSK_COVER_CLASS").toString());	
 					res.setCoverLimitAmount(insMap.get("RSK_COVER_LIMT")==null?"0.00":fm.formatter(insMap.get("RSK_COVER_LIMT").toString()));
 					res.setCoverLimitPercent(insMap.get("RSK_COVER_LIMT_PERCENTAGE")==null?"0.00":insMap.get("RSK_COVER_LIMT_PERCENTAGE").toString());
@@ -3723,7 +3747,9 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 					res.setDeductableLimitPercent(insMap.get("RSK_DEDUCTABLE_PERCENTAGE")==null?"0.00":insMap.get("RSK_DEDUCTABLE_PERCENTAGE").toString());
 					res.setEgnpi(insMap.get("RSK_EGNPI_AS_OFF")==null?"0.00":fm.formatter(insMap.get("RSK_EGNPI_AS_OFF").toString()));
 					res.setGnpi(insMap.get("RSK_GNPI_AS_OFF")==null?"0.00":fm.formatter(insMap.get("RSK_GNPI_AS_OFF").toString()));	
+					res.setNetMaxRetentPer(insMap.get("RSK_NET_MAX_RETENT_PERCENT")==null?"0.00":fm.formatter(insMap.get("RSK_GNPI_AS_OFF").toString()));		
 					res.setTotalLoopCount(String.valueOf(i+1));
+					}
 					resList.add(res);
 					}
 			} //doubt
@@ -3760,7 +3786,39 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 //				 result.add(doubleMap);	 doubleMap.put("one",new Double(1.
 //				 beanObj.setCoverList(result);
 //			}
-			response.setCommonResponse(resList);	
+			//RI
+			if("copy".equals(req.getFlag())) {
+				String sql="GET_MAX_LAYER_NO";
+				String proposalno=StringUtils.isBlank(req.getBaseLayer())?req.getProposalNo():req.getBaseLayer();
+				String layermax="";
+				
+				list = queryImpl.selectList(sql, new String[] {proposalno});	
+				if(!CollectionUtils.isEmpty(list)) {
+					layermax=list.get(0).get("LAYER_NO")==null?"":list.get(0).get("LAYER_NO").toString();
+				}
+				
+				if(Integer.parseInt(req.getLayerNo())>=Integer.parseInt(layermax)) {
+					for(int j=0;j<result.size();j++) {
+						Map<String, Object> insMap = (Map<String, Object>)result.get(j);
+						GetClassLimitDetailsRes2 res2 = new GetClassLimitDetailsRes2();
+				//		coverLimitAmount.add("");
+						String coverAmount=insMap.get("RSK_COVER_LIMT")==null?"0.00":insMap.get("RSK_COVER_LIMT").toString();
+						String coverAmount1=insMap.get("RSK_DEDUCTABLE_LIMT")==null?"0.00":insMap.get("RSK_DEDUCTABLE_LIMT").toString();
+						String deducttotal=String.valueOf(Double.parseDouble(coverAmount1)+Double.parseDouble(coverAmount));
+						res2.setDeductableLimitAmount(fm.formatter(deducttotal));	
+						res2List.add(res2);
+						}
+				}else {
+//					for(int j=0;j<result.size();j++) {
+//						coverLimitAmount.add("");
+//						deductableLimitAmount.add("");
+//					}
+				}
+				
+			}
+			com.setClassLimitDetails(resList);
+			com.setDeducttotal(res2List);		
+			response.setCommonResponse(com);	
 			response.setMessage("Success");
 			response.setIsError(false);
 			}catch(Exception e){

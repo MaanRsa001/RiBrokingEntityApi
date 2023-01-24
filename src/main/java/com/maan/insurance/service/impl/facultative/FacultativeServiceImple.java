@@ -90,8 +90,6 @@ public class FacultativeServiceImple implements FacultativeService {
 	@Autowired
 	private Formatters fm;
 	
-	@Autowired
-	private ValidationImple vi;
 
 	@Override
 	public GetCommonValueRes getShortname(String branchCode) {

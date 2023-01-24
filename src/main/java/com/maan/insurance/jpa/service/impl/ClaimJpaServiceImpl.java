@@ -7,7 +7,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.Tuple;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
+import javax.transaction.Transactional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -28,6 +39,9 @@ import com.maan.insurance.jpa.mapper.TtrnClaimUpdationMapper;
 import com.maan.insurance.jpa.repository.claim.ClaimCustomRepository;
 import com.maan.insurance.jpa.repository.claim.TtrnClaimPaymentArchiveRepository;
 import com.maan.insurance.jpa.repository.treasury.TtrnClaimUpdationRepository;
+import com.maan.insurance.model.entity.CurrencyMaster;
+import com.maan.insurance.model.entity.PersonalInfo;
+import com.maan.insurance.model.entity.PositionMaster;
 import com.maan.insurance.model.entity.TtrnClaimDetails;
 import com.maan.insurance.model.entity.TtrnClaimPayment;
 import com.maan.insurance.model.repository.TtrnClaimAccRepository;
@@ -35,6 +49,7 @@ import com.maan.insurance.model.repository.TtrnClaimDetailsRepository;
 import com.maan.insurance.model.repository.TtrnClaimPaymentRepository;
 import com.maan.insurance.model.req.claim.AllocListReq;
 import com.maan.insurance.model.req.claim.AllocationListReq;
+import com.maan.insurance.model.req.claim.CedentNoListReq;
 import com.maan.insurance.model.req.claim.ClaimListMode4Req;
 import com.maan.insurance.model.req.claim.ClaimListReq;
 import com.maan.insurance.model.req.claim.ClaimPaymentEditReq;
@@ -44,7 +59,9 @@ import com.maan.insurance.model.req.claim.ClaimTableListReq;
 import com.maan.insurance.model.req.claim.ContractDetailsModeReq;
 import com.maan.insurance.model.req.claim.ContractDetailsReq;
 import com.maan.insurance.model.req.claim.ContractidetifierlistReq;
+import com.maan.insurance.model.req.claim.GetClaimAuthViewReq;
 import com.maan.insurance.model.req.claim.GetContractNoReq;
+import com.maan.insurance.model.req.claim.GetPaymentNoListReq;
 import com.maan.insurance.model.req.claim.GetReInsValueListReq;
 import com.maan.insurance.model.req.claim.GetReInsValueReq;
 import com.maan.insurance.model.req.claim.InsertCliamDetailsMode12Req;
@@ -59,6 +76,8 @@ import com.maan.insurance.model.res.GetShortnameRes;
 import com.maan.insurance.model.res.claim.AllocListRes;
 import com.maan.insurance.model.res.claim.AllocListRes1;
 import com.maan.insurance.model.res.claim.AllocationListRes;
+import com.maan.insurance.model.res.claim.CedentNoListRes;
+import com.maan.insurance.model.res.claim.CedentNoListRes1;
 import com.maan.insurance.model.res.claim.ClaimListMode3Res;
 import com.maan.insurance.model.res.claim.ClaimListMode3Response;
 import com.maan.insurance.model.res.claim.ClaimListMode4Res;
@@ -92,12 +111,18 @@ import com.maan.insurance.model.res.claim.ContractDetailsMode6Res;
 import com.maan.insurance.model.res.claim.ContractDetailsMode7Res;
 import com.maan.insurance.model.res.claim.ContractidetifierlistRes;
 import com.maan.insurance.model.res.claim.ContractidetifierlistRes1;
+import com.maan.insurance.model.res.claim.GetClaimAuthViewRes;
+import com.maan.insurance.model.res.claim.GetClaimAuthViewRes1;
+import com.maan.insurance.model.res.claim.GetClaimAuthViewResponse;
 import com.maan.insurance.model.res.claim.GetContractNoRes;
 import com.maan.insurance.model.res.claim.GetContractNoRes1;
+import com.maan.insurance.model.res.claim.GetPaymentNoListRes;
+import com.maan.insurance.model.res.claim.GetPaymentNoListRes1;
 import com.maan.insurance.model.res.claim.InsertCliamDetailsMode12Res;
 import com.maan.insurance.model.res.claim.InsertCliamDetailsMode2Res;
 import com.maan.insurance.model.res.claim.InsertCliamDetailsMode3Res;
 import com.maan.insurance.model.res.claim.InsertCliamDetailsMode8Res;
+import com.maan.insurance.model.res.claim.MultiPaymentNoListRes;
 import com.maan.insurance.model.res.claim.ProductIdListRes;
 import com.maan.insurance.model.res.claim.ProductIdListRes1;
 import com.maan.insurance.model.res.claim.ProposalNoRes;
@@ -158,6 +183,8 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 	
 	@Autowired
 	private TtrnClaimAccMapper ttrnClaimAccMapper;
+	@PersistenceContext
+	private EntityManager em;
 	
 	private String formatDate(Object input) {
 		return new SimpleDateFormat("dd/MM/yyyy").format(input).toString();
@@ -1794,22 +1821,48 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 		return valu;
 	}
 	public String getDuplicateCedentClaim(InsertCliamDetailsMode2Req req) {
-		List<Map<String,Object>>list=null;
 		String claimno="";
 		try{
-			String query="GET_DUPLICATE_CEDENT_NO_LIST";
-			String args[] = null;
-			args = new String[] {req.getBranchCode(), req.getProposalNo(),req.getCedentClaimNo() };
+			//GET_DUPLICATE_CEDENT_NO_LIST
+			
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<BigDecimal> query = cb.createQuery(BigDecimal.class); 
+			
+			Root<TtrnClaimDetails> c = query.from(TtrnClaimDetails.class);
+			Root<PositionMaster> p = query.from(PositionMaster.class);
+			
+			query.multiselect(c.get("docType").alias("CLAIM_NO")); 
+
+			Subquery<Long> amend = query.subquery(Long.class); 
+			Root<PositionMaster> cp = amend.from(PositionMaster.class);
+			amend.select(cb.max(cp.get("amendId")));
+			Predicate a1 = cb.equal( p.get("contractNo"), cp.get("contractNo"));
+			Predicate a2 = cb.equal( p.get("layerNo"), cp.get("layerNo"));
+			amend.where(a1,a2);
+
+			List<Order> orderList = new ArrayList<Order>();
+			orderList.add(cb.desc(c.get("claimNo")));
+
+			Predicate n1 = cb.equal(c.get("branchCode"), req.getBranchCode());
+			Predicate n2 = cb.equal(p.get("proposalNo"), req.getProposalNo());
+			Predicate n5 = cb.equal(c.get("cedentClaimNo"), req.getCedentClaimNo());
+			Predicate n3 = cb.equal(c.get("contractNo"), p.get("contractNo"));
+			Predicate n4 = cb.equal(c.get("branchCode"), p.get("branchCode"));
+			Predicate n6 = cb.equal(c.get("layerNo"), p.get("layerNo"));
+			Predicate n7 = cb.equal(p.get("amendId"), amend);
 			
 			if(StringUtils.isNotBlank(req.getClaimNo())){
-				query="GET_DUPLICATE_CEDENT_NO_LIST1";
-				args = new String[] {req.getBranchCode(), req.getProposalNo(),req.getCedentClaimNo(),req.getClaimNo()};
-				
-				
+				//GET_DUPLICATE_CEDENT_NO_LIST1
+				Predicate n8 = cb.notEqual(c.get("claimNo"), req.getClaimNo());
+				query.where(n1,n3,n4,n2,n5,n6,n7,n8).orderBy(orderList);
+			}else {
+				query.where(n1,n3,n4,n2,n5,n6,n7).orderBy(orderList);
 			}
-			list=queryImpl.selectList(query, args);
+			TypedQuery<BigDecimal> res1 = em.createQuery(query);
+			List<BigDecimal> list = res1.getResultList();
+			
 			if(list!=null && list.size()>0) {
-				claimno=list.get(0).get("CLAIM_NO")==null?"":list.get(0).get("CLAIM_NO").toString();
+				claimno=list.get(0)==null?"":list.get(0).toString();
 			}
 		}catch(Exception e){
 			e.printStackTrace();
@@ -2211,5 +2264,280 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 			res.setIsError(true);
 		}
 		return res;
+	}
+	public CedentNoListRes cedentNoList(CedentNoListReq bean) {
+		CedentNoListRes response = new CedentNoListRes();
+		List<CedentNoListRes1> resList = new ArrayList<CedentNoListRes1>();
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy") ;
+		try{
+			//GET_CEDENT_NO_LIST
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+      		CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+      		
+      		Root<TtrnClaimDetails> c = query.from(TtrnClaimDetails.class);
+      		Root<PositionMaster> p = query.from(PositionMaster.class);
+      		
+      		//shortName
+      		Subquery<String> shortName = query.subquery(String.class); 
+      		Root<CurrencyMaster> cm = shortName.from(CurrencyMaster.class);
+      		shortName.select(cm.get("shortName"));
+      		Subquery<Long> amendA = query.subquery(Long.class); 
+      		Root<CurrencyMaster> m = amendA.from(CurrencyMaster.class);
+      		amendA.select(cb.max(m.get("amendId")));
+      		Predicate b1 = cb.equal( c.get("currency"), m.get("currencyId"));
+      		Predicate b2 = cb.equal( c.get("branchCode"), m.get("branchCode"));
+      		amendA.where(b1,b2);
+      		Predicate a1 = cb.equal( c.get("currency"), cm.get("currencyId"));
+      		Predicate a2 = cb.equal( c.get("branchCode"), cm.get("branchCode"));
+      		Predicate a3 = cb.equal( cm.get("amendId"), amendA);
+      		shortName.where(a3,a1,a2);
+      		
+      		//companyName
+      		Subquery<String> companyName = query.subquery(String.class); 
+      		Root<PersonalInfo> pi = companyName.from(PersonalInfo.class);
+      		companyName.select(pi.get("companyName"));
+      		Subquery<Long> amendC = query.subquery(Long.class); 
+      		Root<PersonalInfo> i = amendC.from(PersonalInfo.class);
+      		amendC.select(cb.max(i.get("amendId")));
+      		Predicate c1 = cb.equal( p.get("cedingCompanyId"), i.get("customerId"));
+      		Predicate c2 = cb.equal( p.get("branchCode"), i.get("branchCode"));
+      		amendC.where(c1,c2);
+      		Predicate d1 = cb.equal( p.get("cedingCompanyId"), pi.get("customerId"));
+      		Predicate d2 = cb.equal( p.get("branchCode"), pi.get("branchCode"));
+      		Predicate d3 = cb.equal( pi.get("amendId"), amendC);
+      		companyName.where(d3,d1,d2);
+      		
+      		//brokerName
+      		Subquery<String> brokerName = query.subquery(String.class); 
+      		Root<PersonalInfo> pi1 = brokerName.from(PersonalInfo.class);
+      		Expression<String> e0 = cb.concat(pi1.get("firstName"), " ");
+      		Expression<String> e1 = cb.concat(e0, pi1.get("lastName"));
+      		brokerName.select(e1);
+      		Subquery<Long> amendPi = query.subquery(Long.class); 
+      		Root<PersonalInfo> i1 = amendPi.from(PersonalInfo.class);
+      		amendPi.select(cb.max(i1.get("amendId")));
+      		Predicate g1 = cb.equal( p.get("brokerId"), i1.get("customerId"));
+      		Predicate g2 = cb.equal( p.get("branchCode"), i1.get("branchCode"));
+      		amendPi.where(g1,g2);
+      		Predicate f1 = cb.equal( p.get("brokerId"), pi1.get("customerId"));
+      		Predicate f2 = cb.equal( p.get("branchCode"), pi1.get("branchCode"));
+      		Predicate f3 = cb.equal( pi1.get("amendId"), amendPi);
+      		brokerName.where(f3,f1,f2);
+
+      		query.multiselect(c.get("claimNo").alias("CLAIM_NO"),
+      				c.get("createdDate").alias("CREATED_DATE"), 
+      				c.get("insuredName").alias("INSURED_NAME"), 
+      				c.get("cedentClaimNo").alias("CEDENT_CLAIM_NO"), 
+      				c.get("dateOfLoss").alias("DATE_OF_LOSS"), 
+      				c.get("grosslossFguOc").alias("GROSSLOSS_FGU_OC"), 
+      				c.get("lossEstimateOsOc").alias("LOSS_ESTIMATE_OS_OC"), 
+      				shortName.alias("CURRENCY"), 
+      				companyName.alias("Ceding_Company_Name"), 
+      				brokerName.alias("Broker_Name")).distinct(true);
+      				
+
+      		Subquery<Long> amendId = query.subquery(Long.class); 
+      		Root<PositionMaster> cp = amendId.from(PositionMaster.class);
+      		amendId.select(cb.max(cp.get("amendId")));
+      		Predicate h1 = cb.equal( cp.get("contractNo"), p.get("contractNo"));
+      		Predicate h2 = cb.equal( cp.get("layerNo"), p.get("layerNo"));
+      		amendId.where(h1,h2);
+      		
+      		Predicate n1 = cb.equal(c.get("cedentClaimNo"),  bean.getCedentClaimNo());
+      		Predicate n2 = cb.equal(c.get("dateOfLoss"), sdf.parse(bean.getDateOfLoss()));
+      		Predicate n3 = cb.equal(p.get("cedingCompanyId"), bean.getCedingCompanyCode());
+      		Predicate n4 = cb.equal(c.get("branchCode"), bean.getBranchCode());
+      		Predicate n5 = cb.equal(c.get("contractNo"), p.get("contractNo"));
+      		Predicate n6 = cb.equal(c.get("branchCode"), p.get("branchCode"));
+      		Predicate n7 = cb.equal(c.get("layerNo"), p.get("layerNo"));
+      		Predicate n8 = cb.equal(p.get("amendId"), amendId);
+      		
+			if(StringUtils.isNotBlank(bean.getClaimNo())){
+				Predicate n9 = cb.notEqual(c.get("claimNo"), bean.getClaimNo());
+				query.where(n1,n2,n3,n4,n5,n6,n7,n8,n9);
+			}else {
+				query.where(n1,n2,n3,n4,n5,n6,n7,n8);
+			}
+			TypedQuery<Tuple> res1 = em.createQuery(query);
+      		List<Tuple> result = res1.getResultList();
+      	  for (int j = 0; j < result.size(); j++) {
+          	Tuple tempMap = result.get(j);
+          		CedentNoListRes1 res = new CedentNoListRes1();
+          		res.setBrokerName(tempMap.get("Broker_Name") == null ? "" : tempMap.get("Broker_Name").toString());
+          		res.setCedingCompanyName(tempMap.get("Ceding_Company_Name") == null ? "" : tempMap.get("Ceding_Company_Name").toString());
+          		res.setClaimNo(tempMap.get("CLAIM_NO") == null ? "" : tempMap.get("CLAIM_NO").toString());
+          		res.setCreatedDate(tempMap.get("CREATED_DATE") == null ? "" : tempMap.get("CREATED_DATE").toString());
+          		res.setCurrency(tempMap.get("CURRENCY") == null ? "" : tempMap.get("CURRENCY").toString());
+          		res.setDateOfLoss(tempMap.get("DATE_OF_LOSS") == null ? "" : tempMap.get("DATE_OF_LOSS").toString());
+          		res.setGrosslossFguOc(tempMap.get("GROSSLOSS_FGU_OC") == null ? "" : tempMap.get("GROSSLOSS_FGU_OC").toString());
+          		res.setInsuredName(tempMap.get("INSURED_NAME") == null ? "" : tempMap.get("INSURED_NAME").toString());
+          		res.setLossEstimateOsOc(tempMap.get("LOSS_ESTIMATE_OS_OC") == null ? "" : tempMap.get("LOSS_ESTIMATE_OS_OC").toString());   
+          		res.setCedentClaimNo(tempMap.get("CEDENT_CLAIM_NO") == null ? "" : tempMap.get("CEDENT_CLAIM_NO").toString());        
+          		resList.add(res);
+          		}
+			
+      	response.setCommonResponse(resList);
+		response.setMessage("Success");
+		response.setIsError(false);
+        }  catch (Exception e) {
+        		e.printStackTrace();
+        		response.setMessage("Failed");
+        		response.setIsError(true);
+    }
+    return response;
+	}
+
+	public GetPaymentNoListRes getPaymentNoList(GetPaymentNoListReq bean) {
+		GetPaymentNoListRes response = new GetPaymentNoListRes();
+		List<GetPaymentNoListRes1> resList = new ArrayList<GetPaymentNoListRes1>();
+		try {
+			//GET_PAYMENT_NO_LIST
+			
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<BigDecimal> query = cb.createQuery(BigDecimal.class); 
+			Root<TtrnClaimPayment> tcp = query.from(TtrnClaimPayment.class); 
+			Root<TtrnClaimDetails> tcd = query.from(TtrnClaimDetails.class);
+			query.select(tcp.get("claimPaymentNo")).distinct(true);
+			
+			List<Order> orderList = new ArrayList<Order>();
+			orderList.add(cb.asc(tcp.get("claimPaymentNo")));
+			
+			Predicate n1 = cb.equal(tcp.get("branchCode"), tcd.get("branchCode"));
+			Predicate n2 = cb.equal(tcp.get("claimNo"), tcd.get("claimNo"));
+			Predicate n3 = cb.equal(tcp.get("branchCode"),  bean.getBranchCode());
+			Predicate n4 = cb.equal(tcd.get("contractNo"),  bean.getContarctno());
+			Predicate n5 = cb.equal(tcd.get("layerNo"),  bean.getLayerNo());
+			Predicate n6 = cb.equal(tcd.get("proposalNo"),  bean.getProposalNo());
+			Predicate n7 = cb.equal(tcd.get("currency"),  bean.getCurrecny());
+			query.where(n1,n2,n3,n4,n5,n6,n7).orderBy(orderList);			
+			
+			TypedQuery<BigDecimal> res1 = em.createQuery(query);
+			List<BigDecimal> list = res1.getResultList();
+			 for (int j = 0; j < list.size(); j++) {
+				 GetPaymentNoListRes1 res = new GetPaymentNoListRes1();
+				 res.setClaimPaymentNo(list.get(j)==null?"":list.get(j).toString());
+				 resList.add(res);
+				 }
+			
+			response.setCommonResponse(resList);
+			response.setMessage("Success");
+			response.setIsError(false);
+	        }  catch (Exception e) {
+	        		e.printStackTrace();
+	        		response.setMessage("Failed");
+	        		response.setIsError(true);
+	    }
+	    return response;
+	}
+	@Transactional
+	public GetClaimAuthViewRes getClaimAuthView(GetClaimAuthViewReq bean) {
+		GetClaimAuthViewRes response = new GetClaimAuthViewRes();
+		GetClaimAuthViewResponse com = new GetClaimAuthViewResponse();
+		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+		List<Map<String, Object>> gridList = new ArrayList<Map<String, Object>>();
+		double totalEstimateOc=0;
+		double lossEstimateOsOc = 0;
+		String query="";
+		String[] args = null;
+		String paymentNo="";
+		List<MultiPaymentNoListRes> payResList = new ArrayList<MultiPaymentNoListRes>();
+		List<GetClaimAuthViewRes1> resList = new ArrayList<GetClaimAuthViewRes1>();
+		try{
+			if(bean.getPaymentNo().contains(",")){
+				query= "GET_CLAIM_AUTH_MULTIPLE1"; //groupby
+				paymentNo = bean.getPaymentNo();
+				String arg[] = paymentNo.split(",");
+				paymentNo = convertToArg(arg);
+
+			//	query+="AND TCP.CLAIM_PAYMENT_NO IN (?) ) GROUP BY CLAIM_NO, COMPANY_NAME, BROKER_NAME, INSURED_NAME, DATE_OF_LOSS, LOSS_DETAILS, CONTRACT_NO, RSK_INSURED_NAME, OSLR, CURRENCY";
+				args = new String[] { bean.getProposalNo(), bean.getContarctno(),bean.getLayerNo(), bean.getCurrecny() , bean.getBranchCode(), paymentNo};
+			}else{
+				query= "GET_CLAIM_AUTH_SINGLE";
+				paymentNo = bean.getPaymentNo();
+				args = new String[] {bean.getProposalNo(), bean.getContarctno(),bean.getLayerNo(), bean.getCurrecny() , bean.getBranchCode(), paymentNo};
+			}
+			list=queryImpl.selectList(query,args);
+			if(list.size()>0) {
+				for(int i=0;i<list.size();i++) {
+					Map<String, Object> tempMap = (Map<String, Object>)list.get(i);
+					GetClaimAuthViewRes1 res = new GetClaimAuthViewRes1();
+					res.setPaymentType(tempMap.get("PAYMENT_TYPE") == null ? "" : tempMap.get("PAYMENT_TYPE").toString()); 
+					res.setClaimNo(tempMap.get("CLAIM_NO") == null ? "" : tempMap.get("CLAIM_NO").toString()); 
+					res.setClaimPaymentNo(tempMap.get("CLAIM_PAYMENT_NO") == null ? "" : tempMap.get("CLAIM_PAYMENT_NO").toString()); 
+					res.setCompanyName(tempMap.get("COMPANY_NAME") == null ? "" : tempMap.get("COMPANY_NAME").toString()); 
+					res.setBrokerName(tempMap.get("BROKER_NAME") == null ? "" : tempMap.get("BROKER_NAME").toString()); 
+					res.setInsuredName(tempMap.get("INSURED_NAME") == null ? "" : tempMap.get("INSURED_NAME").toString()); 
+					res.setDateOfLoss(tempMap.get("DATE_OF_LOSS") == null ? "" : tempMap.get("DATE_OF_LOSS").toString()); 
+					res.setLossDetails(tempMap.get("LOSS_DETAILS") == null ? "" : tempMap.get("LOSS_DETAILS").toString()); 
+					res.setLossEstimateOc(tempMap.get("LOSS_ESTIMATE_OC") == null ? "" : tempMap.get("LOSS_ESTIMATE_OC").toString()); 
+					res.setShareSigned(tempMap.get("SHARE_SIGNED") == null ? "" : tempMap.get("SHARE_SIGNED").toString()); 
+					res.setLossEstimateOsOc(tempMap.get("LOSS_ESTIMATE_OS_OC") == null ? "" : tempMap.get("LOSS_ESTIMATE_OS_OC").toString()); 
+					res.setContractNo(tempMap.get("CONTRACT_NO") == null ? "" : tempMap.get("CONTRACT_NO").toString()); 
+					res.setRskInsuredName(tempMap.get("RSK_INSURED_NAME") == null ? "" : tempMap.get("RSK_INSURED_NAME").toString()); 
+					res.setReinspremiumOurshareOc(tempMap.get("REINSPREMIUM_OURSHARE_OC") == null ? "" : tempMap.get("REINSPREMIUM_OURSHARE_OC").toString());   
+					res.setPaidAmountOc(tempMap.get("PAID_AMOUNT_OC") == null ? "" : tempMap.get("PAID_AMOUNT_OC").toString()); 
+					res.setOslr(tempMap.get("OSLR") == null ? "" : tempMap.get("OSLR").toString()); 
+					res.setCurrency(tempMap.get("CURRENCY") == null ? "" : tempMap.get("CURRENCY").toString());
+					resList.add(res);					
+				}	
+				}
+			
+			if(bean.getPaymentNo().contains(",")){
+				query = "GET_CLAIM_AUTH_MULTIPLE_GRID1";
+			//	query+=" AND TCP.CLAIM_PAYMENT_NO IN (?)";
+				args = new String[]{bean.getProposalNo(),bean.getContarctno(),bean.getLayerNo(),bean.getCurrecny(),bean.getBranchCode(),paymentNo};
+			
+				gridList = queryImpl.selectList(query,args);
+				
+				if(gridList.size()>0){
+					for(int i =0;i<gridList.size();i++){
+						Map<String, Object> tempMap = (Map<String, Object>)gridList.get(i);
+						MultiPaymentNoListRes res = new MultiPaymentNoListRes();
+						totalEstimateOc +=Double.valueOf(gridList.get(i).get("LOSS_ESTIMATE_OC").toString());
+						lossEstimateOsOc +=Double.valueOf(gridList.get(i).get("LOSS_ESTIMATE_OS_OC").toString());
+						
+						res.setCompanyName(tempMap.get("COMPANY_NAME") == null ? "" : tempMap.get("COMPANY_NAME").toString());  
+						res.setInsuredName(tempMap.get("INSURED_NAME") == null ? "" : tempMap.get("INSURED_NAME").toString());  
+						res.setContractNo(tempMap.get("CONTRACT_NO") == null ? "" : tempMap.get("CONTRACT_NO").toString());  
+						res.setReference(tempMap.get("REFERENCE") == null ? "" : tempMap.get("REFERENCE").toString());  
+						res.setCurrency(tempMap.get("CURRENCY") == null ? "" : tempMap.get("CURRENCY").toString());  
+						res.setClas(tempMap.get("CLASS") == null ? "" : tempMap.get("CLASS").toString());  
+						res.setLossDetails(tempMap.get("LOSS_DETAILS") == null ? "" : tempMap.get("LOSS_DETAILS").toString());  
+						res.setDateOfLoss(tempMap.get("DATE_OF_LOSS") == null ? "" : tempMap.get("DATE_OF_LOSS").toString());  
+						res.setLossEstimateOc(tempMap.get("LOSS_ESTIMATE_OC") == null ? "" : tempMap.get("LOSS_ESTIMATE_OC").toString());  
+						res.setShareSigned(tempMap.get("SHARE_SIGNED") == null ? "" : tempMap.get("SHARE_SIGNED").toString());  
+						res.setLossEstimateOsOc(tempMap.get("LOSS_ESTIMATE_OS_OC") == null ? "" : tempMap.get("LOSS_ESTIMATE_OS_OC").toString());  
+						res.setPaymentType(tempMap.get("PAYMENT_TYPE") == null ? "" : tempMap.get("PAYMENT_TYPE").toString());  
+						res.setClaimNo(tempMap.get("CLAIM_NO") == null ? "" : tempMap.get("CLAIM_NO").toString());  
+						res.setClaimPaymentNo(tempMap.get("CLAIM_PAYMENT_NO") == null ? "" : tempMap.get("CLAIM_PAYMENT_NO").toString()); 
+						payResList.add(res);
+						}
+				}
+
+				com.setLossEstimateOrigCurr(fm.formatter(String.valueOf(totalEstimateOc)));
+				com.setLossEstimateOurShareOrigCurr(fm.formatter(String.valueOf(lossEstimateOsOc)));
+				com.setMultiPaymentNoList(payResList);
+				com.setGetClaimAuthView(resList);
+				}
+			response.setCommonResponse(com);
+			response.setMessage("Success");
+			response.setIsError(false);
+	        }  catch (Exception e) {
+	        		e.printStackTrace();
+	        		response.setMessage("Failed");
+	        		response.setIsError(true);
+	    }
+	    return response;
+	}
+	private String convertToArg(String[] arg) {
+		String value="";
+		for(int i =0;i<arg.length;i++){
+			if(i==arg.length-1){
+				value +="'"+arg[i]+"'";
+			}else{
+				value +="'"+arg[i]+"',";
+			}
+		}
+		return value;
 	}
 }
