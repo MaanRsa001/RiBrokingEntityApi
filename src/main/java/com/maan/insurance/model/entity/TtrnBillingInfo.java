@@ -63,7 +63,10 @@ public class TtrnBillingInfo implements Serializable {
 
 	    @Column(name="PRODUCT_ID")
 	    private BigDecimal     productId ;
-
+	    
+	    @Column(name="CURRENCY_ID")
+	    private BigDecimal currencyId ;
+	    
 	    @Column(name="REVERSALTRANSNO")
 	    private BigDecimal     reversaltransno ;
 

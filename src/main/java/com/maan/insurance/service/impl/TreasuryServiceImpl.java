@@ -91,7 +91,7 @@ import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
 import com.maan.insurance.validation.Formatters;
 
 @Service
-public class TreasuryServiceImpl implements TreasuryService {
+public class TreasuryServiceImpl{
 	private Logger log = LogManager.getLogger(TreasuryServiceImpl.class);
 	
 	@Autowired
@@ -102,7 +102,7 @@ public class TreasuryServiceImpl implements TreasuryService {
 	@Autowired
 	private DropDownServiceImple dropimpl;
 	
-	@Override
+	
 	public CommonResponse savepaymentReciept(PaymentRecieptReq req) {
 		CommonResponse res = new CommonResponse();
 		try {
@@ -262,7 +262,7 @@ public class TreasuryServiceImpl implements TreasuryService {
 		}
 		return result;
 	}
-	@Override
+	
 	public ReverseInsertRes savereverseInsert(ReverseInsertReq req) {
 		String[] args = null;
 		ReverseInsertRes response = new ReverseInsertRes();
@@ -486,7 +486,7 @@ public class TreasuryServiceImpl implements TreasuryService {
 		return result;
 	}
 
-	@Override
+	
 	public AllocatedStatusRes1 getAllocatedStatus(AllocatedStatusReq req) {
 		AllocatedStatusRes1 response = new AllocatedStatusRes1();
 		List<AllocatedStatusRes> finalList = new ArrayList<AllocatedStatusRes>();
@@ -550,7 +550,7 @@ public class TreasuryServiceImpl implements TreasuryService {
 		return response;
 	}
 
-	@Override
+	
 	public AllocateViewCommonRes1 allocateView(AllocateViewReq req) {
 		log.info("PaymentDAOImpl allocateView() || Enter");
 		AllocateViewCommonRes1 res1 = new AllocateViewCommonRes1();
@@ -705,7 +705,7 @@ public class TreasuryServiceImpl implements TreasuryService {
 		return res1;
 	}
 
-	@Override
+	
 	public GetReceiptEditRes1 getReceiptEdit(String paymentReceiptNo, String branchCode) {
 		GetReceiptEditRes1 response = new GetReceiptEditRes1();
 		GetReceiptEditRes res = new GetReceiptEditRes();
@@ -755,7 +755,7 @@ public class TreasuryServiceImpl implements TreasuryService {
 
 	}
 
-	@Override
+	
 	public GetReceiptGenerationRes1 getReceiptGeneration(GetReceiptGenerationReq req) {
 		GetReceiptGenerationRes1 response = new GetReceiptGenerationRes1();
 		GetReceiptGenerationRes res = new GetReceiptGenerationRes();
@@ -831,7 +831,7 @@ public class TreasuryServiceImpl implements TreasuryService {
 
 	}
 
-	@Override
+	
 	public GetReversalInfoRes1 getReversalInfo(GetReversalInfoReq req) {
 		GetReversalInfoRes1 response = new GetReversalInfoRes1();
 		List<GetReversalInfoRes> finalList = new ArrayList<GetReversalInfoRes>();
@@ -926,7 +926,7 @@ public class TreasuryServiceImpl implements TreasuryService {
 			return response;
 	}
 
-	@Override
+	
 	public ReverseViewRes1 reverseView(ReverseViewReq req) {
 		log.info("PaymentDAOImpl reverseView() || Enter");
 		ReverseViewRes1 response = new ReverseViewRes1();
@@ -978,7 +978,7 @@ public class TreasuryServiceImpl implements TreasuryService {
 		return response;
 	}
 
-	@Override
+	
 	public GetReceiptReversalListRes1 getReceiptReversalList(GetReceiptReversalListReq req) {
 		GetReceiptReversalListRes1 response = new GetReceiptReversalListRes1();
 		List<GetReceiptReversalListRes> finalList=new ArrayList<GetReceiptReversalListRes>();
@@ -1067,7 +1067,7 @@ public class TreasuryServiceImpl implements TreasuryService {
 		return response;
 	}
 
-	@Override
+	
 	public GetReceiptAllocateRes1 getReceiptAllocate(GetReceiptAllocateReq req) {
 		GetReceiptAllocateRes1 response = new GetReceiptAllocateRes1();
 		final List<GetReceiptAllocateRes> finalList=new ArrayList<GetReceiptAllocateRes>();
@@ -1193,7 +1193,7 @@ public class TreasuryServiceImpl implements TreasuryService {
 		return response;
 	}
 
-	@Override
+	
 	public AllocateDetailsRes1 allocateDetails(AllocateDetailsReq req) {
 		AllocateDetailsRes1 response = new AllocateDetailsRes1();
 		List<AllocateDetailsRes> finalList = new ArrayList<AllocateDetailsRes>();
@@ -1261,7 +1261,7 @@ public class TreasuryServiceImpl implements TreasuryService {
 		return response;
 	}
 
-	@Override
+	
 	public GetTransContractRes1 getTransContract(GetTransContractReq req) {
 		GetTransContractRes1 response = new GetTransContractRes1();
 		List<GetTransContractRes> finalList=new ArrayList<GetTransContractRes>();
@@ -1355,7 +1355,7 @@ public class TreasuryServiceImpl implements TreasuryService {
 		return response;
 	}
 
-	@Override
+	
 	public GetAllTransContractRes1 getAllTransContract(GetAllTransContractReq req) {
 		GetAllTransContractRes1 response = new GetAllTransContractRes1();
 		List<GetAllTransContractRes> payList = new ArrayList<GetAllTransContractRes>();
@@ -1420,7 +1420,7 @@ public class TreasuryServiceImpl implements TreasuryService {
 		return response;
 	}
 
-	@Override
+	
 	public GetDirectCedingRes1 getDirectCeding(String branchId) {
 		GetDirectCedingRes1 response1 = new GetDirectCedingRes1();
 		 log.info("TreasuryDAOImpl getDirectCeding || Enter");
@@ -1458,7 +1458,7 @@ public class TreasuryServiceImpl implements TreasuryService {
 		return response1;
 	}
 
-	@Override
+	
 	public GetShortnameRes getShortname(String branchcode) {
 		GetShortnameRes res = new GetShortnameRes();
 		String Short="";
@@ -1472,7 +1472,7 @@ public class TreasuryServiceImpl implements TreasuryService {
 		return res;
 	}
 
-	@Override
+	
 	public GetTreasuryJournalViewRes1 getTreasuryJournalView(GetTreasuryJournalViewReq req) {
 		GetTreasuryJournalViewRes1 response1 = new GetTreasuryJournalViewRes1();
 		List<GetTreasuryJournalViewRes> response = new ArrayList<GetTreasuryJournalViewRes>();
@@ -1522,7 +1522,7 @@ public class TreasuryServiceImpl implements TreasuryService {
 			return response1;
 	}
 
-	@Override
+	
 	public CommonResponse getRetroallocateTransaction(GetRetroallocateTransactionReq req) {
 		CommonResponse response = new CommonResponse();
 		log.info("PaymentDAOImpl getRetroallocateTransaction() || Enter");
@@ -1735,7 +1735,7 @@ public class TreasuryServiceImpl implements TreasuryService {
 		return transDate;
 	}
 
-	@Override
+	
 	public ReciptGetLIstRes getReciptList(ReciptListReq req) {
 		ReciptGetLIstRes response = new ReciptGetLIstRes();
 		List<ReciptListRes> finalList = new ArrayList<ReciptListRes>();
@@ -1893,7 +1893,7 @@ public class TreasuryServiceImpl implements TreasuryService {
 		return response;
 	}
 
-	@Override
+	
 	public RetroTransListRes getRetroTransContract(RetroTransReq req) {
 		RetroTransListRes response = new RetroTransListRes();
 		List<RetroTransRes> finalList = new ArrayList<RetroTransRes>();
@@ -1950,7 +1950,7 @@ public class TreasuryServiceImpl implements TreasuryService {
 				}
 				return response;
 			}
-	@Override
+	
 	public ReceiptTreasuryListRes getReceiptTreasuryGeneration(ReceiptTreasuryReq req) {
 		List<ReceiptTreasuryRes> finalList = new ArrayList<ReceiptTreasuryRes>();
 		ReceiptTreasuryListRes response =new ReceiptTreasuryListRes();
@@ -2018,7 +2018,7 @@ public class TreasuryServiceImpl implements TreasuryService {
 		return response;
 	}
 
-	@Override
+	
 	public ReceiptViewListsRes getReceiptViewList(ReceiptViewListReq req) {
 		ReceiptViewListsRes response = new ReceiptViewListsRes();
 		log.info("PaymentDAOImpl getReceiptViewList() || Enter"); 
@@ -2062,7 +2062,7 @@ public class TreasuryServiceImpl implements TreasuryService {
 		return response;
 	}
 
-	@Override
+	
 	public CommonSaveRes getCurrecyAmount(CurrecyAmountReq req) {
 		CommonSaveRes response = new CommonSaveRes();
 		String  currecyAmount="";
@@ -2100,7 +2100,7 @@ public class TreasuryServiceImpl implements TreasuryService {
 		return response;
 	}
 
-	@Override
+	
 	public SecondPageInfoRes getSecondPageInfo(SecondPageInfoReq req) {
 		SecondPageInfoRes response = new SecondPageInfoRes();
 		SecondPageInfoListsRes res = new SecondPageInfoListsRes();
@@ -2187,7 +2187,7 @@ public class TreasuryServiceImpl implements TreasuryService {
 		return response;
 	}
 
-@Override
+
 	public CommonResponse getAllocateTransaction(GetTransContractReq req) {
 	CommonResponse response = new CommonResponse();
 	
@@ -2417,7 +2417,7 @@ public class TreasuryServiceImpl implements TreasuryService {
 
 		return transDate;
 		}
-		@Override
+		
 		public PaymentRecieptRes1 receiptdetail(PaymentRecieptReq req) {
 			PaymentRecieptRes1 resp=new PaymentRecieptRes1();
 			List<GenerationReq> lres=new ArrayList<GenerationReq>();

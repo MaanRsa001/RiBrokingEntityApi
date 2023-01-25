@@ -58,6 +58,7 @@ import com.maan.insurance.model.req.SecondPageInfoReq;
 import com.maan.insurance.model.res.AllocateDetailsRes;
 import com.maan.insurance.model.res.AllocateDetailsRes1;
 import com.maan.insurance.model.res.AllocateViewCommonRes;
+import com.maan.insurance.model.res.AllocateViewCommonRes1;
 import com.maan.insurance.model.res.AllocateViewRes;
 import com.maan.insurance.model.res.AllocatedStatusRes;
 import com.maan.insurance.model.res.AllocatedStatusRes1;
@@ -72,7 +73,9 @@ import com.maan.insurance.model.res.GetDirectCedingRes1;
 import com.maan.insurance.model.res.GetReceiptAllocateRes;
 import com.maan.insurance.model.res.GetReceiptAllocateRes1;
 import com.maan.insurance.model.res.GetReceiptEditRes;
+import com.maan.insurance.model.res.GetReceiptEditRes1;
 import com.maan.insurance.model.res.GetReceiptGenerationRes;
+import com.maan.insurance.model.res.GetReceiptGenerationRes1;
 import com.maan.insurance.model.res.GetReceiptReversalListRes;
 import com.maan.insurance.model.res.GetReceiptReversalListRes1;
 import com.maan.insurance.model.res.GetRetroallocateTransactionRes;
@@ -100,14 +103,16 @@ import com.maan.insurance.model.res.ReverseViewRes;
 import com.maan.insurance.model.res.ReverseViewRes1;
 import com.maan.insurance.model.res.SecondPageInfoListsRes;
 import com.maan.insurance.model.res.SecondPageInfoRes;
-import com.maan.insurance.model.res.DropDown.CommonResponse;
 import com.maan.insurance.model.res.DropDown.GetOpenPeriodRes;
+import com.maan.insurance.model.res.retro.CommonResponse;
+import com.maan.insurance.model.res.retro.CommonSaveRes;
+import com.maan.insurance.service.TreasuryService;
 import com.maan.insurance.service.impl.QueryImplemention;
 import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
 import com.maan.insurance.validation.Formatters;
 
 @Component
-public class TreasuryJpaServiceImpl {
+public class TreasuryJpaServiceImpl  implements TreasuryService  {
 	private Logger log = LogManager.getLogger(TreasuryJpaServiceImpl.class);
 	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 	@Autowired
@@ -146,8 +151,8 @@ public class TreasuryJpaServiceImpl {
 	private EntityManager em;
 
 	// savepaymentReciept
-	public PaymentRecieptRes savepaymentReciept(PaymentRecieptReq req) {
-		PaymentRecieptRes res = new PaymentRecieptRes();
+	public CommonResponse savepaymentReciept(PaymentRecieptReq req) {
+		CommonResponse res = new CommonResponse();
 		try {
 			if (StringUtils.isBlank(req.getSerialno())) {
 				String refno = queryImpl.getSequenceNo(
@@ -158,7 +163,7 @@ public class TreasuryJpaServiceImpl {
 			TtrnPaymentReceipt entity = ttrnPaymentReceiptMapper.toEntity(req);
 			ttrnPaymentReceiptRepository.save(entity);
 			generationInsert(req);
-			res.setSerialNo(req.getSerialno());
+			res.setMessage(req.getSerialno());
 			res.setMessage("Success");
 
 		} catch (Exception e) {
@@ -297,7 +302,8 @@ public class TreasuryJpaServiceImpl {
 		return response;
 	}
 	// getReceiptEdit(String paymentReceiptNo, String branchCode)
-	public GetReceiptEditRes getReceiptEdit(String paymentReceiptNo, String branchCode) {
+	public GetReceiptEditRes1 getReceiptEdit(String paymentReceiptNo, String branchCode) {
+		GetReceiptEditRes1 response = new GetReceiptEditRes1();
 		GetReceiptEditRes res = new GetReceiptEditRes();
 		try {
 			// query - payment.select.getRetDtls
@@ -332,11 +338,15 @@ public class TreasuryJpaServiceImpl {
 					res.setPremiumLavy(resMap.getPremiumLavy() == null ? "" : resMap.getPremiumLavy().toString());
 				}
 			}
-
-		} catch (Exception e) {
-			log.debug("Exception @ { " + e + " } ");
-		}
-		return res;
+			response.setCommonResponse(res);
+			response.setMessage("Success");
+			response.setIsError(false);
+		}catch(Exception e){
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
 
 	}
 
@@ -594,8 +604,8 @@ public class TreasuryJpaServiceImpl {
 	//getShortname(String branchcode) -- ENDS
 	
 	//getCurrecyAmount(CurrecyAmountReq req) -- STARTS
-	public CurrecyAmountListsRes getCurrecyAmount(CurrecyAmountReq req) {
-		CurrencyAmountRes response = new CurrencyAmountRes();
+	public CommonSaveRes getCurrecyAmount(CurrecyAmountReq req) {
+		CommonSaveRes response = new CommonSaveRes();
 		CurrecyAmountListsRes finalList = new CurrecyAmountListsRes();
 		String  currecyAmount="";
 		try{
@@ -609,15 +619,17 @@ public class TreasuryJpaServiceImpl {
 				currecyAmount=(new BigDecimal(resMap.get(0).toString()).doubleValue()-new BigDecimal(resMap.get(1).toString()).doubleValue())+"$"+resMap.get(2).toString();
 				
 			}
-			finalList.setCurrecyAmount(currecyAmount);
-		}	
-		catch(Exception e) {
+			response.setResponse(currecyAmount);
+			response.setMessage("Success");
+			response.setIsError(false);
+		} 
+		catch (Exception e) {
 			log.error(e);
 			e.printStackTrace();
 			response.setMessage("Failed");
 			response.setIsError(true);
 		}
-		return finalList;	
+		return response;
 	}
 
 	//getCurrecyAmount(CurrecyAmountReq req) -- ENDS
@@ -713,8 +725,9 @@ public class TreasuryJpaServiceImpl {
 	}
 	
 	// allocateView(AllocateViewReq req) -- STARTS
-	public AllocateViewCommonRes allocateView(AllocateViewReq req) {
+	public AllocateViewCommonRes1 allocateView(AllocateViewReq req) {
 		log.info("PaymentDAOImpl allocateView() || Enter");
+		AllocateViewCommonRes1 res1 = new AllocateViewCommonRes1();
 		AllocateViewCommonRes response = new AllocateViewCommonRes();
 		
 		String[] args = null;
@@ -839,11 +852,15 @@ public class TreasuryJpaServiceImpl {
 			response.setAlllist(alllist);
 			response.setAllocatedList(allocatedList);
 			response.setRevertedList(revertedList);
-		} catch (Exception e) {
-			log.debug("Exception @ { " + e + " } ");
-			e.printStackTrace();
-		}
-		return response;
+			res1.setCommonResponse(response);
+			res1.setMessage("Success");
+			res1.setIsError(false);
+		}catch(Exception e){
+				e.printStackTrace();
+				res1.setMessage("Failed");
+				res1.setIsError(true);
+			}
+		return res1;
 	}
 	// allocateView(AllocateViewReq req) -- ENDS
 	
@@ -1091,7 +1108,8 @@ public class TreasuryJpaServiceImpl {
 	
 	
 	//getReceiptGeneration(GetReceiptGenerationReq req)
-	public GetReceiptGenerationRes getReceiptGeneration(GetReceiptGenerationReq req) {
+	public GetReceiptGenerationRes1 getReceiptGeneration(GetReceiptGenerationReq req) {
+		GetReceiptGenerationRes1 response = new GetReceiptGenerationRes1();
 		GetReceiptGenerationRes res = new GetReceiptGenerationRes();
 		List<Tuple> list = new ArrayList<>();
 		try {
@@ -1141,16 +1159,20 @@ public class TreasuryJpaServiceImpl {
 				res.setPremiumLavy(
 						resMap.get(19) == null ? "" : fm.formatter(resMap.get(19).toString()));
 			}
-			
-		} catch (Exception e) {
-			log.debug("Exception @ { " + e + " } ");
-		}
-		return res;
+			response.setCommonResponse(res);
+			response.setMessage("Success");
+			response.setIsError(false);
+		}catch(Exception e){
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
 	}
 	
 	//getRetroallocateTransaction(GetRetroallocateTransactionReq req)
-	public GetRetroallocateTransactionRes getRetroallocateTransaction(GetRetroallocateTransactionReq req) {
-		GetRetroallocateTransactionRes res = new GetRetroallocateTransactionRes();
+	public CommonResponse getRetroallocateTransaction(GetRetroallocateTransactionReq req) {
+		CommonResponse response = new CommonResponse();
 		log.info("PaymentDAOImpl getRetroallocateTransaction() || Enter");
 
 		String[] args=null;
@@ -1222,14 +1244,14 @@ public class TreasuryJpaServiceImpl {
 			
 			//query -- "payment.update.AlloTranDtls";
 			treasuryCustomRepository.updateAlloTranDtls(updateArgs);
-			res.setMessage("Success");
-			res.setIsError(false);
+			response.setMessage("Success");
+			response.setIsError(false);
 		}catch(Exception e){
-			e.printStackTrace();
-			res.setMessage("Failed");
-			res.setIsError(true);
-		}
-		return res;
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
 	}
 	
 	public List<GetAllRetroTransContractRes> getAllRetroTransContract(GetRetroallocateTransactionReq req) {
@@ -1261,11 +1283,6 @@ public class TreasuryJpaServiceImpl {
 	public synchronized String getSequence(String type,String productID,String departmentId,String branchCode, String proposalNo,String date){ 
 		String seqName="";
 		try{
-			String query="dropdowm.getseqno";
-			log.info("Query==> " + query);
-			log.info("Type==> " + type + ", Product ID==> " + productID + ", dept ID==> " + departmentId + ", Branch Code==> " + branchCode);
-			
-			//Query -- dropdowm.getseqno
 			Long seqNo = treasuryCustomRepository.getseqno(new String[]{type,productID,departmentId,branchCode,proposalNo,date});
 			seqName = (seqNo == null ? "": seqNo.toString());
 			log.info("Result==> " + seqName);

@@ -18,6 +18,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 import javax.transaction.Transactional;
@@ -42,6 +43,7 @@ import com.maan.insurance.model.entity.PositionMaster;
 import com.maan.insurance.model.entity.RskPremiumDetails;
 import com.maan.insurance.model.entity.TmasBranchMaster;
 import com.maan.insurance.model.entity.TmasOpenPeriod;
+import com.maan.insurance.model.entity.TmasProductMaster;
 import com.maan.insurance.model.entity.TtrnClaimDetails;
 import com.maan.insurance.model.entity.TtrnClaimPayment;
 import com.maan.insurance.model.req.CurrecyAmountReq;
@@ -59,13 +61,15 @@ import com.maan.insurance.model.req.ReciptListReq;
 import com.maan.insurance.model.req.RetroTransReq;
 import com.maan.insurance.model.req.ReverseViewReq;
 import com.maan.insurance.model.req.SecondPageInfoReq;
+import com.maan.insurance.service.impl.QueryImplemention;
 
 @Repository
 public class TreasuryCustomRepositoryImpl implements TreasuryCustomRepository {
 
 	@Autowired
 	EntityManager em;
-	
+	@Autowired
+	private QueryImplemention queryImpl;
 	
 
 	// getSecondPageInfo(SecondPageInfoReq req) -- STARTS
@@ -703,18 +707,16 @@ public class TreasuryCustomRepositoryImpl implements TreasuryCustomRepository {
 	
 	@Override
 	public Long getseqno(String[] args) {
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-		CriteriaQuery<Long> query = cb.createQuery(Long.class);
-		   Root<Dual> root = query.from(Dual.class);
-		   query.multiselect(
-		           cb.function("Fn_get_SeqNo", Long.class,
-		        		   cb.literal(args[0]),
-		        		   cb.literal(args[1]),
-		        		   cb.literal(args[2]),
-		        		   cb.literal(args[3]),
-		        		   cb.literal(args[4]))
-           );
-		   return em.createQuery(query).getSingleResult();
+		/*
+		 * CriteriaBuilder cb = em.getCriteriaBuilder(); CriteriaQuery<Long> query =
+		 * cb.createQuery(Long.class); Root<Dual> root = query.from(Dual.class);
+		 * query.multiselect( cb.function("Fn_get_SeqNo", Long.class,
+		 * cb.literal(args[0]), cb.literal(args[1]), cb.literal(args[2]),
+		 * cb.literal(args[3]), cb.literal(args[4])) ); return
+		 * em.createQuery(query).getSingleResult();
+		 */
+		String seqno=queryImpl.getSequenceNo(args[0], args[1], args[2],args[3],args[4],args[5]);
+		return Long.parseLong(seqno);
 	}
 	
 	@Override
@@ -1426,8 +1428,12 @@ public class TreasuryCustomRepositoryImpl implements TreasuryCustomRepository {
 		Root<RskPremiumDetails> rRoot = cq.from(RskPremiumDetails.class);
 		String input = null;
 
-		Expression<String> funct = cb.function("FN_GET_NAME", String.class, cb.literal("P"), pRoot.get("productId"),
-				pRoot.get("branchCode"));
+		Subquery<String> funct = cq.subquery(String.class); 
+		Root<TmasProductMaster> rds = funct.from(TmasProductMaster.class);
+		funct.select(rds.get("tmasProductName"));
+		Predicate a1 = cb.equal( rds.get("tmasProductId"),pRoot.get("productId"));
+		Predicate a2 = cb.equal( rds.get("branchCode"), pRoot.get("branchCode"));
+		funct.where(a1,a2);
 
 		Expression<String> exp = cb.diff(
 				cb.<Double>selectCase().when(cb.isNull(rRoot.<Double>get("netdueOc")), 0.0)
@@ -1479,7 +1485,7 @@ public class TreasuryCustomRepositoryImpl implements TreasuryCustomRepository {
 				cb.equal(exp1, input));
 				//cb.like(pRoot.get("contractNo"), ""), cb.like(pRoot.get("productId"), "")); // check
 
-		cq.where(cb.isNull(rRoot.get("receiptNo")), cb.equal(rRoot.get("contractNo"), pRoot.get("contractNo")),
+		cq.where(cb.or(cb.isNull(rRoot.get("receiptNo")),cb.equal(rRoot.get("receiptNo"), "0")) , cb.equal(rRoot.get("contractNo"), pRoot.get("contractNo")),
 				cb.equal(cb.selectCase().when(cb.isNull(pRoot.get("layerNo")), 0).otherwise(pRoot.get("layerNo")),
 						cb.selectCase().when(cb.isNull(rRoot.get("layerNo")), 0).otherwise(rRoot.get("layerNo"))),
 				cb.equal(pRoot.get("deptId"), rRoot.get("subClass")),
@@ -1503,10 +1509,12 @@ public class TreasuryCustomRepositoryImpl implements TreasuryCustomRepository {
 		Root<TtrnClaimPayment> tcpRoot = cq.from(TtrnClaimPayment.class);
 		String input = null;
 		
-		Expression<String> funct = cb.function("FN_GET_NAME", String.class,
-     		   cb.literal("P"),
-     		  pRoot.get("productId"),
-     		 pRoot.get("branchCode"));
+		Subquery<String> funct = cq.subquery(String.class); 
+		Root<TmasProductMaster> rds = funct.from(TmasProductMaster.class);
+		funct.select(rds.get("tmasProductName"));
+		Predicate a1 = cb.equal( rds.get("tmasProductId"),pRoot.get("productId"));
+		Predicate a2 = cb.equal( rds.get("branchCode"), pRoot.get("branchCode"));
+		funct.where(a1,a2);
 		
 		Expression<String> exp = cb.diff(cb.<Double>selectCase().when(cb.isNull(tcpRoot.<Double>get("paidAmountOc")), 0.0)
 				.otherwise(tcpRoot.<Double>get("paidAmountOc")),
@@ -1570,7 +1578,7 @@ public class TreasuryCustomRepositoryImpl implements TreasuryCustomRepository {
 				 cb.equal(tcdRoot.get("claimNo"), tcpRoot.get("claimNo")),
 				 cb.equal(cb.selectCase().when(cb.isNull(pRoot.get("layerNo")), 0).otherwise(pRoot.get("layerNo")),
 						 cb.selectCase().when(cb.isNull(tcdRoot.get("layerNo")), 0).otherwise(tcdRoot.get("layerNo"))),
-				cb.equal(pRoot.get("deptId"), tcdRoot.get("subClass")),
+				cb.equal(pRoot.get("sectionNo"), tcdRoot.get("subClass")),
 				cb.equal(pRoot.get("branchCode"), branchCode),
 				cb.notEqual(exp, 0),
 				cb.equal(pRoot.get("amendId"), pSq));

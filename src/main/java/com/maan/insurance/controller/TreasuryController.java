@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.gson.Gson;
 import com.maan.insurance.error.CommonValidationException;
 import com.maan.insurance.error.ErrorCheck;
-import com.maan.insurance.jpa.service.impl.TreasuryJpaServiceImpl;
 import com.maan.insurance.model.req.AllocateDetailsReq;
 import com.maan.insurance.model.req.AllocateViewReq;
 import com.maan.insurance.model.req.AllocatedStatusReq;
@@ -36,22 +35,19 @@ import com.maan.insurance.model.req.ReciptListReq;
 import com.maan.insurance.model.req.ReverseInsertReq;
 import com.maan.insurance.model.req.ReverseViewReq;
 import com.maan.insurance.model.res.AllocateDetailsRes1;
-import com.maan.insurance.model.res.AllocateViewCommonRes;
+import com.maan.insurance.model.res.AllocateViewCommonRes1;
 import com.maan.insurance.model.res.AllocatedStatusRes1;
 import com.maan.insurance.model.res.GetAllTransContractRes1;
 import com.maan.insurance.model.res.GetDirectCedingRes1;
 import com.maan.insurance.model.res.GetReceiptAllocateRes1;
-import com.maan.insurance.model.res.GetReceiptEditRes;
-import com.maan.insurance.model.res.GetReceiptGenerationRes;
+import com.maan.insurance.model.res.GetReceiptEditRes1;
+import com.maan.insurance.model.res.GetReceiptGenerationRes1;
 import com.maan.insurance.model.res.GetReceiptReversalListRes1;
-import com.maan.insurance.model.res.GetRetroallocateTransactionRes;
 import com.maan.insurance.model.res.GetReversalInfoRes1;
 import com.maan.insurance.model.res.GetShortnameRes;
 import com.maan.insurance.model.res.GetTransContractRes1;
 import com.maan.insurance.model.res.GetTreasuryJournalViewRes1;
 import com.maan.insurance.model.req.SecondPageInfoReq;
-import com.maan.insurance.model.res.CurrecyAmountListsRes;
-import com.maan.insurance.model.res.PaymentRecieptRes;
 import com.maan.insurance.model.res.PaymentRecieptRes1;
 import com.maan.insurance.model.res.ReceiptTreasuryListRes;
 import com.maan.insurance.model.res.ReceiptViewListsRes;
@@ -60,7 +56,8 @@ import com.maan.insurance.model.res.RetroTransListRes;
 import com.maan.insurance.model.res.ReverseInsertRes;
 import com.maan.insurance.model.res.ReverseViewRes1;
 import com.maan.insurance.model.res.SecondPageInfoRes;
-import com.maan.insurance.model.res.DropDown.CommonResponse;
+import com.maan.insurance.model.res.retro.CommonResponse;
+import com.maan.insurance.model.res.retro.CommonSaveRes;
 import com.maan.insurance.service.TreasuryService;
 import com.maan.insurance.validation.TreasuryValidation;
 
@@ -77,16 +74,13 @@ public class TreasuryController {
 	@Autowired
 	private TreasuryService treasuryService;
 	
-	@Autowired
-	private TreasuryJpaServiceImpl treasuryJpaServiceImpl;
-	
 	@PostMapping("/receipt/save")
-	public PaymentRecieptRes savepaymentReciept(@RequestBody PaymentRecieptReq req) throws CommonValidationException {
+	public CommonResponse savepaymentReciept(@RequestBody PaymentRecieptReq req) throws CommonValidationException {
 		List<ErrorCheck> error=treasuryValidation.PaymentRecieptvalidate(req);
 		if(error!=null && error.size()>0) {
 			throw new CommonValidationException("error",error);
 		}
-		return treasuryJpaServiceImpl.savepaymentReciept(req);
+		return treasuryService.savepaymentReciept(req);
 	}
 	@PostMapping("/receipt/detail")
 	public PaymentRecieptRes1 receiptdetail(@RequestBody PaymentRecieptReq req) throws CommonValidationException {
@@ -94,7 +88,7 @@ public class TreasuryController {
 		if(error!=null && error.size()>0) {
 			throw new CommonValidationException("error",error);
 		}
-		return treasuryJpaServiceImpl.receiptdetail(req);
+		return treasuryService.receiptdetail(req);
 	}
 	@PostMapping("/save/reverse")
 	public ReverseInsertRes savereverseInsert(@RequestBody ReverseInsertReq req) throws CommonValidationException {
@@ -102,7 +96,7 @@ public class TreasuryController {
 		if(error!=null && error.size()>0) {
 			throw new CommonValidationException("error",error);
 		}
-		return treasuryJpaServiceImpl.savereverseInsert(req);
+		return treasuryService.savereverseInsert(req);
 	}
 	@PostMapping("/getAllocatedStatus")
 	public AllocatedStatusRes1 getAllocatedStatus(@RequestBody AllocatedStatusReq req) throws CommonValidationException {
@@ -110,38 +104,38 @@ public class TreasuryController {
 		if(error!=null && error.size()>0) {
 			throw new CommonValidationException("error",error);
 		}
-		return treasuryJpaServiceImpl.getAllocatedStatus(req);
+		return treasuryService.getAllocatedStatus(req);
 	
 	}
 	
 	@PostMapping("/allocateview")
-	public AllocateViewCommonRes allocateView(@RequestBody AllocateViewReq req) throws CommonValidationException {
+	public AllocateViewCommonRes1 allocateView(@RequestBody AllocateViewReq req) throws CommonValidationException {
 		/*List<ErrorCheck> error=treasuryValidation.allocateViewValidate(req);
 		if(error!=null && error.size()>0) {
 			throw new CommonValidationException("error",error);
 		}
-		return treasuryJpaServiceImpl.allocateView(req);*/
+		return treasuryService.allocateView(req);*/
 		List<ErrorCheck> error=treasuryValidation.allocateViewVali(req);
 		if(error!=null && error.size()>0) {
 			throw new CommonValidationException("error",error);
 		}
-		return treasuryJpaServiceImpl.allocateView(req);
+		return treasuryService.allocateView(req);
 		
 			}
 	
 	@GetMapping("/receiptedit/{paymentReceiptNo}/{branchCode}")
-	public GetReceiptEditRes getReceiptEdit( @PathVariable ("paymentReceiptNo") String paymentReceiptNo, @PathVariable("branchCode") String branchCode) throws CommonValidationException {
-		return treasuryJpaServiceImpl.getReceiptEdit(paymentReceiptNo,branchCode);
+	public GetReceiptEditRes1 getReceiptEdit( @PathVariable ("paymentReceiptNo") String paymentReceiptNo, @PathVariable("branchCode") String branchCode) throws CommonValidationException {
+		return treasuryService.getReceiptEdit(paymentReceiptNo,branchCode);
 	}
 	
 	@PostMapping("/receiptGeneration/view")
-	public GetReceiptGenerationRes getReceiptGeneration(@RequestBody GetReceiptGenerationReq req) throws CommonValidationException {
+	public GetReceiptGenerationRes1 getReceiptGeneration(@RequestBody GetReceiptGenerationReq req) throws CommonValidationException {
 		
 		List<ErrorCheck> error=treasuryValidation.getReceiptGenerationVali(req);
 		if(error!=null && error.size()>0) {
 			throw new CommonValidationException("error",error);
 		}
-		return treasuryJpaServiceImpl.getReceiptGeneration(req);
+		return treasuryService.getReceiptGeneration(req);
 		
 	}
 	
@@ -151,7 +145,7 @@ public class TreasuryController {
 		if(error!=null && error.size()>0) {
 			throw new CommonValidationException("error",error);
 		}
-		return treasuryJpaServiceImpl.getReversalInfo(req);
+		return treasuryService.getReversalInfo(req);
 		
 	}
 	
@@ -161,7 +155,7 @@ public class TreasuryController {
 		if(error!=null && error.size()>0) {
 			throw new CommonValidationException("error",error);
 		}
-		return treasuryJpaServiceImpl.reverseView(req);
+		return treasuryService.reverseView(req);
 		}
 	
 	@PostMapping("/getReceiptReversalList")
@@ -171,7 +165,7 @@ public class TreasuryController {
 		if(error!=null && error.size()>0) {
 			throw new CommonValidationException("error",error);
 		}
-		return treasuryJpaServiceImpl.getReceiptReversalList(req);
+		return treasuryService.getReceiptReversalList(req);
 		
 		
 	}
@@ -182,7 +176,7 @@ public class TreasuryController {
 		if(error!=null && error.size()>0) {
 			throw new CommonValidationException("error",error);
 		}
-		return treasuryJpaServiceImpl.getReceiptAllocate(req);
+		return treasuryService.getReceiptAllocate(req);
 		}
 	
 	@PostMapping("/allocate/details")
@@ -192,7 +186,7 @@ public class TreasuryController {
 	if(error!=null && error.size()>0) {
 		throw new CommonValidationException("error",error);
 	}
-	return treasuryJpaServiceImpl.allocateDetails(req);
+	return treasuryService.allocateDetails(req);
 	}
 	
 	@PostMapping("/getTransContract")
@@ -201,7 +195,7 @@ public class TreasuryController {
 		if(error!=null && error.size()>0) {
 			throw new CommonValidationException("error",error);
 		}
-		return treasuryJpaServiceImpl.getTransContract(req);
+		return treasuryService.getTransContract(req);
 		}
 	
 	@PostMapping("/get/allTransContract")
@@ -210,7 +204,7 @@ public class TreasuryController {
 		if(error!=null && error.size()>0) {
 			throw new CommonValidationException("error",error);
 		}
-		return treasuryJpaServiceImpl.getAllTransContract(req);
+		return treasuryService.getAllTransContract(req);
 		}
 		
 	
@@ -218,7 +212,7 @@ public class TreasuryController {
 	public GetDirectCedingRes1 getDirectCeding(@PathVariable ("branchId") String branchId ) throws CommonValidationException {
 		
 		
-			return treasuryJpaServiceImpl.getDirectCeding( branchId);
+			return treasuryService.getDirectCeding( branchId);
 		
 	}
 	
@@ -226,7 +220,7 @@ public class TreasuryController {
 	public GetShortnameRes getShortname(@PathVariable ("branchcode") String branchcode ) throws CommonValidationException {
 		
 	
-			return treasuryJpaServiceImpl.getShortname(branchcode);
+			return treasuryService.getShortname(branchcode);
 		
 	}
 	
@@ -236,25 +230,25 @@ public class TreasuryController {
 		if(error!=null && error.size()>0) {
 			throw new CommonValidationException("error",error);
 		}
-		return treasuryJpaServiceImpl.getTreasuryJournalView(req);
+		return treasuryService.getTreasuryJournalView(req);
 	}
 	
 	@PostMapping("/get/RetroallocateTransaction")
-	public  GetRetroallocateTransactionRes getRetroallocateTransaction(@RequestBody GetRetroallocateTransactionReq req) throws CommonValidationException {
+	public  CommonResponse getRetroallocateTransaction(@RequestBody GetRetroallocateTransactionReq req) throws CommonValidationException {
 		List<ErrorCheck> error=treasuryValidation.getRetroallocateTransactionVali(req);
 		if(error!=null && error.size()>0) {
 			throw new CommonValidationException("error",error);
 		}
-		return treasuryJpaServiceImpl.getRetroallocateTransaction(req);
+		return treasuryService.getRetroallocateTransaction(req);
 		
 	}
 	
 	/*@PostMapping("/getAll/RetroTransContract")
 	public  List<GetAllRetroTransContractRes> getAllRetroTransContract(@RequestBody GetRetroallocateTransactionReq req) throws CommonValidationException {
 		
-		 List<GetAllRetroTransContractRes> data = treasuryJpaServiceImpl.getAllRetroTransContract(req);
+		 List<GetAllRetroTransContractRes> data = treasuryService.getAllRetroTransContract(req);
 		if (data != null) {
-			return treasuryJpaServiceImpl.getAllRetroTransContract(req);
+			return treasuryService.getAllRetroTransContract(req);
 		} else {
 			return null;
 		}
@@ -267,7 +261,7 @@ public class TreasuryController {
 		if(error!=null && error.size()>0) {
 			throw new CommonValidationException("error",error);
 		}
-	   return treasuryJpaServiceImpl.getReciptList(req);
+	   return treasuryService.getReciptList(req);
 	}
 	@PostMapping("/getretrotrans")
 	public RetroTransListRes getRetroTransContract(@RequestBody RetroTransReq req) throws CommonValidationException {
@@ -275,7 +269,7 @@ public class TreasuryController {
 		if(error!=null && error.size()>0) {
 			throw new CommonValidationException("error",error);
 		}
-	   return treasuryJpaServiceImpl.getRetroTransContract(req);
+	   return treasuryService.getRetroTransContract(req);
 	}
 	@PostMapping("/getreceipttreasury")
 	public ReceiptTreasuryListRes getReceiptTreasuryGeneration(@RequestBody ReceiptTreasuryReq req) throws CommonValidationException {
@@ -283,7 +277,7 @@ public class TreasuryController {
 		if(error!=null && error.size()>0) {
 			throw new CommonValidationException("error",error);
 		}
-	   return treasuryJpaServiceImpl.getReceiptTreasuryGeneration(req);
+	   return treasuryService.getReceiptTreasuryGeneration(req);
 	}
 	@PostMapping("/getreceiptviewlist")
 	public ReceiptViewListsRes getReceiptViewList(@RequestBody ReceiptViewListReq req) throws CommonValidationException {
@@ -291,15 +285,15 @@ public class TreasuryController {
 		if(error!=null && error.size()>0) {
 			throw new CommonValidationException("error",error);
 		}
-	   return treasuryJpaServiceImpl.getReceiptViewList(req);
+	   return treasuryService.getReceiptViewList(req);
 	}
 	@PostMapping("/getcurrecyamount")
-	public CurrecyAmountListsRes getCurrecyAmount(@RequestBody CurrecyAmountReq req) throws CommonValidationException {
+	public CommonSaveRes getCurrecyAmount(@RequestBody CurrecyAmountReq req) throws CommonValidationException {
 		List<ErrorCheck> error=treasuryValidation.validateCurrencyAmount(req);
 		if(error!=null && error.size()>0) {
 			throw new CommonValidationException("error",error);
 		}
-	   return treasuryJpaServiceImpl.getCurrecyAmount(req);
+	   return treasuryService.getCurrecyAmount(req);
 	}
 	@PostMapping("/getsecondpageinfo")
 	public SecondPageInfoRes getSecondPageInfo(@RequestBody SecondPageInfoReq req) throws CommonValidationException {
@@ -307,7 +301,7 @@ public class TreasuryController {
 		if(error!=null && error.size()>0) {
 			throw new CommonValidationException("error",error);
 		}
-	   return treasuryJpaServiceImpl.getSecondPageInfo(req);
+	   return treasuryService.getSecondPageInfo(req);
 	}
 	@PostMapping("/get/transcont")
 	public GetTransContractRes1 getTraContract(@RequestBody GetTransContractReq req) throws CommonValidationException {
@@ -315,7 +309,7 @@ public class TreasuryController {
 		if(error!=null && error.size()>0) {
 			throw new CommonValidationException("error",error);
 		}
-		return treasuryJpaServiceImpl.getTransContract(req);
+		return treasuryService.getTransContract(req);
 		
 	}
 	@PostMapping("/getAllocateTransaction")
@@ -324,7 +318,7 @@ public class TreasuryController {
 	if(error!=null && error.size()>0) {
 	throw new CommonValidationException("error",error);
 	}
-	return treasuryJpaServiceImpl.getAllocateTransaction(req);
+	return treasuryService.getAllocateTransaction(req);
 	}
 
 }

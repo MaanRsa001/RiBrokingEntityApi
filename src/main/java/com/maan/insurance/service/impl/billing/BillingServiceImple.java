@@ -19,24 +19,27 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import org.springframework.util.CollectionUtils;
 
 import com.maan.insurance.jpa.entity.treasury.TtrnAllocatedTransaction;
 import com.maan.insurance.jpa.mapper.TtrnAllocatedTransactionMapper;
 import com.maan.insurance.jpa.repository.treasury.TreasuryCustomRepository;
+import com.maan.insurance.jpa.service.impl.TreasuryJpaServiceImpl;
 import com.maan.insurance.model.entity.PersonalInfo;
 import com.maan.insurance.model.entity.PositionMaster;
 import com.maan.insurance.model.entity.RskPremiumDetails;
 import com.maan.insurance.model.entity.TmasProductMaster;
-import com.maan.insurance.model.entity.TtrnBillingDetails;
 import com.maan.insurance.model.entity.TtrnBillingInfo;
 import com.maan.insurance.model.entity.TtrnBillingTransaction;
 import com.maan.insurance.model.entity.TtrnClaimDetails;
 import com.maan.insurance.model.entity.TtrnClaimPayment;
-import com.maan.insurance.model.repository.TtrnBillingDetailsRepository;
 import com.maan.insurance.model.repository.TtrnBillingInfoRepository;
+
 import com.maan.insurance.model.repository.TtrnBillingTransactionRepository;
 import com.maan.insurance.model.req.GetAllTransContractReq;
 import com.maan.insurance.model.req.GetTransContractListReq;
@@ -48,25 +51,19 @@ import com.maan.insurance.model.res.GetAllTransContractRes1;
 import com.maan.insurance.model.res.GetTransContractRes;
 import com.maan.insurance.model.res.GetTransContractRes1;
 import com.maan.insurance.model.res.DropDown.CommonResponse;
+
 import com.maan.insurance.model.res.billing.GetTransContractRes1Ri;
 import com.maan.insurance.model.res.billing.GetTransContractResRi;
 import com.maan.insurance.model.res.billing.InsertBillingInfoRes;
 import com.maan.insurance.service.billing.BillingService;
-import com.maan.insurance.service.facultative.FacultativeService;
-import com.maan.insurance.service.impl.QueryImplemention;
-import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
 import com.maan.insurance.validation.Formatters;
 
 @Service
 public class BillingServiceImple implements  BillingService {
-	@Autowired
-	private QueryImplemention queryImpl;
-	
-	@Autowired
-	private DropDownServiceImple dropDowmImpl;
-
+	private Logger log = LogManager.getLogger(BillingServiceImple.class);
 	@Autowired
 	private Formatters fm;
+	
 	@PersistenceContext
 	private EntityManager em;
 	
@@ -74,8 +71,7 @@ public class BillingServiceImple implements  BillingService {
 	private TreasuryCustomRepository treasuryCustomRepository;
 	
 	@Autowired
-	private TtrnBillingDetailsRepository ttrnBillingDetailsRepository;
-	@Autowired
+
 	private TtrnBillingInfoRepository ttrnBillingInfoRepository;
 	@Autowired
 	private TtrnAllocatedTransactionMapper ttrnAllocatedTransactionMapper;
@@ -91,8 +87,11 @@ public class BillingServiceImple implements  BillingService {
 		try {
 			//TtrnBillingDetails entity = new TtrnBillingDetails();
 			TtrnBillingInfo info = new TtrnBillingInfo();
+			if(StringUtils.isBlank(req.getBillingNo())) {
+				req.setBillingNo(getSequence("TreasuryARP","","", req.getBranchCode(),"",req.getBillDate()));
+			}
 			
-			info.setAmendId(req.getAmendId()==null?BigDecimal.ZERO:new BigDecimal(req.getAmendId()));
+			info.setAmendId(BigDecimal.ZERO);
 			info.setAmendmentDate(req.getAmendmentDate()==null?null:sdf.parse(req.getAmendmentDate()));
 			info.setBillingNo(req.getBillingNo()==null?BigDecimal.ZERO:new BigDecimal(req.getBillingNo()));
 			info.setBillDate(req.getBillDate()==null?null:sdf.parse(req.getBillDate()));
@@ -101,14 +100,16 @@ public class BillingServiceImple implements  BillingService {
 			info.setCedingId(req.getCedingId()==null?BigDecimal.ZERO:new BigDecimal(req.getCedingId()));
 			info.setLoginId(req.getLoginId()==null?"":req.getLoginId());
 			info.setProductId(req.getProductId()==null?BigDecimal.ZERO:new BigDecimal(req.getProductId()));
-			info.setRemarks(req.getRemarks()==null?"":req.getRemarks());
-			info.setReversaldate(req.getReversaldate()==null?null:sdf.parse(req.getReversaldate()));
-			info.setReversaltransno(req.getReversaltransno()==null?BigDecimal.ZERO:new BigDecimal(req.getReversaltransno()));
-			info.setReverselloginid(req.getReverselloginid()==null?"":req.getReverselloginid());
-			info.setRevtransaltype(req.getRevtransaltype()==null?"":req.getRevtransaltype());
-			info.setStatus(req.getStatus()==null?"":req.getStatus());
+			info.setCurrencyId(req.getProductId()==null?BigDecimal.ZERO:new BigDecimal(req.getProductId()));
+			
+			//info.setRemarks(req.getRemarks()==null?"":req.getRemarks());
+			//info.setReversaldate(req.getReversaldate()==null?null:sdf.parse(req.getReversaldate()));
+			//info.setReversaltransno(req.getReversaltransno()==null?BigDecimal.ZERO:new BigDecimal(req.getReversaltransno()));
+			//info.setReverselloginid(req.getReverselloginid()==null?"":req.getReverselloginid());
+			//info.setRevtransaltype(req.getRevtransaltype()==null?"":req.getRevtransaltype());
+			info.setStatus("Y");
 			info.setSysDate(new Date());
-			info.setTranscationtype(req.getTranscationtype()==null?"":req.getTranscationtype());
+			//info.setTranscationtype(req.getTranscationtype()==null?"":req.getTranscationtype());
 			info.setTransType(req.getTransType()==null?"":req.getTransType());
 			ttrnBillingInfoRepository.saveAndFlush(info);
 			
@@ -175,13 +176,13 @@ public class BillingServiceImple implements  BillingService {
 	}
 	public List<Tuple> getTranContDtls(GetTransContractReqRi req) {
 		List<Tuple> resultList = getTranContDtlsForRsk(req.getBrokerId(), req.getCedingId(), 
-				req.getAlloccurrencyId(), req.getBranchCode());
+				req.getCurrencyId(), req.getBranchCode());
 		if(Objects.nonNull(resultList))
 			resultList.addAll(getTranContDtlsForClaim(req.getBrokerId(), req.getCedingId(), 
-					req.getAlloccurrencyId(), req.getBranchCode()));
+					req.getCurrencyId(), req.getBranchCode()));
 		else
 			resultList = getTranContDtlsForClaim(req.getBrokerId(), req.getCedingId(), 
-					req.getAlloccurrencyId(), req.getBranchCode());
+					req.getCurrencyId(), req.getBranchCode());
 		return Objects.nonNull(resultList) ? resultList : new ArrayList<>();
 	}
 	private List<Tuple> getTranContDtlsForRsk(String brokerId, String cedingId, String alloccurrencyId, String branchCode) {
@@ -253,7 +254,7 @@ public class BillingServiceImple implements  BillingService {
 				cb.equal(exp1, input));
 				//cb.like(pRoot.get("contractNo"), ""), cb.like(pRoot.get("productId"), "")); // check
 
-		cq.where(cb.isNull(rRoot.get("receiptNo")), cb.equal(rRoot.get("contractNo"), pRoot.get("contractNo")),
+		cq.where(cb.or(cb.isNull(rRoot.get("receiptNo")),cb.equal(rRoot.get("receiptNo"), "0")), cb.equal(rRoot.get("contractNo"), pRoot.get("contractNo")),
 				cb.equal(cb.selectCase().when(cb.isNull(pRoot.get("layerNo")), 0).otherwise(pRoot.get("layerNo")),
 						cb.selectCase().when(cb.isNull(rRoot.get("layerNo")), 0).otherwise(rRoot.get("layerNo"))),
 				cb.equal(pRoot.get("deptId"), rRoot.get("subClass")),
@@ -349,7 +350,7 @@ public class BillingServiceImple implements  BillingService {
 				 cb.equal(tcdRoot.get("claimNo"), tcpRoot.get("claimNo")),
 				 cb.equal(cb.selectCase().when(cb.isNull(pRoot.get("layerNo")), 0).otherwise(pRoot.get("layerNo")),
 						 cb.selectCase().when(cb.isNull(tcdRoot.get("layerNo")), 0).otherwise(tcdRoot.get("layerNo"))),
-				cb.equal(pRoot.get("deptId"), tcdRoot.get("subClass")),
+				cb.equal(pRoot.get("sectionNo"), tcdRoot.get("subClass")),
 				cb.equal(pRoot.get("branchCode"), branchCode),
 				cb.notEqual(exp, 0),
 				cb.equal(pRoot.get("amendId"), pSq));
@@ -361,18 +362,18 @@ public class BillingServiceImple implements  BillingService {
 		CommonResponse response = new CommonResponse();
 		try{
 			GetTransContractReqRi request=new GetTransContractReqRi();
-			request.setAlloccurrencyId(req.getAlloccurrencyId());
+			request.setCurrencyId(req.getCurrencyId());
 			request.setBranchCode(req.getBranchCode());
 			request.setBrokerId(req.getBrokerId());
 			request.setCedingId(req.getCedingId());
 			GetTransContractResRi res= getTransContract(request);
 			List<GetTransContractRes1Ri> payList = res.getCommonResponse();
-			String serialNo;
+			String billsnNo;
 			Double a=0.0,b=0.0,c=0.0;
 		
-			serialNo=queryImpl.getSequenceNo("TreasuryARP","","", req.getBranchCode(),"",req.getAccountDate());
+			billsnNo=getSequence("TreasuryARP","","", req.getBranchCode(),"",req.getBillDate());
 		
-			req.setSerialno(serialNo);
+			
 			String [] args = null;
 		
 			for(int i=0;i<payList.size();i++) {
@@ -384,13 +385,13 @@ public class BillingServiceImple implements  BillingService {
 		
 			//if(receivePayAmountMap.containsKey(form.getTransactionNo())) {	 
 			 args=new String[17];
-			 args[0]=serialNo;	
+			 args[0]=billsnNo;	
 			 args[1]=form.getContractNo();
 			 args[2]=StringUtils.isBlank(form.getMode())?"0":form.getMode();
 		
 			 args[3]=form.getProductName();
 			 args[4]=form.getTransactionNo();
-			 args[5]=req.getAccountDate();
+			 args[5]=req.getBillDate();
 			if("P".equalsIgnoreCase(form.getCheckPC())){
 				args[6]= filterTrack.get(0).getReceivePayAmounts();
 			 	args[7]="P";
@@ -401,7 +402,7 @@ public class BillingServiceImple implements  BillingService {
 			 	updateArgs[2] = req.getBranchCode();
 			 	updateArgs[3] = form.getContractNo();
 			 	updateArgs[4] = form.getTransactionNo();
-			 	treasuryCustomRepository.updatePremiumDetails(updateArgs);
+			 	//treasuryCustomRepository.updatePremiumDetails(updateArgs);
 			
 			 	
 				updateArgs = new String[5];
@@ -410,7 +411,7 @@ public class BillingServiceImple implements  BillingService {
 				updateArgs[2] = req.getBranchCode();
 				updateArgs[3] = form.getContractNo();
 				updateArgs[4] = form.getTransactionNo();
-				treasuryCustomRepository.updatepreSetStatus(updateArgs);
+				//treasuryCustomRepository.updatepreSetStatus(updateArgs);
 			
 			 	a=a+Double.parseDouble(filterTrack.get(0).getReceivePayAmounts());
 			}
@@ -425,7 +426,7 @@ public class BillingServiceImple implements  BillingService {
 				updateArgs[3] = form.getContractNo();
 				updateArgs[4] = form.getTransactionNo();
 			
-				treasuryCustomRepository.updateclaimPymtAlloDtls(updateArgs);
+				//treasuryCustomRepository.updateclaimPymtAlloDtls(updateArgs);
 			
 				updateArgs = new String[5];
 				updateArgs[0] = "Allocated";
@@ -433,16 +434,15 @@ public class BillingServiceImple implements  BillingService {
 				updateArgs[2] = req.getLoginId();
 				updateArgs[3] = form.getContractNo();
 				updateArgs[4] = form.getTransactionNo();
-				treasuryCustomRepository.updateclaimSetStatus(updateArgs);
+				//treasuryCustomRepository.updateclaimSetStatus(updateArgs);
 			
 				b = b + Double.parseDouble(filterTrack.get(0).getReceivePayAmounts());
 			}
 			args[8]="Y";
 			args[9]="0";
-			args[10]=req.getPolicyno();//Receipt No
-			req.setPayrecno(req.getPolicyno());
-			args[11]=req.getAlloccurrencyId();//Currency ID
-			args[12]=StringUtils.isBlank(req.getHideprocessType())?"I":"O";
+			args[10]=req.getBillingNo();//Receipt No
+			args[11]=req.getCurrencyId();//Currency ID
+			args[12]="";
 			args[13]=form.getSubClass();
 			args[14]=req.getLoginId();
 			args[15]=req.getBranchCode();
@@ -470,15 +470,15 @@ public class BillingServiceImple implements  BillingService {
 			updateArgs[0] = String.valueOf(c);
 			updateArgs[1] = req.getLoginId();
 			updateArgs[2] = req.getBranchCode();
-			updateArgs[3] = req.getPolicyno();
-			updateArgs[4] = req.getAlloccurrencyId();
+			updateArgs[3] = req.getBillingNo();
+			updateArgs[4] = req.getCurrencyId();
 			//queryImpl.updateQuery("payment.update.AlloTranDtls", updateArgs);
-			treasuryCustomRepository.updateAlloTranDtls(updateArgs);
+			//treasuryCustomRepository.updateAlloTranDtls(updateArgs);
 		
 			//queryImpl.updateQuery("payment.update.rskPremChkyn");
 			treasuryCustomRepository.updateRskPremChkyn();
 			
-			response.setMessage(serialNo);
+			response.setMessage(billsnNo);
 			response.setIsError(false);
 			}
 			catch(Exception e) {
@@ -489,5 +489,17 @@ public class BillingServiceImple implements  BillingService {
 			}
 			return response;
 		}
-	
+	public synchronized String getSequence(String type,String productID,String departmentId,String branchCode, String proposalNo,String date){ 
+		String seqName="";
+		try{
+			Long seqNo = treasuryCustomRepository.getseqno(new String[]{type,productID,departmentId,branchCode,proposalNo,date});
+			seqName = (seqNo == null ? "": seqNo.toString());
+			log.info("Result==> " + seqName);
+			
+		}catch(Exception e){
+			log.debug("Exception @ {" + e + "}");
+		}
+
+		return seqName;
+	}
 }
