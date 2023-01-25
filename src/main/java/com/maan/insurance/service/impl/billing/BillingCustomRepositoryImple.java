@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
@@ -55,7 +56,18 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 		
 	}
 	
+	@Override
+	public Integer getNextRetDtlsNo() {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Integer> cq = cb.createQuery(Integer.class);
+		Root<TtrnPaymentReceiptDetails> root = cq.from(TtrnPaymentReceiptDetails.class);
 
+		cq.multiselect(cb.selectCase().when(cb.isNull(cb.max(root.get("receiptNo"))), 0)
+				.otherwise(cb.sum(cb.max(root.get("receiptNo")), 1)));
+		TypedQuery<Integer> q = em.createQuery(cq);
+		List<Integer> receiptList = q.getResultList();
+		return receiptList != null && !receiptList.isEmpty() ? receiptList.get(0) : null;
+	}
 	
 
 }

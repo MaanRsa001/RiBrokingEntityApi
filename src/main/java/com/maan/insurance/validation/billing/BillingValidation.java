@@ -68,4 +68,10 @@ public List<ErrorCheck> getBillingInfoListVali(GetBillingInfoListReq req) {
 	// TODO Auto-generated method stub
 	return null;
 }
+
+
+public List<ErrorCheck> getTransContractRiVali(GetTransContractReqRi req) {
+	// TODO Auto-generated method stub
+	return null;
+}
 }

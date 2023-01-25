@@ -42,4 +42,6 @@ public interface TtrnClaimDetailsRepository  extends JpaRepository<TtrnClaimDeta
 	TtrnClaimDetails findByContractNoAndClaimNoAndLayerNo(String contractNo, BigDecimal bigDecimal,
 			BigDecimal bigDecimal2);
 
+	List<TtrnClaimDetails> findByClaimNo(BigDecimal bigDecimal);
+
 }

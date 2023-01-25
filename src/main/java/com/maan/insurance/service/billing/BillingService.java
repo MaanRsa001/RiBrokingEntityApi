@@ -20,4 +20,6 @@ public interface BillingService {
 
 	GetBillingInfoListRes getBillingInfoList(GetBillingInfoListReq req);
 
+	GetTransContractResRi getTransContractRi(GetTransContractReqRi req);
+
 }

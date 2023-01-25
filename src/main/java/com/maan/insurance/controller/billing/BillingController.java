@@ -58,5 +58,13 @@ public class BillingController {
 			throw new CommonValidationException("error",error);
 		}
 		return serv.getTransContract(req);
+		} 
+	@PostMapping("/getTransContractRi")
+	public GetTransContractResRi getTransContractRi(@RequestBody GetTransContractReqRi req) throws CommonValidationException {
+		List<ErrorCheck> error = val.getTransContractRiVali(req);
+		if(error!=null && error.size()>0) {
+			throw new CommonValidationException("error",error);
+		}
+		return serv.getTransContractRi(req);
 		}
 }

@@ -44,6 +44,7 @@ import com.maan.insurance.model.entity.PersonalInfo;
 import com.maan.insurance.model.entity.PositionMaster;
 import com.maan.insurance.model.entity.TtrnClaimDetails;
 import com.maan.insurance.model.entity.TtrnClaimPayment;
+import com.maan.insurance.model.entity.TtrnRiskDetails;
 import com.maan.insurance.model.repository.TtrnClaimAccRepository;
 import com.maan.insurance.model.repository.TtrnClaimDetailsRepository;
 import com.maan.insurance.model.repository.TtrnClaimPaymentRepository;
@@ -147,9 +148,8 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 
 	@Autowired
 	private Formatters fm;
+	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy") ;
 
-	@Autowired
-	private ValidationImple vi;
 
 	@Autowired
 	private ClaimCustomRepository claimCustomRepository;
@@ -1914,73 +1914,150 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 }
 	public double businessValidaion(final InsertCliamDetailsMode3Req formObj,final int mode) {
 		double amount=0.0;
-		String query="";
-		List<Map<String,Object>>list=null;
 		try {
 		if(mode==7){
+			//CLAIM_LOSS_ESTIMATE_PAID_DIFFERENCE_EDIT
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			
+			Root<TtrnClaimUpdation> tc = query.from(TtrnClaimUpdation.class);
+			
+			Subquery<BigDecimal> tp = query.subquery(BigDecimal.class); 
+			Root<TtrnClaimPayment> tcp = tp.from(TtrnClaimPayment.class);
+			tp.select( cb.sum(cb.coalesce(tcp.get("paidClaimOsOc"),BigDecimal.ZERO))); 
+			//slNo
+			Subquery<Integer> slNo = query.subquery(Integer.class); 
+			Root<TtrnClaimUpdation> e = slNo.from(TtrnClaimUpdation.class);
+			slNo.select(cb.max(e.get("slNo")));
+			Predicate c1 = cb.equal( e.get("claimNo"), formObj.getClaimNo());
+			Predicate c2 = cb.equal( e.get("contractNo"), formObj.getPolicyContractNo());
+			slNo.where(c1,c2);
+			Predicate a1 = cb.equal(tcp.get("contractNo"), formObj.getPolicyContractNo());
+			Predicate a2 = cb.equal(tcp.get("claimNo"), formObj.getClaimNo());
+			Predicate a4 = cb.equal(tcp.get("reserveId"), slNo);
 	
 				if("edit".equalsIgnoreCase(formObj.getPaymentFlag())){
-					query="CLAIM_LOSS_ESTIMATE_PAID_DIFFERENCE_EDIT";
-					list=queryImpl.selectList(query, new String[]{formObj.getPolicyContractNo(),formObj.getClaimNo(),formObj.getClaimPaymentNo(),formObj.getPolicyContractNo(),formObj.getClaimNo(),formObj.getPolicyContractNo(),formObj.getClaimNo()});
-					if (!CollectionUtils.isEmpty(list)) {
-						amount =Double.parseDouble(list.get(0).get("LOSS_ESTIMATE_DIFF") == null ? ""
-								: list.get(0).get("LOSS_ESTIMATE_DIFF").toString());
-					}
-					
-
-				}else{
-					query="claim.loss.estimate.paid.difference";
-					list=queryImpl.selectList(query, new String[]{formObj.getPolicyContractNo(),formObj.getClaimNo(),formObj.getPolicyContractNo(),formObj.getClaimNo(),formObj.getPolicyContractNo(),formObj.getClaimNo()});
-					if (!CollectionUtils.isEmpty(list)) {
-						amount =Double.parseDouble(list.get(0).get("LOSS_ESTIMATE_DIFF") == null ? ""
-								: list.get(0).get("LOSS_ESTIMATE_DIFF").toString());
-					}
-					
+					Predicate a3 = cb.notEqual(tcp.get("claimPaymentNo"), formObj.getClaimPaymentNo());
+					tp.where(a1,a2,a3,a4);
+				} else {
+					//claim.loss.estimate.paid.difference
+					tp.where(a1,a2,a4);
 				}
-				
-			} 
-		
-		
-		else if(mode==8){
-				if("edit".equalsIgnoreCase(formObj.getPaymentFlag())){
-					query="CLAIM_SAF_OS_SUM_DIFFERENCE_EDIT";
-					list=queryImpl.selectList(query, new String[]{formObj.getPolicyContractNo(),formObj.getClaimNo(),formObj.getClaimPaymentNo(),formObj.getPolicyContractNo(),formObj.getClaimNo(),formObj.getPolicyContractNo(),formObj.getClaimNo()});
-					if (!CollectionUtils.isEmpty(list)) {
-						amount =Double.parseDouble(list.get(0).get("SAF_OS_DIFF") == null ? ""
-								: list.get(0).get("SAF_OS_DIFF").toString());
-					}
-					
-					
+					query.multiselect(cb.diff(cb.coalesce(tc.get("lossEstimateRevisedOc"),BigDecimal.ZERO), tp).alias("LOSS_ESTIMATE_DIFF"));
+					//sno
+					Subquery<Integer> sno = query.subquery(Integer.class); 
+					Root<TtrnClaimUpdation> s = sno.from(TtrnClaimUpdation.class);
+					sno.select(cb.max(s.get("slNo")));
+					Predicate b1 = cb.equal( s.get("claimNo"), tc.get("claimNo"));
+					Predicate b2 = cb.equal( s.get("contractNo"), tc.get("contractNo"));
+					sno.where(b1,b2);
 
-				}else{
-					query="claim.saf.os.sum.difference";
-					list=queryImpl.selectList(query, new String[]{formObj.getPolicyContractNo(),formObj.getClaimNo(),formObj.getPolicyContractNo(),formObj.getClaimNo(),formObj.getPolicyContractNo(),formObj.getClaimNo()});
-					if (!CollectionUtils.isEmpty(list)) {
-						amount =Double.parseDouble(list.get(0).get("SAF_OS_DIFF") == null ? ""
-								: list.get(0).get("SAF_OS_DIFF").toString());
-					}
+					Predicate n1 = cb.equal(tc.get("contractNo"), formObj.getPolicyContractNo());
+					Predicate n2 = cb.equal(tc.get("claimNo"), formObj.getClaimNo());
+					Predicate n3 = cb.equal(tc.get("slNo"), sno);
+					query.where(n1,n3,n2);
+					TypedQuery<Tuple> res1 = em.createQuery(query);
+					List<Tuple> list = res1.getResultList();
 					
+					if (!CollectionUtils.isEmpty(list)) {
+						amount =Double.parseDouble(list.get(0)== null ? ""
+								: list.get(0).toString());
+					} 
+				
+			} else if(mode==8){
+				CriteriaBuilder cb = em.getCriteriaBuilder(); 
+				CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+				
+				Root<TtrnClaimUpdation> tc = query.from(TtrnClaimUpdation.class);
+				
+				Subquery<BigDecimal> tp = query.subquery(BigDecimal.class); 
+				Root<TtrnClaimPayment> tcp = tp.from(TtrnClaimPayment.class);
+				tp.select( cb.sum(cb.coalesce(tcp.get("safOsOc"),BigDecimal.ZERO))); 
+				//slNo
+				Subquery<Integer> slNo = query.subquery(Integer.class); 
+				Root<TtrnClaimUpdation> e = slNo.from(TtrnClaimUpdation.class);
+				slNo.select(cb.max(e.get("slNo")));
+				Predicate c1 = cb.equal( e.get("claimNo"), formObj.getClaimNo());
+				Predicate c2 = cb.equal( e.get("contractNo"), formObj.getPolicyContractNo());
+				slNo.where(c1,c2);
+				Predicate a1 = cb.equal(tcp.get("contractNo"), formObj.getPolicyContractNo());
+				Predicate a2 = cb.equal(tcp.get("claimNo"), formObj.getClaimNo());
+				Predicate a4 = cb.equal(tcp.get("reserveId"), slNo);
+		
+					if("edit".equalsIgnoreCase(formObj.getPaymentFlag())){
+						Predicate a3 = cb.notEqual(tcp.get("claimPaymentNo"), formObj.getClaimPaymentNo());
+						tp.where(a1,a2,a3,a4);
+					} else {
+						//claim.saf.os.sum.difference
+						tp.where(a1,a2,a4);
 					}
+						query.multiselect(cb.diff(cb.coalesce(tc.get("safOsOc"),BigDecimal.ZERO), tp).alias("SAF_OS_DIFF"));
+						//sno
+						Subquery<Integer> sno = query.subquery(Integer.class); 
+						Root<TtrnClaimUpdation> s = sno.from(TtrnClaimUpdation.class);
+						sno.select(cb.max(s.get("slNo")));
+						Predicate b1 = cb.equal( s.get("claimNo"), tc.get("claimNo"));
+						Predicate b2 = cb.equal( s.get("contractNo"), tc.get("contractNo"));
+						sno.where(b1,b2);
+
+						Predicate n1 = cb.equal(tc.get("contractNo"), formObj.getPolicyContractNo());
+						Predicate n2 = cb.equal(tc.get("claimNo"), formObj.getClaimNo());
+						Predicate n3 = cb.equal(tc.get("slNo"), sno);
+						query.where(n1,n3,n2);
+						TypedQuery<Tuple> res1 = em.createQuery(query);
+						List<Tuple> list = res1.getResultList();
+						
+						if (!CollectionUtils.isEmpty(list)) {
+							amount =Double.parseDouble(list.get(0)== null ? ""
+									: list.get(0).toString());
+						}
 				}
 		else if(mode==9){
-		
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			
+			Root<TtrnClaimUpdation> tc = query.from(TtrnClaimUpdation.class);
+			
+			Subquery<BigDecimal> tp = query.subquery(BigDecimal.class); 
+			Root<TtrnClaimPayment> tcp = tp.from(TtrnClaimPayment.class);
+			tp.select( cb.sum(cb.coalesce(tcp.get("othFeeOsOc"),BigDecimal.ZERO))); 
+			//slNo
+			Subquery<Integer> slNo = query.subquery(Integer.class); 
+			Root<TtrnClaimUpdation> e = slNo.from(TtrnClaimUpdation.class);
+			slNo.select(cb.max(e.get("slNo")));
+			Predicate c1 = cb.equal( e.get("claimNo"), formObj.getClaimNo());
+			Predicate c2 = cb.equal( e.get("contractNo"), formObj.getPolicyContractNo());
+			slNo.where(c1,c2);
+			Predicate a1 = cb.equal(tcp.get("contractNo"), formObj.getPolicyContractNo());
+			Predicate a2 = cb.equal(tcp.get("claimNo"), formObj.getClaimNo());
+			Predicate a4 = cb.equal(tcp.get("reserveId"), slNo);
+	
 				if("edit".equalsIgnoreCase(formObj.getPaymentFlag())){
-					query="CLAIM_OTHER_FEE_OS_SUM_EDIT";
-					list=queryImpl.selectList(query, new String[]{formObj.getPolicyContractNo(),formObj.getClaimNo(),formObj.getClaimPaymentNo(),formObj.getPolicyContractNo(),formObj.getClaimNo(),formObj.getPolicyContractNo(),formObj.getClaimNo()});
-					if (!CollectionUtils.isEmpty(list)) {
-						amount =Double.parseDouble(list.get(0).get("OTH_FEE_DIFF") == null ? ""
-								: list.get(0).get("OTH_FEE_DIFF").toString());
-					}
-				
+					Predicate a3 = cb.notEqual(tcp.get("claimPaymentNo"), formObj.getClaimPaymentNo());
+					tp.where(a1,a2,a3,a4);
+				} else {
+					//claim.saf.os.sum.difference
+					tp.where(a1,a2,a4);
+				}
+					query.multiselect(cb.diff(cb.coalesce(tc.get("othFeeOsOc"),BigDecimal.ZERO), tp).alias("OTH_FEE_DIFF"));
+					//sno
+					Subquery<Integer> sno = query.subquery(Integer.class); 
+					Root<TtrnClaimUpdation> s = sno.from(TtrnClaimUpdation.class);
+					sno.select(cb.max(s.get("slNo")));
+					Predicate b1 = cb.equal( s.get("claimNo"), tc.get("claimNo"));
+					Predicate b2 = cb.equal( s.get("contractNo"), tc.get("contractNo"));
+					sno.where(b1,b2);
 
-				}else{
-					query="claim.other.fee.os.sum.difference";
-					list=queryImpl.selectList(query, new String[]{formObj.getPolicyContractNo(),formObj.getClaimNo(),formObj.getPolicyContractNo(),formObj.getClaimNo(),formObj.getPolicyContractNo(),formObj.getClaimNo()});
-					if (!CollectionUtils.isEmpty(list)) {
-						amount =Double.parseDouble(list.get(0).get("OTH_FEE_DIFF") == null ? ""
-								: list.get(0).get("OTH_FEE_DIFF").toString());
-					}
+					Predicate n1 = cb.equal(tc.get("contractNo"), formObj.getPolicyContractNo());
+					Predicate n2 = cb.equal(tc.get("claimNo"), formObj.getClaimNo());
+					Predicate n3 = cb.equal(tc.get("slNo"), sno);
+					query.where(n1,n3,n2);
+					TypedQuery<Tuple> res1 = em.createQuery(query);
+					List<Tuple> list = res1.getResultList();
 					
+					if (!CollectionUtils.isEmpty(list)) {
+						amount =Double.parseDouble(list.get(0)== null ? ""
+								: list.get(0).toString());
 					}
 		}} catch(Exception e) {
 			e.printStackTrace();
@@ -1990,51 +2067,122 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 	}
 	public String getClaimDate(InsertCliamDetailsMode8Req req,int mode)
 	{
-		List<Map<String,Object>>list=null;
 		String date="";
-		String query = "";
 		try{
-			if(mode==1)
-			{
-				 query="claim.select.getInsDate";
-				list=queryImpl.selectList(query, new String[]{req.getClaimNo(),req.getClaimNo()});
+			if(mode==1) {
+				//claim.select.getInsDate
+				CriteriaBuilder cb = em.getCriteriaBuilder(); 
+				CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+				Root<TtrnClaimUpdation> rd = query.from(TtrnClaimUpdation.class);
+
+				query.multiselect(rd.get("inceptionDate").alias("INS_DATE")); 
+
+				Subquery<Integer> slNo = query.subquery(Integer.class); 
+				Root<TtrnClaimUpdation> rds = slNo.from(TtrnClaimUpdation.class);
+				slNo.select(cb.max(rds.get("slNo")));
+				Predicate a1 = cb.equal(rds.get("claimNo"), req.getClaimNo());
+				slNo.where(a1);
+
+				Predicate n1 = cb.equal(rd.get("claimNo"), req.getClaimNo());
+				Predicate n2 = cb.equal(rd.get("slNo"), slNo);
+				query.where(n1,n2);
+
+				TypedQuery<Tuple> res = em.createQuery(query);
+				List<Tuple> list = res.getResultList();
+				
 				if(list!=null && list.size()>0) {
-					date=list.get(0).get("INS_DATE")==null?"":list.get(0).get("INS_DATE").toString();
+					date=list.get(0).get("INS_DATE")==null?"":sdf.format(list.get(0).get("INS_DATE"));
 				}
 				
-			}else if(mode==2)
-			{
-				 query="claim.select.getLossDate";
-				 list=queryImpl.selectList(query, new String[]{req.getClaimNo()});
+			}else if(mode==2) {
+				//claim.select.getLossDate
+				List<TtrnClaimDetails> list = ttrnClaimDetailsRepository.findByClaimNo(new BigDecimal(req.getClaimNo()));
 					if(list!=null && list.size()>0) {
-						date=list.get(0).get("LOSS_DATE")==null?"":list.get(0).get("LOSS_DATE").toString();
+						date=list.get(0).getDateOfLoss()==null?"":sdf.format(list.get(0).getDateOfLoss());
 					}
 				
-			}else if(mode==3)
-			{
-				 query="claim.select.getContInsDate";
-				list=queryImpl.selectList(query, new String[]{req.getPolicyContractNo(),req.getPolicyContractNo()});
+			}else if(mode==3) {
+				 //claim.select.getContInsDate
+				CriteriaBuilder cb = em.getCriteriaBuilder(); 
+				CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+				Root<TtrnRiskDetails> rd = query.from(TtrnRiskDetails.class);
+
+				query.multiselect(rd.get("rskInceptionDate").alias("INS_DATE")); 
+
+				Subquery<Integer> end = query.subquery(Integer.class); 
+				Root<TtrnRiskDetails> rds = end.from(TtrnRiskDetails.class);
+				end.select(cb.max(rds.get("rskEndorsementNo")));
+				Predicate a1 = cb.equal(rds.get("rskContractNo"), req.getPolicyContractNo());
+				end.where(a1);
+
+				Predicate n1 = cb.equal(rd.get("rskContractNo"), req.getPolicyContractNo());
+				Predicate n2 = cb.equal(rd.get("rskEndorsementNo"), end);
+				query.where(n1,n2);
+
+				TypedQuery<Tuple> res = em.createQuery(query);
+				List<Tuple> list = res.getResultList();
+				
 				if(list!=null && list.size()>0) {
-					date=list.get(0).get("INS_DATE")==null?"":list.get(0).get("INS_DATE").toString();
-				}else if(mode==4)
-				{
-				 query="claim.select.getLastPayDt";
-				 list=queryImpl.selectList(query, new String[]{req.getClaimNo(),req.getPolicyContractNo()});
+					date=list.get(0).get("INS_DATE")==null?"":sdf.format(list.get(0).get("INS_DATE"));
+				}
+				
+			}else if(mode==4) {
+					//claim.select.getLastPayDt
+				  	CriteriaBuilder cb = em.getCriteriaBuilder(); 
+					CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+					Root<TtrnClaimPayment> rd = query.from(TtrnClaimPayment.class);
+
+					query.multiselect(rd.get("inceptionDate").alias("PAY_DT")); 
+
+					Subquery<Integer> payNo = query.subquery(Integer.class); 
+					Root<TtrnClaimPayment> rds = payNo.from(TtrnClaimPayment.class);
+					payNo.select(cb.max(rds.get("claimPaymentNo")));
+					Predicate a1 = cb.equal(rds.get("contractNo"), rd.get("contractNo"));
+					Predicate a2 = cb.equal(rds.get("claimNo"), rd.get("claimNo"));
+					payNo.where(a1,a2);
+
+					Predicate n1 = cb.equal(rd.get("contractNo"), req.getPolicyContractNo());
+					Predicate n2 = cb.equal(rd.get("claimNo"), req.getClaimNo());
+					Predicate n3 = cb.equal(rd.get("claimPaymentNo"), payNo);
+					query.where(n1,n2,n3);
+
+					TypedQuery<Tuple> res = em.createQuery(query);
+					List<Tuple> list = res.getResultList();
+					
 					if(list!=null && list.size()>0) {
-						date=list.get(0).get("PAY_DT")==null?"":list.get(0).get("PAY_DT").toString();
+						date=list.get(0).get("PAY_DT")==null?"":sdf.format(list.get(0).get("PAY_DT"));
 					}
 				
-			}
-			else if(mode==5)
-			{
-				 query="claim.lost.reserve.updateDate";
-				 list=queryImpl.selectList(query, new String[]{req.getPolicyContractNo(),req.getClaimNo(),req.getBranchCode()});
+			}else if(mode==5) {
+				//claim.lost.reserve.updateDate
+				CriteriaBuilder cb = em.getCriteriaBuilder(); 
+				CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+				Root<TtrnClaimUpdation> rd = query.from(TtrnClaimUpdation.class);
+
+				query.multiselect(rd.get("inceptionDate").alias("INCEPTION_DATE")); 
+
+				Subquery<Integer> slNo = query.subquery(Integer.class); 
+				Root<TtrnClaimUpdation> rds = slNo.from(TtrnClaimUpdation.class);
+				slNo.select(cb.max(rds.get("slNo")));
+				Predicate a1 = cb.equal(rds.get("contractNo"), rd.get("contractNo"));
+				Predicate a2 = cb.equal(rds.get("claimNo"), rd.get("claimNo"));
+				Predicate a3 = cb.equal(rds.get("branchCode"), rd.get("branchCode"));
+				slNo.where(a1,a2,a3);
+
+				Predicate n1 = cb.equal(rd.get("contractNo"), req.getPolicyContractNo());
+				Predicate n2 = cb.equal(rd.get("claimNo"), req.getClaimNo());
+				Predicate n3 = cb.equal(rd.get("slNo"), slNo);
+				Predicate n4 = cb.equal(rd.get("branchCode"), req.getBranchCode());
+				query.where(n1,n2,n3,n4);
+
+				TypedQuery<Tuple> res = em.createQuery(query);
+				List<Tuple> list = res.getResultList();
+				
 					if(list!=null && list.size()>0) {
-						date=list.get(0).get("INCEPTION_DATE")==null?"":list.get(0).get("INCEPTION_DATE").toString();
+						date=list.get(0).get("INCEPTION_DATE")==null?"":sdf.format(list.get(0).get("INCEPTION_DATE"));
 					}
 			}
 				
-			}
 		}catch(Exception e){
 			e.printStackTrace();
 		}

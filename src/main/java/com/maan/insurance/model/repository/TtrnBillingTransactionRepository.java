@@ -8,4 +8,6 @@ import com.maan.insurance.model.entity.TtrnBillingTransactionId;
 
 public interface TtrnBillingTransactionRepository extends JpaRepository<TtrnBillingTransaction,TtrnBillingTransactionId > , JpaSpecificationExecutor<TtrnBillingTransaction> {
 
+	TtrnBillingTransaction findTop1OrderByBillSnoDesc();
+
 }
