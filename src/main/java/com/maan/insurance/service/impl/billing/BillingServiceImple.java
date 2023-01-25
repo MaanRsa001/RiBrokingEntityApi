@@ -611,7 +611,6 @@ public class BillingServiceImple implements  BillingService {
 		List<GetTransContractRes1Ri> finalList=new ArrayList<GetTransContractRes1Ri>();
 		GetTransContractResRi response = new GetTransContractResRi();
         try {
-           
         	List<Tuple> list = getTranContDtlsRi(req);
           
 			for(int i=0 ,count=0; i<list.size(); i++,count++) {
