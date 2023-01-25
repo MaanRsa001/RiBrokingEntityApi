@@ -64,7 +64,17 @@ public class TtrnAllocatedTransactionMapper extends AbstractEntityMapper<TtrnAll
 			ttrnBillingTransaction.setLoginId(input[14]);
 			ttrnBillingTransaction.setBranchCode(input[15]);
 			ttrnBillingTransaction.setSysDate(new java.sql.Date(Calendar.getInstance().getTime().getTime()));
+
 			//ttrnBillingTransaction.setProposalNo(new BigDecimal(input[16]));
+
+			ttrnBillingTransaction.setProposalNo(new BigDecimal(input[16]));
+		
+//			ttrnBillingTransaction.setAdjustmentType(null);
+
+//			ttrnBillingTransaction.setRemarks(null);
+//			ttrnBillingTransaction.setReversalAmount(null);
+//			ttrnBillingTransaction.setReversalDate(null);
+
 		}
 		return ttrnBillingTransaction;
 	}

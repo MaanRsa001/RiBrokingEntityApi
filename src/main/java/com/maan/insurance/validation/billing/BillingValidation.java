@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.maan.insurance.error.ErrorCheck;
 import com.maan.insurance.jpa.service.impl.ClaimJpaServiceImpl;
 import com.maan.insurance.model.req.GetTransContractReq;
+import com.maan.insurance.model.req.billing.GetBillingInfoListReq;
 import com.maan.insurance.model.req.billing.GetTransContractReqRi;
 import com.maan.insurance.model.req.billing.InsertBillingInfoReq;
 import com.maan.insurance.service.impl.QueryImplemention;
@@ -58,6 +59,12 @@ public List<ErrorCheck> insertBillingInfoVali(InsertBillingInfoReq req) {
 
 
 public List<ErrorCheck> getTransContractVali(GetTransContractReqRi req) {
+	// TODO Auto-generated method stub
+	return null;
+}
+
+
+public List<ErrorCheck> getBillingInfoListVali(GetBillingInfoListReq req) {
 	// TODO Auto-generated method stub
 	return null;
 }

@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Tuple;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
@@ -23,13 +24,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import org.springframework.util.CollectionUtils;
 
-import com.maan.insurance.jpa.entity.treasury.TtrnAllocatedTransaction;
 import com.maan.insurance.jpa.mapper.TtrnAllocatedTransactionMapper;
 import com.maan.insurance.jpa.repository.treasury.TreasuryCustomRepository;
-import com.maan.insurance.jpa.service.impl.TreasuryJpaServiceImpl;
 import com.maan.insurance.model.entity.PersonalInfo;
 import com.maan.insurance.model.entity.PositionMaster;
 import com.maan.insurance.model.entity.RskPremiumDetails;
@@ -38,23 +36,18 @@ import com.maan.insurance.model.entity.TtrnBillingInfo;
 import com.maan.insurance.model.entity.TtrnBillingTransaction;
 import com.maan.insurance.model.entity.TtrnClaimDetails;
 import com.maan.insurance.model.entity.TtrnClaimPayment;
+import com.maan.insurance.model.repository.TtrnBillingDetailsRepository;
 import com.maan.insurance.model.repository.TtrnBillingInfoRepository;
-
 import com.maan.insurance.model.repository.TtrnBillingTransactionRepository;
-import com.maan.insurance.model.req.GetAllTransContractReq;
 import com.maan.insurance.model.req.GetTransContractListReq;
-import com.maan.insurance.model.req.GetTransContractReq;
+import com.maan.insurance.model.req.billing.GetBillingInfoListReq;
 import com.maan.insurance.model.req.billing.GetTransContractReqRi;
 import com.maan.insurance.model.req.billing.InsertBillingInfoReq;
-import com.maan.insurance.model.res.GetAllTransContractRes;
-import com.maan.insurance.model.res.GetAllTransContractRes1;
-import com.maan.insurance.model.res.GetTransContractRes;
-import com.maan.insurance.model.res.GetTransContractRes1;
-import com.maan.insurance.model.res.DropDown.CommonResponse;
-
+import com.maan.insurance.model.res.billing.GetBillingInfoListRes;
+import com.maan.insurance.model.res.billing.GetBillingInfoListRes1;
 import com.maan.insurance.model.res.billing.GetTransContractRes1Ri;
 import com.maan.insurance.model.res.billing.GetTransContractResRi;
-import com.maan.insurance.model.res.billing.InsertBillingInfoRes;
+import com.maan.insurance.model.res.retro.CommonResponse;
 import com.maan.insurance.service.billing.BillingService;
 import com.maan.insurance.validation.Formatters;
 
@@ -72,6 +65,12 @@ public class BillingServiceImple implements  BillingService {
 	
 	@Autowired
 
+	private BillingCustomRepository billingCustomRepository;
+	
+	@Autowired
+	private TtrnBillingDetailsRepository ttrnBillingDetailsRepository;
+	@Autowired
+
 	private TtrnBillingInfoRepository ttrnBillingInfoRepository;
 	@Autowired
 	private TtrnAllocatedTransactionMapper ttrnAllocatedTransactionMapper;
@@ -83,7 +82,8 @@ public class BillingServiceImple implements  BillingService {
 	SimpleDateFormat sdf=new SimpleDateFormat("dd/MM/yyyy");
 	
 	@Override
-	public InsertBillingInfoRes insertBillingInfo(InsertBillingInfoReq req) {
+	public CommonResponse insertBillingInfo(InsertBillingInfoReq req) {
+		CommonResponse response = new CommonResponse();
 		try {
 			//TtrnBillingDetails entity = new TtrnBillingDetails();
 			TtrnBillingInfo info = new TtrnBillingInfo();
@@ -114,11 +114,14 @@ public class BillingServiceImple implements  BillingService {
 			ttrnBillingInfoRepository.saveAndFlush(info);
 			
 			getAllocateTransaction(req);
-			
-		}catch(Exception e) {
-			e.printStackTrace();
-		}
-		return null;
+			response.setMessage("Success");
+			response.setIsError(false);
+			}catch(Exception e){
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+			return response;
 	}
 
 	@Override
@@ -473,22 +476,30 @@ public class BillingServiceImple implements  BillingService {
 			updateArgs[3] = req.getBillingNo();
 			updateArgs[4] = req.getCurrencyId();
 			//queryImpl.updateQuery("payment.update.AlloTranDtls", updateArgs);
+
 			//treasuryCustomRepository.updateAlloTranDtls(updateArgs);
+
+			billingCustomRepository.updateAlloTranDtls(updateArgs);
+
 		
 			//queryImpl.updateQuery("payment.update.rskPremChkyn");
 			treasuryCustomRepository.updateRskPremChkyn();
 			
+
 			response.setMessage(billsnNo);
+
+			response.setMessage("Success");
+
 			response.setIsError(false);
 			}
 			catch(Exception e) {
 				e.printStackTrace();
 				response.setMessage("Failed");
 				response.setIsError(true);
-		
 			}
 			return response;
 		}
+
 	public synchronized String getSequence(String type,String productID,String departmentId,String branchCode, String proposalNo,String date){ 
 		String seqName="";
 		try{
@@ -502,4 +513,91 @@ public class BillingServiceImple implements  BillingService {
 
 		return seqName;
 	}
+
+
+	@Override
+	public GetBillingInfoListRes getBillingInfoList(GetBillingInfoListReq req) {
+		GetBillingInfoListRes response = new GetBillingInfoListRes();
+		List<GetBillingInfoListRes1> resList = new ArrayList<GetBillingInfoListRes1>();
+		try {
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			
+			Root<TtrnBillingInfo> bi = query.from(TtrnBillingInfo.class);
+			
+			//brokerName
+			Subquery<String> brokerName = query.subquery(String.class); 
+			Root<PersonalInfo> pi = brokerName.from(PersonalInfo.class);
+		
+			Expression<String> firstName1 = cb.concat(pi.get("firstName"), " ");
+			brokerName.select(cb.concat(firstName1, pi.get("lastName")));
+			//maxAmend
+			Subquery<Long> maxAmend = query.subquery(Long.class); 
+			Root<PersonalInfo> pis = maxAmend.from(PersonalInfo.class);
+			maxAmend.select(cb.max(pis.get("amendId")));
+			Predicate b1 = cb.equal( pis.get("customerId"), pi.get("customerId"));
+			maxAmend.where(b1);
+			
+			Predicate a1 = cb.equal( pi.get("customerType"), "B");
+			Predicate a2 = cb.equal( pi.get("customerId"), bi.get("brokerId"));
+			Predicate a3 = cb.equal( pi.get("branchCode"), bi.get("branchCode"));
+			Predicate a4 = cb.equal( pi.get("amendId"), maxAmend);
+			brokerName.where(a1,a2,a3,a4);
+			
+			//reinsurerName
+			Subquery<String> reinsurerName = query.subquery(String.class); 
+			Root<PersonalInfo> pi1 = reinsurerName.from(PersonalInfo.class);
+		
+			Expression<String> firstName = cb.concat(pi1.get("firstName"), " ");
+			reinsurerName.select(cb.concat(firstName, pi1.get("lastName")));
+			//maxAmend
+			Subquery<Long> amend = query.subquery(Long.class); 
+			Root<PersonalInfo> pis1 = amend.from(PersonalInfo.class);
+			amend.select(cb.max(pis1.get("amendId")));
+			Predicate c1 = cb.equal( pis1.get("customerId"), pi1.get("customerId"));
+			amend.where(c1);
+			
+			Predicate d1 = cb.equal( pi1.get("customerType"), cb.selectCase().when(cb.equal(bi.get("transType"), "IB"), "C").otherwise("R")); 
+			Predicate d2 = cb.equal( pi1.get("customerId"), bi.get("cedingId"));
+			Predicate d3 = cb.equal( pi1.get("branchCode"), bi.get("branchCode"));
+			Predicate d4 = cb.equal( pi1.get("amendId"), amend);
+			reinsurerName.where(d1,d2,d3,d4);
+			
+			query.multiselect(bi.get("billingNo").alias("billingNo"),
+					bi.get("brokerId").alias("brokerId"),
+					brokerName.alias("brokerName"),
+					bi.get("status").alias("status"),
+					bi.get("billDate").alias("billDate"),
+					reinsurerName.alias("reinsurerName"));
+
+			Predicate n1 = cb.equal(bi.get("branchCode"), req.getBranchCode());
+			Predicate n2 = cb.equal(bi.get("transType"), req.getTransType());
+			query.where(n1,n2);
+			TypedQuery<Tuple> res1 = em.createQuery(query);
+			List<Tuple> list = res1.getResultList();
+			
+			if(list.size()>0) {
+				for(int i=0; i<list.size();i++) {
+					GetBillingInfoListRes1 res = new GetBillingInfoListRes1();
+					Tuple map = list.get(i);
+					res.setBillDate(map.get("billDate")==null?null:sdf.format(map.get("billDate")));
+					res.setBillingNo(map.get("billingNo")==null?"":map.get("billingNo").toString());
+					res.setBrokerId(map.get("brokerId")==null?"":map.get("brokerId").toString());
+					res.setBrokerName(map.get("brokerName")==null?"":map.get("brokerName").toString());
+					res.setReinsurerName(map.get("reinsurerName")==null?"":map.get("reinsurerName").toString());
+					res.setStatus(map.get("status")==null?"":map.get("status").toString());
+					resList.add(res);					
+			} 
+			}
+			response.setCommonResponse(resList);
+			response.setMessage("Success");
+			response.setIsError(false);
+			}catch(Exception e) {
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+			return response;
+	}
+
 }
