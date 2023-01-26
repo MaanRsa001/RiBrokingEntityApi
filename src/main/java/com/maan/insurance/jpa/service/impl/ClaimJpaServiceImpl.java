@@ -1943,7 +1943,7 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 					//claim.loss.estimate.paid.difference
 					tp.where(a1,a2,a4);
 				}
-					query.multiselect(cb.diff(cb.coalesce(tc.get("lossEstimateRevisedOc"),BigDecimal.ZERO), tp).alias("LOSS_ESTIMATE_DIFF"));
+					query.multiselect(cb.diff(cb.coalesce(tc.get("lossEstimateRevisedOc"),BigDecimal.ZERO), cb.coalesce(tp,BigDecimal.ZERO)).alias("LOSS_ESTIMATE_DIFF"));
 					//sno
 					Subquery<Integer> sno = query.subquery(Integer.class); 
 					Root<TtrnClaimUpdation> s = sno.from(TtrnClaimUpdation.class);
@@ -1960,8 +1960,8 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 					List<Tuple> list = res1.getResultList();
 					
 					if (!CollectionUtils.isEmpty(list)) {
-						amount =Double.parseDouble(list.get(0)== null ? ""
-								: list.get(0).toString());
+						amount =Double.parseDouble(list.get(0).get("LOSS_ESTIMATE_DIFF")== null ? ""
+								: list.get(0).get("LOSS_ESTIMATE_DIFF").toString());
 					} 
 				
 			} else if(mode==8){
@@ -1991,7 +1991,7 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 						//claim.saf.os.sum.difference
 						tp.where(a1,a2,a4);
 					}
-						query.multiselect(cb.diff(cb.coalesce(tc.get("safOsOc"),BigDecimal.ZERO), tp).alias("SAF_OS_DIFF"));
+						query.multiselect(cb.diff(cb.coalesce(tc.get("safOsOc"),BigDecimal.ZERO), cb.coalesce(tp,BigDecimal.ZERO)).alias("SAF_OS_DIFF"));
 						//sno
 						Subquery<Integer> sno = query.subquery(Integer.class); 
 						Root<TtrnClaimUpdation> s = sno.from(TtrnClaimUpdation.class);
@@ -2008,8 +2008,8 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 						List<Tuple> list = res1.getResultList();
 						
 						if (!CollectionUtils.isEmpty(list)) {
-							amount =Double.parseDouble(list.get(0)== null ? ""
-									: list.get(0).toString());
+							amount =Double.parseDouble(list.get(0).get("SAF_OS_DIFF")== null ? ""
+									: list.get(0).get("SAF_OS_DIFF").toString());
 						}
 				}
 		else if(mode==9){
@@ -2039,7 +2039,7 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 					//claim.saf.os.sum.difference
 					tp.where(a1,a2,a4);
 				}
-					query.multiselect(cb.diff(cb.coalesce(tc.get("othFeeOsOc"),BigDecimal.ZERO), tp).alias("OTH_FEE_DIFF"));
+					query.multiselect(cb.diff(cb.coalesce(tc.get("othFeeOsOc"),BigDecimal.ZERO), cb.coalesce(tp,BigDecimal.ZERO)).alias("OTH_FEE_DIFF"));
 					//sno
 					Subquery<Integer> sno = query.subquery(Integer.class); 
 					Root<TtrnClaimUpdation> s = sno.from(TtrnClaimUpdation.class);
@@ -2056,8 +2056,8 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 					List<Tuple> list = res1.getResultList();
 					
 					if (!CollectionUtils.isEmpty(list)) {
-						amount =Double.parseDouble(list.get(0)== null ? ""
-								: list.get(0).toString());
+						amount =Double.parseDouble(list.get(0).get("OTH_FEE_DIFF")== null ? ""
+								: list.get(0).get("OTH_FEE_DIFF").toString());
 					}
 		}} catch(Exception e) {
 			e.printStackTrace();

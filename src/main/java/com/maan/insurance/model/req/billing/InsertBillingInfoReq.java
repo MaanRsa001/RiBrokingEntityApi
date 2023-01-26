@@ -20,8 +20,12 @@ public class InsertBillingInfoReq {
 	private String remarks;
 	
 	//info
-	@JsonProperty("TransType")
+	@JsonProperty("BillingType")
 	private String transType;
+	@JsonProperty("RoundingAmount")
+	private String roundingAmount;
+	@JsonProperty("UtilizedTillDate")
+	private String utilizedTillDate;
 	@JsonProperty("BrokerId")
 	private String brokerId;
 	@JsonProperty("CedingId")

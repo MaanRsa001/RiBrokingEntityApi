@@ -67,6 +67,12 @@ public class TtrnBillingInfo implements Serializable {
 	    @Column(name="CURRENCY_ID")
 	    private BigDecimal currencyId ;
 	    
+	    @Column(name="ROUNDING_AMOUNT")
+	    private BigDecimal roundingAmt ;
+	    
+	    @Column(name="UTILIZED_TILL_DATE")
+	    private BigDecimal utilizedTillDate ;
+	    
 	    @Column(name="REVERSALTRANSNO")
 	    private BigDecimal     reversaltransno ;
 

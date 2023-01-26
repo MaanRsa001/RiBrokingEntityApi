@@ -67,7 +67,7 @@ public class TtrnAllocatedTransactionMapper extends AbstractEntityMapper<TtrnAll
 
 			//ttrnBillingTransaction.setProposalNo(new BigDecimal(input[16]));
 
-			ttrnBillingTransaction.setProposalNo(new BigDecimal(input[16]));
+			//ttrnBillingTransaction.setProposalNo(new BigDecimal(input[16]));
 		
 //			ttrnBillingTransaction.setAdjustmentType(null);
 

@@ -61,19 +61,21 @@ public List<ErrorCheck> insertBillingInfoVali(InsertBillingInfoReq req) {
 		list.add(new ErrorCheck("Please Enter BranchCode", "BranchCode", "1"));
 	}
 	if (StringUtils.isBlank(req.getAmendmentDate())) {
-		list.add(new ErrorCheck("Please Enter AmendmentDate", "AmendmentDate", "2"));
+		//list.add(new ErrorCheck("Please Enter AmendmentDate", "AmendmentDate", "2"));
 	}
 	if (StringUtils.isBlank(req.getBillDate())) {
 		list.add(new ErrorCheck("Please Enter BillDate", "BillDate", "3"));
 	}
 	if (StringUtils.isBlank(req.getBillingNo())) {
-		list.add(new ErrorCheck("Please Enter BillingNo", "BillingNo", "4"));
+		//list.add(new ErrorCheck("Please Enter BillingNo", "BillingNo", "4"));
 	}
 	if (StringUtils.isBlank(req.getBrokerId())) {
 		list.add(new ErrorCheck("Please Enter BrokerId", "BrokerId", "5"));
 	}
-	if (StringUtils.isBlank(req.getCedingId())) {
-		list.add(new ErrorCheck("Please Enter CedingId", "CedingId", "6"));
+	else if("63".equals(req.getBrokerId())) {
+		if (StringUtils.isBlank(req.getCedingId())) {
+			list.add(new ErrorCheck("Please Enter CedingId", "CedingId", "3"));
+		}
 	}
 	if (StringUtils.isBlank(req.getCurrencyId())) {
 		list.add(new ErrorCheck("Please Enter CurrencyId", "CurrencyId", "7"));
@@ -85,10 +87,10 @@ public List<ErrorCheck> insertBillingInfoVali(InsertBillingInfoReq req) {
 		list.add(new ErrorCheck("Please Enter ProductId", "ProductId", "9"));
 	}
 	if (StringUtils.isBlank(req.getRemarks())) {
-		list.add(new ErrorCheck("Please Enter Remarks", "Remarks", "10"));
+		//list.add(new ErrorCheck("Please Enter Remarks", "Remarks", "10"));
 	}
 	if (StringUtils.isBlank(req.getTransType())) {
-		list.add(new ErrorCheck("Please Enter TransType", "TransType", "11"));
+		list.add(new ErrorCheck("Please Enter BillingType", "TransType", "11"));
 	}
 	if (CollectionUtils.isEmpty(req.getTransContractListReq())) {
 		list.add(new ErrorCheck("Please Enter TransContractListReq", "TransContractListReq", "12"));
@@ -105,8 +107,10 @@ public List<ErrorCheck> getTransContractVali(GetTransContractReqRi req) {
 	if (StringUtils.isBlank(req.getBrokerId())) {
 		list.add(new ErrorCheck("Please Enter BrokerId", "BrokerId", "2"));
 	}
+	else if("63".equals(req.getBrokerId())) {
 	if (StringUtils.isBlank(req.getCedingId())) {
 		list.add(new ErrorCheck("Please Enter CedingId", "CedingId", "3"));
+	}
 	}
 	if (StringUtils.isBlank(req.getCurrencyId())) {
 		list.add(new ErrorCheck("Please Enter CurrencyId", "CurrencyId", "4"));
@@ -121,7 +125,7 @@ public List<ErrorCheck> getBillingInfoListVali(GetBillingInfoListReq req) {
 		list.add(new ErrorCheck("Please Enter BranchCode", "BranchCode", "1"));
 	}
 	if (StringUtils.isBlank(req.getTransType())) {
-		list.add(new ErrorCheck("Please Enter TransType", "TransType", "2"));
+		list.add(new ErrorCheck("Please Enter BillingType", "TransType", "2"));
 	}
 	return null;
 }
@@ -134,8 +138,10 @@ public List<ErrorCheck> getTransContractRiVali(GetTransContractReqRi req) {
 	if (StringUtils.isBlank(req.getBrokerId())) {
 		list.add(new ErrorCheck("Please Enter BrokerId", "BrokerId", "2"));
 	}
-	if (StringUtils.isBlank(req.getCedingId())) {
-		list.add(new ErrorCheck("Please Enter CedingId", "CedingId", "3"));
+	else if("63".equals(req.getBrokerId())) {
+		if (StringUtils.isBlank(req.getCedingId())) {
+			list.add(new ErrorCheck("Please Enter CedingId", "CedingId", "3"));
+		}
 	}
 	if (StringUtils.isBlank(req.getCurrencyId())) {
 		list.add(new ErrorCheck("Please Enter CurrencyId", "CurrencyId", "4"));
