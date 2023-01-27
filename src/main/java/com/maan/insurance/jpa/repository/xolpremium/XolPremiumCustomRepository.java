@@ -44,7 +44,7 @@ public interface XolPremiumCustomRepository {
 	
 	public String selectPreviousPremium(String contractNo);
 	
-	public List<Tuple> getPremiumMndInsList(String contractNo, String layerNo);
+	public List<Tuple> getPremiumMndInsList(String contractNo, String layerNo, String mode);
 	
 	public List<Tuple> selectmdInstalmentList(String contractNo, String layerNo);
 	

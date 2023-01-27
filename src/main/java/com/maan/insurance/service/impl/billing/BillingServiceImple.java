@@ -742,7 +742,7 @@ public class BillingServiceImple implements  BillingService {
 					res.setReversalTransno(data.getReversaltransno()==null?"":data.getReversaltransno().toString());					
 					res.setReverselLoginid(data.getLoginId()==null?"":data.getLoginId().toString());
 					res.setRevTransalType(data.getTransType()==null?"":data.getTransType().toString());;
-					res.setRoundingAmount(data.getRoundingAmount()==null?"":data.getRoundingAmount().toString());
+					res.setRoundingAmount(data.getRoundingAmt()==null?"":data.getRoundingAmt().toString());
 					res.setStatus(data.getStatus()==null?"":data.getStatus().toString());
 					res.setTranscationType(data.getTranscationtype()==null?"":data.getTranscationtype().toString());
 					res.setTransType(data.getTransType()==null?"":data.getTransType().toString());

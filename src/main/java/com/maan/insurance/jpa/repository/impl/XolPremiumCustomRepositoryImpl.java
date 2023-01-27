@@ -24,6 +24,7 @@ import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
@@ -444,7 +445,7 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 	}
 
 	@Override
-	public List<Tuple> getPremiumMndInsList(String contractNo, String layerNo) {
+	public List<Tuple> getPremiumMndInsList(String contractNo, String layerNo,String mode) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<Tuple> cq = cb.createTupleQuery();
 		Root<TtrnMndInstallments> root = cq.from(TtrnMndInstallments.class);
@@ -466,14 +467,17 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 					   cb.isNotNull(iNoSubRoot.get("accountPeriodQtr")));
 					   
 		cq.multiselect(root.get("installmentNo").alias("INSTALLMENT_NO"),
-					   root.get("installmentDate").alias("INSTALLMENT_DATE"))
-		.where(cb.equal(root.get("contractNo"), contractNo),
-				cb.equal(root.get("layerNo"), layerNo),
-				cb.equal(root.get("endorsementNo"), endoSq),
-				cb.isNull(root.get("transactionNo")),
-				cb.not(cb.in(root.get("installmentNo")).value(iNoSq)))
+					   root.get("installmentDate").alias("INSTALLMENT_DATE"));
 		
-		.orderBy(cb.asc(root.get("installmentNo")));
+		List<Predicate> predicate = new ArrayList<Predicate>();
+		predicate.add(cb.equal(root.get("contractNo"), contractNo));
+		predicate.add(cb.equal(root.get("layerNo"), layerNo));
+		predicate.add(cb.equal(root.get("endorsementNo"), endoSq));
+		if(!"transedit".equalsIgnoreCase(mode)) {
+			predicate.add(cb.isNull(root.get("transactionNo")));
+			predicate.add(cb.in(root.get("installmentNo")).value(iNoSq));
+			}	
+		cq.where(predicate.toArray(new Predicate[0])).orderBy(cb.asc(root.get("installmentNo")));
 		
 		return em.createQuery(cq).getResultList();
 	}

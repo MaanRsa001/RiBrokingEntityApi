@@ -384,7 +384,7 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 
 			if ("3".equalsIgnoreCase(req.getProductId())) //mode:transedit----instal no 1
 				// query -- PREMIUM_MND_INS_LIST
-				result = xolPremiumCustomRepository.getPremiumMndInsList(req.getContNo(), req.getLayerno());
+				result = xolPremiumCustomRepository.getPremiumMndInsList(req.getContNo(), req.getLayerno(), req.getMode());
 			else
 				// query -- premium.select.mdInstalmentList
 				result = xolPremiumCustomRepository.selectmdInstalmentList(req.getContNo(), req.getLayerno());
