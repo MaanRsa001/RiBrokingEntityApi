@@ -1490,10 +1490,8 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 		ContractDetailsMode1Res response = new ContractDetailsMode1Res();
 		List<ContractDetailsListMode1res> finalList = new ArrayList<ContractDetailsListMode1res>();
 		ContractDetailsListMode1res res = new ContractDetailsListMode1res();
-
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 		try {
-
 			if ("1".equalsIgnoreCase(req.getProductId()))
 				// query -- claim.select.facGetCliamQuery
 				list=claimCustomRepository.selectFacGetCliamQuery(req.getProposalNo(), req.getProductId(),
@@ -2209,18 +2207,14 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 		return businesFlag;
 	}
 	public String getClaimStatus(InsertCliamDetailsMode8Req req) {
-		List<Map<String, Object>> list=new ArrayList<Map<String, Object>>();
-		
 		String status="";
 		try{
-		String query="claim.select.claimstatus";
-		list = queryImpl.selectList(query, new String[] {req.getPolicyContractNo(),req.getClaimNo()});
-		if (!CollectionUtils.isEmpty(list)) {
-			status =(list.get(0).get("STATUS_OF_CLAIM") == null ? ""
-					: list.get(0).get("STATUS_OF_CLAIM").toString());
-		
+		//claim.select.claimstatus
+			TtrnClaimDetails list = ttrnClaimDetailsRepository.findByContractNoAndClaimNo(req.getPolicyContractNo(), new BigDecimal(req.getClaimNo()));	
+		if (list!=null) {
+			status =(list.getStatusOfClaim() == null ? ""
+					: list.getStatusOfClaim());
 		}
-		
 		
 		}
 		catch(Exception e){
@@ -2229,35 +2223,35 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 		return  status;
 	}
 
-	public claimNoListRes claimNoList(claimNoListReq req) {
-		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
-		claimNoListRes response = new claimNoListRes();
-		
-			try {
-				String query = "GET_CEDENT_NO_LIST";
-				String args[] = new String[4];
-				args[0] = req.getCedentClaimNo();
-				args[1] = req.getDateofLoss();
-				args[2] = req.getCedingCompanyCode();
-				args[3] = req.getBranchCode();
-				if (StringUtils.isNotBlank(req.getClaimNo())) {
-					query += " AND C.CLAIM_NO !=" + req.getClaimNo();
-				}
-				list = queryImpl.selectList(query, args);
-				
-				response.setResponse(list);
-				response.setMessage("Success");
-				response.setIsError(false);
-				}
-				 catch(Exception e){
-					log.error(e);
-					e.printStackTrace();
-					response.setMessage("Failed");
-					response.setIsError(true);
-				}
-					return response;
-
-			}
+//	public claimNoListRes claimNoList(claimNoListReq req) {
+//		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+//		claimNoListRes response = new claimNoListRes();
+//		
+//			try {
+//				String query = "GET_CEDENT_NO_LIST";
+//				String args[] = new String[4];
+//				args[0] = req.getCedentClaimNo();
+//				args[1] = req.getDateofLoss();
+//				args[2] = req.getCedingCompanyCode();
+//				args[3] = req.getBranchCode();
+//				if (StringUtils.isNotBlank(req.getClaimNo())) {
+//					query += " AND C.CLAIM_NO !=" + req.getClaimNo();
+//				}
+//				list = queryImpl.selectList(query, args);
+//				
+//				response.setResponse(list);
+//				response.setMessage("Success");
+//				response.setIsError(false);
+//				}
+//				 catch(Exception e){
+//					log.error(e);
+//					e.printStackTrace();
+//					response.setMessage("Failed");
+//					response.setIsError(true);
+//				}
+//					return response;
+//
+//			}
 	@Override
 	public ClaimPaymentEditRes1 claimPaymentEditRi(ClaimPaymentEditReq req) {
 		ClaimPaymentEditRes1 res = new ClaimPaymentEditRes1();

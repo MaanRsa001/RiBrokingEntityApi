@@ -15,7 +15,8 @@ public class MdInstallmentDatesReq {
 	private String contNo;
 	@JsonProperty("SourceId")
 	private String sourceId;
-
+	@JsonProperty("Mode")
+	private String mode;
 	
 
 }

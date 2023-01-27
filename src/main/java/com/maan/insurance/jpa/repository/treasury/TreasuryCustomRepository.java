@@ -52,7 +52,7 @@ public interface TreasuryCustomRepository {
 
 	public Integer getAlloAmt(Integer receiptSlNo, String currencyId);
 
-	public List<Object[]> getPymtRetStatus(String branchCode, String payRecNo, String currencyId);
+	public  List<Tuple>  getPymtRetStatus(String branchCode, String payRecNo, String currencyId);
 
 	public String getCompName(String branchCode, String brokerId, String customerType);
 

@@ -289,34 +289,95 @@ public class TreasuryCustomRepositoryImpl implements TreasuryCustomRepository {
 	// getAllocatedStatus(AllocatedStatusReq req) -- STARTS
 	// payment.select.getPymtRetStatus
 	@Override
-	public List<Object[]> getPymtRetStatus(String branchCode, String payRecNo, String currencyId) {
-		String sql = "SELECT   distinct B.SHORT_NAME CURRENCY_NAME, A.AMOUNT ALLOCATED,"
-				+ " NVL (A.ALLOCATED_TILL_DATE, 0) UTILIZED, (A.AMOUNT - NVL (A.ALLOCATED_TILL_DATE, 0)) NOTUTILIZED,"
-				+ " CASE WHEN (A.AMOUNT - NVL (A.ALLOCATED_TILL_DATE, 0) = '0') THEN 'Fully Allocated'"
-				+ " WHEN (NVL (A.ALLOCATED_TILL_DATE, 0) > '0') THEN 'Partially Allocated'"
-				+ " WHEN (NVL (A.ALLOCATED_TILL_DATE, 0) = '0') THEN 'Pending' END STATUS,"
-				+ " TO_CHAR (TAT.TRANS_DATE, 'DD/MM/YYYY') PAYMANT_DATE,"
-				+ " (Select COMPANY_NAME from personal_info pi where pi.customer_id=TAT.CEDING_ID "
-				+ "and  PI.branch_Code=tat.BRANCH_CODE) Ceding_company, "
-				+ "(Select BANK_NAME from bank_master bm where bm.bank_id=tat.RECEIPT_BANK and"
-				+ " bm.Branch_code=tat.BRANCH_CODE) Bank_name, (Select FIRST_NAME from personal_info pi"
-				+ " where pi.customer_id=TAT.broker_ID and  PI.branch_code=tat.BRANCH_CODE) broker_name FROM"
-				+ "   TTRN_PAYMENT_RECEIPT_DETAILS A, CURRENCY_MASTER B,TTRN_PAYMENT_RECEIPT TAT WHERE "
-				+ "  B.CURRENCY_ID = A.CURRENCY_ID AND B.BRANCH_CODE = ? and A.RECEIPT_SL_NO=tat.PAYMENT_RECEIPT_NO"
-				+ "  AND A.AMEND_ID=(SELECT MAX(AMEND_ID) FROM TTRN_PAYMENT_RECEIPT_DETAILS  WHERE"
-				+ " RECEIPT_NO=A.RECEIPT_NO AND RECEIPT_SL_NO = A.RECEIPT_SL_NO) AND "
-				+ "B.AMEND_ID = (SELECT   MAX (AMEND_ID) FROM   CURRENCY_MASTER WHERE   CURRENCY_ID = B.CURRENCY_ID "
-				+ "AND BRANCH_CODE = B.BRANCH_CODE)  And TAT.AMEND_ID=(SELECT   MAX (AMEND_ID) FROM "
-				+ "  TTRN_PAYMENT_RECEIPT WHERE   PAYMENT_RECEIPT_NO = A.RECEIPT_SL_NO) AND A.RECEIPT_SL_NO =?\r\n";
-		if (Objects.nonNull(currencyId))
-			sql += " AND A.CURRENCY_ID =? ";
-
-		Query q = em.createNativeQuery(sql);
-		q.setParameter(1, branchCode);
-		q.setParameter(2, payRecNo);
-		if (Objects.nonNull(currencyId))
-			q.setParameter(3, currencyId);
-		return q.getResultList();
+	public List<Tuple> getPymtRetStatus(String branchCode, String payRecNo, String currencyId) {
+		List<Tuple> list =null;
+		try {
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			
+			Root<TtrnPaymentReceiptDetails> a = query.from(TtrnPaymentReceiptDetails.class);
+			Root<CurrencyMaster> b = query.from(CurrencyMaster.class);
+			Root<TtrnPaymentReceipt> tat = query.from(TtrnPaymentReceipt.class);
+			
+			//companyName
+			Subquery<String> companyName = query.subquery(String.class); 
+			Root<PersonalInfo> pi = companyName.from(PersonalInfo.class);
+			companyName.select(pi.get("companyName"));
+			Predicate a1 = cb.equal( pi.get("customerId"), tat.get("cedingId"));
+			Predicate a2 = cb.equal( pi.get("branchCode"), tat.get("branchCode"));
+			companyName.where(a1,a2);
+			//bankName
+			Subquery<String> bankName = query.subquery(String.class); 
+			Root<BankMaster> bm = bankName.from(BankMaster.class);
+			bankName.select(bm.get("bankName"));
+			Predicate b1 = cb.equal( bm.get("bankId"), tat.get("receiptBank"));
+			Predicate b2 = cb.equal( bm.get("branchCode"), tat.get("branchCode"));
+			bankName.where(b1,b2);
+			//brokerName
+			Subquery<String> brokerName = query.subquery(String.class); 
+			Root<PersonalInfo> pi1 = brokerName.from(PersonalInfo.class);
+			brokerName.select(pi1.get("firstName"));
+			Predicate c1 = cb.equal( pi1.get("customerId"), tat.get("brokerId"));
+			Predicate c2 = cb.equal( pi1.get("branchCode"), tat.get("branchCode"));
+			brokerName.where(c1,c2);
+		
+			query.multiselect(b.get("shortName").alias("CURRENCY_NAME"),
+					a.get("amount").alias("ALLOCATED"),
+					cb.coalesce(a.get("allocatedTillDate"), BigDecimal.ZERO).alias("UTILIZED"),	
+					cb.diff(a.get("amount"), cb.coalesce(a.get("allocatedTillDate"), BigDecimal.ZERO)).alias("NOTUTILIZED"),
+				
+					cb.selectCase().when(cb.equal(cb.diff(a.get("amount"), cb.coalesce(a.get("allocatedTillDate"), BigDecimal.ZERO)), BigDecimal.ZERO),"Fully Allocated")
+					.otherwise(cb.selectCase().when(cb.greaterThan(cb.coalesce(a.get("allocatedTillDate"), BigDecimal.ZERO),BigDecimal.ZERO),"Partially Allocated")
+					.otherwise(cb.selectCase().when(cb.equal(cb.coalesce(a.get("allocatedTillDate"), BigDecimal.ZERO),BigDecimal.ZERO),"Pending")
+					.otherwise(""))).alias("STATUS"),
+					
+					tat.get("transDate").alias("PAYMANT_DATE"),
+					companyName.alias("Ceding_company"),
+					bankName.alias("Bank_name"),
+					brokerName.alias("broker_name"));
+	
+			Subquery<Long> amendA = query.subquery(Long.class); 
+			Root<TtrnPaymentReceiptDetails> rds = amendA.from(TtrnPaymentReceiptDetails.class);
+			amendA.select(cb.max(rds.get("amendId")));
+			Predicate d1 = cb.equal( rds.get("receiptNo"), a.get("receiptNo"));
+			Predicate d2 = cb.equal( rds.get("receiptSlNo"), a.get("receiptSlNo"));
+			amendA.where(d1,d2);
+			
+			Subquery<Long> amendB = query.subquery(Long.class); 
+			Root<CurrencyMaster> cm = amendB.from(CurrencyMaster.class);
+			amendB.select(cb.max(cm.get("amendId")));
+			Predicate e1 = cb.equal( cm.get("currencyId"), b.get("currencyId"));
+			Predicate e2 = cb.equal( cm.get("branchCode"), b.get("branchCode"));
+			amendB.where(e1,e2);
+			
+			Subquery<Long> amendTat = query.subquery(Long.class); 
+			Root<TtrnPaymentReceipt> pr = amendTat.from(TtrnPaymentReceipt.class);
+			amendTat.select(cb.max(pr.get("amendId")));
+			Predicate f1 = cb.equal( pr.get("paymentReceiptNo"), a.get("receiptSlNo"));
+			amendTat.where(f1);
+	
+			Predicate n1 = cb.equal(b.get("currencyId"), a.get("currencyId"));
+			Predicate n2 = cb.equal(b.get("branchCode"), branchCode);
+			Predicate n3 = cb.equal(a.get("receiptSlNo"), tat.get("paymentReceiptNo"));
+			Predicate n4 = cb.equal(a.get("amendId"), amendA);
+			Predicate n5 = cb.equal(b.get("amendId"), amendB);
+			Predicate n6 = cb.equal(tat.get("amendId"), amendTat);
+			Predicate n7 = cb.equal(a.get("receiptSlNo"), payRecNo);
+			
+			if(StringUtils.isNotBlank(currencyId)){
+				Predicate n8 = cb.equal(a.get("currencyId"), currencyId);
+				query.where(n1,n2,n3,n4,n5,n6,n7,n8);
+			}else {
+			query.where(n1,n2,n3,n4,n5,n6,n7);
+			}
+			
+			TypedQuery<Tuple> res = em.createQuery(query);
+			list = res.getResultList();
+		
+		}catch(Exception e) {
+			e.printStackTrace();
+			}
+		return list;
 
 	}
 

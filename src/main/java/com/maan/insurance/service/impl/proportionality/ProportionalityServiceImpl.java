@@ -2511,14 +2511,14 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 				
 				beanObj.setEpiorigCur("");
 				beanObj.setPerilCovered("");
-				if(beanObj.getProductId().equalsIgnoreCase("2")){
+				if("2".equalsIgnoreCase(beanObj.getProductId())){  //error
 					beanObj.setOurEstimate("");
 				}
-				if(beanObj.getProductId().equalsIgnoreCase("2")){
+				if("2".equalsIgnoreCase(beanObj.getProductId())){
 					beanObj.setEpi("");
 				}
 				beanObj.setXlCost("");
-				if(beanObj.getProductId().equalsIgnoreCase("2")){
+				if("2".equalsIgnoreCase(beanObj.getProductId())){
 					beanObj.setCedRetent("");
 				}
 				beanObj.setShareWritten("");
@@ -2593,12 +2593,9 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 				String sectionNo="";
 				if("2".equals(beanObj.getProductId())) {
 					//if(StringUtils.isBlank(beanObj.getSectionNo())) {
-						String query= "GET_MAX_SECTION_NO_DET"; 
-						List<Map<String,Object>> list1  = queryImpl.selectList(query, new String [] {beanObj.getProposalNo()});
-						if (!CollectionUtils.isEmpty(list1)) {
-							sectionNo = list1.get(0).get("SECTION_NO") == null ? ""
-								: list1.get(0).get("SECTION_NO").toString();
-					}
+					//GET_MAX_SECTION_NO_DET
+					sectionNo =	proportionalityCustomRepository.getMaxSectionNoDet(beanObj.getProposalNo());
+						
 						beanObj.setSectionNo(sectionNo);
 					//}
 				}

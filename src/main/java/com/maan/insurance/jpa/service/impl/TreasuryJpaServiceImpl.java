@@ -419,27 +419,24 @@ public class TreasuryJpaServiceImpl  implements TreasuryService  {
 	public AllocatedStatusRes1 getAllocatedStatus(AllocatedStatusReq req) {
 		AllocatedStatusRes1 response = new AllocatedStatusRes1();
 		List<AllocatedStatusRes> finalList = new ArrayList<AllocatedStatusRes>();
-		AllocatedStatusRes res = new AllocatedStatusRes();
 		AllocatedStatusResponse res1 = new AllocatedStatusResponse();
 		try {
-			List<Object[]> list;
-			if (StringUtils.isBlank(req.getAlloccurrencyId()))
-				list = treasuryCustomRepository.getPymtRetStatus(req.getBranchCode(), req.getPayRecNo(), null);
-			else
-				list = treasuryCustomRepository.getPymtRetStatus(req.getBranchCode(), req.getPayRecNo(),
+			// payment.select.getPymtRetStatus
+			List<Tuple>	list = treasuryCustomRepository.getPymtRetStatus(req.getBranchCode(), req.getPayRecNo(),
 						req.getAlloccurrencyId());
 
 			for (int i = 0; i < list.size(); i++) {
-				Object[] resMap = list.get(i);
-				res.setCurrency(resMap[0] == null ? "" : resMap[0].toString());
-				res.setAllocated(resMap[1] == null ? "" : fm.formatter(resMap[1].toString()));
-				res.setUtilized(resMap[2] == null ? "" : fm.formatter(resMap[2].toString()));
-				res.setNotUtilized(resMap[3] == null ? "" : fm.formatter(resMap[3].toString()));
-				res.setStatus(resMap[4] == null ? "" : resMap[4].toString());
-				res.setPaymentDate(resMap[5] == null ? "" : resMap[5].toString());
-				res.setBank(resMap[7] == null ? "" : resMap[7].toString());
-				res.setCedingCompanyName(resMap[6] == null ? "" : resMap[6].toString());
-				finalList.add(res);
+				Tuple resMap = list.get(i);
+				AllocatedStatusRes tempBean = new AllocatedStatusRes();
+				tempBean.setCurrency(resMap.get("CURRENCY_NAME")==null?"":resMap.get("CURRENCY_NAME").toString());
+				tempBean.setAllocated(resMap.get("ALLOCATED")==null?"":fm.formatter(resMap.get("ALLOCATED").toString()));
+				tempBean.setUtilized(resMap.get("UTILIZED")==null?"":fm.formatter(resMap.get("UTILIZED").toString()));	
+				tempBean.setNotUtilized(resMap.get("NOTUTILIZED")==null?"":fm.formatter(resMap.get("NOTUTILIZED").toString()));	
+				tempBean.setStatus(resMap.get("STATUS")==null?"":resMap.get("STATUS").toString());
+				tempBean.setPaymentDate(resMap.get("PAYMANT_DATE")==null?"":resMap.get("PAYMANT_DATE").toString());
+				tempBean.setBank(resMap.get("Bank_name")==null?"":resMap.get("Bank_name").toString());
+				tempBean.setCedingCompanyName(resMap.get("Ceding_company")==null?"":resMap.get("Ceding_company").toString());
+				finalList.add(tempBean);
 			}
 			if (StringUtils.isBlank(req.getBrokerName())) {
 				String company = treasuryCustomRepository.getCompName(req.getBranchCode(), req.getBrokerId(), "B");

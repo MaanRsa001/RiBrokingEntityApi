@@ -90,4 +90,6 @@ public interface ProportionalityCustomRepository {
 
 	List<Tuple> facSelectInsDetails(String[] args);
 
+	String getMaxSectionNoDet(String proposalNo);
+
 }

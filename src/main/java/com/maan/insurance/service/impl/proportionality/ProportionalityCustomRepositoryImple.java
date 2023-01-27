@@ -1725,4 +1725,25 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 			}
 			return list;
 	}
+
+	@Override
+	public String getMaxSectionNoDet(String proposalNo) {
+		String secNo = "";
+		//GET_MAX_SECTION_NO_DET
+		CriteriaBuilder cb = em.getCriteriaBuilder(); 
+		CriteriaQuery<BigDecimal> query1 = cb.createQuery(BigDecimal.class); 
+		Root<PositionMaster> rd = query1.from(PositionMaster.class);
+		query1.select(cb.max(rd.get("sectionNo")));  
+		
+		Predicate n1 = cb.equal(cb.coalesce(rd.get("baseLayer"), rd.get("proposalNo")),proposalNo);
+		query1.where(n1);
+
+		TypedQuery<BigDecimal> result = em.createQuery(query1);
+		List<BigDecimal>list = result.getResultList();
+		if(list!=null) {
+			secNo = String.valueOf((list.get(0)==null?"1":(Integer.valueOf(list.get(0).toString())+1)));
+		}
+		return secNo;
 	}
+	
+}

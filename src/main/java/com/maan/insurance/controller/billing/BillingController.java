@@ -10,9 +10,20 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.maan.insurance.error.CommonValidationException;
 import com.maan.insurance.error.ErrorCheck;
+
 import com.maan.insurance.model.req.billing.GetBillingInfoListReq;
 import com.maan.insurance.model.req.billing.GetTransContractReqRi;
 import com.maan.insurance.model.req.billing.InsertBillingInfoReq;
+
+import com.maan.insurance.model.req.GetTransContractReq;
+import com.maan.insurance.model.req.billing.EditBillingInfoReq;
+import com.maan.insurance.model.req.billing.GetBillingInfoListReq;
+import com.maan.insurance.model.req.billing.GetTransContractReqRi;
+import com.maan.insurance.model.req.billing.InsertBillingInfoReq;
+import com.maan.insurance.model.req.claim.ProposalNoReq;
+import com.maan.insurance.model.res.GetTransContractRes1;
+import com.maan.insurance.model.res.billing.EditBillingInfoRes;
+
 import com.maan.insurance.model.res.billing.GetBillingInfoListRes;
 import com.maan.insurance.model.res.billing.GetTransContractResRi;
 import com.maan.insurance.model.res.retro.CommonResponse;
@@ -36,6 +47,7 @@ public class BillingController {
 		}
 		return serv.insertBillingInfo(req);
 	}
+	
 	@PostMapping("/getBillingInfoList")
 	public GetBillingInfoListRes getBillingInfoList(@RequestBody GetBillingInfoListReq req) throws CommonValidationException {
 		List<ErrorCheck> error = val.getBillingInfoListVali(req);
@@ -60,4 +72,12 @@ public class BillingController {
 		}
 		return serv.getTransContractRi(req);
 		}
+	@PostMapping("/editBillingInfo")
+	public EditBillingInfoRes editBillingInfo(@RequestBody EditBillingInfoReq req) throws CommonValidationException {
+		List<ErrorCheck> error = val.editBillingInfo(req);
+		if(error!=null && error.size()>0) {
+			throw new CommonValidationException("error",error);
+		}
+		return serv.editBillingInfo(req);
+	}
 }

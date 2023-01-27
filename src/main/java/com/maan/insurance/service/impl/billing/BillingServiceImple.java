@@ -5,11 +5,19 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Tuple;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,14 +27,26 @@ import org.springframework.util.CollectionUtils;
 
 import com.maan.insurance.jpa.mapper.TtrnAllocatedTransactionMapper;
 import com.maan.insurance.jpa.repository.treasury.TreasuryCustomRepository;
+import com.maan.insurance.model.entity.PersonalInfo;
+import com.maan.insurance.model.entity.PositionMaster;
+import com.maan.insurance.model.entity.RskPremiumDetailsRi;
+import com.maan.insurance.model.entity.TmasProductMaster;
 import com.maan.insurance.model.entity.TtrnBillingInfo;
 import com.maan.insurance.model.entity.TtrnBillingTransaction;
+import com.maan.insurance.model.entity.TtrnClaimDetails;
+import com.maan.insurance.model.entity.TtrnClaimPaymentRi;
+import com.maan.insurance.model.repository.TtrnBillingDetailsRepository;
 import com.maan.insurance.model.repository.TtrnBillingInfoRepository;
 import com.maan.insurance.model.repository.TtrnBillingTransactionRepository;
 import com.maan.insurance.model.req.GetTransContractListReq;
+import com.maan.insurance.model.req.billing.EditBillingInfoReq;
 import com.maan.insurance.model.req.billing.GetBillingInfoListReq;
 import com.maan.insurance.model.req.billing.GetTransContractReqRi;
 import com.maan.insurance.model.req.billing.InsertBillingInfoReq;
+import com.maan.insurance.model.res.billing.EditBillingInfoComRes;
+import com.maan.insurance.model.res.billing.EditBillingInfoRes;
+import com.maan.insurance.model.res.billing.EditBillingInfoRes1;
+import com.maan.insurance.model.res.billing.EditBillingTransactionRes;
 import com.maan.insurance.model.res.billing.GetBillingInfoListRes;
 import com.maan.insurance.model.res.billing.GetBillingInfoListRes1;
 import com.maan.insurance.model.res.billing.GetTransContractRes1Ri;
@@ -51,13 +71,18 @@ public class BillingServiceImple implements  BillingService {
 
 	private BillingCustomRepository billingCustomRepository;
 
+	
+	@Autowired
+	private TtrnBillingDetailsRepository ttrnBillingDetailsRepository;
+
 	@Autowired
 	private TtrnBillingInfoRepository ttrnBillingInfoRepository;
+	
 	@Autowired
 	private TtrnAllocatedTransactionMapper ttrnAllocatedTransactionMapper;
+	
 	@Autowired
 	private TtrnBillingTransactionRepository ttrnBillingTransactionRepository;
-	
 	
 	
 	SimpleDateFormat sdf=new SimpleDateFormat("dd/MM/yyyy");
@@ -506,6 +531,274 @@ public class BillingServiceImple implements  BillingService {
 	return response;
 	}
 
-	
+	private List<Tuple> getTranContDtlsRi(GetTransContractReqRi req) {
+		List<Tuple> resultList = getTranContDtlsRiForRsk(req.getBrokerId(), req.getCedingId(), 
+				req.getCurrencyId(), req.getBranchCode());
+		if(Objects.nonNull(resultList))
+			resultList.addAll(getTranContDtlsRiForClaim(req.getBrokerId(), req.getCedingId(), 
+					req.getCurrencyId(), req.getBranchCode()));
+		else
+			resultList = getTranContDtlsRiForClaim(req.getBrokerId(), req.getCedingId(), 
+					req.getCurrencyId(), req.getBranchCode());
+		return Objects.nonNull(resultList) ? resultList : new ArrayList<>();
+	}
+
+	private List<Tuple>  getTranContDtlsRiForClaim(String brokerId, String cedingId, String alloccurrencyId,
+			String branchCode) {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Tuple> cq = cb.createTupleQuery();
+		Root<PositionMaster> pRoot = cq.from(PositionMaster.class);
+		Root<TtrnClaimDetails> tcdRoot = cq.from(TtrnClaimDetails.class);
+		Root<TtrnClaimPaymentRi> tcpRoot = cq.from(TtrnClaimPaymentRi.class);
+		String input = null;
+		
+//		Expression<String> funct = cb.function("FN_GET_NAME", String.class,
+//     		   cb.literal("P"),
+//     		  pRoot.get("productId"),
+//     		 pRoot.get("branchCode"));
+		Subquery<String> funct = cq.subquery(String.class); 
+		Root<TmasProductMaster> rds = funct.from(TmasProductMaster.class);
+		funct.select(rds.get("tmasProductName"));
+		Predicate a1 = cb.equal( rds.get("tmasProductId"),pRoot.get("productId"));
+		Predicate a2 = cb.equal( rds.get("branchCode"), pRoot.get("branchCode"));
+		funct.where(a1,a2);
+
+		
+		Expression<String> exp = cb.diff(cb.<Double>selectCase().when(cb.isNull(tcpRoot.<Double>get("paidAmountOc")), 0.0)
+				.otherwise(tcpRoot.<Double>get("paidAmountOc")),
+			cb.<Double>selectCase().when(cb.isNull(tcpRoot.<Double>get("allocatedTillDate")), 0.0)
+				.otherwise(tcpRoot.<Double>get("allocatedTillDate"))).as(String.class);
+		
+		Subquery<String> sq = cq.subquery(String.class);
+		Root<PersonalInfo> subRoot = sq.from(PersonalInfo.class);
+		
+		Subquery<Integer> aSq = sq.subquery(Integer.class);
+		Root<PersonalInfo> aSubRoot = aSq.from(PersonalInfo.class);
+
+		aSq.select(cb.max(aSubRoot.get("amendId")))
+		  .where(cb.equal(aSubRoot.get("customerId"), pRoot.get("cedingCompanyId")),
+				cb.equal(aSubRoot.get("branchCode"), pRoot.get("branchCode")));
+
+		sq.select(subRoot.get("companyName"))
+		  .where(cb.equal(subRoot.get("customerId"), pRoot.get("cedingCompanyId")),
+				cb.equal(subRoot.get("branchCode"), pRoot.get("branchCode")),
+				cb.equal(subRoot.get("amendId"), aSq));
+		
+		cq.multiselect(tcpRoot.get("claimPaymentNo").as(String.class),
+				pRoot.get("contractNo").as(String.class),
+				pRoot.get("layerNo").as(String.class),
+				funct.alias("PRODUCT_NAME"),
+				tcpRoot.get("inceptionDate"),
+				cb.nullLiteral(Double.class).alias("NETDUE_OC"),
+				exp.alias("PAID_AMOUNT"),
+				cb.nullLiteral(Double.class).alias("ACC_PREMIUM"),
+				tcpRoot.get("accClaim").as(String.class),
+				cb.selectCase().when(cb.isNull(tcpRoot.get("checkyn")), "N").as(String.class),
+				cb.literal("C").alias("BUSINESS_TYPE"),
+				sq.alias("CEDING_COMPANY_NAME"),
+				pRoot.get("deptId"),
+				pRoot.get("proposalNo")).distinct(true);
+ 		
+		Subquery<Integer> pSq = cq.subquery(Integer.class);
+		Root<PositionMaster> pSubRoot = pSq.from(PositionMaster.class);
+		
+	   Expression<Object> exp1 = cb.selectCase().when(
+	    		cb.equal(cb.literal(63), cb.literal(Integer.parseInt(brokerId))),
+	    		pRoot.get("cedingCompanyId")).otherwise(pRoot.get("brokerId"));
+	   
+	   if("63".equalsIgnoreCase(brokerId)) {
+		   input=cedingId;
+		}
+		else {        	
+			input=brokerId;
+		}
+		
+		pSq.select(cb.max(pSubRoot.get("amendId")))
+		  .where(cb.equal(pSubRoot.get("contractNo"), pRoot.get("contractNo")),
+			     cb.equal(cb.selectCase().when(cb.isNull(pRoot.get("layerNo")), 0).otherwise(pRoot.get("layerNo")),
+	    		 cb.selectCase().when(cb.isNull(pSubRoot.get("layerNo")), 0).otherwise(pSubRoot.get("layerNo"))), 
+			     cb.equal(pRoot.get("deptId"), pSubRoot.get("deptId")),
+			     cb.equal(tcdRoot.get("currency"), alloccurrencyId),
+			     cb.equal(exp1, input));
+		
+		cq.where(cb.equal(pRoot.get("contractNo"), tcdRoot.get("contractNo")),
+				 cb.equal(tcdRoot.get("contractNo"), tcpRoot.get("contractNo")),
+				 cb.equal(tcdRoot.get("claimNo"), tcpRoot.get("claimNo")),
+				 cb.equal(cb.selectCase().when(cb.isNull(pRoot.get("layerNo")), 0).otherwise(pRoot.get("layerNo")),
+						 cb.selectCase().when(cb.isNull(tcdRoot.get("layerNo")), 0).otherwise(tcdRoot.get("layerNo"))),
+				cb.equal(pRoot.get("sectionNo"), tcdRoot.get("subClass")),
+				cb.equal(pRoot.get("branchCode"), branchCode),
+				cb.notEqual(exp, 0),
+				cb.equal(pRoot.get("amendId"), pSq));
+		
+		return em.createQuery(cq).getResultList();
+	}
+
+	private List<Tuple> getTranContDtlsRiForRsk(String brokerId, String cedingId, String alloccurrencyId,
+			String branchCode) {
+		List<Tuple> list = null;
+		try {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Tuple> cq = cb.createTupleQuery();
+		Root<PositionMaster> pRoot = cq.from(PositionMaster.class);
+		Root<RskPremiumDetailsRi> rRoot = cq.from(RskPremiumDetailsRi.class);
+		String input = null;
+
+//		Expression<String> funct = cb.function("FN_GET_NAME", String.class, cb.literal("P"), pRoot.get("productId"),
+//				pRoot.get("branchCode"));
+		
+		Subquery<String> funct = cq.subquery(String.class); 
+		Root<TmasProductMaster> rds = funct.from(TmasProductMaster.class);
+		funct.select(rds.get("tmasProductName"));
+		Predicate a1 = cb.equal( rds.get("tmasProductId"),pRoot.get("productId"));
+		Predicate a2 = cb.equal( rds.get("branchCode"), pRoot.get("branchCode"));
+		funct.where(a1,a2);
+
+		Expression<String> exp = cb.diff(
+				cb.<Double>selectCase().when(cb.isNull(rRoot.<Double>get("netdueOc")), 0.0)
+						.otherwise(rRoot.<Double>get("netdueOc")),
+				cb.<Double>selectCase().when(cb.isNull(rRoot.<Double>get("allocatedTillDate")), 0.0)
+						.otherwise(rRoot.<Double>get("allocatedTillDate"))).as(String.class);
+
+		Subquery<String> sq = cq.subquery(String.class);
+		Root<PersonalInfo> subRoot = sq.from(PersonalInfo.class);
+
+		Subquery<Integer> aSq = sq.subquery(Integer.class);
+		Root<PersonalInfo> aSubRoot = aSq.from(PersonalInfo.class);
+
+		aSq.select(cb.max(aSubRoot.get("amendId"))).where(
+				cb.equal(aSubRoot.get("customerId"), pRoot.get("cedingCompanyId")),
+				cb.equal(aSubRoot.get("branchCode"), pRoot.get("branchCode")));
+
+		sq.select(subRoot.get("companyName")).where(cb.equal(subRoot.get("customerId"), pRoot.get("cedingCompanyId")),
+				cb.equal(subRoot.get("branchCode"), pRoot.get("branchCode")), cb.equal(subRoot.get("amendId"), aSq));
+
+		cq.multiselect(rRoot.get("transactionNo").as(String.class), pRoot.get("contractNo").as(String.class),
+				pRoot.get("layerNo").as(String.class),
+				funct.alias("PRODUCT_NAME"), rRoot.get("entryDateTime"), exp.alias("NETDUE"),
+				cb.nullLiteral(Double.class).alias("PAID_AMOUNT_OC"), rRoot.get("accPremium").as(String.class),
+				cb.nullLiteral(Double.class).alias("ACC_CLAIM"),
+				cb.selectCase().when(cb.isNull(rRoot.get("checkyn")), "N").as(String.class),
+				cb.literal("P").alias("BUSINESS_TYPE"),
+				sq.alias("CEDING_COMPANY_NAME"), 
+				pRoot.get("deptId").as(String.class),
+				pRoot.get("proposalNo").as(String.class)).distinct(true);
+
+		Subquery<Integer> pSq = cq.subquery(Integer.class);
+		Root<PositionMaster> pSubRoot = pSq.from(PositionMaster.class);
+
+		Expression<Object> exp1 = cb.selectCase()
+				.when(cb.equal(cb.literal(63), cb.literal(Integer.parseInt(brokerId))),
+						pRoot.get("cedingCompanyId"))
+				.otherwise(pRoot.get("brokerId"));
+
+		if("63".equalsIgnoreCase(brokerId))
+			input=cedingId;
+		else        	
+			input=brokerId;
+		
+		pSq.select(cb.max(pSubRoot.get("amendId"))).where(cb.equal(pSubRoot.get("contractNo"), pRoot.get("contractNo")),
+				cb.equal(cb.selectCase().when(cb.isNull(pRoot.get("layerNo")), 0).otherwise(pRoot.get("layerNo")),
+						cb.selectCase().when(cb.isNull(pSubRoot.get("layerNo")), 0).otherwise(pSubRoot.get("layerNo"))),
+				cb.equal(pRoot.get("deptId"), pSubRoot.get("deptId")), cb.equal(rRoot.get("currencyId"), alloccurrencyId),
+				cb.equal(exp1, input));
+				//cb.like(pRoot.get("contractNo"), ""), cb.like(pRoot.get("productId"), "")); // check
+
+		cq.where(cb.or(cb.isNull(rRoot.get("receiptNo")),cb.equal(rRoot.get("receiptNo"), "0")), cb.equal(rRoot.get("contractNo"), pRoot.get("contractNo")),
+				cb.equal(cb.selectCase().when(cb.isNull(pRoot.get("layerNo")), 0).otherwise(pRoot.get("layerNo")),
+						cb.selectCase().when(cb.isNull(rRoot.get("layerNo")), 0).otherwise(rRoot.get("layerNo"))),
+				cb.equal(pRoot.get("deptId"), rRoot.get("subClass")),
+				cb.equal(pRoot.get("branchCode"), branchCode),
+				cb.notEqual(exp, 0),
+				cb.equal(pRoot.get("amendId"), pSq));
+
+		list =  em.createQuery(cq).getResultList();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+
+
+	@Override
+	public EditBillingInfoRes editBillingInfo(EditBillingInfoReq req) {
+		EditBillingInfoRes response = new EditBillingInfoRes();
+		EditBillingInfoComRes com =new EditBillingInfoComRes();
+		try {
+			TtrnBillingInfo data = ttrnBillingInfoRepository.findByBillingNo(new BigDecimal(req.getBillingNo()));
+			if(data!=null) {
+					EditBillingInfoRes1 res = new EditBillingInfoRes1();
+					res.setAmedId(data.getAmendId()==null?"":data.getAmendId().toString());		
+					res.setAmendmentDate(data.getAmendmentDate()==null?"":sdf.format(data.getAmendmentDate()));;
+					res.setBillDate(data.getBillDate()==null?"":sdf.format(data.getBillDate()));
+					res.setBranchCode(data.getBranchCode()==null?"":data.getBranchCode().toString());	
+					res.setBrokerId(data.getBrokerId()==null?"":data.getBrokerId().toString());		
+					res.setCedingId(data.getCedingId()==null?"":data.getCedingId().toString());					
+					res.setCurrencyId(data.getCurrencyId()==null?"":data.getCurrencyId().toString());
+					res.setLoginId(data.getLoginId()==null?"":data.getLoginId().toString());
+					res.setProductId(data.getProductId()==null?"":data.getProductId().toString());
+					res.setRemarks(data.getRemarks()==null?"":data.getRemarks().toString());
+					res.setReversalDate(data.getReversaldate()==null?"":sdf.format(data.getReversaldate()));
+					res.setReversalTransno(data.getReversaltransno()==null?"":data.getReversaltransno().toString());					
+					res.setReverselLoginid(data.getLoginId()==null?"":data.getLoginId().toString());
+					res.setRevTransalType(data.getTransType()==null?"":data.getTransType().toString());;
+					res.setRoundingAmount(data.getRoundingAmount()==null?"":data.getRoundingAmount().toString());
+					res.setStatus(data.getStatus()==null?"":data.getStatus().toString());
+					res.setTranscationType(data.getTranscationtype()==null?"":data.getTranscationtype().toString());
+					res.setTransType(data.getTransType()==null?"":data.getTransType().toString());
+					res.setUtilizedTillDate(data.getUtilizedTillDate()==null?"":sdf.format(data.getUtilizedTillDate()));	
+					com.setBillingInfo(res);
+					}
+			
+			List<EditBillingTransactionRes>  list = editBillingTransaction(req);
+			com.setBillingTransaction(list);
+			
+				response.setCommonResponse(com);
+				response.setMessage("Success");
+				response.setIsError(false);
+			}catch(Exception e){
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+			return response;
+	}
+
+	private List<EditBillingTransactionRes> editBillingTransaction(EditBillingInfoReq req) {
+		List<EditBillingTransactionRes> response  = new ArrayList<EditBillingTransactionRes>();
+		try {
+			List<TtrnBillingTransaction> list = ttrnBillingTransactionRepository.findByBillNo(new BigDecimal(req.getBillingNo()));
+			if(list.size()>0) {
+				for(TtrnBillingTransaction data: list) {
+					EditBillingTransactionRes res = new EditBillingTransactionRes();
+					res.setAdjustmentType(data.getAdjustmentType()==null?"":data.getAdjustmentType().toString());		
+					res.setAmedId(data.getAmendId()==null?"":data.getAmendId().toString());
+					res.setBillSno(data.getBillSno()==null?"":data.getBillSno().toString());
+					res.setBranchCode(data.getBranchCode()==null?"":data.getBranchCode().toString());
+					res.setContractNo(data.getContractNo()==null?"":data.getContractNo().toString());
+					res.setCurrencyId(data.getCurrencyId()==null?"":data.getCurrencyId().toString());
+					res.setInceptionDate(data.getInceptionDate()==null?"":sdf.format(data.getInceptionDate()));
+					res.setLayerNo(data.getLayerNo()==null?"":data.getLayerNo().toString());
+					res.setLoginId(data.getLoginId()==null?"":data.getLoginId().toString());
+					res.setPaidAmount(data.getPaidAmount()==null?"":data.getPaidAmount().toString());
+					res.setProcessType(data.getProcessType()==null?"":data.getProcessType().toString());
+					res.setProductName(data.getProductName()==null?"":data.getProductName().toString());
+					res.setProposalNo(data.getProposalNo()==null?"":data.getProposalNo().toString());
+					res.setRemarks(data.getRemarks()==null?"":data.getRemarks().toString());
+					res.setReversalAmount(data.getReversalAmount()==null?"":data.getReversalAmount().toString());
+					res.setReversalDate(data.getReversalDate()==null?"":sdf.format(data.getReversalDate()));
+					res.setStatus(data.getStatus()==null?"":data.getStatus().toString());
+					res.setTransactionNo(data.getTransactionNo()==null?"":data.getTransactionNo().toString());
+					res.setType(data.getType()==null?"":data.getType().toString());
+					response.add(res);
+					}
+			}
+			
+			
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+			return response;
+	}
 
 }

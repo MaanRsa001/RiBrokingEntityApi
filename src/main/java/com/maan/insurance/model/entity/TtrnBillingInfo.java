@@ -93,6 +93,9 @@ public class TtrnBillingInfo implements Serializable {
 
 	    @Column(name="TRANSCATIONTYPE")
 	    private String     transcationtype ;
+	    
+	    @Column(name="ROUNDING_AMOUNT")
+	    private BigDecimal     roundingAmount ;
 
 	    @Temporal(TemporalType.TIMESTAMP)
 	    @Column(name="SYS_DATE")

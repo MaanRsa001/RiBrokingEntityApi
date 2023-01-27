@@ -17,7 +17,6 @@ public class RiskDetailsEditModeReq {
 	private String proposalNo; 
 	@JsonProperty("SectionMode")
 	private String sectionMode;  
-
 	
 	@JsonProperty("LayerProposalNo")
 	private String layerProposalNo;

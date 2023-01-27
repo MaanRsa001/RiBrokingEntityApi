@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import com.maan.insurance.error.ErrorCheck;
 import com.maan.insurance.jpa.service.impl.ClaimJpaServiceImpl;
 import com.maan.insurance.model.req.GetTransContractReq;
+import com.maan.insurance.model.req.billing.EditBillingInfoReq;
 import com.maan.insurance.model.req.billing.GetBillingInfoListReq;
 import com.maan.insurance.model.req.billing.GetTransContractReqRi;
 import com.maan.insurance.model.req.billing.InsertBillingInfoReq;
@@ -145,6 +146,14 @@ public List<ErrorCheck> getTransContractRiVali(GetTransContractReqRi req) {
 	}
 	if (StringUtils.isBlank(req.getCurrencyId())) {
 		list.add(new ErrorCheck("Please Enter CurrencyId", "CurrencyId", "4"));
+	}
+	return list;
+}
+
+public List<ErrorCheck> editBillingInfo(EditBillingInfoReq req) {
+	List<ErrorCheck> list = new ArrayList<ErrorCheck>();
+	if (StringUtils.isBlank(req.getBillingNo())) {
+		list.add(new ErrorCheck("Please Enter BillingNo", "BillingNo", "1"));
 	}
 	return list;
 }

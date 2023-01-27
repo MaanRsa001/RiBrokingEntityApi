@@ -382,7 +382,7 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 		try {
 
-			if ("3".equalsIgnoreCase(req.getProductId()))
+			if ("3".equalsIgnoreCase(req.getProductId())) //mode:transedit----instal no 1
 				// query -- PREMIUM_MND_INS_LIST
 				result = xolPremiumCustomRepository.getPremiumMndInsList(req.getContNo(), req.getLayerno());
 			else
@@ -396,10 +396,10 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 				tempMap.put("VALUE", element.get("INSTALLMENT_NO") + ":"
 						+ new SimpleDateFormat("dd/MM/yyyy").format(element.get("INSTALLMENT_DATE")).toString());
 				tempMap.put("INSTALLMENT_NO", element.get("INSTALLMENT_NO"));
-
 				list.add(tempMap);
+				
 			}
-
+			
 			Map<String, Object> tempMap1 = new HashMap<String, Object>();
 			Map<String, Object> tempMap2 = new HashMap<String, Object>();
 			Map<String, Object> tempMap3 = new HashMap<String, Object>();

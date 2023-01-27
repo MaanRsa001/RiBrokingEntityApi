@@ -338,15 +338,15 @@ public class ClaimController {
 		}
 		return claimService.insertCliamDetailsMode12(req);
 	}
-	@PostMapping("/claimNoList")
-	public claimNoListRes claimNoList(@RequestBody claimNoListReq req) throws CommonValidationException {
-		List<ErrorCheck> error = claimValidation.claimNoListVali(req);
-		if(error != null && error.size() > 0) {
-			
-			throw new CommonValidationException("error",error);
-		}
-		return claimService.claimNoList(req);
-	}
+//	@PostMapping("/claimNoList")
+//	public claimNoListRes claimNoList(@RequestBody claimNoListReq req) throws CommonValidationException {
+//		List<ErrorCheck> error = claimValidation.claimNoListVali(req);
+//		if(error != null && error.size() > 0) {
+//			
+//			throw new CommonValidationException("error",error);
+//		}
+//		return claimService.claimNoList(req);
+//	}
 	@PostMapping("/claimUpdatePaymentRi")
 	public InsertCliamDetailsMode3Res claimUpdatePaymentRi(@RequestBody InsertCliamDetailsMode3Req req) throws CommonValidationException {
 		List<ErrorCheck> error = claimValidation.insertCliamDetailsMode3Vali(req);

@@ -145,7 +145,7 @@ public interface ClaimService {
 
 	InsertCliamDetailsMode12Res insertCliamDetailsMode12(InsertCliamDetailsMode12Req req);
 
-	claimNoListRes claimNoList(claimNoListReq req);
+//	claimNoListRes claimNoList(claimNoListReq req);
 
 	ClaimPaymentEditRes1 claimPaymentEditRi(ClaimPaymentEditReq req);
 
