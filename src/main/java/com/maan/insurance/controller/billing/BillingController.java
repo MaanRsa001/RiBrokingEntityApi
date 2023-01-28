@@ -77,7 +77,7 @@ public class BillingController {
 		}
 		return serv.editBillingInfo(billingNo,branchCode);
 	}
-	@PostMapping("/save/reverse")
+	@PostMapping("/delete")
 	public ReverseInsertRes savereverseInsert(@RequestBody ReverseInsertReq req) throws CommonValidationException {
 		List<ErrorCheck> error=val.reverseInsertvalidate(req);
 		if(error!=null && error.size()>0) {

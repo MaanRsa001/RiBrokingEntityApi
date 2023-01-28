@@ -968,12 +968,13 @@ public class TreasuryJpaServiceImpl  implements TreasuryService  {
 						treasuryCustomRepository.updateAllocatedDtls(args);
 
 						if ("P".equalsIgnoreCase(resMap.get(8) == null ? "" : resMap.get(8).toString())) {
-							args = new String[5];
-							args[0] = resMap.get(10)==null?"":resMap.get(10).toString();
-							args[1] = req.getLoginId();
-							args[2] = req.getBranchCode();
-							args[3] = resMap.get(6)==null?"":resMap.get(6).toString();
-							args[4] = resMap.get(5)==null?"":resMap.get(5).toString();
+							args = new String[6];
+							args[0] = "Pending";
+							args[1] = resMap.get(10)==null?"":resMap.get(10).toString();
+							args[2] = req.getLoginId();
+							args[3] = req.getBranchCode();
+							args[4] = resMap.get(6)==null?"":resMap.get(6).toString();
+							args[5] = resMap.get(5)==null?"":resMap.get(5).toString();
 							
 							//Query -- payment.update.rskPremDtls1
 							treasuryCustomRepository.updateRskPremDtls(args);

@@ -47,5 +47,13 @@ public interface BillingCustomRepository {
 	Integer updatePymtRetDtls(String[] args);
 
 	List<Tuple> getPymtRetDtls(String payRecNo, String curencyId);
+
+	Integer updateRskPremRiDtls(String[] args);
+
+	List<Tuple> getRskPremRiDtls(String string, String string2);
+
+	Integer updateClaimPymtRiDtls(String[] args);
+
+	List<Tuple> getClaimPymtRiDtls(String string, String string2);
 }
 

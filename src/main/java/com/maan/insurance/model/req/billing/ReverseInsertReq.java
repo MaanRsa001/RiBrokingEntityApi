@@ -8,44 +8,26 @@ import lombok.Data;
 public class ReverseInsertReq {
 
 	
-	@JsonProperty("SerialNo")
-    private String serialNo ;
+	@JsonProperty("BillingNo")
+    private String billingNo ;
 	
-	@JsonProperty("PayRecNo")
-    private String payRecNo ;
-	
-	@JsonProperty("ReversalDate")
+	@JsonProperty("BillDeleteDate")
     private String reversalDate ;
 	
 	@JsonProperty("LoginId")
     private String loginId ;
 	
-	@JsonProperty("TransType")
+	@JsonProperty("BillingType")
     private String transType ;
-	
-	@JsonProperty("RetroType")
-    private String retroType ;
-	
-	@JsonProperty("AllTillDate")
-    private String allTillDate ;
 	
 	@JsonProperty("BranchCode")
     private String branchCode ;
 	
-	@JsonProperty("PaidAmount")
-    private String paidAmount ;
+	@JsonProperty("RoundingAmount")
+    private String roundingAmount ;
 	
-	@JsonProperty("RetroPaidAmount")
-    private String retroPaidAmount ;
+	@JsonProperty("UtilizedTillDate")
+    private String utilizedTillDate ;
 	
-	@JsonProperty("ContractNo")
-    private String contractNo ;
 	
-	@JsonProperty("TransactionNo")
-    private String transactionNo ;
-	
-	@JsonProperty("AllocatedDate")
-    private String allocatedDate ;
-
-
 }

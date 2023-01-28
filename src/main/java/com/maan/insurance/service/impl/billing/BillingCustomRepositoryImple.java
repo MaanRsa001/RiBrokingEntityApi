@@ -58,7 +58,7 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 
 		sq.select(cb.max(subRoot.get("amendId"))).where(cb.equal(subRoot.get("billingNo"), root.get("billingNo")));
 		
-	//	Double allocated = getAllocatedTillDate(args[3], args[4], "TtrnBillingDetails") + Double.parseDouble(args[0]);
+		//Double allocated = getAllocatedTillDate(args[3], args[4], "TtrnBillingDetails") + Double.parseDouble(args[0]);
 		update.set(root.get("loginId"), args[1])
 			  .set(root.get("branchCode"), args[2])
 			  .set(root.get("sysDate"), new java.util.Date(Calendar.getInstance().getTime().getTime()));
@@ -636,6 +636,24 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 			cq.where(cb.equal(root.get("contractNo"), input1), cb.equal(root.get("ritransactionNo"), input2));
 			list = em.createQuery(cq).getResultList();
 
+		}else if (classType.equals("RskPremiumDetails")) {
+
+			CriteriaQuery<Double> cq = cb.createQuery(Double.class);
+			Root<RskPremiumDetails> root = cq.from(RskPremiumDetails.class);
+			cq.multiselect(cb.<Double>selectCase().when(cb.isNull(root.<Double>get("allocatedTillDate")), 0.0)
+					.otherwise(root.<Double>get("allocatedTillDate")));
+			cq.where(cb.equal(root.get("contractNo"), input1), cb.equal(root.get("transactionNo"), input2));
+			list = em.createQuery(cq).getResultList();
+
+		} else if (classType.equals("TtrnClaimPayment")) {
+
+			CriteriaQuery<Double> cq = cb.createQuery(Double.class);
+			Root<TtrnClaimPayment> root = cq.from(TtrnClaimPayment.class);
+			cq.multiselect(cb.<Double>selectCase().when(cb.isNull(root.<Double>get("allocatedTillDate")), 0.0)
+					.otherwise(root.<Double>get("allocatedTillDate")));
+			cq.where(cb.equal(root.get("contractNo"), input1), cb.equal(root.get("claimPaymentNo"), input2));
+			list = em.createQuery(cq).getResultList();
+
 		}
 		return list != null && !list.isEmpty() ? list.get(0) : 0.0;
 
@@ -660,7 +678,7 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 		Root<TtrnBillingTransaction> root = cq.from(TtrnBillingTransaction.class);
 
 		if (serialNo != null) {
-			cq.multiselect(root.get("sno"),
+			cq.multiselect(root.get("billSno"),
 					root.get("inceptionDate"),
 					root.get("reversalDate"),
 					cb.selectCase().when(cb.greaterThan(root.get("reversalAmount"), 0), "C").otherwise("P"),
@@ -674,13 +692,13 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 					root.get("paidAmount"),
 					root.get("currencyId"),
 					root.get("status"),
-					root.get("receiptNo"),
+					root.get("billNo"),
 					cb.selectCase().when(cb.equal(root.get("adjustmentType"), "W"), "Write Off")
 					.when(cb.equal(root.get("adjustmentType"), "R"), "Round Off").otherwise(""));
 			
-			cq.where(cb.equal(root.get("receiptNo"), receiptNo), cb.equal(root.get("sno"), serialNo));
+			cq.where(cb.equal(root.get("billNo"), receiptNo), cb.equal(root.get("billSno"), serialNo));
 		}else {
-			cq.multiselect(root.get("sno"),
+			cq.multiselect(root.get("billSno"),
 					root.get("inceptionDate"),
 					root.get("reversalDate"),
 					cb.selectCase().when(cb.greaterThan(root.get("reversalAmount"), 0), "C").otherwise("P"),
@@ -693,12 +711,11 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 					root.get("paidAmount"),
 					root.get("paidAmount"),
 					root.get("currencyId"),
-					root.get("status"),
-					root.get("receiptNo"));
-			cq.where(cb.equal(root.get("receiptNo"), receiptNo));
+					root.get("status"));
+			cq.where(cb.equal(root.get("billNo"), receiptNo));
 		}
 
-		cq.orderBy(cb.desc(root.get("sno")));
+		cq.orderBy(cb.desc(root.get("billSno")));
 
 		return em.createQuery(cq).getResultList();
 	}
@@ -740,7 +757,7 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 			e.printStackTrace();
 		}
 
-		update.where(cb.equal(root.get("transactionNo"), args[6]), cb.equal(root.get("sno"), args[7]));
+		update.where(cb.equal(root.get("transactionNo"), args[6]), cb.equal(root.get("billSno"), args[7]));
 
 		Query q = em.createQuery(update);
 		return q.executeUpdate();
@@ -752,6 +769,7 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 	}
 
 	@Override
+	@Transactional
 	public Integer updateRskPremDtls(String[] args) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaUpdate<RskPremiumDetails> update = cb.createCriteriaUpdate(RskPremiumDetails.class);
@@ -816,22 +834,21 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 	@Override
 	public Integer updatePymtRetDtls(String[] args) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
-		CriteriaUpdate<TtrnPaymentReceiptDetails> update = cb.createCriteriaUpdate(TtrnPaymentReceiptDetails.class);
-		Root<TtrnPaymentReceiptDetails> root = update.from(TtrnPaymentReceiptDetails.class);
+		CriteriaUpdate<TtrnBillingInfo> update = cb.createCriteriaUpdate(TtrnBillingInfo.class);
+		Root<TtrnBillingInfo> root = update.from(TtrnBillingInfo.class);
 
 		Subquery<Integer> sq = update.subquery(Integer.class);
-		Root<TtrnPaymentReceiptDetails> subRoot = sq.from(TtrnPaymentReceiptDetails.class);
+		Root<TtrnBillingInfo> subRoot = sq.from(TtrnBillingInfo.class);
 
-		sq.select(cb.max(subRoot.get("amendId"))).where(cb.equal(subRoot.get("receiptNo"), root.get("receiptNo")),
-				cb.equal(subRoot.get("receiptSlNo"), root.get("receiptSlNo")));
+		sq.select(cb.max(subRoot.get("amendId"))).where(cb.equal(subRoot.get("billingNo"), root.get("billingNo")));
 
-		Double allocated = getAllocatedTillDate(args[3], args[4], "TtrnPaymentReceiptDetails")
-				- Double.parseDouble(args[0]);
-		update.set(root.get("allocatedTillDate"), allocated)
+	
+		update.set(root.get("roundingAmt"), new BigDecimal(0))
+				.set(root.get("utilizedTillDate"), new BigDecimal(0))
 				.set(root.get("sysDate"), new java.util.Date(Calendar.getInstance().getTime().getTime()))
 				.set(root.get("branchCode"), args[2]).set(root.get("loginId"), args[1]);
 
-		update.where(cb.equal(root.get("receiptSlNo"), args[3]), cb.equal(root.get("currencyId"), args[4]),
+		update.where(cb.equal(root.get("billingNo"), args[3]), cb.equal(root.get("currencyId"), args[4]),
 				cb.equal(root.get("amendId"), sq));
 
 		Query q = em.createQuery(update);
@@ -842,19 +859,80 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 	public List<Tuple> getPymtRetDtls(String receiptSlNo, String currencyId) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<Tuple> cq = cb.createTupleQuery();
-		Root<TtrnPaymentReceiptDetails> root = cq.from(TtrnPaymentReceiptDetails.class);
+		Root<TtrnBillingInfo> root = cq.from(TtrnBillingInfo.class);
 
 		Subquery<Integer> sq = cq.subquery(Integer.class);
-		Root<TtrnPaymentReceiptDetails> subRoot = sq.from(TtrnPaymentReceiptDetails.class);
+		Root<TtrnBillingInfo> subRoot = sq.from(TtrnBillingInfo.class);
 
-		sq.select(cb.max(subRoot.get("amendId"))).where(cb.equal(subRoot.get("receiptNo"), root.get("receiptNo")),
-				cb.equal(subRoot.get("receiptSlNo"), root.get("receiptSlNo")));
+		sq.select(cb.max(subRoot.get("amendId"))).where(cb.equal(subRoot.get("billingNo"), root.get("billingNo")));
 
 		cq.multiselect(cb.selectCase().when(cb.isNull(root.get("amount")), 0.0).otherwise(root.get("amount")),
 				cb.selectCase().when(cb.isNull(root.get("allocatedTillDate")), 0.0)
 						.otherwise(root.get("allocatedTillDate")));
 		cq.where(cb.equal(root.get("receiptSlNo"), receiptSlNo), cb.equal(root.get("currencyId"), currencyId),
 				cb.equal(root.get("amendId"), sq));
+
+		return em.createQuery(cq).getResultList();
+	}
+
+	@Override
+	@Transactional
+	public Integer updateRskPremRiDtls(String[] args) {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaUpdate<RskPremiumDetailsRi> update = cb.createCriteriaUpdate(RskPremiumDetailsRi.class);
+		Root<RskPremiumDetailsRi> root = update.from(RskPremiumDetailsRi.class);
+
+		Double allocated = getAllocatedTillDate(args[4], args[5], "RskPremiumDetailsRi") - Double.parseDouble(args[1]);
+		update.set(root.get("settlementStatus"), args[0]).set(root.get("allocatedTillDate"), allocated)
+				.set(root.get("loginId"), args[2]).set(root.get("branchCode"), args[3]);
+
+		update.where(cb.equal(root.get("contractNo"), args[4]), cb.equal(root.get("ritransactionNo"), args[5]));
+
+		Query q = em.createQuery(update);
+		return q.executeUpdate();
+	}
+
+	@Override
+	public List<Tuple> getRskPremRiDtls(String contractNo, String transactionNo) {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Tuple> cq = cb.createTupleQuery();
+		Root<RskPremiumDetailsRi> root = cq.from(RskPremiumDetailsRi.class);
+		cq.multiselect(cb.selectCase().when(cb.isNull(root.get("netdueOc")), 0.0).otherwise(root.get("netdueOc")),
+				cb.selectCase().when(cb.isNull(root.get("allocatedTillDate")), 0.0)
+						.otherwise(root.get("allocatedTillDate")));
+		cq.where(cb.equal(root.get("contractNo"), contractNo), cb.equal(root.get("ritransactionNo"), transactionNo));
+
+		return em.createQuery(cq).getResultList();
+	}
+
+	@Override
+	@Transactional
+	public Integer updateClaimPymtRiDtls(String[] args) {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaUpdate<TtrnClaimPaymentRi> update = cb.createCriteriaUpdate(TtrnClaimPaymentRi.class);
+		Root<TtrnClaimPaymentRi> root = update.from(TtrnClaimPaymentRi.class);
+
+		Double allocated = getAllocatedTillDate(args[4], args[5], "TtrnClaimPaymentRi") - Double.parseDouble(args[1]);
+		update.set(root.get("settlementStatus"), args[0]).set(root.get("allocatedTillDate"), allocated)
+				.set(root.get("sysDate"), new java.util.Date(Calendar.getInstance().getTime().getTime()))
+				.set(root.get("branchCode"), args[2]).set(root.get("loginId"), args[3]);
+
+		update.where(cb.equal(root.get("contractNo"), args[4]), cb.equal(root.get("ritransactionNo"), args[5]));
+
+		Query q = em.createQuery(update);
+		return q.executeUpdate();
+	}
+
+	@Override
+	public List<Tuple> getClaimPymtRiDtls(String contractNo, String claimPaymentNo) {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Tuple> cq = cb.createTupleQuery();
+		Root<TtrnClaimPaymentRi> root = cq.from(TtrnClaimPaymentRi.class);
+		cq.multiselect(
+				cb.selectCase().when(cb.isNull(root.get("paidAmountOc")), 0.0).otherwise(root.get("paidAmountOc")),
+				cb.selectCase().when(cb.isNull(root.get("allocatedTillDate")), 0.0)
+						.otherwise(root.get("allocatedTillDate")));
+		cq.where(cb.equal(root.get("contractNo"), contractNo), cb.equal(root.get("ritransactionNo"), claimPaymentNo));
 
 		return em.createQuery(cq).getResultList();
 	}
