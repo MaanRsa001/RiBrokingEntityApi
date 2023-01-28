@@ -93,7 +93,8 @@ public class TtrnAllocatedTransaction {
 	@Column(name ="PROPOSAL_NO")
 	private String proposalNo;
 	
-	@Column(name ="MULTIPLE_CLIENT_YN")
-	private String multipleClientYn;
+	/*
+	 * @Column(name ="MULTIPLE_CLIENT_YN") private String multipleClientYn;
+	 */
 	
 }

@@ -58,7 +58,7 @@ public interface TreasuryCustomRepository {
 
 	public List<Tuple> getReversaltLists(GetReceiptReversalListReq req);
 
-	public Integer getDiffAmt(Integer paymentReceiptNo, String branchCode);
+	public Integer getDiffAmt(Long paymentReceiptNo, String branchCode);
 
 	public List<Long> getTotCount(String receiptNo, String status);
 
@@ -151,5 +151,9 @@ public interface TreasuryCustomRepository {
 	public Integer updateclaimPymtAlloDtls(String[] updateArgs);
 
 	public Integer updateclaimSetStatus(String[] updateArgs);
+
+	public String getAmend(String serialno, String string);
+
+	public String getTrans(String policyno, String string);
 	
 }

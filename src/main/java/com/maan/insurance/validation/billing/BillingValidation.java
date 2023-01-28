@@ -151,9 +151,9 @@ public List<ErrorCheck> getTransContractRiVali(GetTransContractReqRi req) {
 	return list;
 }
 
-public List<ErrorCheck> editBillingInfo(EditBillingInfoReq req) {
+public List<ErrorCheck> editBillingInfo(String billingNo, String branchCode) {
 	List<ErrorCheck> list = new ArrayList<ErrorCheck>();
-	if (StringUtils.isBlank(req.getBillingNo())) {
+	if (StringUtils.isBlank(billingNo)) {
 		list.add(new ErrorCheck("Please Enter BillingNo", "BillingNo", "1"));
 	}
 	return list;

@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import com.maan.insurance.error.ErrorCheck;
+import com.maan.insurance.jpa.repository.treasury.TreasuryCustomRepository;
+import com.maan.insurance.jpa.service.impl.TreasuryJpaServiceImpl;
 import com.maan.insurance.model.req.AllocateDetailsReq;
 import com.maan.insurance.model.req.AllocateViewReq;
 import com.maan.insurance.model.req.AllocatedStatusReq;
@@ -27,9 +29,7 @@ import com.maan.insurance.model.req.GetReversalInfoReq;
 import com.maan.insurance.model.req.GetTransContractReq;
 import com.maan.insurance.model.req.GetTreasuryJournalViewReq;
 
-import com.maan.insurance.model.req.AllocateTransactionReq;
 import com.maan.insurance.model.req.CurrecyAmountReq;
-import com.maan.insurance.model.req.GenerationReq;
 import com.maan.insurance.model.req.GetTransContractListReq;
 import com.maan.insurance.model.req.PaymentRecieptReq;
 import com.maan.insurance.model.req.ReceiptTreasuryReq;
@@ -41,12 +41,9 @@ import com.maan.insurance.model.req.ReverseInsertReq;
 import com.maan.insurance.model.req.ReverseViewReq;
 
 import com.maan.insurance.model.req.SecondPageInfoReq;
-
-import com.maan.insurance.model.res.GetTransContractRes;
-import com.maan.insurance.model.res.TransContractRes;
+import com.maan.insurance.model.res.GetAllTransContractRes;
+import com.maan.insurance.model.res.GetAllTransContractRes1;
 import com.maan.insurance.model.res.DropDown.GetOpenPeriodRes;
-import com.maan.insurance.service.impl.QueryImplemention;
-import com.maan.insurance.service.impl.TreasuryServiceImpl;
 import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
 import com.maan.insurance.validation.Claim.Validation;
 
@@ -56,11 +53,13 @@ public class TreasuryValidation {
 	private Properties prop = new Properties();
 
 	@Autowired
-	private TreasuryServiceImpl impl;
+	private TreasuryJpaServiceImpl impl;
 	@Autowired
 	private DropDownServiceImple dropImpl;
 	@Autowired
 	private CommonCalculation calcu;
+	@Autowired
+	private TreasuryCustomRepository treasuryCustomRepository;
 	
 
 	private GetTransContractListReq[] RetroTransReq;
@@ -225,7 +224,7 @@ public class TreasuryValidation {
 				.equalsIgnoreCase("INVALID")) {
 			list.add(new ErrorCheck(prop.getProperty("errors.payment.revDateGretAlloDate"), "ReversalDate", "3"));
 		}
-		if (impl.Validatethree(req.getBranchCode(), req.getAllocatedDate()) != 0) {
+		if (dropImpl.Validatethree(req.getBranchCode(), req.getAllocatedDate()) != 0) {
 			if (!req.getAllocatedDate().equalsIgnoreCase(req.getReversalDate())) {
 				list.add(new ErrorCheck(prop.getProperty("period.not.closed"), "AllocatedDate", "2"));
 			}
@@ -247,9 +246,9 @@ public class TreasuryValidation {
 		final Validation val=new Validation();
 		Double a=0.0,b=0.0,c=0.0;
 		boolean check=true;
-		req.setAmendDate(impl.getAmend(req));
+		req.setAmendDate(treasuryCustomRepository.getAmend(req.getSerialNo(),req.getBranchCode()));
 		if(StringUtils.isBlank(req.getAmendDate())) {
-			req.setAmendDate(impl.getTrans(req));
+			req.setAmendDate(treasuryCustomRepository.getTrans(req.getPolicyNo(),req.getBranchCode()));
 		}
 		if(StringUtils.isBlank(req.getAccountDate())) {
 			list.add(new ErrorCheck(prop.getProperty("errors.payment.allocationDateReq"),"AccountDate", "01"));
@@ -370,9 +369,9 @@ public class TreasuryValidation {
 		final Validation val=new Validation();
 		Double a=0.0,b=0.0,c=0.0;
 		boolean check=true;
-		req.setAmendDate(impl.getAmend(req));
+		req.setAmendDate(treasuryCustomRepository.getAmend(req.getSerialno(),req.getBranchCode()));
 		if(StringUtils.isBlank(req.getAmendDate())) {
-			req.setAmendDate(impl.getTrans(req));
+			req.setAmendDate(treasuryCustomRepository.getTrans(req.getPolicyno(),req.getBranchCode()));
 		}
 		if(StringUtils.isBlank(req.getAccountDate())) {
 			list.add(new ErrorCheck(prop.getProperty("errors.payment.allocationDateReq"),"allocationDate","1"));
@@ -393,13 +392,19 @@ public class TreasuryValidation {
 		{
 			this.addActionError(getText("error.allocationDate"));
 		}*/
+		GetAllTransContractReq request=new GetAllTransContractReq();
+		request.setAlloccurrencyid(req.getAlloccurrencyId());
+		request.setBranchCode(req.getBranchCode());
+		request.setBrokerid(req.getBrokerId());
+		request.setCedingid(req.getCedingId());
+		GetAllTransContractRes1 res= impl.getAllTransContract(request);
+		List<GetAllTransContractRes> payList = res.getCommonResponse();
 		
-		List<TransContractRes> payList = impl.getAllTransContract(req);
 		
-		for(TransContractRes Obj : payList)//int i=0;i<payList.size();i++
+		for(GetAllTransContractRes Obj : payList)//int i=0;i<payList.size();i++
 		{	
 			
-			TransContractRes form = Obj;
+			GetAllTransContractRes form = Obj;
 			//if("Y".equalsIgnoreCase(form.getCheckYN()))
 			List<GetTransContractListReq> filterTrack = req.getTransContractListReq().stream().filter( o -> form.getTransactionno().equalsIgnoreCase(o.getTransactionNo()) ).collect(Collectors.toList());
 			if(!CollectionUtils.isEmpty(filterTrack)) {

@@ -14,6 +14,8 @@ public interface TtrnBillingTransactionRepository extends JpaRepository<TtrnBill
 
 	List<TtrnBillingTransaction> findByBillNo(BigDecimal bigDecimal);
 
+	List<TtrnBillingTransaction> findByBillNoAndBranchCode(BigDecimal bigDecimal, String branchCode);
+
 	//TtrnBillingTransaction findTop1OrderByBillSnoDesc();
 
 

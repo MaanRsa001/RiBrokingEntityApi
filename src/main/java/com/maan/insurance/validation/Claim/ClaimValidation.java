@@ -1179,7 +1179,10 @@ public ClaimValidation() {
 				}
 			}	
 				if("3".equalsIgnoreCase(req.getProductId())){
-				req.setReinstPremiumOCOS((req.getReinstPremiumOCOS()).replaceAll(",",""));
+					if(StringUtils.isBlank(req.getReinstType()) || "removed".equals(req.getReinstType())) {
+						list.add(new ErrorCheck("Please Select Reinstatement Type","Reinstatement Type","01"));
+					}
+					req.setReinstPremiumOCOS((req.getReinstPremiumOCOS()).replaceAll(",",""));
 				
 				}
 

@@ -270,7 +270,7 @@ public class TreasuryJpaServiceImpl  implements TreasuryService  {
 			res.setPaymentList(paylist);
 			res.setTotalConRecCur(String.valueOf(totConRecCur));
 			Integer iDiffAmt = treasuryCustomRepository
-					.getDiffAmt(ttrnPaymentReceiptDetailsMapper.format(req.getSerialno()), req.getBranchCode());
+					.getDiffAmt(ttrnPaymentReceiptDetailsMapper.formatLong(req.getSerialno()), req.getBranchCode());
 			diffAmt = (iDiffAmt == null ? "" : iDiffAmt.toString());
 			log.info("Result=>" + diffAmt);
 			if (diffAmt != null && diffAmt.length() > 0) {
@@ -317,7 +317,7 @@ public class TreasuryJpaServiceImpl  implements TreasuryService  {
 					res.setBroker(resMap.getBrokerId() == null ? "" : resMap.getBrokerId().toString());
 					res.setReceiptBankId(resMap.getReceiptBank() == null ? "" : resMap.getReceiptBank().toString());
 					res.setTrDate(resMap.getTransDate() == null ? ""
-							: resMap.getTransDate().toLocalDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+							: sdf.format(resMap.getTransDate()));
 					res.setPaymentAmount(resMap.getPaidAmt() == null ? "" : resMap.getPaidAmt().toString());
 					res.setCurrency(resMap.getCurrencyId() == null ? "" : resMap.getCurrencyId().toString());
 					res.setExrate(resMap.getExchangeRate() == null ? "" : resMap.getExchangeRate().toString());

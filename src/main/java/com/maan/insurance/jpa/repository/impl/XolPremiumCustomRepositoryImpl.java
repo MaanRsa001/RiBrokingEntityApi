@@ -475,8 +475,8 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 		predicate.add(cb.equal(root.get("endorsementNo"), endoSq));
 		if(!"transedit".equalsIgnoreCase(mode)) {
 			predicate.add(cb.isNull(root.get("transactionNo")));
-			predicate.add(cb.in(root.get("installmentNo")).value(iNoSq));
-			}	
+			predicate.add(cb.in(root.get("installmentNo")).value(iNoSq).not());
+		}	
 		cq.where(predicate.toArray(new Predicate[0])).orderBy(cb.asc(root.get("installmentNo")));
 		
 		return em.createQuery(cq).getResultList();

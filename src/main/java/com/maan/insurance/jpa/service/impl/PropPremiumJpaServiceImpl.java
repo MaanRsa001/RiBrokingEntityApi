@@ -3054,8 +3054,14 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 				res.setBrokerageVat(tempMap.get("BROKERAGE_VAT")==null?"0":tempMap.get("BROKERAGE_VAT").toString());		
 				res.setPremiumVat(tempMap.get("PREMIUM_VAT")==null?"0":tempMap.get("PREMIUM_VAT").toString());
 				res.setProposalNo(tempMap.get("PROPOSAL_NO")==null?"":tempMap.get("PROPOSAL_NO").toString());
-				response.setCommonResponse(res);	
-			}			
+					
+			}else {
+				res.setBrokerageAmt("0");
+				res.setBrokerageVat("0");		
+				res.setPremiumVat("0");
+				res.setProposalNo("");
+			}
+			response.setCommonResponse(res);
 			response.setMessage("Success");
 			response.setIsError(false);
 		    }catch (Exception e) {

@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -29,7 +30,6 @@ import org.hibernate.transform.AliasToEntityMapResultTransformer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.maan.insurance.jpa.entity.Dual;
 import com.maan.insurance.jpa.entity.treasury.BankMaster;
 import com.maan.insurance.jpa.entity.treasury.TtrnAllocatedTransaction;
 import com.maan.insurance.jpa.entity.treasury.TtrnPaymentReceipt;
@@ -71,7 +71,7 @@ public class TreasuryCustomRepositoryImpl implements TreasuryCustomRepository {
 	@Autowired
 	private QueryImplemention queryImpl;
 	
-
+	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 	// getSecondPageInfo(SecondPageInfoReq req) -- STARTS
 	@Override
 	public List<TtrnPaymentReceiptDetails> getSecondPageDtls(SecondPageInfoReq req) {
@@ -96,7 +96,7 @@ public class TreasuryCustomRepositoryImpl implements TreasuryCustomRepository {
 	}
 
 	@Override
-	public Integer getDiffAmt(Integer paymentReceiptNo, String branchCode) {
+	public Integer getDiffAmt(Long paymentReceiptNo, String branchCode) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<Integer> cq = cb.createQuery(Integer.class);
 		Root<TtrnPaymentReceipt> root = cq.from(TtrnPaymentReceipt.class);
@@ -1639,7 +1639,9 @@ public class TreasuryCustomRepositoryImpl implements TreasuryCustomRepository {
 				 cb.equal(tcdRoot.get("claimNo"), tcpRoot.get("claimNo")),
 				 cb.equal(cb.selectCase().when(cb.isNull(pRoot.get("layerNo")), 0).otherwise(pRoot.get("layerNo")),
 						 cb.selectCase().when(cb.isNull(tcdRoot.get("layerNo")), 0).otherwise(tcdRoot.get("layerNo"))),
-				cb.equal(pRoot.get("sectionNo"), tcdRoot.get("subClass")),
+				 cb.equal(cb.selectCase().when(cb.isNull(pRoot.get("sectionNo")), 0).otherwise(pRoot.get("sectionNo")),
+						 cb.selectCase().when(cb.isNull(tcdRoot.get("subClass")), 0).otherwise(tcdRoot.get("subClass"))),
+				//cb.equal(pRoot.get("sectionNo"), tcdRoot.get("subClass")),
 				cb.equal(pRoot.get("branchCode"), branchCode),
 				cb.notEqual(exp, 0),
 				cb.equal(pRoot.get("amendId"), pSq));
@@ -2243,5 +2245,49 @@ public class TreasuryCustomRepositoryImpl implements TreasuryCustomRepository {
 	public java.util.Date parseDateLocal(String input) throws ParseException {
 		SimpleDateFormat sdf1 = new SimpleDateFormat("DD/MM/YYYY");
 		return sdf1.parse(input);
+	}
+
+	@Override
+	public String getAmend(String paymentReceiptNo,String branchCode) {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Tuple> cq = cb.createQuery(Tuple.class);
+		Root<TtrnPaymentReceipt> root = cq.from(TtrnPaymentReceipt.class);
+
+		Subquery<Integer> sq = cq.subquery(Integer.class);
+		Root<TtrnPaymentReceipt> subRoot = sq.from(TtrnPaymentReceipt.class);
+
+		sq.select(cb.max(subRoot.get("amendId"))).where(
+				cb.equal(subRoot.get("paymentReceiptNo"), root.get("paymentReceiptNo")),
+				cb.equal(subRoot.get("branchCode"), root.get("branchCode")));
+
+		cq.multiselect(root.get("amendmentDate").alias("amendmentDate")).where(
+				cb.equal(root.get("paymentReceiptNo"), paymentReceiptNo), cb.equal(root.get("branchCode"), branchCode),
+				cb.equal(root.get("amendId"), sq));
+
+		TypedQuery<Tuple> q = em.createQuery(cq);
+		List<Tuple> receiptList = q.getResultList();
+		return receiptList != null && receiptList.get(0).get("amendmentDate")!=null ? sdf.format(receiptList.get(0).get("amendmentDate")) : null;
+	}
+
+	@Override
+	public String getTrans(String paymentReceiptNo,String branchCode) {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Tuple> cq = cb.createQuery(Tuple.class);
+		Root<TtrnPaymentReceipt> root = cq.from(TtrnPaymentReceipt.class);
+
+		Subquery<Integer> sq = cq.subquery(Integer.class);
+		Root<TtrnPaymentReceipt> subRoot = sq.from(TtrnPaymentReceipt.class);
+
+		sq.select(cb.max(subRoot.get("amendId"))).where(
+				cb.equal(subRoot.get("paymentReceiptNo"), root.get("paymentReceiptNo")),
+				cb.equal(subRoot.get("branchCode"), root.get("branchCode")));
+
+		cq.multiselect(root.get("transDate").alias("transDate")).where(
+				cb.equal(root.get("paymentReceiptNo"), paymentReceiptNo), cb.equal(root.get("branchCode"), branchCode),
+				cb.equal(root.get("amendId"), sq));
+
+		TypedQuery<Tuple> q = em.createQuery(cq);
+		List<Tuple> receiptList = q.getResultList();
+		return receiptList != null && receiptList.get(0).get("transDate")!=null ? sdf.format(receiptList.get(0).get("transDate")) : null;
 	}
 }

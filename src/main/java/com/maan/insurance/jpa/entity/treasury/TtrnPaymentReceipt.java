@@ -1,6 +1,6 @@
 package com.maan.insurance.jpa.entity.treasury;
 
-import java.sql.Date;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

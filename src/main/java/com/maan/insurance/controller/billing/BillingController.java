@@ -3,6 +3,8 @@ package com.maan.insurance.controller.billing;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,11 +13,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.maan.insurance.error.CommonValidationException;
 import com.maan.insurance.error.ErrorCheck;
 
-import com.maan.insurance.model.req.billing.EditBillingInfoReq;
+
 import com.maan.insurance.model.req.billing.GetBillingInfoListReq;
 import com.maan.insurance.model.req.billing.GetTransContractReqRi;
 import com.maan.insurance.model.req.billing.InsertBillingInfoReq;
 import com.maan.insurance.model.req.billing.ReverseInsertReq;
+
 import com.maan.insurance.model.res.billing.EditBillingInfoRes;
 import com.maan.insurance.model.res.billing.GetBillingInfoListRes;
 import com.maan.insurance.model.res.billing.GetTransContractResRi;
@@ -66,13 +69,13 @@ public class BillingController {
 		}
 		return serv.getTransContractRi(req);
 		}
-	@PostMapping("/editBillingInfo")
-	public EditBillingInfoRes editBillingInfo(@RequestBody EditBillingInfoReq req) throws CommonValidationException {
-		List<ErrorCheck> error = val.editBillingInfo(req);
+	@GetMapping("/editBillingInfo/{billingNo}/{branchCode}")
+	public EditBillingInfoRes editBillingInfo(@PathVariable("billingNo") String billingNo,@PathVariable("branchCode") String branchCode) throws CommonValidationException {
+		List<ErrorCheck> error = val.editBillingInfo(billingNo,branchCode);
 		if(error!=null && error.size()>0) {
 			throw new CommonValidationException("error",error);
 		}
-		return serv.editBillingInfo(req);
+		return serv.editBillingInfo(billingNo,branchCode);
 	}
 	@PostMapping("/save/reverse")
 	public ReverseInsertRes savereverseInsert(@RequestBody ReverseInsertReq req) throws CommonValidationException {
