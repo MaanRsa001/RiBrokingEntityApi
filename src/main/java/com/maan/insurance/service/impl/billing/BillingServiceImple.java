@@ -39,10 +39,12 @@ import com.maan.insurance.model.repository.TtrnBillingDetailsRepository;
 import com.maan.insurance.model.repository.TtrnBillingInfoRepository;
 import com.maan.insurance.model.repository.TtrnBillingTransactionRepository;
 import com.maan.insurance.model.req.GetTransContractListReq;
+
 import com.maan.insurance.model.req.billing.EditBillingInfoReq;
 import com.maan.insurance.model.req.billing.GetBillingInfoListReq;
 import com.maan.insurance.model.req.billing.GetTransContractReqRi;
 import com.maan.insurance.model.req.billing.InsertBillingInfoReq;
+import com.maan.insurance.model.req.billing.ReverseInsertReq;
 import com.maan.insurance.model.res.billing.EditBillingInfoComRes;
 import com.maan.insurance.model.res.billing.EditBillingInfoRes;
 import com.maan.insurance.model.res.billing.EditBillingInfoRes1;
@@ -51,6 +53,8 @@ import com.maan.insurance.model.res.billing.GetBillingInfoListRes;
 import com.maan.insurance.model.res.billing.GetBillingInfoListRes1;
 import com.maan.insurance.model.res.billing.GetTransContractRes1Ri;
 import com.maan.insurance.model.res.billing.GetTransContractResRi;
+import com.maan.insurance.model.res.billing.ReverseInsertRes;
+import com.maan.insurance.model.res.billing.ReverseInsertRes1;
 import com.maan.insurance.model.res.retro.CommonResponse;
 import com.maan.insurance.service.billing.BillingService;
 import com.maan.insurance.validation.Formatters;
@@ -793,12 +797,173 @@ public class BillingServiceImple implements  BillingService {
 					response.add(res);
 					}
 			}
-			
-			
+		
 			}catch(Exception e){
 				e.printStackTrace();
 			}
 			return response;
+	}
+
+	@Override
+	public ReverseInsertRes savereverseInsert(ReverseInsertReq req) {
+		String[] args = null;
+		ReverseInsertRes response = new ReverseInsertRes();
+		List<ReverseInsertRes1> reverseRes = new ArrayList<ReverseInsertRes1>();
+		
+		String currency = "";
+		Double a = 0.0, b = 0.0, c = 0.0, diff = 0.0;
+		try {
+			List<Tuple> resList = new ArrayList<>();
+			
+			if (StringUtils.isBlank(req.getSerialNo())) {
+				//Query -- payment.select.getAlloTransDtls1
+				resList = billingCustomRepository.getAlloTransDtls(req.getPayRecNo(), null);
+			} else {
+				//Query -- payment.select.getAlloTransDtls
+				resList = billingCustomRepository.getAlloTransDtls(req.getPayRecNo(), req.getSerialNo());
+			}
+
+			String curencyId = "";
+			if (resList.size() > 0) {
+				for (int i = 0; i < resList.size(); i++) {
+					ReverseInsertRes1 res1 = new ReverseInsertRes1();
+					Tuple resMap = resList.get(i);
+					curencyId = resMap.get(12) == null ? "" : resMap.get(12).toString();
+					if ("Y".equalsIgnoreCase(resMap.get(13) == null ? "" : resMap.get(13).toString())) {
+
+						res1.setSerialNo(resMap.get(0) == null ? "" : resMap.get(0).toString());
+						res1.setAllocateddate(
+								resMap.get(1) == null ? "" : new SimpleDateFormat("dd/MM/yyyy").format(resMap.get(1)).toString());
+						String currencyId = resMap.get(12) == null ? ""
+								: resMap.get(12).toString();
+						
+						//Query -- payment.select.getSelCurrency
+						currency = billingCustomRepository.getSelCurrency(req.getBranchCode(), currencyId);
+						currency = currency == null ? "" : currency;
+						res1.setCurrency(currency);
+
+						res1.setTransactionNo(
+								resMap.get(5) == null ? "" : resMap.get(5).toString());
+						res1.setContractNo(
+								resMap.get(6) == null ? "" : resMap.get(6).toString());
+						res1.setProductName(
+								resMap.get(7) == null ? "" : resMap.get(7).toString());
+						res1.setType(resMap.get(8) == null ? "" : resMap.get(8).toString());
+						
+						args = new String[8];
+						args[0] = "R";
+						args[1] = req.getReversalDate();
+						args[2] = "RE".equalsIgnoreCase(resMap.get(8)==null?"":resMap.get(8).toString())?resMap.get(11)==null?"":resMap.get(11).toString():resMap.get(10)==null?"":resMap.get(10).toString();
+						args[3] = "0";
+						args[4] = req.getLoginId();
+						args[5] = req.getBranchCode();
+						args[6] = resMap.get(5)==null?"":resMap.get(5).toString();
+						args[7] = resMap.get(0)==null?"":resMap.get(0).toString();
+						
+						//Query -- payment.update.allocatedDtls
+						billingCustomRepository.updateAllocatedDtls(args);
+
+						if ("P".equalsIgnoreCase(resMap.get(8) == null ? "" : resMap.get(8).toString())) {
+							args = new String[5];
+							args[0] = resMap.get(10)==null?"":resMap.get(10).toString();
+							args[1] = req.getLoginId();
+							args[2] = req.getBranchCode();
+							args[3] = resMap.get(6)==null?"":resMap.get(6).toString();
+							args[4] = resMap.get(5)==null?"":resMap.get(5).toString();
+							
+							//Query -- payment.update.rskPremDtls1
+							billingCustomRepository.updateRskPremDtls(args);
+
+							args = new String[2];
+							args[0] = resMap.get(6)==null?"":resMap.get(6).toString();
+							args[1] = resMap.get(5)==null?"":resMap.get(5).toString();
+							
+							//Query -- payment.select.getRskPremDtls
+							List<Tuple> rskList = billingCustomRepository.getRskPremDtls(args[0], args[1]);
+							diff = (Double) rskList.get(0).get(0) - (Double) rskList.get(0).get(1); 
+							if (!CollectionUtils.isEmpty(rskList)) {
+								res1.setNetDue(diff.toString());
+							}
+
+							a = a + Double.parseDouble(
+									resMap.get(10) == null ? "" : resMap.get(10).toString());
+
+						} else if ("C"
+								.equalsIgnoreCase(resMap.get(8) == null ? "" : resMap.get(8).toString())) {
+							args = new String[6];
+							args[0] = "Pending";
+							args[1] = resMap.get(10)==null?"":resMap.get(10).toString();
+							args[2] = req.getBranchCode();
+							args[3] = req.getLoginId();
+							args[4] = resMap.get(6)==null?"":resMap.get(6).toString();
+							args[5] = resMap.get(5)==null?"":resMap.get(5).toString();
+							
+							//Query -- payment.update.claimPymtDtls
+							billingCustomRepository.updateClaimPymtDtls(args);
+
+							args = new String[2];
+							args[0] = resMap.get(6)==null?"":resMap.get(6).toString();
+							args[1] = resMap.get(5)==null?"":resMap.get(5).toString();
+							
+							//Query -- payment.select.getClaimPymtDtls
+							List<Tuple> claim = billingCustomRepository.getClaimPymtDtls(args[0], args[1]);
+							diff = (Double) claim.get(0).get(0) - (Double) claim.get(0).get(1); 
+							if (!CollectionUtils.isEmpty(claim)) {
+								res1.setPayAmount((diff == null ? ""
+										: diff.toString()));
+							}
+
+							b = b + Double.parseDouble(
+									resMap.get(10) == null ? "" : resMap.get(10).toString());
+
+						} 
+						reverseRes.add(res1);
+					}
+
+				}
+				if ("RT".equalsIgnoreCase(req.getTransType())) {
+					c = a - b;
+					
+				} else if ("PT".equalsIgnoreCase(req.getTransType())) {
+					c = b - a;
+					
+				}
+				if ("RE".equalsIgnoreCase(req.getRetroType())) {
+					c = a;
+				}
+
+				args = new String[5];
+				args[0] = c.toString();
+				args[1] = req.getLoginId();
+				args[2] = req.getBranchCode();
+				args[3] = req.getPayRecNo();
+				args[4] = curencyId;
+				
+				//Query -- payment.update.pymtRetDtls
+				billingCustomRepository.updatePymtRetDtls(args);
+
+				args = new String[2];
+				args[0] = req.getPayRecNo();
+				args[1] = curencyId;
+				
+				//Query -- payment.select.getPymtRetDtls
+				List<Tuple> paymentRet = billingCustomRepository.getPymtRetDtls(req.getPayRecNo(), curencyId);
+				diff = (Double) paymentRet.get(0).get(0) - (Double) paymentRet.get(0).get(1); 
+				
+				if (!CollectionUtils.isEmpty(paymentRet)) {
+					//res1.setPayAmount(diff == null ? "": diff.toString());
+				}
+
+				response.setCommonResponse(reverseRes);
+
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.setMessage("Failed");
+			response.setIsError(true);
+		}
+		return response;
+
 	}
 
 }

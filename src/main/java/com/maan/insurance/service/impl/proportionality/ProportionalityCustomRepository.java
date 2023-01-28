@@ -92,4 +92,6 @@ public interface ProportionalityCustomRepository {
 
 	String getMaxSectionNoDet(String proposalNo);
 
+	List<Tuple> riskSelectGetSecPageData(String proposalNo, String branchCode, String productId);
+
 }

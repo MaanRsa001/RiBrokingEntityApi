@@ -3151,20 +3151,11 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 		ShowSecondPageDataRes response = new ShowSecondPageDataRes();
 		ShowSecondPageDataRes1 res = new ShowSecondPageDataRes1();
 		try {
-			String selectQry = "";
-			String[] args=new String[7];
-			args[0]=req.getProposalNo();
-			args[1]=req.getBranchCode();
-			args[2]=req.getBranchCode();
-			args[3]=req.getProductId();
-			args[4]=req.getBranchCode();
-			args[5]=req.getBranchCode();
-			args[6]=req.getBranchCode();
-			selectQry = "risk.select.getSecPageData"; //select RTRIM(XMLAGG(XMLELEMEN
-			List<Map<String, Object>> list = queryImpl.selectList(selectQry,args);
-			Map<String, Object> resMap = null;
+			//risk.select.getSecPageData //select RTRIM(XMLAGG(XMLELEMEN pending
+			List<Tuple> list =	proportionalityCustomRepository.riskSelectGetSecPageData(req.getProposalNo(),req.getBranchCode(),req.getProductId());
+			Tuple resMap = null;
 			if(list!=null && list.size()>0)
-				resMap = (Map<String, Object>)list.get(0);
+				resMap = list.get(0);
 			if(resMap!=null){
 				res.setProposalNo(resMap.get("RSK_PROPOSAL_NUMBER")==null?"":resMap.get("RSK_PROPOSAL_NUMBER").toString());
 				res.setSubProfitcenter(resMap.get("TMAS_SPFC_NAME")==null?"":resMap.get("TMAS_SPFC_NAME").toString()); 

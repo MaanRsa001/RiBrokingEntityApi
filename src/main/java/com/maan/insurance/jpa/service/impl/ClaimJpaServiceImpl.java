@@ -1529,8 +1529,8 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 					res.setSignedShare(contractDetails.get("RSK_SHARE_SIGNED")==null?"":contractDetails.get("RSK_SHARE_SIGNED").toString());
 					res.setLimitOrigCurr(contractDetails.get("RSK_LIMIT_OC")==null?"":fm.formatter(contractDetails.get("RSK_LIMIT_OC").toString()));
 					res.setLimitOurshareUSD(contractDetails.get("RSK_LIMIT_DC")==null?"":fm.formatter(contractDetails.get("RSK_LIMIT_DC").toString()));
-					res.setSumInsOSOC(contractDetails.get("RSK_LIMIT_OS_OC")==null?"":fm.formatter(contractDetails.get("RSK_LIMIT_OS_OC").toString()));
-					res.setSumInsOSDC(contractDetails.get("RSK_LIMIT_OS_DC")==null?"":fm.formatter(contractDetails.get("RSK_LIMIT_OS_DC").toString()));
+					res.setSumInsOSOC(contractDetails.get("RSK_TREATY_SURP_LIMIT_OC")==null?"":fm.formatter(contractDetails.get("RSK_TREATY_SURP_LIMIT_OC").toString()));
+					res.setSumInsOSDC(contractDetails.get("RSK_TREATY_SURP_LIMIT_DC")==null?"":fm.formatter(contractDetails.get("RSK_TREATY_SURP_LIMIT_DC").toString()));
 					res.setDepartmentName(contractDetails.get("TMAS_DEPARTMENT_NAME")==null?"":contractDetails.get("TMAS_DEPARTMENT_NAME").toString());
 					}
 					res.setSubProfitCenter(contractDetails.get("TMAS_SPFC_NAME")==null?"":contractDetails.get("TMAS_SPFC_NAME").toString());

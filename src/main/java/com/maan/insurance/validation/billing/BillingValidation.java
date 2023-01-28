@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import com.maan.insurance.error.ErrorCheck;
 import com.maan.insurance.jpa.service.impl.ClaimJpaServiceImpl;
 import com.maan.insurance.model.req.GetTransContractReq;
+import com.maan.insurance.model.req.ReverseInsertReq;
 import com.maan.insurance.model.req.billing.EditBillingInfoReq;
 import com.maan.insurance.model.req.billing.GetBillingInfoListReq;
 import com.maan.insurance.model.req.billing.GetTransContractReqRi;
@@ -156,5 +157,13 @@ public List<ErrorCheck> editBillingInfo(EditBillingInfoReq req) {
 		list.add(new ErrorCheck("Please Enter BillingNo", "BillingNo", "1"));
 	}
 	return list;
+}
+
+
+
+
+public List<ErrorCheck> reverseInsertvalidate(com.maan.insurance.model.req.billing.ReverseInsertReq req) {
+	// TODO Auto-generated method stub
+	return null;
 }
 }

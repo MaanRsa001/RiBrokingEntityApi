@@ -28,5 +28,24 @@ public interface BillingCustomRepository {
 	public Integer updateclaimRiSetStatus(String[] updateArgs);
 
 	public Integer updateRskPremRiChkyn();
+
+
+	List<Tuple> getAlloTransDtls(String receiptNo, String serialNo);
+
+	String getSelCurrency(String branchCode, String currencyId);
+
+	Integer updateAllocatedDtls(String[] args);
+
+	Integer updateRskPremDtls(String[] args);
+
+	List<Tuple> getRskPremDtls(String string, String string2);
+
+	Integer updateClaimPymtDtls(String[] args);
+
+	List<Tuple> getClaimPymtDtls(String string, String string2);
+
+	Integer updatePymtRetDtls(String[] args);
+
+	List<Tuple> getPymtRetDtls(String payRecNo, String curencyId);
 }
 

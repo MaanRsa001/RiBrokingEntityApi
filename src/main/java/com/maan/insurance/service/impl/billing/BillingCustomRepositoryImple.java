@@ -1,5 +1,8 @@
 package com.maan.insurance.service.impl.billing;
 
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -21,16 +24,16 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.maan.insurance.jpa.entity.treasury.TtrnAllocatedTransaction;
 import com.maan.insurance.jpa.entity.treasury.TtrnPaymentReceiptDetails;
-import com.maan.insurance.jpa.entity.treasury.TtrnRetroSoa;
-import com.maan.insurance.jpa.repository.treasury.TreasuryCustomRepository;
+import com.maan.insurance.model.entity.CurrencyMaster;
 import com.maan.insurance.model.entity.PersonalInfo;
 import com.maan.insurance.model.entity.PositionMaster;
 import com.maan.insurance.model.entity.RskPremiumDetails;
 import com.maan.insurance.model.entity.RskPremiumDetailsRi;
 import com.maan.insurance.model.entity.TmasProductMaster;
-import com.maan.insurance.model.entity.TtrnBillingDetails;
 import com.maan.insurance.model.entity.TtrnBillingInfo;
+import com.maan.insurance.model.entity.TtrnBillingTransaction;
 import com.maan.insurance.model.entity.TtrnClaimDetails;
 import com.maan.insurance.model.entity.TtrnClaimPayment;
 import com.maan.insurance.model.entity.TtrnClaimPaymentRi;
@@ -649,4 +652,212 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 		Query q = em.createQuery(update);
 		return q.executeUpdate();
 	}
+
+	@Override
+	public List<Tuple> getAlloTransDtls(String receiptNo, String serialNo) {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Tuple> cq = cb.createTupleQuery();
+		Root<TtrnBillingTransaction> root = cq.from(TtrnBillingTransaction.class);
+
+		if (serialNo != null) {
+			cq.multiselect(root.get("sno"),
+					root.get("inceptionDate"),
+					root.get("reversalDate"),
+					cb.selectCase().when(cb.greaterThan(root.get("reversalAmount"), 0), "C").otherwise("P"),
+					cb.abs(root.get("reversalAmount")), 
+					root.get("transactionNo").as(String.class), 
+					root.get("contractNo").as(String.class),
+					root.get("productName"),
+					root.get("type"),
+					cb.selectCase().when(cb.greaterThan(root.get("paidAmount"), 0), "C").otherwise("P"),
+					root.get("paidAmount"),
+					root.get("paidAmount"),
+					root.get("currencyId"),
+					root.get("status"),
+					root.get("receiptNo"),
+					cb.selectCase().when(cb.equal(root.get("adjustmentType"), "W"), "Write Off")
+					.when(cb.equal(root.get("adjustmentType"), "R"), "Round Off").otherwise(""));
+			
+			cq.where(cb.equal(root.get("receiptNo"), receiptNo), cb.equal(root.get("sno"), serialNo));
+		}else {
+			cq.multiselect(root.get("sno"),
+					root.get("inceptionDate"),
+					root.get("reversalDate"),
+					cb.selectCase().when(cb.greaterThan(root.get("reversalAmount"), 0), "C").otherwise("P"),
+					cb.abs(root.get("reversalAmount")), 
+					root.get("transactionNo").as(String.class), 
+					root.get("contractNo").as(String.class),
+					root.get("productName"),
+					root.get("type"),
+					cb.selectCase().when(cb.greaterThan(root.get("paidAmount"), 0), "C").otherwise("P"),
+					root.get("paidAmount"),
+					root.get("paidAmount"),
+					root.get("currencyId"),
+					root.get("status"),
+					root.get("receiptNo"));
+			cq.where(cb.equal(root.get("receiptNo"), receiptNo));
+		}
+
+		cq.orderBy(cb.desc(root.get("sno")));
+
+		return em.createQuery(cq).getResultList();
+	}
+
+	@Override
+	public String getSelCurrency(String branchCode, String currencyId) {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<String> cq = cb.createQuery(String.class);
+		Root<CurrencyMaster> root = cq.from(CurrencyMaster.class);
+
+		Subquery<Integer> sq = cq.subquery(Integer.class);
+		Root<CurrencyMaster> subRoot = sq.from(CurrencyMaster.class);
+
+		sq.select(cb.max(subRoot.get("amendId"))).where(cb.equal(subRoot.get("currencyId"), root.get("currencyId")),
+				cb.equal(subRoot.get("branchCode"), root.get("branchCode")));
+
+		cq.select(root.get("shortName")).where(cb.equal(root.get("branchCode"), branchCode),
+				cb.equal(root.get("currencyId"), currencyId), cb.equal(root.get("amendId"), sq));
+
+		TypedQuery<String> q = em.createQuery(cq);
+		String shortName = q.getSingleResult();
+		return shortName;
+	}
+
+	@Transactional
+	@Override
+	public Integer updateAllocatedDtls(String[] args) {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaUpdate<TtrnBillingTransaction> update = cb.createCriteriaUpdate(TtrnBillingTransaction.class);
+		Root<TtrnBillingTransaction> root = update.from(TtrnBillingTransaction.class);
+
+		try {
+			update.set(root.get("status"), args[0]).set(root.get("reversalDate"), parseDateLocal(args[1]))
+					.set(root.get("reversalAmount"), new BigDecimal(args[2])).set(root.get("paidAmount"), new BigDecimal(args[3]))
+					.set(root.get("loginId"), args[4]).set(root.get("branchCode"), args[5])
+					.set(root.get("sysDate"), new java.util.Date(Calendar.getInstance().getTime().getTime()));
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		update.where(cb.equal(root.get("transactionNo"), args[6]), cb.equal(root.get("sno"), args[7]));
+
+		Query q = em.createQuery(update);
+		return q.executeUpdate();
+	}
+
+	public java.util.Date parseDateLocal(String input) throws ParseException {
+		SimpleDateFormat sdf1 = new SimpleDateFormat("DD/MM/YYYY");
+		return sdf1.parse(input);
+	}
+
+	@Override
+	public Integer updateRskPremDtls(String[] args) {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaUpdate<RskPremiumDetails> update = cb.createCriteriaUpdate(RskPremiumDetails.class);
+		Root<RskPremiumDetails> root = update.from(RskPremiumDetails.class);
+
+		Double allocated = getAllocatedTillDate(args[4], args[5], "RskPremiumDetails") - Double.parseDouble(args[1]);
+		update.set(root.get("settlementStatus"), args[0]).set(root.get("allocatedTillDate"), allocated)
+				.set(root.get("loginId"), args[2]).set(root.get("branchCode"), args[3]);
+
+		update.where(cb.equal(root.get("contractNo"), args[4]), cb.equal(root.get("transactionNo"), args[5]));
+
+		Query q = em.createQuery(update);
+		return q.executeUpdate();
+	}
+
+	@Override
+	public List<Tuple> getRskPremDtls(String contractNo, String transactionNo) {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Tuple> cq = cb.createTupleQuery();
+		Root<RskPremiumDetails> root = cq.from(RskPremiumDetails.class);
+		cq.multiselect(cb.selectCase().when(cb.isNull(root.get("netdueOc")), 0.0).otherwise(root.get("netdueOc")),
+				cb.selectCase().when(cb.isNull(root.get("allocatedTillDate")), 0.0)
+						.otherwise(root.get("allocatedTillDate")));
+		cq.where(cb.equal(root.get("contractNo"), contractNo), cb.equal(root.get("transactionNo"), transactionNo));
+
+		return em.createQuery(cq).getResultList();
+	}
+
+	@Override
+	@Transactional
+	public Integer updateClaimPymtDtls(String[] args) {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaUpdate<TtrnClaimPayment> update = cb.createCriteriaUpdate(TtrnClaimPayment.class);
+		Root<TtrnClaimPayment> root = update.from(TtrnClaimPayment.class);
+
+		Double allocated = getAllocatedTillDate(args[4], args[5], "TtrnClaimPayment") - Double.parseDouble(args[1]);
+		update.set(root.get("settlementStatus"), args[0]).set(root.get("allocatedTillDate"), allocated)
+				.set(root.get("sysDate"), new java.util.Date(Calendar.getInstance().getTime().getTime()))
+				.set(root.get("branchCode"), args[2]).set(root.get("loginId"), args[3]);
+
+		update.where(cb.equal(root.get("contractNo"), args[4]), cb.equal(root.get("claimPaymentNo"), args[5]));
+
+		Query q = em.createQuery(update);
+		return q.executeUpdate();
+	}
+
+	@Override
+	public List<Tuple> getClaimPymtDtls(String contractNo, String claimPaymentNo) {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Tuple> cq = cb.createTupleQuery();
+		Root<TtrnClaimPayment> root = cq.from(TtrnClaimPayment.class);
+		cq.multiselect(
+				cb.selectCase().when(cb.isNull(root.get("paidAmountOc")), 0.0).otherwise(root.get("paidAmountOc")),
+				cb.selectCase().when(cb.isNull(root.get("allocatedTillDate")), 0.0)
+						.otherwise(root.get("allocatedTillDate")));
+		cq.where(cb.equal(root.get("contractNo"), contractNo), cb.equal(root.get("claimPaymentNo"), claimPaymentNo));
+
+		return em.createQuery(cq).getResultList();
+	}
+
+	@Transactional
+	@Override
+	public Integer updatePymtRetDtls(String[] args) {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaUpdate<TtrnPaymentReceiptDetails> update = cb.createCriteriaUpdate(TtrnPaymentReceiptDetails.class);
+		Root<TtrnPaymentReceiptDetails> root = update.from(TtrnPaymentReceiptDetails.class);
+
+		Subquery<Integer> sq = update.subquery(Integer.class);
+		Root<TtrnPaymentReceiptDetails> subRoot = sq.from(TtrnPaymentReceiptDetails.class);
+
+		sq.select(cb.max(subRoot.get("amendId"))).where(cb.equal(subRoot.get("receiptNo"), root.get("receiptNo")),
+				cb.equal(subRoot.get("receiptSlNo"), root.get("receiptSlNo")));
+
+		Double allocated = getAllocatedTillDate(args[3], args[4], "TtrnPaymentReceiptDetails")
+				- Double.parseDouble(args[0]);
+		update.set(root.get("allocatedTillDate"), allocated)
+				.set(root.get("sysDate"), new java.util.Date(Calendar.getInstance().getTime().getTime()))
+				.set(root.get("branchCode"), args[2]).set(root.get("loginId"), args[1]);
+
+		update.where(cb.equal(root.get("receiptSlNo"), args[3]), cb.equal(root.get("currencyId"), args[4]),
+				cb.equal(root.get("amendId"), sq));
+
+		Query q = em.createQuery(update);
+		return q.executeUpdate();
+	}
+
+	@Override
+	public List<Tuple> getPymtRetDtls(String receiptSlNo, String currencyId) {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Tuple> cq = cb.createTupleQuery();
+		Root<TtrnPaymentReceiptDetails> root = cq.from(TtrnPaymentReceiptDetails.class);
+
+		Subquery<Integer> sq = cq.subquery(Integer.class);
+		Root<TtrnPaymentReceiptDetails> subRoot = sq.from(TtrnPaymentReceiptDetails.class);
+
+		sq.select(cb.max(subRoot.get("amendId"))).where(cb.equal(subRoot.get("receiptNo"), root.get("receiptNo")),
+				cb.equal(subRoot.get("receiptSlNo"), root.get("receiptSlNo")));
+
+		cq.multiselect(cb.selectCase().when(cb.isNull(root.get("amount")), 0.0).otherwise(root.get("amount")),
+				cb.selectCase().when(cb.isNull(root.get("allocatedTillDate")), 0.0)
+						.otherwise(root.get("allocatedTillDate")));
+		cq.where(cb.equal(root.get("receiptSlNo"), receiptSlNo), cb.equal(root.get("currencyId"), currencyId),
+				cb.equal(root.get("amendId"), sq));
+
+		return em.createQuery(cq).getResultList();
+	}
+
+	
 }

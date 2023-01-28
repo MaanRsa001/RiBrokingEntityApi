@@ -3,10 +3,12 @@ package com.maan.insurance.service.billing;
 import org.springframework.stereotype.Service;
 
 import com.maan.insurance.model.req.GetTransContractReq;
+import com.maan.insurance.model.req.ReverseInsertReq;
 import com.maan.insurance.model.req.billing.EditBillingInfoReq;
 import com.maan.insurance.model.req.billing.GetBillingInfoListReq;
 import com.maan.insurance.model.req.billing.GetTransContractReqRi;
 import com.maan.insurance.model.req.billing.InsertBillingInfoReq;
+import com.maan.insurance.model.res.ReverseInsertRes;
 import com.maan.insurance.model.res.billing.EditBillingInfoRes;
 import com.maan.insurance.model.res.billing.GetBillingInfoListRes;
 import com.maan.insurance.model.res.billing.GetTransContractResRi;
@@ -25,5 +27,9 @@ public interface BillingService {
 	GetTransContractResRi getTransContractRi(GetTransContractReqRi req);
 
 	EditBillingInfoRes editBillingInfo(EditBillingInfoReq req);
+
+
+	com.maan.insurance.model.res.billing.ReverseInsertRes savereverseInsert(
+			com.maan.insurance.model.req.billing.ReverseInsertReq req);
 
 }

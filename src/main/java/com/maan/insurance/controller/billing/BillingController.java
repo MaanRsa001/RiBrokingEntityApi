@@ -11,21 +11,15 @@ import org.springframework.web.bind.annotation.RestController;
 import com.maan.insurance.error.CommonValidationException;
 import com.maan.insurance.error.ErrorCheck;
 
-import com.maan.insurance.model.req.billing.GetBillingInfoListReq;
-import com.maan.insurance.model.req.billing.GetTransContractReqRi;
-import com.maan.insurance.model.req.billing.InsertBillingInfoReq;
-
-import com.maan.insurance.model.req.GetTransContractReq;
 import com.maan.insurance.model.req.billing.EditBillingInfoReq;
 import com.maan.insurance.model.req.billing.GetBillingInfoListReq;
 import com.maan.insurance.model.req.billing.GetTransContractReqRi;
 import com.maan.insurance.model.req.billing.InsertBillingInfoReq;
-import com.maan.insurance.model.req.claim.ProposalNoReq;
-import com.maan.insurance.model.res.GetTransContractRes1;
+import com.maan.insurance.model.req.billing.ReverseInsertReq;
 import com.maan.insurance.model.res.billing.EditBillingInfoRes;
-
 import com.maan.insurance.model.res.billing.GetBillingInfoListRes;
 import com.maan.insurance.model.res.billing.GetTransContractResRi;
+import com.maan.insurance.model.res.billing.ReverseInsertRes;
 import com.maan.insurance.model.res.retro.CommonResponse;
 import com.maan.insurance.service.billing.BillingService;
 import com.maan.insurance.validation.billing.BillingValidation;
@@ -79,5 +73,13 @@ public class BillingController {
 			throw new CommonValidationException("error",error);
 		}
 		return serv.editBillingInfo(req);
+	}
+	@PostMapping("/save/reverse")
+	public ReverseInsertRes savereverseInsert(@RequestBody ReverseInsertReq req) throws CommonValidationException {
+		List<ErrorCheck> error=val.reverseInsertvalidate(req);
+		if(error!=null && error.size()>0) {
+			throw new CommonValidationException("error",error);
+		}
+		return serv.savereverseInsert(req);
 	}
 }
