@@ -187,13 +187,13 @@ public class BillingServiceImple implements  BillingService {
 			Double a=0.0,b=0.0,c=0.0;
 		
 		//	billsnNo=getSequence("TreasuryARP","","", req.getBranchCode(),"",req.getBillDate());
-			billsnNo = String.valueOf(billingCustomRepository.getNextRetDtlsNo());
+			
 			
 			
 			String [] args = null;
 		
 			for(int i=0;i<payList.size();i++) {
-		
+				billsnNo = String.valueOf(billingCustomRepository.getNextRetDtlsNo());
 				GetTransContractRes1Ri form= payList.get(i);
 		
 			List<GetTransContractListReq> filterTrack = req.getTransContractListReq().stream().filter( o -> form.getTransactionNo().equalsIgnoreCase(o.getTransactionNo()) ).collect(Collectors.toList());
@@ -307,13 +307,13 @@ public class BillingServiceImple implements  BillingService {
 			Double a=0.0,b=0.0,c=0.0;
 		
 		//	billsnNo=getSequence("TreasuryARP","","", req.getBranchCode(),"",req.getBillDate());
-			billsnNo = String.valueOf(billingCustomRepository.getNextRetDtlsNo());
+			
 			
 			
 			String [] args = null;
 		
 			for(int i=0;i<payList.size();i++) {
-		
+				billsnNo = String.valueOf(billingCustomRepository.getNextRetDtlsNo());
 				GetTransContractRes1Ri form= payList.get(i);
 		
 			List<GetTransContractListReq> filterTrack = req.getTransContractListReq().stream().filter( o -> form.getTransactionNo().equalsIgnoreCase(o.getTransactionNo()) ).collect(Collectors.toList());

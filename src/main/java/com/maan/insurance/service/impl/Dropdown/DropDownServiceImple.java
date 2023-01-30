@@ -1404,8 +1404,8 @@ public class DropDownServiceImple implements DropDownService{
 							resList.add(resp);
 						}	
 				}
-				resList.sort(Comparator.comparing(CommonResDropDown :: getCodeDescription));
 			}
+			resList.sort(Comparator.comparing(CommonResDropDown :: getCodeDescription));
 			response.setCommonResponse(resList);
 			response.setMessage("Success");
 			response.setIsError(false);

@@ -26,7 +26,7 @@ public class ReverseInsertReq {
 	@JsonProperty("RoundingAmount")
     private String roundingAmount ;
 	
-	@JsonProperty("UtilizedTillDate")
+	@JsonProperty("BillAmount")
     private String utilizedTillDate ;
 	
 	

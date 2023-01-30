@@ -85,7 +85,7 @@ public class TtrnPaymentReceipt {
 	private String revtransalType;
 	
 	@Column(name ="REVERSALTRANSNO")
-	private Integer reversalTransNo;
+	private Long reversalTransNo;
 	
 	@Column(name ="REVERSALDATE")
 	private Date reversalDate;

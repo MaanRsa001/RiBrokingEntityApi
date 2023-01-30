@@ -76,10 +76,10 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 	public Integer getNextRetDtlsNo() {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<Integer> cq = cb.createQuery(Integer.class);
-		Root<TtrnPaymentReceiptDetails> root = cq.from(TtrnPaymentReceiptDetails.class);
+		Root<TtrnBillingTransaction> root = cq.from(TtrnBillingTransaction.class);
 
-		cq.multiselect(cb.selectCase().when(cb.isNull(cb.max(root.get("receiptNo"))), 0)
-				.otherwise(cb.sum(cb.max(root.get("receiptNo")), 1)));
+		cq.multiselect(cb.selectCase().when(cb.isNull(cb.max(root.get("billSno"))), 0)
+				.otherwise(cb.sum(cb.max(root.get("billSno")), 1)));
 		TypedQuery<Integer> q = em.createQuery(cq);
 		List<Integer> receiptList = q.getResultList();
 		return receiptList != null && !receiptList.isEmpty() ? receiptList.get(0) : null;
@@ -588,7 +588,7 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 				.set(root.get("sysDate"), new java.sql.Date(Calendar.getInstance().getTime().getTime()))
 				.set(root.get("branchCode"), args[1]).set(root.get("loginId"), args[2]);
 
-		update.where(cb.equal(root.get("contractNo"), args[3]), cb.equal(root.get("ritransactionNo"), args[4]));
+		update.where(cb.equal(root.get("contractNo"), args[3]), cb.equal(root.get("riTransactionNo"), args[4]));
 
 		Query q = em.createQuery(update);
 		return q.executeUpdate();
@@ -610,7 +610,7 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 				.set(root.get("sysDate"), new java.sql.Date(Calendar.getInstance().getTime().getTime()))
 				.set(root.get("branchCode"), args[1]).set(root.get("loginId"), args[2]);
 
-		update.where(cb.equal(exp, 0.0),cb.equal(root.get("contractNo"), args[3]), cb.equal(root.get("ritransactionNo"), args[4]));
+		update.where(cb.equal(exp, 0.0),cb.equal(root.get("contractNo"), args[3]), cb.equal(root.get("riTransactionNo"), args[4]));
 
 		Query q = em.createQuery(update);
 		return q.executeUpdate();
@@ -630,7 +630,7 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 		} else if (classType.equals("TtrnClaimPaymentRi")) {
 
 			CriteriaQuery<Double> cq = cb.createQuery(Double.class);
-			Root<TtrnClaimPayment> root = cq.from(TtrnClaimPayment.class);
+			Root<TtrnClaimPaymentRi> root = cq.from(TtrnClaimPaymentRi.class);
 			cq.multiselect(cb.<Double>selectCase().when(cb.isNull(root.<Double>get("allocatedTillDate")), 0.0)
 					.otherwise(root.<Double>get("allocatedTillDate")));
 			cq.where(cb.equal(root.get("contractNo"), input1), cb.equal(root.get("ritransactionNo"), input2));
@@ -845,6 +845,7 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 	
 		update.set(root.get("roundingAmt"), new BigDecimal(0))
 				.set(root.get("utilizedTillDate"), new BigDecimal(0))
+				.set(root.get("status"), "R")
 				.set(root.get("sysDate"), new java.util.Date(Calendar.getInstance().getTime().getTime()))
 				.set(root.get("branchCode"), args[2]).set(root.get("loginId"), args[1]);
 
@@ -917,7 +918,7 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 				.set(root.get("sysDate"), new java.util.Date(Calendar.getInstance().getTime().getTime()))
 				.set(root.get("branchCode"), args[2]).set(root.get("loginId"), args[3]);
 
-		update.where(cb.equal(root.get("contractNo"), args[4]), cb.equal(root.get("ritransactionNo"), args[5]));
+		update.where(cb.equal(root.get("contractNo"), args[4]), cb.equal(root.get("riTransactionNo"), args[5]));
 
 		Query q = em.createQuery(update);
 		return q.executeUpdate();
@@ -932,7 +933,7 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 				cb.selectCase().when(cb.isNull(root.get("paidAmountOc")), 0.0).otherwise(root.get("paidAmountOc")),
 				cb.selectCase().when(cb.isNull(root.get("allocatedTillDate")), 0.0)
 						.otherwise(root.get("allocatedTillDate")));
-		cq.where(cb.equal(root.get("contractNo"), contractNo), cb.equal(root.get("ritransactionNo"), claimPaymentNo));
+		cq.where(cb.equal(root.get("contractNo"), contractNo), cb.equal(root.get("riTransactionNo"), claimPaymentNo));
 
 		return em.createQuery(cq).getResultList();
 	}

@@ -29,6 +29,7 @@ import org.hibernate.query.internal.NativeQueryImpl;
 import org.hibernate.transform.AliasToEntityMapResultTransformer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 
 import com.maan.insurance.jpa.entity.treasury.BankMaster;
 import com.maan.insurance.jpa.entity.treasury.TtrnAllocatedTransaction;
@@ -44,6 +45,7 @@ import com.maan.insurance.model.entity.RskPremiumDetails;
 import com.maan.insurance.model.entity.TmasBranchMaster;
 import com.maan.insurance.model.entity.TmasOpenPeriod;
 import com.maan.insurance.model.entity.TmasProductMaster;
+import com.maan.insurance.model.entity.TtrnBillingInfo;
 import com.maan.insurance.model.entity.TtrnClaimDetails;
 import com.maan.insurance.model.entity.TtrnClaimPayment;
 import com.maan.insurance.model.req.CurrecyAmountReq;
@@ -237,9 +239,9 @@ public class TreasuryCustomRepositoryImpl implements TreasuryCustomRepository {
 				.set(root.get("sysDate"), new java.util.Date(Calendar.getInstance().getTime().getTime()));
 
 		if (type.equals("RT"))
-			update.set(root.get("reversalTransNo"), req.getRevPayReceiptNo());
+			update.set(root.get("reversalTransNo"), Long.parseLong(req.getRevPayReceiptNo()));
 		else
-			update.set(root.get("reversalTransNo"), req.getSerialno());
+			update.set(root.get("reversalTransNo"), Long.parseLong(req.getSerialno()));
 
 		Subquery<Integer> sq = update.subquery(Integer.class);
 		Root<TtrnPaymentReceipt> subRoot = sq.from(TtrnPaymentReceipt.class);
@@ -249,10 +251,10 @@ public class TreasuryCustomRepositoryImpl implements TreasuryCustomRepository {
 				cb.equal(subRoot.get("branchCode"), root.get("branchCode")));
 
 		if (type.equals("RT"))
-			update.where(cb.equal(root.get("paymentReceiptNo"), req.getSerialno()),
+			update.where(cb.equal(root.get("paymentReceiptNo"), Long.parseLong(req.getSerialno())),
 					cb.equal(root.get("branchCode"), req.getBranchCode()), cb.equal(root.get("amendId"), sq));
 		else
-			update.where(cb.equal(root.get("paymentReceiptNo"), req.getRevPayReceiptNo()),
+			update.where(cb.equal(root.get("paymentReceiptNo"), Long.parseLong(req.getRevPayReceiptNo())),
 					cb.equal(root.get("branchCode"), req.getBranchCode()), cb.equal(root.get("amendId"), sq));
 
 		Query q = em.createQuery(update);
@@ -1470,15 +1472,91 @@ public class TreasuryCustomRepositoryImpl implements TreasuryCustomRepository {
 	public List<Tuple> getTranContDtls(GetTransContractReq req) {
 		List<Tuple> resultList = getTranContDtlsForRsk(req.getBrokerId(), req.getCedingId(), 
 				req.getAlloccurrencyId(), req.getBranchCode());
-		if(Objects.nonNull(resultList))
-			resultList.addAll(getTranContDtlsForClaim(req.getBrokerId(), req.getCedingId(), 
-					req.getAlloccurrencyId(), req.getBranchCode()));
-		else
-			resultList = getTranContDtlsForClaim(req.getBrokerId(), req.getCedingId(), 
-					req.getAlloccurrencyId(), req.getBranchCode());
+		List<Tuple> resultList1 = getTranContDtlsForRsk(req.getBrokerId(), req.getCedingId(), 
+				req.getAlloccurrencyId(), req.getBranchCode());
+		List<Tuple> resultList2 = getTranContDtlsForBill(req.getBrokerId(), req.getCedingId(), 
+				req.getAlloccurrencyId(), req.getBranchCode());
+		if(!CollectionUtils.isEmpty(resultList1)) {
+			resultList.addAll(resultList1);
+		}
+		if(!CollectionUtils.isEmpty(resultList2)) {
+			resultList.addAll(resultList2);
+		}
+		
 		return Objects.nonNull(resultList) ? resultList : new ArrayList<>();
 	}
 	
+	private List<Tuple> getTranContDtlsForBill(String brokerId, String cedingId, String alloccurrencyId,
+			String branchCode) {
+		List<Tuple> list = null;
+		try {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Tuple> cq = cb.createTupleQuery();
+		//Root<PositionMaster> pRoot = cq.from(PositionMaster.class);
+		Root<TtrnBillingInfo> rRoot = cq.from(TtrnBillingInfo.class);
+		String input = null;
+
+
+		Expression<String> exp = cb.diff(
+				cb.<Double>selectCase().when(cb.isNull(rRoot.<Double>get("utilizedTillDate")), 0.0)
+						.otherwise(rRoot.<Double>get("utilizedTillDate")),
+				cb.<Double>selectCase().when(cb.isNull(rRoot.<Double>get("allocatedTillDate")), 0.0)
+						.otherwise(rRoot.<Double>get("allocatedTillDate"))).as(String.class);
+
+		Subquery<String> sq = cq.subquery(String.class);
+		Root<PersonalInfo> subRoot = sq.from(PersonalInfo.class);
+
+		Subquery<Integer> aSq = sq.subquery(Integer.class);
+		Root<PersonalInfo> aSubRoot = aSq.from(PersonalInfo.class);
+
+		aSq.select(cb.max(aSubRoot.get("amendId"))).where(
+				cb.equal(aSubRoot.get("customerId"), rRoot.get("cedingId")),
+				cb.equal(aSubRoot.get("branchCode"), rRoot.get("branchCode")));
+
+		sq.select(subRoot.get("companyName")).where(cb.equal(subRoot.get("customerId"), rRoot.get("cedingId")),
+				cb.equal(subRoot.get("branchCode"), rRoot.get("branchCode")), cb.equal(subRoot.get("amendId"), aSq));
+
+		cq.multiselect(rRoot.get("transactionNo").as(String.class),cb.literal("RTRIM").as(String.class),
+				cb.literal("RTRIM").as(String.class),
+				cb.literal("RTRIM"), rRoot.get("sysDate"), exp.alias("NETDUE"),
+				cb.nullLiteral(Double.class).alias("PAID_AMOUNT_OC"), cb.literal("RTRIM").as(String.class),
+				cb.nullLiteral(Double.class).alias("ACC_CLAIM"),
+				cb.literal("RTRIM").as(String.class),
+				cb.literal("B").alias("BUSINESS_TYPE"),
+				sq.alias("CEDING_COMPANY_NAME"), 
+				cb.literal("RTRIM").as(String.class),
+				cb.literal("RTRIM").as(String.class)).distinct(true);
+
+		Subquery<Integer> pSq = cq.subquery(Integer.class);
+		Root<TtrnBillingInfo> pSubRoot = pSq.from(TtrnBillingInfo.class);
+
+		Expression<Object> exp1 = cb.selectCase()
+				.when(cb.equal(cb.literal(63), cb.literal(Integer.parseInt(brokerId))),
+						rRoot.get("cedingId"))
+				.otherwise(rRoot.get("brokerId"));
+
+		if("63".equalsIgnoreCase(brokerId))
+			input=cedingId;
+		else        	
+			input=brokerId;
+		
+		pSq.select(cb.max(pSubRoot.get("amendId"))).where(cb.equal(pSubRoot.get("billingNo"), rRoot.get("billingNo")),
+				 cb.equal(rRoot.get("currencyId"), alloccurrencyId),
+				cb.equal(exp1, input));
+				//cb.like(pRoot.get("contractNo"), ""), cb.like(pRoot.get("productId"), "")); // check
+
+		cq.where( cb.equal(rRoot.get("billingNo"), rRoot.get("billingNo")),
+				cb.equal(rRoot.get("branchCode"), branchCode),
+				cb.notEqual(exp, 0),
+				cb.equal(rRoot.get("amendId"), pSq));
+
+		list =  em.createQuery(cq).getResultList();
+		}catch(Exception e) {
+			e.printStackTrace();;
+		}
+		return list;
+	}
+
 	//GetTransContractReq req -- params
 	private List<Tuple> getTranContDtlsForRsk(String brokerId, String cedingId, String alloccurrencyId, String branchCode) {
 		List<Tuple> list = null;

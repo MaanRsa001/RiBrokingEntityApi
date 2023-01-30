@@ -34,7 +34,7 @@ public class GetReversalInfoRes {
 	@JsonProperty("Exrate")
 	private String exrate;
 	
-	@JsonProperty("paymentAmount")
+	@JsonProperty("PaymentAmount")
 	private String paymentAmount;
 	
 	@JsonProperty("HideRowCnt")

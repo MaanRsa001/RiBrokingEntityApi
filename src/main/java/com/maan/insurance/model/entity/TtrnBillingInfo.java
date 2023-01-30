@@ -70,8 +70,11 @@ public class TtrnBillingInfo implements Serializable {
 	    @Column(name="ROUNDING_AMOUNT")
 	    private BigDecimal roundingAmt ;
 	    
-	    @Column(name="UTILIZED_TILL_DATE")
+	    @Column(name="BILL_AMOUNT")
 	    private BigDecimal utilizedTillDate ;
+	    
+	    @Column(name="ALLOCATED_TILL_DATE")
+	    private BigDecimal allocatedTillDate ;
 	    
 	    @Column(name="REVERSALTRANSNO")
 	    private BigDecimal     reversaltransno ;
