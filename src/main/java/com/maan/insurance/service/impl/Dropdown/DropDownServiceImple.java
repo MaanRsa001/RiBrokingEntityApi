@@ -1843,6 +1843,7 @@ public class DropDownServiceImple implements DropDownService{
 	public GetCommonDropDownRes getDepartmentDropDown(GetDepartmentDropDownReq req) {
 		GetCommonDropDownRes response = new GetCommonDropDownRes();
 		List<CommonResDropDown> reslist = new ArrayList<CommonResDropDown>();
+		
 		try{
 			CriteriaBuilder cb = em.getCriteriaBuilder(); 
 			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
@@ -2022,12 +2023,26 @@ public class DropDownServiceImple implements DropDownService{
 		GetCommonDropDownRes response = new GetCommonDropDownRes();
 		try{
 			//common.select.getProfitCenterList
-			List<TmasPfcMaster> list = pfcRepo.findDistinctByBranchCodeAndTmasStatusOrderByTmasPfcNameAsc(branchCode,"Y");
+			//List<TmasPfcMaster> list = pfcRepo.findDistinctByBranchCodeAndTmasStatusOrderByTmasPfcNameAsc(branchCode,"Y");
+			CriteriaBuilder cb = em.getCriteriaBuilder();
+			CriteriaQuery<Tuple> cq = cb.createQuery(Tuple.class);
+			Root<TmasPfcMaster> Root = cq.from(TmasPfcMaster.class);
+			
+			cq.multiselect(Root.get("tmasPfcId").alias("TMAS_PFC_ID"),
+					Root.get("tmasPfcName").alias("TMAS_PFC_NAME"),
+					Root.get("produtid").alias("PRODUTID"))
+			.where(cb.equal(Root.get("branchCode"), branchCode),
+					cb.equal(Root.get("tmasStatus"), "Y"));
+			
+			cq.orderBy(cb.asc(Root.get("tmasPfcName")));
+			
+			List<Tuple> list = em.createQuery(cq).getResultList();		
+			
 			for(int i=0;i<list.size();i++){
 				CommonResDropDown range=new CommonResDropDown();  
-				TmasPfcMaster tempMap = list.get(i);
-				range.setCode(tempMap.getTmasPfcId()==null?"":tempMap.getTmasPfcId().toString());
-				range.setCodeDescription(tempMap.getTmasPfcName()==null?"":tempMap.getTmasPfcName().toString());
+				Tuple tempMap = list.get(i);
+				range.setCode(tempMap.get("TMAS_PFC_ID")==null?"":tempMap.get("TMAS_PFC_ID").toString());
+				range.setCodeDescription(tempMap.get("TMAS_PFC_NAME")==null?"":tempMap.get("TMAS_PFC_NAME").toString());
 				reslist.add(range);		
         	}
 			response.setCommonResponse(reslist);
@@ -2074,12 +2089,27 @@ public class DropDownServiceImple implements DropDownService{
 		GetCommonDropDownRes response = new GetCommonDropDownRes();
 		try {
 			//common.select.getTerritoryList
-			List<TerritoryMaster> list = tmRepo.findDistinctByBranchCodeAndTerritoryStatusOrderByTerritoryDescrAsc(branchCode,"Y");
+			//List<TerritoryMaster> list = tmRepo.findDistinctByBranchCodeAndTerritoryStatusOrderByTerritoryDescrAsc(branchCode,"Y");
+			CriteriaBuilder cb = em.getCriteriaBuilder();
+			CriteriaQuery<Tuple> cq = cb.createQuery(Tuple.class);
+			Root<TerritoryMaster> Root = cq.from(TerritoryMaster.class);
+			
+			cq.multiselect(Root.get("territoryCode").alias("TERRITORY_CODE"),
+					Root.get("territoryDesc").alias("TERRITORY_DESC")).distinct(true)
+			
+			.where(cb.equal(Root.get("branchCode"), branchCode),
+					cb.equal(Root.get("territoryStatus"), "Y"));
+			
+			cq.orderBy(cb.asc(Root.get("territoryDesc")));
+			
+			List<Tuple> list = em.createQuery(cq).getResultList();
+					
+					
 			for(int i=0;i<list.size();i++){
 				CommonResDropDown range=new CommonResDropDown();  
-				TerritoryMaster tempMap =  list.get(i);
-				range.setCode(tempMap.getTerritoryCode()==null?"":tempMap.getTerritoryCode().toString());
-				range.setCodeDescription(tempMap.getTerritoryDescr()==null?"":tempMap.getTerritoryDescr().toString());
+				Tuple tempMap =  list.get(i);
+				range.setCode(tempMap.get("TERRITORY_CODE")==null?"":tempMap.get("TERRITORY_CODE").toString());
+				range.setCodeDescription(tempMap.get("TERRITORY_DESC")==null?"":tempMap.get("TERRITORY_DESC").toString());
 				reslist.add(range);		
 			}
 			response.setCommonResponse(reslist);

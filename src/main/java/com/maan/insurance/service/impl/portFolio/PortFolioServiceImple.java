@@ -3,6 +3,7 @@ package com.maan.insurance.service.impl.portFolio;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -123,6 +124,10 @@ public class PortFolioServiceImple implements PortFolioService{
 	            log.info(e);
 	        }
 	    }
+	  
+	  private String Dateformat(Object output) {
+		  return new SimpleDateFormat("dd/MM/yyyy").format(output).toString();
+	  }
 
 	@Override
 	public GetPendingListRes getPendingList(GetPendingListReq beanObj) {
@@ -1003,14 +1008,14 @@ public class PortFolioServiceImple implements PortFolioService{
 	        try {
 	            String query = "";
 	            String[] obj = new String[0];
-	            obj = new String[6];
+	            obj = new String[7];
 	            obj[0] = beanObj.getProductId();
 	            obj[1] = beanObj.getProductId();
 	            obj[2] = beanObj.getBranchCode();
 	            obj[3] = beanObj.getBranchCode();
 	            obj[4] = beanObj.getBranchCode();
 	            obj[5] = beanObj.getBranchCode();
-	            //obj[6] = beanObj.getBranchCode();
+	            obj[6] = beanObj.getBranchCode();
 	            query = "portfolio.select.contractList1";
 	            String qutext = prop.getProperty(query);
 	            if (!"1".equals(beanObj.getProductId()))
@@ -1487,8 +1492,8 @@ public class PortFolioServiceImple implements PortFolioService{
 	                tempBean.setDepartmentName(tempMap.get("TMAS_DEPARTMENT_NAME") == null ? "" : tempMap.get("TMAS_DEPARTMENT_NAME").toString());
 	     //pending  tempBean.setSubClass(tempMap.get("TMAS_SPFC_NAME") == null ? "" : tempMap.get("TMAS_SPFC_NAME").toString());
 	                tempBean.setDepartmentId(tempMap.get("TMAS_DEPARTMENT_ID") == null ? "" : tempMap.get("TMAS_DEPARTMENT_ID").toString());
-	                tempBean.setInceptionDate(tempMap.get("INCEPTION_DATE") == null ? "" : tempMap.get("INCEPTION_DATE").toString());
-	                tempBean.setExpiryDate(tempMap.get("EXPIRY_DATE") == null ? "" : tempMap.get("EXPIRY_DATE").toString());
+	                tempBean.setInceptionDate(tempMap.get("INCEPTION_DATE") == null ? "" : Dateformat(tempMap.get("INCEPTION_DATE")).toString());
+	                tempBean.setExpiryDate(tempMap.get("EXPIRY_DATE") == null ? "" : Dateformat(tempMap.get("EXPIRY_DATE")).toString());
 	                tempBean.setInsuredName(tempMap.get("RSK_INSURED_NAME") == null ? "" : tempMap.get("RSK_INSURED_NAME").toString());
 	                tempBean.setQuoteGendratedDate(tempMap.get("ACCOUNT_DATE") == null ? "" : tempMap.get("ACCOUNT_DATE").toString());
 	                tempBean.setCeddingCompanyId(tempMap.get("CEDING_COMPANY_ID") == null ? "" : tempMap.get("CEDING_COMPANY_ID").toString());

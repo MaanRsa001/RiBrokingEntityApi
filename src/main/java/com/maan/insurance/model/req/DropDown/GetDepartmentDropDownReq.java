@@ -19,7 +19,7 @@ private String status;
 private String contractNo;
 
 
-@JsonProperty("productCode")
+@JsonProperty("ProductCode")
 private String productCode;
 
 @JsonProperty("BaseLayer")

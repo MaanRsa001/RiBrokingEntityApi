@@ -91,6 +91,7 @@ import com.maan.insurance.model.req.placement.UpdatePlacementListReq;
 import com.maan.insurance.model.req.placement.UpdatePlacementReq;
 import com.maan.insurance.model.req.placement.UploadDocumentReq;
 import com.maan.insurance.model.req.placement.UploadDocumentReq1;
+import com.maan.insurance.model.req.placement.proposalInfoReq;
 import com.maan.insurance.model.res.DropDown.CommonResDropDown;
 import com.maan.insurance.model.res.DropDown.GetBouquetExistingListRes1;
 import com.maan.insurance.model.res.DropDown.GetCommonDropDownRes;
@@ -127,6 +128,7 @@ import com.maan.insurance.model.res.placement.PlacementSummaryRes1;
 import com.maan.insurance.model.res.placement.ProposalInfoRes;
 import com.maan.insurance.model.res.placement.ProposalInfoRes1;
 import com.maan.insurance.model.res.placement.SavePlacingRes;
+import com.maan.insurance.model.res.placement.SendMailRes;
 import com.maan.insurance.model.res.placement.UploadDocumentRes;
 import com.maan.insurance.model.res.placement.UploadDocumentRes1;
 import com.maan.insurance.model.res.retro.CommonResponse;
@@ -186,6 +188,10 @@ public class PlacementServiceImple implements PlacementService {
 	  String SMTP_AUTH_USER; 
 		String SMTP_AUTH_PWD;
 	  
+		private String formatdate(Object output) {
+			return new SimpleDateFormat("dd/MM/yyyy").format(output).toString();
+		}
+	
 	@Override
 	public GetCommonDropDownRes getMailToList(GetMailToListReq bean) { 
 		GetCommonDropDownRes response = new GetCommonDropDownRes();
@@ -454,21 +460,21 @@ public class PlacementServiceImple implements PlacementService {
 
 
 	@Override
-	public ProposalInfoRes proposalInfo(String branchCode, String proposalNo, String eProposalNo) {
+	public ProposalInfoRes proposalInfo(proposalInfoReq req) {
 		ProposalInfoRes response = new ProposalInfoRes();
 		ProposalInfoRes1 bean = new ProposalInfoRes1();
 		try {
-			String proposal=StringUtils.isBlank(eProposalNo)?proposalNo:eProposalNo;
+			String proposal=StringUtils.isBlank(req.getEProposalNo())?req.getProposalNo():req.getEProposalNo();
 			
-			List<Tuple> list = getExistingProposal(proposal, branchCode);
+			List<Tuple> list = getExistingProposal(proposal, req.getBranchCode());
 			if(list.size()>0) {
 				Tuple map=list.get(0);
 				bean.setCedingCompanyName(map.get("COMPANY_NAME")==null?"":map.get("COMPANY_NAME").toString());
 				bean.setCedingCompany(map.get("RSK_CEDINGID")==null?"":map.get("RSK_CEDINGID").toString());
 				bean.setBrokerCompany(map.get("RSK_BROKERID")==null?"":map.get("RSK_BROKERID").toString());
 				bean.setTreatyName(map.get("TREATY_TYPE")==null?"":map.get("TREATY_TYPE").toString());
-				bean.setInceptionDate(map.get("INS_DATE")==null?"":map.get("INS_DATE").toString());
-				bean.setExpiryDate(map.get("EXP_DATE")==null?"":map.get("EXP_DATE").toString());
+				bean.setInceptionDate(map.get("INS_DATE")==null?"":formatdate(map.get("INS_DATE")).toString());
+				bean.setExpiryDate(map.get("EXP_DATE")==null?"":formatdate(map.get("EXP_DATE")).toString());
 				bean.setUwYear(map.get("UW_YEAR")==null?"":map.get("UW_YEAR").toString());
 				bean.setUwYearTo(map.get("UW_YEAR_TO")==null?"":map.get("UW_YEAR_TO").toString());
 				bean.setBouquetModeYN(map.get("BOUQUET_MODE_YN")==null?"":map.get("BOUQUET_MODE_YN").toString());
@@ -479,8 +485,8 @@ public class PlacementServiceImple implements PlacementService {
 				bean.setSectionNo(map.get("SECTION_NO")==null?"":map.get("SECTION_NO").toString());
 				bean.setOfferNo(map.get("OFFER_NO")==null?"":map.get("OFFER_NO").toString());
 				bean.setAmendId(map.get("AMEND_ID")==null?"":map.get("AMEND_ID").toString());
-				if(StringUtils.isBlank(eProposalNo))
-				bean.setEproposalNo(proposalNo);
+				if(StringUtils.isBlank(req.getEProposalNo()))
+				bean.setEproposalNo(req.getProposalNo());
 				response.setCommonResponse(bean);
 			}
 			response.setMessage("Success");
@@ -516,10 +522,8 @@ public class PlacementServiceImple implements PlacementService {
 			//baseLayer
 			Subquery<String> baseLayer = query.subquery(String.class); 
 			Root<PositionMaster> bs = baseLayer.from(PositionMaster.class);
-			baseLayer.select(bs.get("baseLayer")).distinct(true);
-			Predicate b1 = cb.equal( bs.get("baseLayer"),  pm.get("baseLayer")==null?pm.get("proposalNo"):pm.get("baseLayer"));
-			baseLayer.where(b1);
-			
+			baseLayer.select(bs.get("baseLayer")).distinct(true)
+			.where(cb.equal(bs.get("baseLayer"),cb.coalesce(pm.get("baseLayer"),pm.get("proposalNo"))));
 			
 			//treatyType
 			Subquery<String> treatyType = query.subquery(String.class); 
@@ -731,33 +735,54 @@ public class PlacementServiceImple implements PlacementService {
 	@Override
 	public GetPlacementNoRes getPlacementNo(SavePlacingReq bean) {
 		GetPlacementNoRes response = new GetPlacementNoRes();
-		GetPlacementNoRes1 res = new GetPlacementNoRes1();
 		String placementNo="",statusNo;
-		TtrnRiPlacement list= new TtrnRiPlacement();
 		try {
 			if("C".equalsIgnoreCase(bean.getPlacementMode())) {
 				if(StringUtils.isNotBlank(bean.getBouquetNo())) {
 					//GET_PLACEMENT_NO_BOUQUET
-					list = ripRepo.findDistinctByBouquetNo(new BigDecimal(bean.getBouquetNo()));
+					CriteriaBuilder cb = em.getCriteriaBuilder();
+					CriteriaQuery<BigDecimal> cq = cb.createQuery(BigDecimal.class);
+					Root<TtrnRiPlacement> root = cq.from(TtrnRiPlacement.class);
+					
+					cq.select(root.get("placementNo")).distinct(true)
+					.where(cb.equal(root.get("bouquetNo"), bean.getBouquetNo()));
+					
+					BigDecimal placeno = em.createQuery(cq).getSingleResult();
+					placementNo = String.valueOf(placeno);
+					
 				}else {
 					//GET_PLACEMENT_NO_BASELAYER
-					list = ripRepo.findDistinctByBaseProposalNo(new BigDecimal(bean.getBaseProposalNo()));
+					CriteriaBuilder cb = em.getCriteriaBuilder();
+					CriteriaQuery<BigDecimal> cq = cb.createQuery(BigDecimal.class);
+					Root<TtrnRiPlacement> root = cq.from(TtrnRiPlacement.class);
+					
+					cq.select(root.get("placementNo")).distinct(true)
+					.where(cb.equal(root.get("baseProposalNo"), bean.getBaseProposalNo()));
+					
+					BigDecimal placeno = em.createQuery(cq).getSingleResult();
+					placementNo = String.valueOf(placeno);
 				}
 			}else {
 				//GET_PLACEMENT_NO_PROPOSAL
-				list = ripRepo.findDistinctByProposalNo(new BigDecimal(bean.getEproposalNo()));
+				CriteriaBuilder cb = em.getCriteriaBuilder();
+				CriteriaQuery<BigDecimal> cq = cb.createQuery(BigDecimal.class);
+				Root<TtrnRiPlacement> root = cq.from(TtrnRiPlacement.class);
+				
+				cq.select(root.get("placementNo")).distinct(true)
+				.where(cb.equal(root.get("proposalNo"), bean.getEproposalNo()));
+				
+				BigDecimal placeno = em.createQuery(cq).getSingleResult();
+				placementNo = String.valueOf(placeno);
+				
 			}
-			if(list != null) {
-				placementNo = list.getPlacementNo()==null?"":list.getPlacementNo().toString();
-			}
+			
 			if(StringUtils.isBlank(placementNo)) {
 			 	placementNo= fm.getSequence("PlacementNo","0","0", bean.getBranchCode(),"","");
 			}
 			statusNo= fm.getSequence("StatusNo","0","0", bean.getBranchCode(),"","");
-			res.setStatusNo(statusNo);
-			res.setPlacementNo(placementNo);
-			res.setStatusNo(statusNo);
-			response.setCommonResponse(res);	
+			bean.setStatusNo(statusNo);
+			bean.setPlacementNo(placementNo);
+			bean.setStatusNo(statusNo);
 			response.setMessage("Success");
 			response.setIsError(false);
 		}catch(Exception e){
@@ -776,7 +801,11 @@ public class PlacementServiceImple implements PlacementService {
 		TtrnRiPlacement entity = new TtrnRiPlacement();
 		List<InsertPlacingRes1> resList = new ArrayList<InsertPlacingRes1>();
 		try {
-			proposalInfo(bean.getBranchCode(),bean.getProposalNo(),bean.getEproposalNo());
+			proposalInfoReq req1 = new proposalInfoReq();
+			req1.setBranchCode(bean.getBranchCode());
+			req1.setProposalNo(bean.getProposalNo());
+			req1.setEProposalNo(bean.getEproposalNo());
+			proposalInfo(req1);
 			//DeletePlacement(bean);
 			//INSERT_PLACEMENT_INFO
 			for(int i=0;i<bean.getReinsListReq().size();i++) {
@@ -784,30 +813,35 @@ public class PlacementServiceImple implements PlacementService {
 				ReinsListReq req =	bean.getReinsListReq().get(i);
 				res.setReinsurerId(req.getReinsureName());
 				res.setBrokerId(req.getPlacingBroker());
-				plamendId=getMaxAmendId(bean.getBranchCode(),bean.getEproposalNo(),bean.getReinsurerId(),bean.getBrokerId());
-				res.setPlacementamendId(StringUtils.isBlank(plamendId)?"0":plamendId);
+				bean.setEproposalNo(bean.getProposalNo());
+				plamendId=getMaxAmendId(bean.getBranchCode(),bean.getEproposalNo(),res.getReinsurerId(),res.getBrokerId());
+				if(StringUtils.isBlank(plamendId) || "null".equalsIgnoreCase(plamendId)) {
+					bean.setPlacementamendId("0");
+				}else {
+				bean.setPlacementamendId(plamendId);
+				}
 				result=getPlacementDetails(bean.getEproposalNo(),bean.getReinsurerId(),bean.getBrokerId(),bean.getBranchCode());
 				if(result!=null) {
 					currentStatus=result.get("STATUS")==null?"O":result.get("STATUS").toString();
 				}
 				entity.setPlacementNo(new BigDecimal(bean.getPlacementNo()));
 				entity.setSno(new BigDecimal(req.getReinsSNo()));
-				entity.setBouquetNo(new BigDecimal(bean.getBouquetNo()));
+				entity.setBouquetNo(StringUtils.isBlank(bean.getBouquetNo())? null :new BigDecimal(bean.getBouquetNo()));
 				entity.setBaseProposalNo(new BigDecimal(bean.getBaseProposalNo()));
 				entity.setProposalNo(new BigDecimal(bean.getEproposalNo()));
-				entity.setContractNo(new BigDecimal(bean.getContractNo()));
-				entity.setLayerNo(new BigDecimal(bean.getLayerNo()));
-				entity.setSectionNo(new BigDecimal(bean.getSectionNo()));
-				entity.setAmendId(new BigDecimal(bean.getAmendId()));
+				entity.setContractNo(StringUtils.isBlank(bean.getContractNo())? null :new BigDecimal(bean.getContractNo()));
+				entity.setLayerNo(StringUtils.isBlank(bean.getLayerNo())? null :new BigDecimal(bean.getLayerNo()));
+				entity.setSectionNo(StringUtils.isBlank(bean.getSectionNo())? null :new BigDecimal(bean.getSectionNo()));
+				entity.setAmendId(StringUtils.isBlank(bean.getAmendId())? null :new BigDecimal(bean.getAmendId()));
 				entity.setReinsurerId(req.getReinsureName());
 				entity.setBrokerId(req.getPlacingBroker());
 				entity.setShareOffered(new BigDecimal(req.getShareOffer()));
 				entity.setBranchCode(bean.getBranchCode());
 				entity.setSysDate(new Date());
-				entity.setCedingCompanyId(bean.getCedingCompany());
+				entity.setCedingCompanyId(StringUtils.isBlank(bean.getCedingCompany())?"":bean.getCedingCompany());
 				entity.setPlacementMode(bean.getPlacementMode());
 				entity.setStatus(currentStatus);
-				entity.setPlacementAmendId(new BigDecimal(bean.getPlacementamendId()));
+				entity.setPlacementAmendId(StringUtils.isBlank(bean.getPlacementamendId())? null :new BigDecimal(bean.getPlacementamendId()));
 				entity.setStatusNo(new BigDecimal(bean.getStatusNo()));
 				entity.setApproveStatus("Y");
 				entity.setUserId(bean.getUserId());
@@ -829,11 +863,19 @@ public class PlacementServiceImple implements PlacementService {
 		String plamendId="0";
 		try {
 			//GET_PLACEMENT_MAX_AMENDID
-			TtrnRiPlacement  list = ripRepo.findTop1ByBranchCodeAndProposalNoAndReinsurerIdAndBrokerIdOrderByPlacementAmendIdDesc(
-					branchCode,new BigDecimal(eproposalNo),reinsurerId,brokerId);
-			if(list != null) {
-			plamendId= String.valueOf(list.getPlacementAmendId().intValue()+1);
-			}
+			CriteriaBuilder cb = em.getCriteriaBuilder();
+			CriteriaQuery<BigDecimal> cq = cb.createQuery(BigDecimal.class);
+			Root<TtrnRiPlacement> root = cq.from(TtrnRiPlacement.class);
+			
+			cq.select(cb.sum(cb.max(root.get("placementAmendId")),1).as(BigDecimal.class))
+			.where(cb.equal(root.get("branchCode"), branchCode),
+					cb.equal(root.get("proposalNo"), eproposalNo),
+					cb.equal(root.get("reinsurerId"), reinsurerId),
+					cb.equal(root.get("brokerId"), brokerId));
+			
+			BigDecimal plamno = em.createQuery(cq).getSingleResult();
+			plamendId = String.valueOf(plamno);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -1311,18 +1353,18 @@ public class PlacementServiceImple implements PlacementService {
 					
 				}else {
 					entity.setShareOffered(new BigDecimal(req.getShareOffered()));
-					entity.setShareWritten(new BigDecimal(req.getWrittenLine()));
-					entity.setShareProposalWritten(new BigDecimal(req.getProposedWL()));
-					entity.setWrittenLineValidity(sdf.parse(req.getWrittenvaliditydate()));
-					entity.setWrittenLineRemarks(req.getWrittenvalidityRemarks());
-					entity.setShareSigned(new BigDecimal(req.getSignedLine()));
-					entity.setShareLineValidity(sdf.parse(req.getSignedLineValidity()));
-					entity.setShareLineRemarks(req.getSignedLineRemarks());
-					entity.setShareProposedSigned(new BigDecimal(req.getProposedSL()));
-					entity.setBrokerage(new BigDecimal(req.getBrokerage()));
+					entity.setShareWritten(StringUtils.isBlank(req.getWrittenLine())? null : new BigDecimal(req.getWrittenLine()));
+					entity.setShareProposalWritten(StringUtils.isBlank(req.getProposedWL())? null : new BigDecimal(req.getProposedWL()));
+					entity.setWrittenLineValidity(StringUtils.isBlank(req.getWrittenvaliditydate())? null :sdf.parse(req.getWrittenvaliditydate()));
+					entity.setWrittenLineRemarks(StringUtils.isBlank(req.getWrittenvalidityRemarks())? null : req.getWrittenvalidityRemarks());
+					entity.setShareSigned(StringUtils.isBlank(req.getSignedLine())? null : new BigDecimal(req.getSignedLine()));
+					entity.setShareLineValidity(StringUtils.isBlank(req.getSignedLineValidity())? null :sdf.parse(req.getSignedLineValidity()));
+					entity.setShareLineRemarks(StringUtils.isBlank(req.getSignedLineRemarks())? null :req.getSignedLineRemarks());
+					entity.setShareProposedSigned(StringUtils.isBlank(req.getProposedSL())? null :new BigDecimal(req.getProposedSL()));
+					entity.setBrokerage(StringUtils.isBlank(req.getBrokerage())? null :new BigDecimal(req.getBrokerage()));
 				}
-				entity.setPlacementAmendId(new BigDecimal(bean.getPlacementamendId()));
-				entity.setStatusNo(new BigDecimal(bean.getStatusNo()));
+				entity.setPlacementAmendId(StringUtils.isBlank(bean.getPlacementamendId())? null :new BigDecimal(bean.getPlacementamendId()));
+				entity.setStatusNo(StringUtils.isBlank(bean.getStatusNo())? null: new BigDecimal(bean.getStatusNo()));
 				entity.setApproveStatus("Y");
 				entity.setUserId(bean.getUserId());
 				entity.setBranchCode(bean.getBranchCode());
@@ -1640,8 +1682,9 @@ public class PlacementServiceImple implements PlacementService {
 	}
 
 	@Override
-	public CommonResponse sendMail(SendMailReq bean) {
-		CommonResponse response = new CommonResponse();
+	public SendMailRes sendMail(SendMailReq bean) {
+		SendMailRes response = new SendMailRes();
+		String status=null;
 		try {
 			MailMaster mapt= getMailDetails("51"); //new CommonDAO()
 			String hostName=mapt.getSmtpHost();
@@ -1663,12 +1706,13 @@ public class PlacementServiceImple implements PlacementService {
 				}
 		//	insertMailDetails(bean);
 			Multipart multipart=GetMailAttachment(bean);
-			String status=sendResponseMail(hostName, user, pwd, mailform, subject, multipart, toAddresses, ccAddresses, shortAddress,port);
+			 status=sendResponseMail(hostName, user, pwd, mailform, subject, multipart, toAddresses, ccAddresses, shortAddress,port);
 			if("Success".equals(status) && "P".equals(bean.getMailType())) {
 			//	updateStatus(bean,"P"); status = "P"
 			}
 	//		updateMailDetails(bean,status);
 			} 
+			response.setResponse(String.valueOf(status));
 			response.setMessage("Success");
 			response.setIsError(false);
 		}catch(Exception e){
@@ -2340,7 +2384,7 @@ public class PlacementServiceImple implements PlacementService {
 				}
 			}
 			
-			//mailbody+=BodyTableFrame(req);
+			mailbody+=BodyTableFrame(req);
 			bean.setMailBody(mailbody);
 			bean.setMailSubject(mailsub);
 	
@@ -2367,6 +2411,7 @@ public class PlacementServiceImple implements PlacementService {
 		}
 		return msg;
 	}
+	
 	private List<Tuple> MailproposalInfo(GetMailTemplateReq bean) {
 		List<Tuple> list=null;
 		try {
@@ -2433,7 +2478,7 @@ public class PlacementServiceImple implements PlacementService {
 					pm.get("baseLayer").alias("BASE_LAYER"),pm.get("layerNo").alias("LAYER_NO"),businessType.alias("BUSINESS_TYPE"),
 					pm.get("proposalNo").alias("PROPOSAL_NO"),treatyType.alias("TREATY_TYPE"),rd.get("rskTreatyid").alias("RSK_TREATYID"),
 					pm.get("bouquetNo").alias("BOUQUET_NO"),pm.get("bouquetModeYn").alias("BOUQUET_MODE_YN"),
-					deptName.alias("CLASS"),                    //subclass pending
+					deptName.alias("CLASS"),//subclass pending
 					cb.selectCase().when(cb.equal(pm.get("productId") ,"2") ,pm.get("sectionNo"))
 					.otherwise(pm.get("layerNo")).alias("SECTION_NO"), 	pm.get("offerNo").alias("OFFER_NO"),
 					pm.get("productId").alias("PRODUCT_ID"), trp.get("shareOffered").alias("SHARE_OFFERED"),
@@ -2503,12 +2548,206 @@ public class PlacementServiceImple implements PlacementService {
 			}
 			TypedQuery<Tuple> res = em.createQuery(query);
 			list = res.getResultList();
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return list;
+	} catch (Exception e) {
+		e.printStackTrace();
 	}
+	return list;
+}
+			
+//	private List<Map<String,Object>> MailproposalInfo(GetMailTemplateReq bean) {
+//		List<Map<String,Object>> list=null;
+//		try {
+//			Object[] obj=new Object[4];
+//			if(StringUtils.isBlank(bean.getSearchType())) {
+//				if("C".equals(bean.getPlacementMode())) {
+//					if(StringUtils.isNotBlank(bean.getBouquetNo())) {
+//						//GET_MAILTEPLATE_BOUQUET
+//						String nativequery = "SELECT DISTINCT TO_CHAR (RD.RSK_INCEPTION_DATE, 'DD/MM/YYYY') INS_DATE, TO_CHAR (RD.RSK_EXPIRY_DATE, 'DD/MM/YYYY')\r\n"
+//								+ "EXP_DATE,(SELECT COMPANY_NAME FROM PERSONAL_INFO PERSONAL WHERE RD.RSK_CEDINGID = PERSONAL.CUSTOMER_ID AND PERSONAL.CUSTOMER_TYPE='C' \r\n"
+//								+ "AND PERSONAL.BRANCH_CODE = PM.BRANCH_CODE)COMPANY_NAME,PM.UW_YEAR,PM.UW_YEAR_TO,PM.CONTRACT_NO,PM.BASE_LAYER,PM.LAYER_NO,\r\n"
+//								+ "(SELECT TMAS_PRODUCT_NAME FROM TMAS_PRODUCT_MASTER PD WHERE PD.TMAS_PRODUCT_ID=PM.PRODUCT_ID AND PD.BRANCH_CODE=PM.BRANCH_CODE)BUSINESS_TYPE,\r\n"
+//								+ "PM.PROPOSAL_NO,(SELECT DETAIL_NAME FROM  CONSTANT_DETAIL WHERE CATEGORY_ID=DECODE(PM.PRODUCT_ID,'2','43','29') AND \r\n"
+//								+ "TYPE=DECODE(PM.PRODUCT_ID,'2',RD.TREATYTYPE,RD.RSK_BUSINESS_TYPE))TREATY_TYPE,RD.RSK_TREATYID,'New' POLICY_STATUS,''EXISTING_SHARE,\r\n"
+//								+ "PM.BOUQUET_NO,Bouquet_Mode_YN,( select TMAS_DEPARTMENT_NAME From tmas_department_master where TMAS_DEPARTMENT_ID=RD.RSK_DEPTId \r\n"
+//								+ "and branch_code=RD.branch_code and TMAS_PRODUCT_ID=RD.RSK_PRODUCTID  AND TMAS_STATUS='Y')  CLASS,CASE WHEN RD.RSK_SPFCID='ALL'\r\n"
+//								+ "THEN 'ALL' ELSE (select RTRIM(XMLAGG(XMLELEMENT(E,TMAS_SPFC_NAME,',')).EXTRACT('//text()'),',')  from TMAS_SPFC_MASTER SPFC where \r\n"
+//								+ "SPFC.TMAS_SPFC_ID in(select * from table(SPLIT_TEXT_FN(replace(RD.RSK_SPFCID,' ', '')))) AND  SPFC.TMAS_PRODUCT_ID = RD.RSK_PRODUCTID \r\n"
+//								+ "AND SPFC.BRANCH_CODE = RD.BRANCH_CODE) END SUB_CLASS,DECODE(PM.PRODUCT_ID,'2',PM.SECTION_NO,PM.LAYER_NO) SECTION_NO,PM.OFFER_NO,\r\n"
+//								+ "PM.PRODUCT_ID,SHARE_OFFERED,SHARE_PROPOSAL_WRITTEN,SHARE_PROPOSED_SIGNED FROM POSITION_MASTER PM,TTRN_RISK_DETAILS RD,TTRN_RI_PLACEMENT TRP \r\n"
+//								+ "WHERE  PM.BRANCH_CODE=? AND PM.PROPOSAL_NO=RD.RSK_PROPOSAL_NUMBER AND PM.BOUQUET_NO=? AND TRP.REINSURER_ID=? AND TRP.BROKER_ID=? \r\n"
+//								+ "AND PM.contract_status='P' AND PM.PROPOSAL_NO = TRP.PROPOSAL_NO  AND TRP.STATUS_NO IN (SELECT   MAX (STATUS_NO) FROM  \r\n"
+//								+ "TTRN_RI_PLACEMENT TRP1  WHERE TRP.PROPOSAL_NO = TRP1.PROPOSAL_NO AND TRP.SNO = TRP1.SNO  AND TRP.BRANCH_CODE = TRP1.BRANCH_CODE) \r\n"
+//								+ "ORDER BY PRODUCT_ID,BOUQUET_NO,PROPOSAL_NO";
+//						
+//						Query query = em.createNativeQuery(nativequery);
+//						query.setParameter(1,bean.getBranchCode());
+//					    query.setParameter(2,bean.getBouquetNo());
+//					    query.setParameter(3,bean.getReinsurerId());
+//					    query.setParameter(4,bean.getBrokerId());
+//						
+//					    query.unwrap(NativeQueryImpl.class).setResultTransformer(AliasToEntityMapResultTransformer.INSTANCE);
+//					    list = query.getResultList();
+//	
+//						
+//					}else {
+//						//query = GET_MAILTEPLATE_BASELAYER
+//						
+//						String nativequery = "SELECT DISTINCT TO_CHAR (RD.RSK_INCEPTION_DATE, 'DD/MM/YYYY') INS_DATE, TO_CHAR (RD.RSK_EXPIRY_DATE, 'DD/MM/YYYY')\r\n"
+//								+ "EXP_DATE,(SELECT COMPANY_NAME FROM PERSONAL_INFO PERSONAL WHERE RD.RSK_CEDINGID = PERSONAL.CUSTOMER_ID AND PERSONAL.CUSTOMER_TYPE='C'\r\n"
+//								+ "AND PERSONAL.BRANCH_CODE = PM.BRANCH_CODE)COMPANY_NAME,PM.UW_YEAR,PM.UW_YEAR_TO,PM.CONTRACT_NO,PM.BASE_LAYER,PM.LAYER_NO,\r\n"
+//								+ "(SELECT TMAS_PRODUCT_NAME FROM TMAS_PRODUCT_MASTER PD WHERE PD.TMAS_PRODUCT_ID=PM.PRODUCT_ID AND PD.BRANCH_CODE=PM.BRANCH_CODE)\r\n"
+//								+ "BUSINESS_TYPE,PM.PROPOSAL_NO,(SELECT DETAIL_NAME FROM  CONSTANT_DETAIL WHERE CATEGORY_ID=DECODE(PM.PRODUCT_ID,'2','43','29') AND\r\n"
+//								+ "TYPE=DECODE(PM.PRODUCT_ID,'2',RD.TREATYTYPE,RD.RSK_BUSINESS_TYPE))TREATY_TYPE,RD.RSK_TREATYID,'New' POLICY_STATUS,''EXISTING_SHARE,\r\n"
+//								+ "PM.BOUQUET_NO,Bouquet_Mode_YN,( select TMAS_DEPARTMENT_NAME From tmas_department_master where TMAS_DEPARTMENT_ID=RD.RSK_DEPTId and \r\n"
+//								+ "branch_code=RD.branch_code and TMAS_PRODUCT_ID=RD.RSK_PRODUCTID  AND TMAS_STATUS='Y')  CLASS,CASE WHEN RD.RSK_SPFCID='ALL' THEN 'ALL' \r\n"
+//								+ "ELSE (select RTRIM(XMLAGG(XMLELEMENT(E,TMAS_SPFC_NAME,',')).EXTRACT('//text()'),',')  from TMAS_SPFC_MASTER SPFC where SPFC.TMAS_SPFC_ID\r\n"
+//								+ "in(select * from table(SPLIT_TEXT_FN(replace(RD.RSK_SPFCID,' ', '')))) AND  SPFC.TMAS_PRODUCT_ID = RD.RSK_PRODUCTID AND \r\n"
+//								+ "SPFC.BRANCH_CODE = RD.BRANCH_CODE) END SUB_CLASS,DECODE(PM.PRODUCT_ID,'2',PM.SECTION_NO,PM.LAYER_NO) SECTION_NO,PM.OFFER_NO,\r\n"
+//								+ "PM.PRODUCT_ID,SHARE_OFFERED,SHARE_PROPOSAL_WRITTEN,SHARE_PROPOSED_SIGNED FROM POSITION_MASTER PM,TTRN_RISK_DETAILS RD,TTRN_RI_PLACEMENT TRP\r\n"
+//								+ "WHERE  PM.BRANCH_CODE=? AND PM.PROPOSAL_NO=RD.RSK_PROPOSAL_NUMBER AND NVL(PM.BASE_LAYER,PM.PROPOSAL_NO)=? AND TRP.REINSURER_ID=? \r\n"
+//								+ "AND TRP.BROKER_ID=? AND PM.contract_status='P' AND PM.PROPOSAL_NO = TRP.PROPOSAL_NO  AND TRP.STATUS_NO IN (SELECT   MAX (STATUS_NO) FROM \r\n"
+//								+ "TTRN_RI_PLACEMENT TRP1  WHERE TRP.PROPOSAL_NO = TRP1.PROPOSAL_NO AND TRP.SNO = TRP1.SNO  AND TRP.BRANCH_CODE = TRP1.BRANCH_CODE)\r\n"
+//								+ "ORDER BY PRODUCT_ID,BOUQUET_NO,PROPOSAL_NO";
+//						
+//						Query query = em.createNativeQuery(nativequery);
+//						query.setParameter(1, bean.getBranchCode());
+//						query.setParameter(2, bean.getBaseProposalNo());
+//						query.setParameter(3, bean.getReinsurerId());
+//						query.setParameter(4, bean.getBrokerId());
+//						
+//					query.unwrap(NativeQueryImpl.class).setResultTransformer(AliasToEntityMapResultTransformer.INSTANCE);
+//					list = query.getResultList();
+//					}
+//				}else {
+//					//query = GET_MAILTEPLATE_PROPOSAL
+//					
+//					String nativequery = "SELECT DISTINCT TO_CHAR (RD.RSK_INCEPTION_DATE, 'DD/MM/YYYY') INS_DATE, TO_CHAR (RD.RSK_EXPIRY_DATE, 'DD/MM/YYYY') EXP_DATE,\r\n"
+//							+ "(SELECT COMPANY_NAME FROM PERSONAL_INFO PERSONAL WHERE RD.RSK_CEDINGID = PERSONAL.CUSTOMER_ID AND PERSONAL.CUSTOMER_TYPE='C'\r\n"
+//							+ "AND PERSONAL.BRANCH_CODE = PM.BRANCH_CODE)COMPANY_NAME,PM.UW_YEAR,PM.UW_YEAR_TO,PM.CONTRACT_NO,PM.BASE_LAYER,PM.LAYER_NO,\r\n"
+//							+ "(SELECT TMAS_PRODUCT_NAME FROM TMAS_PRODUCT_MASTER PD WHERE PD.TMAS_PRODUCT_ID=PM.PRODUCT_ID AND PD.BRANCH_CODE=PM.BRANCH_CODE)\r\n"
+//							+ "BUSINESS_TYPE,PM.PROPOSAL_NO,(SELECT DETAIL_NAME FROM  CONSTANT_DETAIL WHERE CATEGORY_ID=DECODE(PM.PRODUCT_ID,'2','43','29') AND\r\n"
+//							+ "TYPE=DECODE(PM.PRODUCT_ID,'2',RD.TREATYTYPE,RD.RSK_BUSINESS_TYPE))TREATY_TYPE,RD.RSK_TREATYID,'New' POLICY_STATUS,''EXISTING_SHARE,\r\n"
+//							+ "PM.BOUQUET_NO,Bouquet_Mode_YN,( select TMAS_DEPARTMENT_NAME From tmas_department_master where TMAS_DEPARTMENT_ID=RD.RSK_DEPTId and \r\n"
+//							+ "branch_code=RD.branch_code and TMAS_PRODUCT_ID=RD.RSK_PRODUCTID  AND TMAS_STATUS='Y')  CLASS,CASE WHEN RD.RSK_SPFCID='ALL' THEN 'ALL' ELSE \r\n"
+//							+ "(select RTRIM(XMLAGG(XMLELEMENT(E,TMAS_SPFC_NAME,',')).EXTRACT('//text()'),',')  from TMAS_SPFC_MASTER SPFC where SPFC.TMAS_SPFC_ID\r\n"
+//							+ "in(select * from table(SPLIT_TEXT_FN(replace(RD.RSK_SPFCID,' ', '')))) AND  SPFC.TMAS_PRODUCT_ID = RD.RSK_PRODUCTID AND \r\n"
+//							+ "SPFC.BRANCH_CODE = RD.BRANCH_CODE) END SUB_CLASS,DECODE(PM.PRODUCT_ID,'2',PM.SECTION_NO,PM.LAYER_NO) SECTION_NO,PM.OFFER_NO,PM.PRODUCT_ID,\r\n"
+//							+ "SHARE_OFFERED,SHARE_PROPOSAL_WRITTEN,SHARE_PROPOSED_SIGNED FROM POSITION_MASTER PM,TTRN_RISK_DETAILS RD,TTRN_RI_PLACEMENT TRP WHERE  \r\n"
+//							+ "PM.BRANCH_CODE=? AND PM.PROPOSAL_NO=RD.RSK_PROPOSAL_NUMBER AND PM.PROPOSAL_NO=? AND TRP.REINSURER_ID=? AND TRP.BROKER_ID=? AND \r\n"
+//							+ "PM.contract_status='P' AND PM.PROPOSAL_NO = TRP.PROPOSAL_NO  AND TRP.STATUS_NO IN (SELECT   MAX (STATUS_NO) FROM   TTRN_RI_PLACEMENT TRP1 \r\n"
+//							+ "WHERE TRP.PROPOSAL_NO = TRP1.PROPOSAL_NO AND TRP.SNO = TRP1.SNO  AND TRP.BRANCH_CODE = TRP1.BRANCH_CODE) ORDER BY\r\n"
+//							+ "PRODUCT_ID,BOUQUET_NO,PROPOSAL_NO";
+//					
+//					Query query = em.createNativeQuery(nativequery);
+//					query.setParameter(1, bean.getBranchCode());
+//					query.setParameter(2, bean.getProposalNo());
+//					query.setParameter(3, bean.getReinsurerId());
+//					query.setParameter(4, bean.getBrokerId());
+//					
+//				query.unwrap(NativeQueryImpl.class).setResultTransformer(AliasToEntityMapResultTransformer.INSTANCE);
+//				list = query.getResultList();
+//				}
+//			}else {
+//				obj=new Object[5];
+//				obj[0]=bean.getBranchCode();
+//				obj[2]=bean.getSearchReinsurerId();
+//				obj[3]=bean.getSearchBrokerId();
+//				obj[4]=bean.getNewStatus();
+//				
+//				if(StringUtils.isNotBlank(bean.getBouquetNo())) {
+//					//query=getQuery("GET_MAILTEPLATE_BOUQUET_SEARCH");
+//					String nativequery = "SELECT DISTINCT TO_CHAR (RD.RSK_INCEPTION_DATE, 'DD/MM/YYYY') INS_DATE, TO_CHAR (RD.RSK_EXPIRY_DATE, 'DD/MM/YYYY') \r\n"
+//							+ "EXP_DATE,(SELECT COMPANY_NAME FROM PERSONAL_INFO PERSONAL WHERE RD.RSK_CEDINGID = PERSONAL.CUSTOMER_ID AND \r\n"
+//							+ "PERSONAL.CUSTOMER_TYPE='C' AND PERSONAL.BRANCH_CODE = PM.BRANCH_CODE)COMPANY_NAME,PM.UW_YEAR,PM.UW_YEAR_TO,PM.CONTRACT_NO,\r\n"
+//							+ "PM.BASE_LAYER,PM.LAYER_NO,(SELECT TMAS_PRODUCT_NAME FROM TMAS_PRODUCT_MASTER PD WHERE PD.TMAS_PRODUCT_ID=PM.PRODUCT_ID AND \r\n"
+//							+ "PD.BRANCH_CODE=PM.BRANCH_CODE)BUSINESS_TYPE,PM.PROPOSAL_NO,(SELECT DETAIL_NAME FROM  CONSTANT_DETAIL WHERE CATEGORY_ID=DECODE\r\n"
+//							+ "(PM.PRODUCT_ID,'2','43','29') AND TYPE=DECODE(PM.PRODUCT_ID,'2',RD.TREATYTYPE,RD.RSK_BUSINESS_TYPE))TREATY_TYPE,RD.RSK_TREATYID,'New' \r\n"
+//							+ "POLICY_STATUS,''EXISTING_SHARE,PM.BOUQUET_NO,Bouquet_Mode_YN,( select TMAS_DEPARTMENT_NAME From tmas_department_master where\r\n"
+//							+ "TMAS_DEPARTMENT_ID=RD.RSK_DEPTId and branch_code=RD.branch_code and TMAS_PRODUCT_ID=RD.RSK_PRODUCTID  AND TMAS_STATUS='Y') \r\n"
+//							+ "CLASS,CASE WHEN RD.RSK_SPFCID='ALL' THEN 'ALL' ELSE (select RTRIM(XMLAGG(XMLELEMENT(E,TMAS_SPFC_NAME,',')).EXTRACT('//text()'),',') \r\n"
+//							+ "from TMAS_SPFC_MASTER SPFC where SPFC.TMAS_SPFC_ID in(select * from table(SPLIT_TEXT_FN(replace(RD.RSK_SPFCID,' ', '')))) AND \r\n"
+//							+ "SPFC.TMAS_PRODUCT_ID = RD.RSK_PRODUCTID AND SPFC.BRANCH_CODE = RD.BRANCH_CODE) END SUB_CLASS,DECODE(PM.PRODUCT_ID,'2',PM.SECTION_NO,\r\n"
+//							+ "PM.LAYER_NO) SECTION_NO,PM.OFFER_NO,PM.PRODUCT_ID,SHARE_OFFERED,SHARE_PROPOSAL_WRITTEN,SHARE_PROPOSED_SIGNED FROM POSITION_MASTER PM,\r\n"
+//							+ "TTRN_RISK_DETAILS RD,TTRN_RI_PLACEMENT TRP WHERE  PM.BRANCH_CODE=? AND PM.PROPOSAL_NO=RD.RSK_PROPOSAL_NUMBER AND PM.BOUQUET_NO=? AND\r\n"
+//							+ "TRP.REINSURER_ID=? AND TRP.BROKER_ID=? AND TRP.STATUS=? AND PM.contract_status='P' AND PM.PROPOSAL_NO = TRP.PROPOSAL_NO  AND \r\n"
+//							+ "TRP.STATUS_NO IN (SELECT   MAX (STATUS_NO) FROM   TTRN_RI_PLACEMENT TRP1  WHERE TRP.PROPOSAL_NO = TRP1.PROPOSAL_NO AND TRP.SNO = TRP1.SNO \r\n"
+//							+ "AND TRP.BRANCH_CODE = TRP1.BRANCH_CODE) ORDER BY PRODUCT_ID,BOUQUET_NO,PROPOSAL_NO";
+//					
+//					Query query = em.createNativeQuery(nativequery);
+//					query.setParameter(1, bean.getBranchCode());
+//					query.setParameter(2, bean.getBouquetNo());
+//					query.setParameter(3, bean.getSearchReinsurerId());
+//					query.setParameter(4, bean.getSearchBrokerId());
+//					query.setParameter(4, bean.getNewStatus());
+//					
+//				query.unwrap(NativeQueryImpl.class).setResultTransformer(AliasToEntityMapResultTransformer.INSTANCE);
+//				list = query.getResultList();
+//					
+//				}else if(StringUtils.isNotBlank(bean.getBaseProposalNo())) {
+//					//query=getQuery("GET_MAILTEPLATE_BASELAYER_SEARCH");
+//					String nativequery = "SELECT DISTINCT TO_CHAR (RD.RSK_INCEPTION_DATE, 'DD/MM/YYYY') INS_DATE, TO_CHAR (RD.RSK_EXPIRY_DATE, 'DD/MM/YYYY') EXP_DATE,\r\n"
+//							+ "(SELECT COMPANY_NAME FROM PERSONAL_INFO PERSONAL WHERE RD.RSK_CEDINGID = PERSONAL.CUSTOMER_ID AND PERSONAL.CUSTOMER_TYPE='C' \r\n"
+//							+ "AND PERSONAL.BRANCH_CODE = PM.BRANCH_CODE)COMPANY_NAME,PM.UW_YEAR,PM.UW_YEAR_TO,PM.CONTRACT_NO,PM.BASE_LAYER,PM.LAYER_NO,\r\n"
+//							+ "(SELECT TMAS_PRODUCT_NAME FROM TMAS_PRODUCT_MASTER PD WHERE PD.TMAS_PRODUCT_ID=PM.PRODUCT_ID AND PD.BRANCH_CODE=PM.BRANCH_CODE)\r\n"
+//							+ "BUSINESS_TYPE,PM.PROPOSAL_NO,(SELECT DETAIL_NAME FROM  CONSTANT_DETAIL WHERE CATEGORY_ID=DECODE(PM.PRODUCT_ID,'2','43','29') AND \r\n"
+//							+ "TYPE=DECODE(PM.PRODUCT_ID,'2',RD.TREATYTYPE,RD.RSK_BUSINESS_TYPE))TREATY_TYPE,RD.RSK_TREATYID,'New' POLICY_STATUS,''EXISTING_SHARE,\r\n"
+//							+ "PM.BOUQUET_NO,Bouquet_Mode_YN,( select TMAS_DEPARTMENT_NAME From tmas_department_master where TMAS_DEPARTMENT_ID=RD.RSK_DEPTId and \r\n"
+//							+ "branch_code=RD.branch_code and TMAS_PRODUCT_ID=RD.RSK_PRODUCTID  AND TMAS_STATUS='Y')  CLASS,CASE WHEN RD.RSK_SPFCID='ALL' THEN 'ALL'\r\n"
+//							+ "ELSE (select RTRIM(XMLAGG(XMLELEMENT(E,TMAS_SPFC_NAME,',')).EXTRACT('//text()'),',')  from TMAS_SPFC_MASTER SPFC where SPFC.TMAS_SPFC_ID \r\n"
+//							+ "in(select * from table(SPLIT_TEXT_FN(replace(RD.RSK_SPFCID,' ', '')))) AND  SPFC.TMAS_PRODUCT_ID = RD.RSK_PRODUCTID AND \r\n"
+//							+ "SPFC.BRANCH_CODE = RD.BRANCH_CODE) END SUB_CLASS,DECODE(PM.PRODUCT_ID,'2',PM.SECTION_NO,PM.LAYER_NO) SECTION_NO,PM.OFFER_NO,PM.PRODUCT_ID,\r\n"
+//							+ "SHARE_OFFERED,SHARE_PROPOSAL_WRITTEN,SHARE_PROPOSED_SIGNED FROM POSITION_MASTER PM,TTRN_RISK_DETAILS RD,TTRN_RI_PLACEMENT TRP WHERE\r\n"
+//							+ "PM.BRANCH_CODE=? AND PM.PROPOSAL_NO=RD.RSK_PROPOSAL_NUMBER AND NVL(PM.BASE_LAYER,PM.PROPOSAL_NO)=? AND TRP.REINSURER_ID=? AND \r\n"
+//							+ "TRP.BROKER_ID=? AND TRP.STATUS=? AND PM.contract_status='P' AND PM.PROPOSAL_NO = TRP.PROPOSAL_NO  AND TRP.STATUS_NO IN \r\n"
+//							+ "(SELECT   MAX (STATUS_NO) FROM   TTRN_RI_PLACEMENT TRP1  WHERE TRP.PROPOSAL_NO = TRP1.PROPOSAL_NO AND TRP.SNO = TRP1.SNO\r\n"
+//							+ "AND TRP.BRANCH_CODE = TRP1.BRANCH_CODE) ORDER BY PRODUCT_ID,BOUQUET_NO,PROPOSAL_NO";
+//					
+//					Query query = em.createNativeQuery(nativequery);
+//					query.setParameter(1, bean.getBranchCode());
+//					query.setParameter(2, bean.getBaseProposalNo());
+//					query.setParameter(3, bean.getSearchReinsurerId());
+//					query.setParameter(4, bean.getSearchBrokerId());
+//					query.setParameter(4, bean.getNewStatus());
+//					
+//				query.unwrap(NativeQueryImpl.class).setResultTransformer(AliasToEntityMapResultTransformer.INSTANCE);
+//				list = query.getResultList();
+//					
+//				}else {
+//					//query=getQuery("GET_MAILTEPLATE_PROPOSAL_SEARCH");
+//					String nativequery = "SELECT DISTINCT TO_CHAR (RD.RSK_INCEPTION_DATE, 'DD/MM/YYYY') INS_DATE, TO_CHAR (RD.RSK_EXPIRY_DATE, 'DD/MM/YYYY') EXP_DATE,\r\n"
+//							+ "(SELECT COMPANY_NAME FROM PERSONAL_INFO PERSONAL WHERE RD.RSK_CEDINGID = PERSONAL.CUSTOMER_ID AND PERSONAL.CUSTOMER_TYPE='C' \r\n"
+//							+ "AND PERSONAL.BRANCH_CODE = PM.BRANCH_CODE)COMPANY_NAME,PM.UW_YEAR,PM.UW_YEAR_TO,PM.CONTRACT_NO,PM.BASE_LAYER,PM.LAYER_NO,\r\n"
+//							+ "(SELECT TMAS_PRODUCT_NAME FROM TMAS_PRODUCT_MASTER PD WHERE PD.TMAS_PRODUCT_ID=PM.PRODUCT_ID AND PD.BRANCH_CODE=PM.BRANCH_CODE)\r\n"
+//							+ "BUSINESS_TYPE,PM.PROPOSAL_NO,(SELECT DETAIL_NAME FROM  CONSTANT_DETAIL WHERE CATEGORY_ID=DECODE(PM.PRODUCT_ID,'2','43','29') AND \r\n"
+//							+ "TYPE=DECODE(PM.PRODUCT_ID,'2',RD.TREATYTYPE,RD.RSK_BUSINESS_TYPE))TREATY_TYPE,RD.RSK_TREATYID,'New' POLICY_STATUS,''EXISTING_SHARE,\r\n"
+//							+ "PM.BOUQUET_NO,Bouquet_Mode_YN,( select TMAS_DEPARTMENT_NAME From tmas_department_master where TMAS_DEPARTMENT_ID=RD.RSK_DEPTId and\r\n"
+//							+ "branch_code=RD.branch_code and TMAS_PRODUCT_ID=RD.RSK_PRODUCTID  AND TMAS_STATUS='Y')  CLASS,CASE WHEN RD.RSK_SPFCID='ALL' THEN 'ALL' \r\n"
+//							+ "ELSE (select RTRIM(XMLAGG(XMLELEMENT(E,TMAS_SPFC_NAME,',')).EXTRACT('//text()'),',')  from TMAS_SPFC_MASTER SPFC where SPFC.TMAS_SPFC_ID\r\n"
+//							+ "in(select * from table(SPLIT_TEXT_FN(replace(RD.RSK_SPFCID,' ', '')))) AND  SPFC.TMAS_PRODUCT_ID = RD.RSK_PRODUCTID AND \r\n"
+//							+ "SPFC.BRANCH_CODE = RD.BRANCH_CODE) END SUB_CLASS,DECODE(PM.PRODUCT_ID,'2',PM.SECTION_NO,PM.LAYER_NO) SECTION_NO,PM.OFFER_NO,PM.PRODUCT_ID,\r\n"
+//							+ "SHARE_OFFERED,SHARE_PROPOSAL_WRITTEN,SHARE_PROPOSED_SIGNED FROM POSITION_MASTER PM,TTRN_RISK_DETAILS RD,TTRN_RI_PLACEMENT TRP WHERE\r\n"
+//							+ "PM.BRANCH_CODE=? AND PM.PROPOSAL_NO=RD.RSK_PROPOSAL_NUMBER AND PM.PROPOSAL_NO='202002347' AND TRP.REINSURER_ID=? AND TRP.BROKER_ID=?\r\n"
+//							+ "AND TRP.STATUS=? AND PM.contract_status='P' AND PM.PROPOSAL_NO = TRP.PROPOSAL_NO  AND TRP.STATUS_NO IN (SELECT   MAX (STATUS_NO) FROM   \r\n"
+//							+ "TTRN_RI_PLACEMENT TRP1  WHERE TRP.PROPOSAL_NO = TRP1.PROPOSAL_NO AND TRP.SNO = TRP1.SNO  AND TRP.BRANCH_CODE = TRP1.BRANCH_CODE) \r\n"
+//							+ "ORDER BY PRODUCT_ID,BOUQUET_NO,PROPOSAL_NO";
+//					
+//					Query query = em.createNativeQuery(nativequery);
+//					query.setParameter(1, bean.getBranchCode());
+//					query.setParameter(2, bean.getProposalNo());
+//					query.setParameter(3, bean.getSearchReinsurerId());
+//					query.setParameter(4, bean.getSearchBrokerId());
+//					query.setParameter(4, bean.getNewStatus());
+//					
+//				query.unwrap(NativeQueryImpl.class).setResultTransformer(AliasToEntityMapResultTransformer.INSTANCE);
+//				list = query.getResultList();
+//				}
+//			}
+//			
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		return list;
+//	}
 	
 	public String getOfferMsg(List<Tuple> agentWiseReport, GetMailTemplateReq bean) {
 		String messageContent ="";
@@ -2555,7 +2794,7 @@ public class PlacementServiceImple implements PlacementService {
 	
 	return messageContent.toString();
 	}
-	public String getPropsalWrittenMsg(List<Tuple>agentWiseReport, GetMailTemplateReq bean) {
+	public String getPropsalWrittenMsg(List<Tuple> agentWiseReport, GetMailTemplateReq bean) {
 		String messageContent ="";
 		messageContent="<!DOCTYPE html>" + 
 				"<html lang=\"en\">" + 

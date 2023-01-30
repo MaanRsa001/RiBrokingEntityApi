@@ -2,6 +2,7 @@ package com.maan.insurance.service.impl.proportionality;
 
 import java.math.BigDecimal;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -206,6 +207,10 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 	private  TtrnCommissionDetailsRepository ttrnCommissionDetailsRepository;
 	@Autowired
 	private  TtrnMndInstallmentsRepository ttrnMndInstallmentsRepository;
+	
+	private String DateFormat(Object input) {
+		return new SimpleDateFormat("dd/MM/yyyy").format(input).toString();
+		}
 
 	@Override
 	public FirstpagesaveRes insertProportionalTreaty(FirstpageSaveReq req, boolean saveFlag, final boolean amendId) {
@@ -251,7 +256,6 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 				}
 			}
 			res = insertRiskProposal(req,saveFlag,ChkSavFlg,amendId,(String)args[1]);
-			res.setContractGendration("Your Proposal Number :"+ req.getProposalNo());
 			//savFlg = true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1452,19 +1456,20 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 		obj[19] = beanObj.getUwYearTo();
 		obj[20] = beanObj.getSectionNo();
 		obj[21] = beanObj.getProposalNo();
-		obj[22] =beanObj.getAmendId();
+		obj[22] =StringUtils.isEmpty(beanObj.getAmendId())? "0":beanObj.getAmendId();
 		return obj;
 	}
 	@Override
 	public SecondpagesaveRes saveSecondPage(SecondpageSaveReq req) {
 		SecondpagesaveRes resp=new SecondpagesaveRes();
 		SecondpagesaveResp response=new SecondpagesaveResp();
+		
 		try{
 			String GetProposalStatus = null;
 			int ChkSecPagMod = checkSecondPageMode(req.getProposalNo());
 			String[] obj=null,obj1=null;
-			if (ChkSecPagMod == 1) {
-			//if (ChkSecPagMod == 2) {
+			//if (ChkSecPagMod == 1) {
+			if (ChkSecPagMod == 2) {
 				obj = saveUpdateRiskDetailsSecondForm(req,getMaxAmednId(req.getProposalNo()));
 				//risk.update.pro24RskProposal
 				TtrnRiskProposal update = proportionalityCustomRepository.ttrnRiskProposalSecondPageUpdate(obj);
@@ -2400,8 +2405,8 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 				beanObj.setMonth(resMap.get("RSK_MONTH")==null?"":resMap.get("RSK_MONTH").toString());
 				beanObj.setUwYear(resMap.get("RSK_UWYEAR")==null?"":resMap.get("RSK_UWYEAR").toString());
 				beanObj.setUnderwriter(resMap.get("RSK_UNDERWRITTER")==null?"":resMap.get("RSK_UNDERWRITTER").toString());
-				beanObj.setInceptionDate(resMap.get("RSK_INCEPTION_DATE")==null?"":resMap.get("RSK_INCEPTION_DATE").toString());
-				beanObj.setExpiryDate(resMap.get("RSK_EXPIRY_DATE")==null?"":resMap.get("RSK_EXPIRY_DATE").toString());
+				beanObj.setInceptionDate(resMap.get("RSK_INCEPTION_DATE")==null?"":DateFormat(resMap.get("RSK_INCEPTION_DATE")).toString());
+				beanObj.setExpiryDate(resMap.get("RSK_EXPIRY_DATE")==null?"":DateFormat(resMap.get("RSK_EXPIRY_DATE")).toString());
 				beanObj.setAcceptanceDate(resMap.get("RSK_ACCOUNT_DATE")==null?"":resMap.get("RSK_ACCOUNT_DATE").toString());
 				beanObj.setOrginalCurrency(resMap.get("RSK_ORIGINAL_CURR")==null?"":resMap.get("RSK_ORIGINAL_CURR").toString());
 				beanObj.setExchangeRate(resMap.get("RSK_EXCHANGE_RATE")==null?"":resMap.get("RSK_EXCHANGE_RATE").toString().equalsIgnoreCase("0") ? "0"	: resMap.get("RSK_EXCHANGE_RATE")==null?"":resMap.get("RSK_EXCHANGE_RATE").toString());

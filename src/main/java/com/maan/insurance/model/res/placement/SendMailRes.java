@@ -4,22 +4,25 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.maan.insurance.error.ErrorCheck;
-import com.maan.insurance.model.res.DropDown.GetBaseLayerExistingListRes1;
 
 import lombok.Data;
 
 @Data
-public class GetPlacementNoRes {
+public class SendMailRes {
+	
+	@JsonProperty("Result")
+	private String response;
 	
 	@JsonProperty("Message")
 	private String message;
 
-	@JsonProperty("IsError")
+	@JsonProperty("IsError")	
 	private Boolean isError;
 
 	@JsonProperty("ErrorMessage")
-	private List<ErrorCheck> errors;
-
+	private List<ErrorCheck> errorMessage;
+	
 	@JsonProperty("ErroCode")
 	private int erroCode;
+
 }

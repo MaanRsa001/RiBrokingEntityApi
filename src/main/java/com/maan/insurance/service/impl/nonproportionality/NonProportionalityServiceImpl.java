@@ -585,8 +585,8 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 					args[1]=(Integer.parseInt(maxAmendID)+1)+"";
 				}
 			}
-			insertClassLimit(req2);
-			insertRemarkDetails(req3);
+//			insertClassLimit(req2);
+//			insertRemarkDetails(req3);
 			response = insertRiskProposal(req,ChkSavFlg);
 			response.setMessage("Success");
 			response.setIsError(false);
@@ -691,26 +691,26 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			
 		//	String[] args = getFirstPageSaveModeAruguments(beanObj, req.getProductId(),getMaxAmednId(req.getProposalNo()));
 			String[] args=null;
-			args = new String[55]; //RI
+			args = new String[54]; //RI
 			args[0] = req.getDepartmentId();
 			args[1] = req.getProfitCenter();
 			args[2] = req.getSubProfitCenter();
-			args[3] = req.getPolicyBranch();
+			args[3] = StringUtils.isBlank(req.getPolicyBranch())? "":req.getPolicyBranch();
 			args[4] = req.getCedingCo();
 			args[5] = StringUtils.isBlank(req.getBroker())?"63":req.getBroker();
 			args[6] = req.getTreatyNameType();
-			args[7] = req.getMonth();
+			args[7] = StringUtils.isBlank(req.getMonth())? "":req.getMonth();
 			args[8] = req.getUwYear();
-			args[9] = req.getUnderwriter();
+			args[9] = StringUtils.isBlank(req.getUnderwriter())? "":req.getUnderwriter();
 			args[10] = req.getIncepDate();
 			args[11] = req.getExpDate();
-			args[12] = req.getAccDate();
+			args[12] = StringUtils.isBlank(req.getAccDate())? "":req.getAccDate();
 			args[13] = req.getOrginalCurrency();
 			args[14] = req.getExchRate();
 			args[15] = req.getBasis();
 			args[16] = "";
 			args[17] = "";
-			args[18] = req.getTerritoryscope();
+			args[18] = StringUtils.isBlank(req.getTerritoryscope())? "":req.getTerritoryscope();
 			args[19] = StringUtils.isBlank(req.getTerritory())?"":req.getTerritory();
 			args[20] = req.getProStatus();
 			args[21] = "";
@@ -749,7 +749,6 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			args[51] =StringUtils.isEmpty(req.getStatementConfirm())?"":req.getStatementConfirm();
 			args[52] = req.getProposalNo();
 			args[53]=req.getEndNo();
-			args[54] = StringUtils.isEmpty(req.getLayerNo())?"0":req.getLayerNo();
 			
 			updateQry = "risk.update.rskDtls";
 			int updateCount = queryImpl.updateQuery(updateQry, args);
@@ -920,11 +919,11 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		obj[1] = getDesginationCountry(beanObj.getLimitOrigCur().replaceAll(",", ""), beanObj.getExchRate());
 		obj[2] = beanObj.getEpi();
 		obj[3] = getDesginationCountry(beanObj.getEpi(), beanObj.getExchRate());
-		obj[4] = beanObj.getShareWritten();
+		obj[4] = StringUtils.isBlank(beanObj.getShareWritten())? "":beanObj.getShareWritten();
 		if (beanObj.getProStatus().equalsIgnoreCase("P")) {
 			obj[5] = "0";
 		} else if (beanObj.getProStatus().equalsIgnoreCase("A")) {
-			obj[5] = beanObj.getSharSign();
+			obj[5] = StringUtils.isBlank(beanObj.getSharSign())?"":beanObj.getSharSign();
 		} else if (beanObj.getProStatus().equalsIgnoreCase("R")) {
 			obj[5] = "0";
 		} else {
@@ -935,7 +934,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		obj[8] = getDesginationCountry(beanObj.getSubPremium(), beanObj.getExchRate());
 		obj[9] = beanObj.getXlPremium();
 		obj[10] = getDesginationCountry(beanObj.getXlPremium(), beanObj.getExchRate());
-		obj[11] = beanObj.getPortfoloCovered();
+		obj[11] = StringUtils.isBlank(beanObj.getPortfoloCovered())? "":beanObj.getPortfoloCovered();
 		obj[12] = beanObj.getDeduchunPercent();
 		obj[13] = getDesginationCountry(beanObj.getDeduchunPercent(),beanObj.getExchRate());
 		obj[14] = beanObj.getMdPremium();
@@ -1175,13 +1174,13 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		args[38] = StringUtils.isEmpty(req.getEpipmlOS())|| StringUtils.isEmpty(req.getExchRate()) ? "0": getDesginationCountry(req.getEpipmlOS(), req.getExchRate());
 		args[39]=req.getRiskdetailYN();
 		args[40]=req.getBrokerdetYN();
-		args[41]=req.getCoverdetYN();
+		args[41]=StringUtils.isBlank(req.getCoverdetYN())? "":req.getCoverdetYN();
 		args[42]=req.getPremiumdetailYN();
 		args[43]=req.getAcqdetailYN();
-		args[44]=req.getCommissiondetailYN();
-		args[45]=req.getDepositdetailYN();
-		args[46]=req.getLossdetailYN();
-		args[47]=req.getDocdetailYN();
+		args[44]=StringUtils.isBlank(req.getCommissiondetailYN())? "":req.getCommissiondetailYN();
+		args[45]=StringUtils.isBlank(req.getDepositdetailYN())? "":req.getDepositdetailYN();
+		args[46]=StringUtils.isBlank(req.getLossdetailYN())? "":req.getLossdetailYN();
+		args[47]=StringUtils.isBlank(req.getDocdetailYN())? "":req.getDocdetailYN();
 		args[48] = req.getPaymentPartner();
 		args[49] = req.getInstallYN();
 		args[50] = req.getReinstdetailYN();
@@ -1223,8 +1222,8 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		obj[3] = beanObj.getDepartmentId();
 		obj[4] = beanObj.getCedingCo();
 		obj[5] = beanObj.getUwYear();
-		obj[6] = beanObj.getMonth();
-		obj[7] = beanObj.getAccDate();
+		obj[6] = StringUtils.isBlank(beanObj.getMonth())? "":beanObj.getMonth();
+		obj[7] = StringUtils.isBlank(beanObj.getAccDate())? "":beanObj.getAccDate();
 		obj[8] = beanObj.getIncepDate();
 		obj[9] = beanObj.getExpDate();
 		obj[10] = beanObj.getProStatus().trim();
@@ -1257,11 +1256,11 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		obj[15] = "";
 		obj[16] =  StringUtils.isEmpty(beanObj.getContractListVal())?"":beanObj.getContractListVal();
 		obj[17] = beanObj.getBouquetModeYN();
-		obj[18] = beanObj.getBouquetNo();
+		obj[18] = StringUtils.isBlank(beanObj.getBouquetNo())? "":beanObj.getBouquetNo();
 		obj[19] = beanObj.getUwYearTo();
 		obj[20] = "";
 		obj[21] = beanObj.getProposalNo();
-		obj[22] = beanObj.getAmendId();
+		obj[22] = StringUtils.isBlank(beanObj.getAmendId())? "":beanObj.getAmendId();
 		
 		return obj;
 	}
@@ -2366,7 +2365,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		} else {
 			argus[1] = "0";
 			argus[2] = "0";
-			argus[16] = StringUtils.isBlank(req.getBaseLayer())?req.getLayerProposalNo():req.getBaseLayer();
+			argus[16] = StringUtils.isBlank(req.getBaseLayer())?StringUtils.isBlank(req.getLayerProposalNo())? "": req.getLayerProposalNo():req.getBaseLayer();
 		}
 		argus[0] = req.getProposalno();
 		argus[3] = StringUtils.isEmpty(req.getLayerNo()) ? "0" : req.getLayerNo();
@@ -2397,9 +2396,9 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		argus[24] = "";
 		argus[25] =  StringUtils.isEmpty(req.getContractListVal())?"":req.getContractListVal();		
 		argus[26] = req.getBouquetModeYN();
-		argus[27] = req.getBouquetNo();
+		argus[27] = StringUtils.isBlank(req.getBouquetNo())? "": req.getBouquetNo();
 		argus[28] = req.getUwYearTo();
-		argus[29] = req.getSectionNo();
+		argus[29] = StringUtils.isBlank(req.getSectionNo())? "": req.getSectionNo();
 		argus[30] = req.getOfferNo();
 		return argus;
 	}
@@ -2586,9 +2585,9 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			obj[12] =StringUtils.isEmpty(beanObj.getAccounts()) ? "" : beanObj
 					.getAccounts();
 			obj[13] = beanObj.getExclusion();
-			obj[14] = beanObj.getRemarks();
-			obj[15] = beanObj.getUnderwriterRecommendations();
-			obj[16] = beanObj.getGmsApproval();
+			obj[14] = StringUtils.isBlank(beanObj.getRemarks())? "":beanObj.getRemarks();
+			obj[15] = StringUtils.isBlank(beanObj.getUnderwriterRecommendations())? "":beanObj.getUnderwriterRecommendations();
+			obj[16] = StringUtils.isBlank(beanObj.getGmsApproval())? "":beanObj.getGmsApproval();
 			obj[17] = beanObj.getOthercost();
 			obj[18] = StringUtils.isEmpty(beanObj.getReinstAditionalPremiumpercent()) ? "0" :beanObj.getReinstAditionalPremiumpercent();
 			obj[19] = StringUtils.isEmpty(beanObj.getBurningCost()) ? "0"
@@ -2603,7 +2602,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 					: getDesginationCountry(beanObj.getOccurrentLimit(), beanObj.getExchangeRate());
 			
 			obj[24] = beanObj.getReInstatementPremium();
-			obj[25] = beanObj.getCrestaStatus();
+			obj[25] = StringUtils.isBlank(beanObj.getCrestaStatus())? "":beanObj.getCrestaStatus();
 			obj[26] =StringUtils.isEmpty(beanObj.getLeaderUnderwritercountry()) ? "0" :beanObj.getLeaderUnderwritercountry();
 			obj[27] = beanObj.getLoginId();
 			obj[28] = beanObj.getBranchCode();
@@ -2617,7 +2616,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			obj[31]=StringUtils.isEmpty(beanObj.getAcqBonus())? "": beanObj.getAcqBonus();
 			obj[33] = beanObj.getProposalNo();
 			obj[32] = StringUtils.isEmpty(beanObj.getLayerNo())?"0":beanObj.getLayerNo();
-			obj[34] = beanObj.getAmendId();
+			obj[34] = StringUtils.isBlank(beanObj.getAmendId())? "":beanObj.getAmendId();
 		}
 		return obj;
 	}
@@ -2828,7 +2827,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		boolean updateStatus = true;
 		int res=0;
 		String query = "UPDATE_RISK_PROPOSAL_DETAILS";
-		String[] args= new String[41];
+		String[] args= new String[55];
 		try {
 			args[0] = StringUtils.isEmpty(req.getEventlimit()) ? "": req.getEventlimit();
 			args[1] = StringUtils.isEmpty(req.getEventlimit())	|| StringUtils.isEmpty(req.getExchRate()) ? "0"	: getDesginationCountry(req.getEventlimit(), req.getExchRate());
@@ -2876,8 +2875,23 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			args[36] = StringUtils.isEmpty(req.getEpipml())|| StringUtils.isEmpty(req.getExchRate()) ? "0": getDesginationCountry(req.getEpipml(), req.getExchRate());
 			args[37] =StringUtils.isEmpty(req.getEpipmlOS()) ? "0": req.getEpipmlOS();
 			args[38] = StringUtils.isEmpty(req.getEpipmlOS())|| StringUtils.isEmpty(req.getExchRate()) ? "0": getDesginationCountry(req.getEpipmlOS(), req.getExchRate());
-			args[39] = req.getProposalno();
-			args[40]=endNo;
+			args[39]=req.getRiskdetailYN();
+			args[40]=req.getBrokerdetYN();
+			args[41]=StringUtils.isBlank(req.getCoverdetYN())? "":req.getCoverdetYN();
+			args[42]=req.getPremiumdetailYN();
+			args[43]=req.getAcqdetailYN();
+			args[44]=StringUtils.isBlank(req.getCommissiondetailYN())? "":req.getCommissiondetailYN();
+			args[45]=StringUtils.isBlank(req.getDepositdetailYN())? "":req.getDepositdetailYN();
+			args[46]=StringUtils.isBlank(req.getLossdetailYN())? "":req.getLossdetailYN();
+			args[47]=StringUtils.isBlank(req.getDocdetailYN())? "":req.getDocdetailYN();
+			args[48] = StringUtils.isBlank(req.getPaymentPartner())? "":req.getPaymentPartner();
+			args[49] = req.getInstallYN();
+			args[50] = req.getReinstdetailYN();
+			args[51] = StringUtils.isBlank(req.getRateOnLine())? "":req.getRateOnLine();
+			args[52] =StringUtils.isEmpty(req.getQuotesharePercent()) ? "0": req.getQuotesharePercent();
+			args[53] = req.getProposalno();
+			args[54]=endNo;
+			
 			res = queryImpl.updateQuery(query, args);
 			if (res> 0) {
 				updateStatus = true;
@@ -3595,9 +3609,9 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 				if(req.getMdInstalmentNumber().equalsIgnoreCase(Integer.toString(count))){
 					args = new String[4];
 					args[0] = req.getProposalNo();
-					args[1] = req.getLayerLayerNo();
+					args[1] = StringUtils.isBlank(req.getLayerLayerNo())? req.getLayerNo():req.getLayerLayerNo();
 					args[2] = req.getProposalNo();
-					args[3] = req.getLayerLayerNo();
+					args[3] = StringUtils.isBlank(req.getLayerLayerNo())? req.getLayerNo():req.getLayerLayerNo();
 				}else{
 				args = new String[4];
 				args[0] = req.getProposalNo();
@@ -3748,6 +3762,8 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 					res.setEgnpi(insMap.get("RSK_EGNPI_AS_OFF")==null?"0.00":fm.formatter(insMap.get("RSK_EGNPI_AS_OFF").toString()));
 					res.setGnpi(insMap.get("RSK_GNPI_AS_OFF")==null?"0.00":fm.formatter(insMap.get("RSK_GNPI_AS_OFF").toString()));	
 					res.setNetMaxRetentPer(insMap.get("RSK_NET_MAX_RETENT_PERCENT")==null?"0.00":fm.formatter(insMap.get("RSK_GNPI_AS_OFF").toString()));		
+					res.setGnpi(insMap.get("RSK_GNPI_AS_OFF")==null?"0.00":fm.formatter(insMap.get("RSK_GNPI_AS_OFF").toString()));
+					res.setNetMaxRetentPer(insMap.get("RSK_NET_MAX_RETENT_PERCENT")==null?"":insMap.get("RSK_NET_MAX_RETENT_PERCENT").toString());
 					res.setTotalLoopCount(String.valueOf(i+1));
 					}
 					resList.add(res);

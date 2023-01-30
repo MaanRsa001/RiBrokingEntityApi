@@ -3,8 +3,6 @@ package com.maan.insurance.controller.placement;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,12 +24,13 @@ import com.maan.insurance.model.req.placement.GetPlacementViewReq;
 import com.maan.insurance.model.req.placement.GetPlacingInfoReq;
 import com.maan.insurance.model.req.placement.GetReinsurerInfoReq;
 import com.maan.insurance.model.req.placement.InsertMailDetailsReq;
+import com.maan.insurance.model.req.placement.PlacementSummaryReq;
 import com.maan.insurance.model.req.placement.SavePlacingReq;
 import com.maan.insurance.model.req.placement.SendMailReq;
 import com.maan.insurance.model.req.placement.UpdateMailDetailsReq;
 import com.maan.insurance.model.req.placement.UpdatePlacementReq;
 import com.maan.insurance.model.req.placement.UploadDocumentReq;
-import com.maan.insurance.model.req.placement.PlacementSummaryReq;
+import com.maan.insurance.model.req.placement.proposalInfoReq;
 import com.maan.insurance.model.res.DropDown.GetCommonDropDownRes;
 import com.maan.insurance.model.res.placement.AttachFileRes;
 import com.maan.insurance.model.res.placement.CommonSaveResList;
@@ -48,6 +47,7 @@ import com.maan.insurance.model.res.placement.InsertMailDetailsRes;
 import com.maan.insurance.model.res.placement.InsertPlacingRes;
 import com.maan.insurance.model.res.placement.PlacementSummaryRes;
 import com.maan.insurance.model.res.placement.ProposalInfoRes;
+import com.maan.insurance.model.res.placement.SendMailRes;
 import com.maan.insurance.model.res.placement.UploadDocumentRes;
 import com.maan.insurance.model.res.retro.CommonResponse;
 import com.maan.insurance.model.res.xolPremium.CommonSaveRes;
@@ -97,9 +97,13 @@ Gson gson = new Gson();
 		}
 		return serv.getExistingAttachList(req);
 	}  
-	@GetMapping("/proposalInfo/{branchCode}/{proposalNo}/{eProposalNo}")
-	public ProposalInfoRes proposalInfo(@PathVariable ("branchCode") String branchCode,@PathVariable ("proposalNo") String proposalNo,@PathVariable ("eProposalNo") String eProposalNo) throws CommonValidationException {
-		return serv.proposalInfo(branchCode,proposalNo,eProposalNo);
+	@PostMapping("/proposalInfo")
+	public ProposalInfoRes proposalInfo(@RequestBody proposalInfoReq req) throws CommonValidationException {
+		List<ErrorCheck> error= val.proposalInfoVali(req);
+		if(error!=null && error.size()>0) {
+			throw new CommonValidationException("error",error);
+		}
+		return serv.proposalInfo(req);
 		}  
 	@PostMapping("/getReinsurerInfo")
 	public GetReinsurerInfoRes getReinsurerInfo(@RequestBody GetReinsurerInfoReq req) throws CommonValidationException {
@@ -182,7 +186,7 @@ Gson gson = new Gson();
 		return serv.attachFile(req);
 	}  
 	@PostMapping("/sendMail")
-	public CommonResponse sendMail(@RequestBody SendMailReq req) throws CommonValidationException {
+	public SendMailRes sendMail(@RequestBody SendMailReq req) throws CommonValidationException {
 		List<ErrorCheck> error= val.sendMailVali(req);
 		if(error!=null && error.size()>0) {
 			 throw new CommonValidationException("error",error);

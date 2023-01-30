@@ -69,7 +69,7 @@ public class PortFolioValidation {
 			list.add(new ErrorCheck("Please Enter DeptId", "DeptId", "4"));
 		}
 		if (StringUtils.isBlank(req.getFlag())) {
-			list.add(new ErrorCheck("Please Enter Flag", "Flag", "5"));
+			//list.add(new ErrorCheck("Please Enter Flag", "Flag", "5"));
 		}
 		if (StringUtils.isBlank(req.getProductId())) {
 			list.add(new ErrorCheck("Please Enter ProductId", "ProductId", "6"));

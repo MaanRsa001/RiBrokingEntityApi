@@ -32,7 +32,7 @@ import com.maan.insurance.model.entity.TerritoryMasterId;
 public interface TerritoryMasterRepository  extends JpaRepository<TerritoryMaster,TerritoryMasterId > , JpaSpecificationExecutor<TerritoryMaster> {
 
 
-	List<TerritoryMaster> findDistinctByBranchCodeAndTerritoryStatusOrderByTerritoryDescrAsc(String branchCode,
-			String string);
+//	List<TerritoryMaster> findDistinctByBranchCodeAndTerritoryStatusOrderByTerritoryDescAsc(String branchCode,
+//			String string);
 
 }

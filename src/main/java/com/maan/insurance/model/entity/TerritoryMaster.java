@@ -64,8 +64,8 @@ private static final long serialVersionUID = 1L;
     @Column(name="TERRITORY_ID")
     private BigDecimal territoryId ;
 
-    @Column(name="TERRITORY_DESCR", length=30)
-    private String     territoryDescr ;
+    @Column(name="TERRITORY_DESC", length=30)
+    private String     territoryDesc ;
 
     @Column(name="TERRITORY_STATUS", length=1)
     private String     territoryStatus ;

@@ -382,6 +382,49 @@ public class insertProportionalTreatyReq {
 	private String accountingPeriodNotes; 
 	
 	@JsonProperty("StatementConfirm")
-	private String statementConfirm; 
+	private String statementConfirm;
+	
+	@JsonProperty("RiskdetailYN")
+	private String riskdetailYN;
+	
+	@JsonProperty("BrokerdetYN")
+	private String brokerdetYN;
+	
+	@JsonProperty("PremiumdetailYN")
+	private String premiumdetailYN;
+	
+	@JsonProperty("InstallYN")
+	private String installYN;
+	
+	@JsonProperty("AcqdetailYN")
+	private String acqdetailYN;
+	
+	@JsonProperty("ReinstdetailYN")
+	private String reinstdetailYN;
+	
+	@JsonProperty("CoverdetYN")
+	private String coverdetYN;
+	
+	@JsonProperty("CommissiondetailYN")
+	private String commissiondetailYN;
+	
+	@JsonProperty("DepositdetailYN")
+	private String depositdetailYN;
+	
+	@JsonProperty("LossdetailYN")
+	private String lossdetailYN;
+	
+	@JsonProperty("DocdetailYN")
+	private String docdetailYN;
+	
+	@JsonProperty("PaymentPartner")
+	private String paymentPartner;
+	
+	@JsonProperty("RateOnLine")
+	private String rateOnLine;
+	
+	@JsonProperty("QuotesharePercent")
+	private String quotesharePercent;
+	
 
 }

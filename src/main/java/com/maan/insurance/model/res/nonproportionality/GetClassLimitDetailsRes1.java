@@ -29,6 +29,9 @@ public class GetClassLimitDetailsRes1 {
 	@JsonProperty("Gnpi")
 	private String gnpi;
 	
+	@JsonProperty("NetMaxRetentPer")
+	private String netMaxRetentPer;
+	
 	@JsonProperty("TotalLoopCount")
 	private String totalLoopCount;  
 	

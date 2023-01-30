@@ -34,6 +34,7 @@ import com.maan.insurance.model.req.placement.UpdateMailDetailsReq;
 import com.maan.insurance.model.req.placement.UpdatePlacementListReq;
 import com.maan.insurance.model.req.placement.UpdatePlacementReq;
 import com.maan.insurance.model.req.placement.UploadDocumentReq;
+import com.maan.insurance.model.req.placement.proposalInfoReq;
 import com.maan.insurance.model.req.placement.PlacementSummaryReq;
 
 @Service
@@ -62,7 +63,7 @@ public List<ErrorCheck> getMailToListVali(GetMailToListReq req) {
 		list.add(new ErrorCheck("Please Enter BrokerCompany", "BrokerCompany", "1"));
 	}
 	if (StringUtils.isBlank(req.getCedingId())) {
-		list.add(new ErrorCheck("Please Enter CedingCompany", "CedingCompany", "3"));
+		//list.add(new ErrorCheck("Please Enter CedingCompany", "CedingCompany", "3"));
 	}
 	if (StringUtils.isBlank(req.getCurrentStatus())) {
 		//list.add(new ErrorCheck("Please Enter CurrentStatus", "CurrentStatus", "4"));
@@ -78,21 +79,30 @@ public List<ErrorCheck> getMailToListVali(GetMailToListReq req) {
 
 public List<ErrorCheck> getExistingReinsurerListVali(GetExistingReinsurerListReq req) {
 	List<ErrorCheck> list = new ArrayList<ErrorCheck>();
-	if (StringUtils.isBlank(req.getBaseProposalNo())) {
-		list.add(new ErrorCheck("Please Enter BaseProposalNo", "BaseProposalNo", "1"));
+	
+	if(StringUtils.isNotBlank(req.getBouquetNo())) {
+		if (StringUtils.isBlank(req.getBranchCode())) {
+			list.add(new ErrorCheck("Please Enter BranchCode", "BranchCode", "3"));
+		}
+		if (StringUtils.isBlank(req.getBouquetNo())) {
+			list.add(new ErrorCheck("Please Enter BouquetNo", "BouquetNo", "2"));
+		}
+	}else if(StringUtils.isNotBlank(req.getBaseProposalNo())) {
+		if (StringUtils.isBlank(req.getBranchCode())) {
+			list.add(new ErrorCheck("Please Enter BranchCode", "BranchCode", "3"));
+		}
+		if (StringUtils.isBlank(req.getBaseProposalNo())) {
+			list.add(new ErrorCheck("Please Enter BaseProposalNo", "BaseProposalNo", "1"));
+		}
+	}else {
+		if (StringUtils.isBlank(req.getBranchCode())) {
+			list.add(new ErrorCheck("Please Enter BranchCode", "BranchCode", "3"));
+		}
+		if (StringUtils.isBlank(StringUtils.isBlank(req.getEproposalNo())?req.getProposalNo():req.getEproposalNo())) {
+			list.add(new ErrorCheck("Please Enter EproposalNo", "EproposalNo", "4"));
+		}
 	}
-	if (StringUtils.isBlank(req.getBouquetNo())) {
-		list.add(new ErrorCheck("Please Enter BouquetNo", "BouquetNo", "2"));
-	}
-	if (StringUtils.isBlank(req.getBranchCode())) {
-		list.add(new ErrorCheck("Please Enter BranchCode", "BranchCode", "3"));
-	}
-	if (StringUtils.isBlank(req.getEproposalNo())) {
-		list.add(new ErrorCheck("Please Enter EproposalNo", "EproposalNo", "4"));
-	}
-	if (StringUtils.isBlank(req.getProposalNo())) {
-		list.add(new ErrorCheck("Please Enter ProposalNo", "ProposalNo", "5"));
-	}
+	
 	return list;
 }
 
@@ -127,41 +137,41 @@ public List<ErrorCheck> getReinsurerInfoVali(GetReinsurerInfoReq req) {
 	if (StringUtils.isBlank(req.getEproposalNo())) {
 		list.add(new ErrorCheck("Please Enter EproposalNo", "EproposalNo", "2"));
 	}
-	if (StringUtils.isBlank(req.getBouquetNo())) {
-		list.add(new ErrorCheck("Please Enter BouquetNo", "BouquetNo", "3"));
+	if(StringUtils.isNotBlank(req.getBouquetNo())) {
+		if (StringUtils.isBlank(req.getBouquetNo())) {
+			list.add(new ErrorCheck("Please Enter BouquetNo", "BouquetNo", "3"));
+		}
 	}
 	return list;
 }
 
 public List<ErrorCheck> getPlacementInfoListVali(GetPlacementInfoListReq req) {
 	List<ErrorCheck> list = new ArrayList<ErrorCheck>();
-	if (StringUtils.isBlank(req.getBranchCode())) {
-		list.add(new ErrorCheck("Please Enter BranchCode", "BranchCode", "1"));
+	
+	if(StringUtils.isNotBlank(req.getBouquetNo())) {
+		if (StringUtils.isBlank(req.getBranchCode())) {
+			list.add(new ErrorCheck("Please Enter BranchCode", "BranchCode", "1"));
+		}
+		if (StringUtils.isBlank(req.getBouquetNo())) {
+			list.add(new ErrorCheck("Please Enter BouquetNo", "BouquetNo", "5"));
+		}
+	}else if(StringUtils.isNotBlank(req.getBaseProposalNo())) {
+		if (StringUtils.isBlank(req.getBranchCode())) {
+			list.add(new ErrorCheck("Please Enter BranchCode", "BranchCode", "1"));
+		}
+		if (StringUtils.isBlank(req.getBaseProposalNo())) {
+			list.add(new ErrorCheck("Please Enter BaseProposalNo", "BaseProposalNo", "4"));
+		}
+		
+	}else {
+		if (StringUtils.isBlank(req.getBranchCode())) {
+			list.add(new ErrorCheck("Please Enter BranchCode", "BranchCode", "1"));
+		}
+		if (StringUtils.isBlank(StringUtils.isBlank(req.getEproposalNo())?req.getProposalNo():req.getEproposalNo())) {
+			list.add(new ErrorCheck("Please Enter EproposalNo", "EproposalNo", "2"));
+		}
 	}
-	if (StringUtils.isBlank(req.getEproposalNo())) {
-		list.add(new ErrorCheck("Please Enter EproposalNo", "EproposalNo", "2"));
-	}
-	if (StringUtils.isBlank(req.getProposalNo())) {
-		list.add(new ErrorCheck("Please Enter ProposalNo", "ProposalNo", "3"));
-	}
-	if (StringUtils.isBlank(req.getBaseProposalNo())) {
-		list.add(new ErrorCheck("Please Enter BaseProposalNo", "BaseProposalNo", "4"));
-	}
-	if (StringUtils.isBlank(req.getBouquetNo())) {
-		list.add(new ErrorCheck("Please Enter BouquetNo", "BouquetNo", "5"));
-	}
-	if (StringUtils.isBlank(req.getSearchBrokerId())) {
-		list.add(new ErrorCheck("Please Enter SearchBrokerId", "SearchBrokerId", "6"));
-	}
-	if (StringUtils.isBlank(req.getSearchReinsurerId())) {
-		list.add(new ErrorCheck("Please Enter SearchReinsurerId", "SearchReinsurerId", "47"));
-	}
-	if (StringUtils.isBlank(req.getSearchStatus())) {
-		list.add(new ErrorCheck("Please Enter SearchStatus", "SearchStatus", "8"));
-	}
-	if (StringUtils.isBlank(req.getSearchType())) {
-		list.add(new ErrorCheck("Please Enter SearchType", "SearchType", "9"));
-	}
+	
 	return list;
 }
 
@@ -253,39 +263,44 @@ public List<ErrorCheck> getPlacingInfoVali(GetPlacingInfoReq req) {
 
 public List<ErrorCheck> editPlacingDetailsVali(EditPlacingDetailsReq req) {
 	List<ErrorCheck> list = new ArrayList<ErrorCheck>();
-	if (StringUtils.isBlank(req.getBranchCode())) {
-		list.add(new ErrorCheck("Please Enter BranchCode", "BranchCode", "1"));
+	
+	if(StringUtils.isBlank(req.getSearchType())) {
+		if (StringUtils.isBlank(req.getBranchCode())) {
+			list.add(new ErrorCheck("Please Enter BranchCode", "BranchCode", "1"));
+		}
+		if (StringUtils.isBlank(req.getEproposalNo())) {
+			list.add(new ErrorCheck("Please Enter EproposalNo", "EproposalNo", "2"));
+		}
+		if (StringUtils.isBlank(req.getReinsurerId())) {
+			list.add(new ErrorCheck("Please Enter ReinsurerId", "ReinsurerId", "11"));
+		}
+		if (StringUtils.isBlank(req.getBrokerId())) {
+			list.add(new ErrorCheck("Please Enter BrokerId", "BrokerId", "3"));
+		}
+	}else {
+		if (StringUtils.isBlank(req.getBranchCode())) {
+			list.add(new ErrorCheck("Please Enter BranchCode", "BranchCode", "1"));
+		}
+		if (StringUtils.isBlank(req.getSearchReinsurerId())) {
+			list.add(new ErrorCheck("Please Enter SearchReinsurerId", "SearchReinsurerId", "7"));
+		}
+		if (StringUtils.isBlank(req.getSearchBrokerId())) {
+			list.add(new ErrorCheck("Please Enter SearchBrokerId", "SearchBrokerId", "6"));
+		}
+		if (StringUtils.isBlank(req.getSearchStatus())) {
+			list.add(new ErrorCheck("Please Enter SearchStatus", "SearchStatus", "8"));
+		}
+		if(StringUtils.isNotBlank(req.getBouquetNo())) {
+			if (StringUtils.isBlank(req.getBouquetNo())) {
+				list.add(new ErrorCheck("Please Enter BouquetNo", "BouquetNo", "5"));
+			}
+		}else if(StringUtils.isNotBlank(req.getBaseProposalNo())) {
+			if (StringUtils.isBlank(req.getBaseProposalNo())) {
+				list.add(new ErrorCheck("Please Enter BaseProposalNo", "BaseProposalNo", "4"));
+			}
+		}
 	}
-	if (StringUtils.isBlank(req.getEproposalNo())) {
-		list.add(new ErrorCheck("Please Enter EproposalNo", "EproposalNo", "2"));
-	}
-	if (StringUtils.isBlank(req.getBrokerId())) {
-		list.add(new ErrorCheck("Please Enter BrokerId", "BrokerId", "3"));
-	}
-	if (StringUtils.isBlank(req.getBaseProposalNo())) {
-		list.add(new ErrorCheck("Please Enter BaseProposalNo", "BaseProposalNo", "4"));
-	}
-	if (StringUtils.isBlank(req.getBouquetNo())) {
-		list.add(new ErrorCheck("Please Enter BouquetNo", "BouquetNo", "5"));
-	}
-	if (StringUtils.isBlank(req.getSearchBrokerId())) {
-		list.add(new ErrorCheck("Please Enter SearchBrokerId", "SearchBrokerId", "6"));
-	}
-	if (StringUtils.isBlank(req.getSearchReinsurerId())) {
-		list.add(new ErrorCheck("Please Enter SearchReinsurerId", "SearchReinsurerId", "7"));
-	}
-	if (StringUtils.isBlank(req.getSearchStatus())) {
-		list.add(new ErrorCheck("Please Enter SearchStatus", "SearchStatus", "8"));
-	}
-//	if (StringUtils.isBlank(req.getSearchType())) {
-//		list.add(new ErrorCheck("Please Enter SearchType", "SearchType", "9"));
-//	}
-	if (StringUtils.isBlank(req.getNewStatus())) {
-		list.add(new ErrorCheck("Please Enter NewStatus", "NewStatus", "10"));
-	}
-	if (StringUtils.isBlank(req.getReinsurerId())) {
-		list.add(new ErrorCheck("Please Enter ReinsurerId", "ReinsurerId", "11"));
-	}
+	
 	return list;
 }
 
@@ -425,7 +440,7 @@ public List<ErrorCheck> validationStatus(UpdatePlacementReq bean) {
 			list.add(new ErrorCheck("Please Enter EproposalNo", "EproposalNo", "4"));
 		}
 		if (StringUtils.isBlank(req.getBouquetNo())) {
-			list.add(new ErrorCheck("Please Enter BouquetNo", "BouquetNo", "5"));
+			//list.add(new ErrorCheck("Please Enter BouquetNo", "BouquetNo", "5"));
 		}
 		if (StringUtils.isBlank(req.getPlacementMode())) {
 			list.add(new ErrorCheck("Please Enter PlacementMode", "PlacementMode", "6"));
@@ -606,6 +621,17 @@ public List<ErrorCheck> validationStatus(UpdatePlacementReq bean) {
 		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
 		if (StringUtils.isBlank(req.getMailType())) {
 			list.add(new ErrorCheck("Please Enter MailType", "MailType", "1"));
+		}
+		return list;
+	}
+
+	public List<ErrorCheck> proposalInfoVali(proposalInfoReq req) {
+		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
+		if (StringUtils.isBlank(req.getBranchCode())) {
+			list.add(new ErrorCheck("Please Enter BranchCode", "BranchCode", "1"));
+		}
+		if (StringUtils.isBlank(req.getProposalNo())) {
+			list.add(new ErrorCheck("Please Enter ProposalNo", "ProposalNo", "2"));
 		}
 		return list;
 	}
