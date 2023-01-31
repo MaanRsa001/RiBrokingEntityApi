@@ -24,6 +24,7 @@ import com.maan.insurance.model.req.DropDown.GetSubProfitCentreMultiReq;
 
 import com.maan.insurance.model.req.DropDown.GetTreatyTypeDropDownReq;
 import com.maan.insurance.model.req.DropDown.GetYearToListValueReq;
+import com.maan.insurance.model.req.DropDown.updateBqEditModeReq;
 import com.maan.insurance.model.req.DropDown.updateSubEditModeReq;
 import com.maan.insurance.model.req.proportionality.ContractReq;
 
@@ -188,7 +189,7 @@ public interface DropDownService {
 
 	GetCommonDropDownRes getSubStatusDropDown(String branchCode, String statusCode);
 
-	CommonResponse updateBqEditMode(String proposalNo, String val, String updateProposalNo);
+	CommonResponse updateBqEditMode(updateBqEditModeReq req);
 
 	GetCommonDropDownRes getPlacedProposalList(GetPlacedProposalListReq req);
 

@@ -134,6 +134,7 @@ import com.maan.insurance.model.req.DropDown.GetSubProfitCentreMultiDropDownReq;
 import com.maan.insurance.model.req.DropDown.GetSubProfitCentreMultiReq;
 import com.maan.insurance.model.req.DropDown.GetTreatyTypeDropDownReq;
 import com.maan.insurance.model.req.DropDown.GetYearToListValueReq;
+import com.maan.insurance.model.req.DropDown.updateBqEditModeReq;
 import com.maan.insurance.model.req.DropDown.updateSubEditModeReq;
 import com.maan.insurance.model.req.placement.GetPlacementInfoListReq;
 import com.maan.insurance.model.req.proportionality.ContractReq;
@@ -4949,7 +4950,7 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 	}
     @Transactional
 	@Override
-	public CommonResponse updateBqEditMode(String proposalNo, String val, String updateProposalNo) {
+	public CommonResponse updateBqEditMode(updateBqEditModeReq req) {
 		CommonResponse response = new CommonResponse();
 		try{
 			//POS_MAS_BQ_MODE_UPDT
@@ -4958,11 +4959,11 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 			CriteriaUpdate<PositionMaster> update = cb.createCriteriaUpdate(PositionMaster.class);
 			Root<PositionMaster> m = update.from(PositionMaster.class);
 			
-			if(!"N".equalsIgnoreCase(val)){
-				update.set("editMode", val +"-"+ updateProposalNo);
+			if(!"N".equalsIgnoreCase(req.getVal())){
+				update.set("editMode", req.getVal() +"-"+ req.getUpdateProposalNo());
 				}
 				else{
-					update.set("editMode", val);
+					update.set("editMode", req.getVal());
 				}
 			// MAXAmend ID
       		Subquery<Long> maxAmend = update.subquery(Long.class); 
@@ -4971,7 +4972,7 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
       		Predicate a1 = cb.equal(m.get("proposalNo"), pms.get("proposalNo"));
       		maxAmend.where(a1);
 			
-			Predicate n1 = cb.equal(m.get("bouquetNo"), proposalNo);
+			Predicate n1 = cb.equal(m.get("bouquetNo"), req.getProposalNo());
 			Predicate n2 = cb.equal(m.get("amendId"), maxAmend);
 			update.where(n1,n2);
 			// perform update
