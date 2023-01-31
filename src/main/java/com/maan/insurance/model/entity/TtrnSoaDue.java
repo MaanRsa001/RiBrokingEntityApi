@@ -31,8 +31,8 @@ import lombok.ToString;
 @DynamicInsert
 @DynamicUpdate
 @Builder
-@IdClass(TtrnRiId.class)
-@Table(name="TTRN_RI")
+@IdClass(TtrnSoaDueId.class)
+@Table(name="TTRN_SOA_DUE")
 public class TtrnSoaDue  implements Serializable {
 	 
 	private static final long serialVersionUID = 1L;

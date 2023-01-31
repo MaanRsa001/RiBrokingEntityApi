@@ -13,8 +13,6 @@ import com.maan.insurance.model.res.proportionality.saveRiskDeatilsSecondFormRes
 import com.maan.insurance.model.res.proportionality.showSecondPageData1Res;
 import com.maan.insurance.model.res.retro.CommonResponse;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,7 +25,6 @@ import com.google.gson.Gson;
 import com.maan.insurance.error.CommonValidationException;
 import com.maan.insurance.error.ErrorCheck;
 import com.maan.insurance.model.req.proportionality.BonusSaveReq;
-import com.maan.insurance.model.req.proportionality.CedentRetentReq;
 import com.maan.insurance.model.req.proportionality.CedentSaveReq;
 import com.maan.insurance.model.req.proportionality.ConvertPolicyReq;
 import com.maan.insurance.model.req.proportionality.CrestaSaveReq;
@@ -40,9 +37,7 @@ import com.maan.insurance.model.req.proportionality.GetprofitCommissionEnableReq
 import com.maan.insurance.model.req.proportionality.InsertCrestaDetailsReq;
 import com.maan.insurance.model.req.proportionality.InsertSlidingScaleMentodInfoReq;
 import com.maan.insurance.model.req.proportionality.ProfitCommissionSaveReq;
-import com.maan.insurance.model.req.proportionality.RemarksReq;
 import com.maan.insurance.model.req.proportionality.RemarksSaveReq;
-import com.maan.insurance.model.req.proportionality.RetroDetailReq;
 import com.maan.insurance.model.req.proportionality.RetroSaveReq;
 import com.maan.insurance.model.req.proportionality.SecondpageSaveReq;
 import com.maan.insurance.model.req.proportionality.ShowRetroContractsReq;
@@ -53,11 +48,9 @@ import com.maan.insurance.model.res.proportionality.FirstpagesaveRes;
 import com.maan.insurance.model.res.proportionality.FirstpageupdateRes;
 import com.maan.insurance.model.res.proportionality.GetRemarksDetailsRes;
 import com.maan.insurance.model.res.proportionality.SecondpagesaveRes;
-import com.maan.insurance.model.res.proportionality.SecondpagesaveResp;
 import com.maan.insurance.model.res.proportionality.ShowLayerBrokerageRes;
 import com.maan.insurance.model.res.proportionality.ShowRetroContractsRes;
 import com.maan.insurance.model.res.proportionality.ShowSecondPageDataRes;
-import com.maan.insurance.model.req.claim.ContractDetailsReq;
 import com.maan.insurance.model.req.proportionality.BaseLayerStatusReq;
 import com.maan.insurance.model.req.proportionality.RiskDetailsEditModeReq;
 import com.maan.insurance.model.req.proportionality.ShowSecondpageEditItemsReq;
@@ -83,9 +76,7 @@ import com.maan.insurance.model.res.proportionality.ShowSecondpageEditItemsRes;
 import com.maan.insurance.model.res.proportionality.UpdateOfferNoReq;
 import com.maan.insurance.model.res.proportionality.ViewRiskDetailsRes;
 import com.maan.insurance.model.res.proportionality.checkAvialabilityRes;
-import com.maan.insurance.service.claim.ClaimService;
 import com.maan.insurance.service.proportionality.ProportionalityService;
-import com.maan.insurance.validation.Claim.ClaimValidation;
 import com.maan.insurance.validation.proportionality.ProportionalityValidation;
 
 @RestController

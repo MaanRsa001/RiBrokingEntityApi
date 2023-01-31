@@ -49,6 +49,7 @@ import com.maan.insurance.model.repository.TtrnRiRepository;
 import com.maan.insurance.model.repository.TtrnRiskCommissionRepository;
 import com.maan.insurance.model.repository.TtrnRiskDetailsRepository;
 import com.maan.insurance.model.repository.TtrnRiskProposalRepository;
+import com.maan.insurance.validation.Formatters;
 
 @Repository
 public class ProportionalityCustomRepositoryImple implements ProportionalityCustomRepository{
@@ -63,7 +64,9 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 	private PositionMasterRepository positionMasterRepository;
 	@Autowired
 	private TtrnRiskCommissionRepository ttrnRiskCommissionRepository;
-
+	@Autowired
+	private Formatters fm;
+	
 	@Autowired
 	private TtrnBonusRepository ttrnBonusRepository;
 	@Autowired
@@ -77,24 +80,24 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 		try {
 		if(args != null) {
 			ttrnRiskDetails = ttrnRiskDetailsRepository.findByRskProposalNumberAndRskEndorsementNo(
-					args[52],new BigDecimal(args[53]));
+					args[52],fm.formatBigDecimal(args[53]));
 			if(ttrnRiskDetails!=null) {
 			ttrnRiskDetails.setSysDate(new Date());
-			ttrnRiskDetails.setRskDeptid(StringUtils.isBlank(args[0])? null :new BigDecimal(args[0]));
+			ttrnRiskDetails.setRskDeptid(StringUtils.isBlank(args[0])? null :fm.formatBigDecimal(args[0]));
 			ttrnRiskDetails.setRskPfcid(args[1]);
 			ttrnRiskDetails.setRskSpfcid(args[2]);
-			ttrnRiskDetails.setRskPolbranch(StringUtils.isBlank(args[3])? null :new BigDecimal(args[3]));
-			ttrnRiskDetails.setRskCedingid(StringUtils.isBlank(args[4])? null :new BigDecimal(args[4]));
-			ttrnRiskDetails.setRskBrokerid(StringUtils.isBlank(args[5])? null :new BigDecimal(args[5]));
+			ttrnRiskDetails.setRskPolbranch(StringUtils.isBlank(args[3])? null :fm.formatBigDecimal(args[3]));
+			ttrnRiskDetails.setRskCedingid(StringUtils.isBlank(args[4])? null :fm.formatBigDecimal(args[4]));
+			ttrnRiskDetails.setRskBrokerid(StringUtils.isBlank(args[5])? null :fm.formatBigDecimal(args[5]));
 			ttrnRiskDetails.setRskTreatyid(args[6]);
 			ttrnRiskDetails.setRskMonth(StringUtils.isBlank(args[7])? null : sdf.parse(args[7]));
-			ttrnRiskDetails.setRskUwyear(StringUtils.isBlank(args[8])? null :new BigDecimal(args[8]));
+			ttrnRiskDetails.setRskUwyear(StringUtils.isBlank(args[8])? null :fm.formatBigDecimal(args[8]));
 			ttrnRiskDetails.setRskUnderwritter(args[9]);
 			ttrnRiskDetails.setRskInceptionDate(sdf.parse(args[10]));
 			ttrnRiskDetails.setRskExpiryDate(sdf.parse(args[11]));
 			ttrnRiskDetails.setRskAccountDate(StringUtils.isBlank(args[12])? null : sdf.parse(args[12]));
 			ttrnRiskDetails.setRskOriginalCurr(args[13]);
-			ttrnRiskDetails.setRskExchangeRate(StringUtils.isBlank(args[14])? null :new BigDecimal(args[14]));
+			ttrnRiskDetails.setRskExchangeRate(StringUtils.isBlank(args[14])? null :fm.formatBigDecimal(args[14]));
 			ttrnRiskDetails.setRskBasis(args[15]);
 			ttrnRiskDetails.setRskPeriodOfNotice(args[16]);
 			ttrnRiskDetails.setRskRiskCovered(args[17]);
@@ -102,11 +105,11 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 			ttrnRiskDetails.setRskTerritory(args[19]);
 			ttrnRiskDetails.setRskStatus(args[20]);
 			ttrnRiskDetails.setRskProposalType(args[21]);
-			ttrnRiskDetails.setRskAccountingPeriod(StringUtils.isBlank(args[22])? null :new BigDecimal(args[22]));
-			ttrnRiskDetails.setRskReceiptStatement(StringUtils.isBlank(args[23])? null :new BigDecimal(args[23]));
-			ttrnRiskDetails.setRskReceiptPayement(StringUtils.isBlank(args[24])? null :new BigDecimal(args[24]));
-			ttrnRiskDetails.setMndInstallments(StringUtils.isBlank(args[25])? null :new BigDecimal(args[25]));
-			ttrnRiskDetails.setRetroCessionaries(StringUtils.isBlank(args[26])? null :new BigDecimal(args[26]));
+			ttrnRiskDetails.setRskAccountingPeriod(StringUtils.isBlank(args[22])? null :fm.formatBigDecimal(args[22]));
+			ttrnRiskDetails.setRskReceiptStatement(StringUtils.isBlank(args[23])? null :fm.formatBigDecimal(args[23]));
+			ttrnRiskDetails.setRskReceiptPayement(StringUtils.isBlank(args[24])? null :fm.formatBigDecimal(args[24]));
+			ttrnRiskDetails.setMndInstallments(StringUtils.isBlank(args[25])? null :fm.formatBigDecimal(args[25]));
+			ttrnRiskDetails.setRetroCessionaries(StringUtils.isBlank(args[26])? null :fm.formatBigDecimal(args[26]));
 			ttrnRiskDetails.setRskRetroType(args[27]);
 			ttrnRiskDetails.setRskInsuredName(args[28]);
 			ttrnRiskDetails.setInwardBusType(args[29]);
@@ -122,14 +125,14 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 			ttrnRiskDetails.setCountriesExclude(args[39]);
 			ttrnRiskDetails.setRskNoOfLine(args[40]);
 			ttrnRiskDetails.setRsEndorsementType(args[41]);
-			ttrnRiskDetails.setRskRunOffYear(StringUtils.isBlank(args[42])? null :new BigDecimal(args[42]));
+			ttrnRiskDetails.setRskRunOffYear(StringUtils.isBlank(args[42])? null :fm.formatBigDecimal(args[42]));
 			ttrnRiskDetails.setRskLocBnkName(args[43]);
-			ttrnRiskDetails.setRskLocCrdtPrd(StringUtils.isBlank(args[44])? null : new BigDecimal(args[44]));
-			ttrnRiskDetails.setRskLocCrdtAmt(StringUtils.isBlank(args[45])? null : new BigDecimal(args[45]));
+			ttrnRiskDetails.setRskLocCrdtPrd(StringUtils.isBlank(args[44])? null : fm.formatBigDecimal(args[44]));
+			ttrnRiskDetails.setRskLocCrdtAmt(StringUtils.isBlank(args[45])? null : fm.formatBigDecimal(args[45]));
 			ttrnRiskDetails.setRskLocBenfcreName(args[46]);
 			ttrnRiskDetails.setRskCessionExgRate(args[47]);
 			if(StringUtils.isNotEmpty(args[48]))
-			ttrnRiskDetails.setRskFixedRate(StringUtils.isBlank(args[48])? null :new BigDecimal(args[48]));
+			ttrnRiskDetails.setRskFixedRate(StringUtils.isBlank(args[48])? null :fm.formatBigDecimal(args[48]));
 			ttrnRiskDetails.setRetentionyn(args[49]);
 			ttrnRiskDetails.setRskAccountPeriodNotice(args[50]);;
 			ttrnRiskDetails.setRskStatementConfirm(args[51]);;
@@ -150,24 +153,24 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 			if(args != null) {
 				ttrnRiskDetails = new TtrnRiskDetails();
 				ttrnRiskDetails.setRskProposalNumber(args[0]);
-				ttrnRiskDetails.setRskEndorsementNo(new BigDecimal(args[1]));
-				ttrnRiskDetails.setRskLayerNo(new BigDecimal(args[2]));
-				ttrnRiskDetails.setRskProductid(new BigDecimal(args[3]));
-				ttrnRiskDetails.setRskDeptid(new BigDecimal(args[4]));
+				ttrnRiskDetails.setRskEndorsementNo(fm.formatBigDecimal(args[1]));
+				ttrnRiskDetails.setRskLayerNo(fm.formatBigDecimal(args[2]));
+				ttrnRiskDetails.setRskProductid(fm.formatBigDecimal(args[3]));
+				ttrnRiskDetails.setRskDeptid(fm.formatBigDecimal(args[4]));
 				ttrnRiskDetails.setRskPfcid(args[5]);
 				ttrnRiskDetails.setRskSpfcid(args[6]);
-				ttrnRiskDetails.setRskPolbranch(new BigDecimal(args[7]));
-				ttrnRiskDetails.setRskCedingid(new BigDecimal(args[8]));
-				ttrnRiskDetails.setRskBrokerid(new BigDecimal(args[9]));
+				ttrnRiskDetails.setRskPolbranch(fm.formatBigDecimal(args[7]));
+				ttrnRiskDetails.setRskCedingid(fm.formatBigDecimal(args[8]));
+				ttrnRiskDetails.setRskBrokerid(fm.formatBigDecimal(args[9]));
 				ttrnRiskDetails.setRskTreatyid(args[10]);
 				ttrnRiskDetails.setRskMonth(StringUtils.isBlank(args[11])?null : sdf.parse(args[11]));
-				ttrnRiskDetails.setRskUwyear(new BigDecimal(args[12]));
+				ttrnRiskDetails.setRskUwyear(fm.formatBigDecimal(args[12]));
 				ttrnRiskDetails.setRskUnderwritter(args[13]);
 				ttrnRiskDetails.setRskInceptionDate(sdf.parse(args[14]));
 				ttrnRiskDetails.setRskExpiryDate(sdf.parse(args[15]));
 				ttrnRiskDetails.setRskAccountDate(StringUtils.isBlank(args[16])?null : sdf.parse(args[16]));
 				ttrnRiskDetails.setRskOriginalCurr(args[17]);
-				ttrnRiskDetails.setRskExchangeRate(new BigDecimal(args[18]));
+				ttrnRiskDetails.setRskExchangeRate(fm.formatBigDecimal(args[18]));
 				ttrnRiskDetails.setRskBasis(args[19]);
 				ttrnRiskDetails.setRskPeriodOfNotice(args[20]);
 				ttrnRiskDetails.setRskRiskCovered(args[21]);
@@ -179,11 +182,11 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 				ttrnRiskDetails.setRskRemarks(args[25]);
 				ttrnRiskDetails.setRskContractNo(args[26]);
 				ttrnRiskDetails.setRskProposalType(args[27]);
-				ttrnRiskDetails.setRskAccountingPeriod(new BigDecimal(args[28]));
-				ttrnRiskDetails.setRskReceiptStatement(new BigDecimal(args[29]));
-				ttrnRiskDetails.setRskReceiptPayement(new BigDecimal(args[30]));
-				ttrnRiskDetails.setMndInstallments(new BigDecimal(args[31]));
-				ttrnRiskDetails.setRetroCessionaries(new BigDecimal(args[32]));
+				ttrnRiskDetails.setRskAccountingPeriod(fm.formatBigDecimal(args[28]));
+				ttrnRiskDetails.setRskReceiptStatement(fm.formatBigDecimal(args[29]));
+				ttrnRiskDetails.setRskReceiptPayement(fm.formatBigDecimal(args[30]));
+				ttrnRiskDetails.setMndInstallments(fm.formatBigDecimal(args[31]));
+				ttrnRiskDetails.setRetroCessionaries(fm.formatBigDecimal(args[32]));
 				ttrnRiskDetails.setRskRetroType(args[33]);
 				ttrnRiskDetails.setRskInsuredName(args[34]);
 				ttrnRiskDetails.setOldContractno(args[35]);
@@ -201,14 +204,14 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 				ttrnRiskDetails.setCountriesExclude(args[46]);
 				ttrnRiskDetails.setRskNoOfLine(args[47]);
 				ttrnRiskDetails.setRsEndorsementType(args[48]);
-				ttrnRiskDetails.setRskRunOffYear(new BigDecimal(args[49]));
+				ttrnRiskDetails.setRskRunOffYear(fm.formatBigDecimal(args[49]));
 				ttrnRiskDetails.setRskLocBnkName(args[50]);
-				ttrnRiskDetails.setRskLocCrdtPrd(StringUtils.isBlank(args[51])? null : new BigDecimal(args[51]));
-				ttrnRiskDetails.setRskLocCrdtAmt(StringUtils.isBlank(args[52])? null : new BigDecimal(args[52]));
+				ttrnRiskDetails.setRskLocCrdtPrd(StringUtils.isBlank(args[51])? null : fm.formatBigDecimal(args[51]));
+				ttrnRiskDetails.setRskLocCrdtAmt(StringUtils.isBlank(args[52])? null : fm.formatBigDecimal(args[52]));
 				ttrnRiskDetails.setRskLocBenfcreName(args[53]);
 				ttrnRiskDetails.setRskCessionExgRate(args[54]);
 				if(StringUtils.isNotEmpty(args[55]))
-				ttrnRiskDetails.setRskFixedRate(new BigDecimal(args[55]));
+				ttrnRiskDetails.setRskFixedRate(fm.formatBigDecimal(args[55]));
 				ttrnRiskDetails.setRetentionyn(args[56]);
 				ttrnRiskDetails.setRskAccountPeriodNotice(args[57]);
 				ttrnRiskDetails.setRskStatementConfirm(args[58]);
@@ -227,41 +230,41 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 		try {
 		if(args != null) {
 			ttrnRiskProposal = ttrnRiskProposalRepository.findByRskProposalNumberAndRskEndorsementNo(
-					args[49],new BigDecimal(args[50]));
+					args[49],fm.formatBigDecimal(args[50]));
 			if(ttrnRiskProposal!=null) {
 				ttrnRiskProposal.setSysDate(new Date());
-				ttrnRiskProposal.setRskLimitOc(new BigDecimal(args[0]));
-				ttrnRiskProposal.setRskLimitDc(new BigDecimal(args[1]));
-				ttrnRiskProposal.setRskEpiOfferOc(new BigDecimal(args[2]));
-				ttrnRiskProposal.setRskEpiOfferDc(new BigDecimal(args[3]));
-				ttrnRiskProposal.setRskEpiEstimate(new BigDecimal(args[4]));
-				ttrnRiskProposal.setRskEpiEstOc(new BigDecimal(args[5]));
-				ttrnRiskProposal.setRskEpiEstDc(new BigDecimal(args[6]));
-				ttrnRiskProposal.setRskXlcostOc(StringUtils.isBlank(args[7])? null : new BigDecimal(args[7]));
-				ttrnRiskProposal.setRskXlcostDc(new BigDecimal(args[8]));
-				ttrnRiskProposal.setRskCedantRetention(new BigDecimal(args[9]));
-				ttrnRiskProposal.setRskShareWritten(new BigDecimal(args[10]));
-				ttrnRiskProposal.setRskShareSigned(StringUtils.isBlank(args[11])? null : new BigDecimal(args[11]));
+				ttrnRiskProposal.setRskLimitOc(fm.formatBigDecimal(args[0]));
+				ttrnRiskProposal.setRskLimitDc(fm.formatBigDecimal(args[1]));
+				ttrnRiskProposal.setRskEpiOfferOc(fm.formatBigDecimal(args[2]));
+				ttrnRiskProposal.setRskEpiOfferDc(fm.formatBigDecimal(args[3]));
+				ttrnRiskProposal.setRskEpiEstimate(fm.formatBigDecimal(args[4]));
+				ttrnRiskProposal.setRskEpiEstOc(fm.formatBigDecimal(args[5]));
+				ttrnRiskProposal.setRskEpiEstDc(fm.formatBigDecimal(args[6]));
+				ttrnRiskProposal.setRskXlcostOc(StringUtils.isBlank(args[7])? null : fm.formatBigDecimal(args[7]));
+				ttrnRiskProposal.setRskXlcostDc(fm.formatBigDecimal(args[8]));
+				ttrnRiskProposal.setRskCedantRetention(fm.formatBigDecimal(args[9]));
+				ttrnRiskProposal.setRskShareWritten(fm.formatBigDecimal(args[10]));
+				ttrnRiskProposal.setRskShareSigned(StringUtils.isBlank(args[11])? null : fm.formatBigDecimal(args[11]));
 				ttrnRiskProposal.setRskCedretType(args[12]);
 				ttrnRiskProposal.setRskSpRetro(args[13]);
-				ttrnRiskProposal.setRskNoOfInsurers(new BigDecimal(args[14]));	
-				ttrnRiskProposal.setRskMaxLmtCover(new BigDecimal(args[15]));
-				ttrnRiskProposal.setRskLimitOsOc(new BigDecimal(args[16]));
-				ttrnRiskProposal.setRskLimitOsDc(new BigDecimal(args[17]));
-				ttrnRiskProposal.setRskEpiOsofOc(new BigDecimal(args[18]));
-				ttrnRiskProposal.setRskEpiOsofDc(new BigDecimal(args[19]));
-				ttrnRiskProposal.setRskEpiOsoeOc(new BigDecimal(args[20]));
-				ttrnRiskProposal.setRskEpiOsoeDc(new BigDecimal(args[21]));
-				ttrnRiskProposal.setRskXlcostOsOc(new BigDecimal(args[22]));
-				ttrnRiskProposal.setRskXlcostOsDc(new BigDecimal(args[23]));
-				ttrnRiskProposal.setLimitPerVesselOc(new BigDecimal(args[24]));
-				ttrnRiskProposal.setLimitPerVesselDc(new BigDecimal(args[25]));
-				ttrnRiskProposal.setLimitPerLocationOc(new BigDecimal(args[26]));
-				ttrnRiskProposal.setLimitPerLocationDc(new BigDecimal(args[27]));
-				ttrnRiskProposal.setRskTreatySurpLimitOc(new BigDecimal(args[28]));
-				ttrnRiskProposal.setRskTreatySurpLimitDc(new BigDecimal(args[29]));
-				ttrnRiskProposal.setRskTreatySurpLimitOsOc(new BigDecimal(args[30]));
-				ttrnRiskProposal.setRskTreatySurpLimitOsDc(new BigDecimal(args[31]));
+				ttrnRiskProposal.setRskNoOfInsurers(fm.formatBigDecimal(args[14]));	
+				ttrnRiskProposal.setRskMaxLmtCover(fm.formatBigDecimal(args[15]));
+				ttrnRiskProposal.setRskLimitOsOc(fm.formatBigDecimal(args[16]));
+				ttrnRiskProposal.setRskLimitOsDc(fm.formatBigDecimal(args[17]));
+				ttrnRiskProposal.setRskEpiOsofOc(fm.formatBigDecimal(args[18]));
+				ttrnRiskProposal.setRskEpiOsofDc(fm.formatBigDecimal(args[19]));
+				ttrnRiskProposal.setRskEpiOsoeOc(fm.formatBigDecimal(args[20]));
+				ttrnRiskProposal.setRskEpiOsoeDc(fm.formatBigDecimal(args[21]));
+				ttrnRiskProposal.setRskXlcostOsOc(fm.formatBigDecimal(args[22]));
+				ttrnRiskProposal.setRskXlcostOsDc(fm.formatBigDecimal(args[23]));
+				ttrnRiskProposal.setLimitPerVesselOc(fm.formatBigDecimal(args[24]));
+				ttrnRiskProposal.setLimitPerVesselDc(fm.formatBigDecimal(args[25]));
+				ttrnRiskProposal.setLimitPerLocationOc(fm.formatBigDecimal(args[26]));
+				ttrnRiskProposal.setLimitPerLocationDc(fm.formatBigDecimal(args[27]));
+				ttrnRiskProposal.setRskTreatySurpLimitOc(fm.formatBigDecimal(args[28]));
+				ttrnRiskProposal.setRskTreatySurpLimitDc(fm.formatBigDecimal(args[29]));
+				ttrnRiskProposal.setRskTreatySurpLimitOsOc(fm.formatBigDecimal(args[30]));
+				ttrnRiskProposal.setRskTreatySurpLimitOsDc(fm.formatBigDecimal(args[31]));
 				ttrnRiskProposal.setRskTrtyLmtPmlOc(args[32]);
 				ttrnRiskProposal.setRskTrtyLmtPmlDc(args[33]);
 				ttrnRiskProposal.setRskTrtyLmtPmlOsOc(args[34]);
@@ -274,11 +277,11 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 				ttrnRiskProposal.setRskTrtyLmtOurassPmlDc(args[41]);
 				ttrnRiskProposal.setRskTrtyLmtOurassPmlOsOc(args[42]);
 				ttrnRiskProposal.setRskTrtyLmtourAssPmlOsDc(args[43]);
-				ttrnRiskProposal.setSubClass(new BigDecimal(args[44]));
+				ttrnRiskProposal.setSubClass(fm.formatBigDecimal(args[44]));
 				ttrnRiskProposal.setLoginId(args[45]);
 				ttrnRiskProposal.setBranchCode(args[46]);
 				ttrnRiskProposal.setRskPml(args[47]);
-				ttrnRiskProposal.setRskPmlPercent(new BigDecimal(args[48]));
+				ttrnRiskProposal.setRskPmlPercent(fm.formatBigDecimal(args[48]));
 			}
 		}
 	}catch(Exception e) {
@@ -295,11 +298,11 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 		//args--updateHomePositionMasterAruguments
 		try {
 		if(input != null) {
-			positionMaster = positionMasterRepository.findByProposalNoAndAmendId(new BigDecimal(input[21]),new BigDecimal(input[22]));
+			positionMaster = positionMasterRepository.findByProposalNoAndAmendId(fm.formatBigDecimal(input[21]),fm.formatBigDecimal(input[22]));
 			if(positionMaster!=null) {
-				positionMaster.setLayerNo(new BigDecimal(input[0]));
+				positionMaster.setLayerNo(fm.formatBigDecimal(input[0]));
 				positionMaster.setReinsuranceId(input[1]);
-				positionMaster.setProductId(new BigDecimal(input[2]));			
+				positionMaster.setProductId(fm.formatBigDecimal(input[2]));			
 				positionMaster.setDeptId(input[3]);
 				positionMaster.setCedingCompanyId(input[4]);
 				positionMaster.setUwYear(input[5]);			
@@ -316,9 +319,9 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 				positionMaster.setRskDummyContract(input[15]);
 				positionMaster.setDataMapContNo(input[16]);
 				positionMaster.setBouquetModeYn(input[17]); //Ri
-				positionMaster.setBouquetNo(StringUtils.isBlank(input[18])? null : new BigDecimal(input[18]));
-				positionMaster.setUwYearTo(new BigDecimal(input[19]));
-				positionMaster.setSectionNo(new BigDecimal(input[20]));				
+				positionMaster.setBouquetNo(StringUtils.isBlank(input[18])? null : fm.formatBigDecimal(input[18]));
+				positionMaster.setUwYearTo(fm.formatBigDecimal(input[19]));
+				positionMaster.setSectionNo(fm.formatBigDecimal(input[20]));				
 				
 			}
 		}
@@ -338,41 +341,41 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 			ttrnRiskProposal = new TtrnRiskProposal();
 				ttrnRiskProposal.setSysDate(new Date());
 				ttrnRiskProposal.setRskProposalNumber(input[0]);
-				ttrnRiskProposal.setRskEndorsementNo(new BigDecimal(input[1]));
-				ttrnRiskProposal.setRskLayerNo(new BigDecimal(input[2]));
-				ttrnRiskProposal.setRskLimitOc(new BigDecimal(input[3]));
-				ttrnRiskProposal.setRskLimitDc(new BigDecimal(input[4]));
-				ttrnRiskProposal.setRskEpiOfferOc(new BigDecimal(input[5]));
-				ttrnRiskProposal.setRskEpiOfferDc(new BigDecimal(input[6]));
-				ttrnRiskProposal.setRskEpiEstimate(new BigDecimal(input[7]));
-				ttrnRiskProposal.setRskEpiEstOc(new BigDecimal(input[8]));
-				ttrnRiskProposal.setRskEpiEstDc(new BigDecimal(input[9]));
-				ttrnRiskProposal.setRskXlcostOc(StringUtils.isBlank(input[10])?null :new BigDecimal(input[10]));
-				ttrnRiskProposal.setRskXlcostDc(new BigDecimal(input[11]));
-				ttrnRiskProposal.setRskCedantRetention(new BigDecimal(input[12]));
-				ttrnRiskProposal.setRskShareWritten(new BigDecimal(input[13]));
-				ttrnRiskProposal.setRskShareSigned(new BigDecimal(input[14]));
+				ttrnRiskProposal.setRskEndorsementNo(fm.formatBigDecimal(input[1]));
+				ttrnRiskProposal.setRskLayerNo(fm.formatBigDecimal(input[2]));
+				ttrnRiskProposal.setRskLimitOc(fm.formatBigDecimal(input[3]));
+				ttrnRiskProposal.setRskLimitDc(fm.formatBigDecimal(input[4]));
+				ttrnRiskProposal.setRskEpiOfferOc(fm.formatBigDecimal(input[5]));
+				ttrnRiskProposal.setRskEpiOfferDc(fm.formatBigDecimal(input[6]));
+				ttrnRiskProposal.setRskEpiEstimate(fm.formatBigDecimal(input[7]));
+				ttrnRiskProposal.setRskEpiEstOc(fm.formatBigDecimal(input[8]));
+				ttrnRiskProposal.setRskEpiEstDc(fm.formatBigDecimal(input[9]));
+				ttrnRiskProposal.setRskXlcostOc(StringUtils.isBlank(input[10])?null :fm.formatBigDecimal(input[10]));
+				ttrnRiskProposal.setRskXlcostDc(fm.formatBigDecimal(input[11]));
+				ttrnRiskProposal.setRskCedantRetention(fm.formatBigDecimal(input[12]));
+				ttrnRiskProposal.setRskShareWritten(fm.formatBigDecimal(input[13]));
+				ttrnRiskProposal.setRskShareSigned(fm.formatBigDecimal(input[14]));
 				ttrnRiskProposal.setRskCedretType(input[15]);
 				ttrnRiskProposal.setRskSpRetro(input[16]);
-				ttrnRiskProposal.setRskNoOfInsurers(new BigDecimal(input[17]));
-				ttrnRiskProposal.setRskMaxLmtCover(new BigDecimal(input[18]));
-				ttrnRiskProposal.setRskLimitOsOc(new BigDecimal(input[19]));
-				ttrnRiskProposal.setRskLimitOsDc(new BigDecimal(input[20]));
-				ttrnRiskProposal.setRskEpiOsofOc(new BigDecimal(input[21]));		
-				ttrnRiskProposal.setRskEpiOsofDc(new BigDecimal(input[22]));	
-				ttrnRiskProposal.setRskEpiOsoeOc(new BigDecimal(input[23]));		
-				ttrnRiskProposal.setRskEpiOsoeDc(new BigDecimal(input[24]));		
-				ttrnRiskProposal.setRskXlcostOsOc(new BigDecimal(input[25]));
-				ttrnRiskProposal.setRskXlcostOsDc(new BigDecimal(input[26]));	
-				ttrnRiskProposal.setLimitPerVesselOc(new BigDecimal(input[27]));
-				ttrnRiskProposal.setLimitPerVesselDc(new BigDecimal(input[28]));
-				ttrnRiskProposal.setLimitPerLocationOc(new BigDecimal(input[29]));
-				ttrnRiskProposal.setLimitPerLocationDc(new BigDecimal(input[30]));
-				ttrnRiskProposal.setRskTreatySurpLimitOc(new BigDecimal(input[31]));
-				ttrnRiskProposal.setRskTreatySurpLimitDc(new BigDecimal(input[32]));
-				ttrnRiskProposal.setRskTreatySurpLimitOsOc(new BigDecimal(input[33]));
-				ttrnRiskProposal.setRskTreatySurpLimitOsDc(new BigDecimal(input[34]));
-				ttrnRiskProposal.setSubClass(StringUtils.isBlank(input[35])?null :new BigDecimal(input[35]));;
+				ttrnRiskProposal.setRskNoOfInsurers(fm.formatBigDecimal(input[17]));
+				ttrnRiskProposal.setRskMaxLmtCover(fm.formatBigDecimal(input[18]));
+				ttrnRiskProposal.setRskLimitOsOc(fm.formatBigDecimal(input[19]));
+				ttrnRiskProposal.setRskLimitOsDc(fm.formatBigDecimal(input[20]));
+				ttrnRiskProposal.setRskEpiOsofOc(fm.formatBigDecimal(input[21]));		
+				ttrnRiskProposal.setRskEpiOsofDc(fm.formatBigDecimal(input[22]));	
+				ttrnRiskProposal.setRskEpiOsoeOc(fm.formatBigDecimal(input[23]));		
+				ttrnRiskProposal.setRskEpiOsoeDc(fm.formatBigDecimal(input[24]));		
+				ttrnRiskProposal.setRskXlcostOsOc(fm.formatBigDecimal(input[25]));
+				ttrnRiskProposal.setRskXlcostOsDc(fm.formatBigDecimal(input[26]));	
+				ttrnRiskProposal.setLimitPerVesselOc(fm.formatBigDecimal(input[27]));
+				ttrnRiskProposal.setLimitPerVesselDc(fm.formatBigDecimal(input[28]));
+				ttrnRiskProposal.setLimitPerLocationOc(fm.formatBigDecimal(input[29]));
+				ttrnRiskProposal.setLimitPerLocationDc(fm.formatBigDecimal(input[30]));
+				ttrnRiskProposal.setRskTreatySurpLimitOc(fm.formatBigDecimal(input[31]));
+				ttrnRiskProposal.setRskTreatySurpLimitDc(fm.formatBigDecimal(input[32]));
+				ttrnRiskProposal.setRskTreatySurpLimitOsOc(fm.formatBigDecimal(input[33]));
+				ttrnRiskProposal.setRskTreatySurpLimitOsDc(fm.formatBigDecimal(input[34]));
+				ttrnRiskProposal.setSubClass(StringUtils.isBlank(input[35])?null :fm.formatBigDecimal(input[35]));;
 				ttrnRiskProposal.setLoginId(input[36]);
 				ttrnRiskProposal.setBranchCode(input[37]);
 		}
@@ -390,12 +393,12 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 		try {
 		if(input != null) {
 			positionMaster = new PositionMaster();
-				positionMaster.setProposalNo(new BigDecimal(input[0]));
-				positionMaster.setContractNo(new BigDecimal(input[1]));
-				positionMaster.setAmendId(new BigDecimal(input[2]));
-				positionMaster.setLayerNo(new BigDecimal(input[3]));
+				positionMaster.setProposalNo(fm.formatBigDecimal(input[0]));
+				positionMaster.setContractNo(fm.formatBigDecimal(input[1]));
+				positionMaster.setAmendId(fm.formatBigDecimal(input[2]));
+				positionMaster.setLayerNo(fm.formatBigDecimal(input[3]));
 				positionMaster.setReinsuranceId(input[4]);
-				positionMaster.setProductId(new BigDecimal(input[5]));				
+				positionMaster.setProductId(fm.formatBigDecimal(input[5]));				
 				positionMaster.setDeptId(input[6]);
 				positionMaster.setCedingCompanyId(input[7]);
 				positionMaster.setUwYear(input[8]);
@@ -418,9 +421,9 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 				positionMaster.setRskDummyContract(input[24]);
 				positionMaster.setDataMapContNo(input[25]);	
 				positionMaster.setBouquetModeYn(input[26]);
-				positionMaster.setBouquetNo(StringUtils.isBlank(input[27])? null : new BigDecimal(input[27]));
-				positionMaster.setUwYearTo(new BigDecimal(input[28]));
-				positionMaster.setSectionNo(new BigDecimal(input[29]));
+				positionMaster.setBouquetNo(StringUtils.isBlank(input[27])? null : fm.formatBigDecimal(input[27]));
+				positionMaster.setUwYearTo(fm.formatBigDecimal(input[28]));
+				positionMaster.setSectionNo(fm.formatBigDecimal(input[29]));
 				positionMaster.setOfferNo(input[30]);				
 		}
 	}catch(Exception e) {
@@ -437,38 +440,38 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 		try {
 		if(args != null) {
 			ttrnRiskProposal = ttrnRiskProposalRepository.findByRskProposalNumberAndRskEndorsementNo(
-					args[53],new BigDecimal(args[54]));
+					args[53],fm.formatBigDecimal(args[54]));
 			if(ttrnRiskProposal!=null) {
-				ttrnRiskProposal.setRskEventLimitOc(StringUtils.isBlank(args[0])? null : new BigDecimal(args[0]));
-				ttrnRiskProposal.setRskEventLimitDc(new BigDecimal(args[1]));
-				ttrnRiskProposal.setRskEventLimitOsOc(new BigDecimal(args[2]));
-				ttrnRiskProposal.setRskEventLimitOsDc(new BigDecimal(args[3]));
-				ttrnRiskProposal.setRskCoverLimitUxlOc(StringUtils.isBlank(args[4])? null:new BigDecimal(args[4]));
-				ttrnRiskProposal.setRskCoverLimitUxlDc(new BigDecimal(args[5]));
-				ttrnRiskProposal.setRskCoverLimitUxlOsOc(new BigDecimal(args[6]));
-				ttrnRiskProposal.setRskCoverLimitUxlOsDc(new BigDecimal(args[7]));
-				ttrnRiskProposal.setRskDeductableUxlOc(StringUtils.isBlank(args[8])? null:new BigDecimal(args[8]));
-				ttrnRiskProposal.setRskDeductableUxlDc(new BigDecimal(args[9]));
-				ttrnRiskProposal.setRskDeductableUxlOsOc(new BigDecimal(args[10]));
-				ttrnRiskProposal.setRskDeductableUxlOsDc(new BigDecimal(args[11]));
+				ttrnRiskProposal.setRskEventLimitOc(StringUtils.isBlank(args[0])? null : fm.formatBigDecimal(args[0]));
+				ttrnRiskProposal.setRskEventLimitDc(fm.formatBigDecimal(args[1]));
+				ttrnRiskProposal.setRskEventLimitOsOc(fm.formatBigDecimal(args[2]));
+				ttrnRiskProposal.setRskEventLimitOsDc(fm.formatBigDecimal(args[3]));
+				ttrnRiskProposal.setRskCoverLimitUxlOc(StringUtils.isBlank(args[4])? null:fm.formatBigDecimal(args[4]));
+				ttrnRiskProposal.setRskCoverLimitUxlDc(fm.formatBigDecimal(args[5]));
+				ttrnRiskProposal.setRskCoverLimitUxlOsOc(fm.formatBigDecimal(args[6]));
+				ttrnRiskProposal.setRskCoverLimitUxlOsDc(fm.formatBigDecimal(args[7]));
+				ttrnRiskProposal.setRskDeductableUxlOc(StringUtils.isBlank(args[8])? null:fm.formatBigDecimal(args[8]));
+				ttrnRiskProposal.setRskDeductableUxlDc(fm.formatBigDecimal(args[9]));
+				ttrnRiskProposal.setRskDeductableUxlOsOc(fm.formatBigDecimal(args[10]));
+				ttrnRiskProposal.setRskDeductableUxlOsDc(fm.formatBigDecimal(args[11]));
 				ttrnRiskProposal.setRskPml(args[12]);
 				if(args[13]!="")
-				ttrnRiskProposal.setRskPmlPercent(new BigDecimal(args[13]));
+				ttrnRiskProposal.setRskPmlPercent(fm.formatBigDecimal(args[13]));
 				if(args[14]!="")
-				ttrnRiskProposal.setRskEgnpiPmlOc(new BigDecimal(args[14]));
+				ttrnRiskProposal.setRskEgnpiPmlOc(fm.formatBigDecimal(args[14]));
 				if(args[15]!="")
-				ttrnRiskProposal.setRskEgnpiPmlDc(new BigDecimal(args[15]));
+				ttrnRiskProposal.setRskEgnpiPmlDc(fm.formatBigDecimal(args[15]));
 				if(args[16]!="")
-				ttrnRiskProposal.setRskEgnpiPmlOsOc(new BigDecimal(args[16]));
-				ttrnRiskProposal.setRskEgnpiPmlOsDc(new BigDecimal(args[17]));
+				ttrnRiskProposal.setRskEgnpiPmlOsOc(fm.formatBigDecimal(args[16]));
+				ttrnRiskProposal.setRskEgnpiPmlOsDc(fm.formatBigDecimal(args[17]));
 				ttrnRiskProposal.setRskPremiumBasis(args[18]);
-				ttrnRiskProposal.setRskMinimumRate(new BigDecimal(args[19]));
-				ttrnRiskProposal.setRskMaxiimumRate(new BigDecimal(args[20]));	
+				ttrnRiskProposal.setRskMinimumRate(fm.formatBigDecimal(args[19]));
+				ttrnRiskProposal.setRskMaxiimumRate(fm.formatBigDecimal(args[20]));	
 				ttrnRiskProposal.setRskBurningCostLf(args[21]);
-				ttrnRiskProposal.setRskMinimumPremiumOc(StringUtils.isBlank(args[22])? null:new BigDecimal(args[22]));
-				ttrnRiskProposal.setRskMinimumPremiumDc(new BigDecimal(args[23]));
-				ttrnRiskProposal.setRskMinimumPremiumOsOc(new BigDecimal(args[24]));
-				ttrnRiskProposal.setRskMinimumPremiumOsDc(new BigDecimal(args[25]));
+				ttrnRiskProposal.setRskMinimumPremiumOc(StringUtils.isBlank(args[22])? null:fm.formatBigDecimal(args[22]));
+				ttrnRiskProposal.setRskMinimumPremiumDc(fm.formatBigDecimal(args[23]));
+				ttrnRiskProposal.setRskMinimumPremiumOsOc(fm.formatBigDecimal(args[24]));
+				ttrnRiskProposal.setRskMinimumPremiumOsDc(fm.formatBigDecimal(args[25]));
 				ttrnRiskProposal.setRskPaymentDueDays(args[26]);
 				ttrnRiskProposal.setRskTrtyLmtPmlOc(args[27]);
 				ttrnRiskProposal.setRskTrtyLmtPmlDc(args[28]);
@@ -494,8 +497,8 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 				ttrnRiskProposal.setPaymentPartner(args[48]);
 				ttrnRiskProposal.setIntallDetYn(args[49]);
 				ttrnRiskProposal.setReinstDetYn(args[50]);
-				ttrnRiskProposal.setRateOnLine(StringUtils.isBlank(args[51])? null:new BigDecimal(args[51]));
-				ttrnRiskProposal.setQuotesharePercent(new BigDecimal(args[52]));;
+				ttrnRiskProposal.setRateOnLine(StringUtils.isBlank(args[51])? null:fm.formatBigDecimal(args[51]));
+				ttrnRiskProposal.setQuotesharePercent(fm.formatBigDecimal(args[52]));;
 				
 			}
 		}
@@ -512,9 +515,9 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 		try {
 		if(input != null) {
 			ttrnRiskRemarks = new TtrnRiskRemarks();
-				ttrnRiskRemarks.setProposalNo(new BigDecimal(input[0]));
-				ttrnRiskRemarks.setContractNo(StringUtils.isBlank(input[1])? null : new BigDecimal(input[1]));
-				ttrnRiskRemarks.setLayerNo(new BigDecimal(input[2]));
+				ttrnRiskRemarks.setProposalNo(fm.formatBigDecimal(input[0]));
+				ttrnRiskRemarks.setContractNo(StringUtils.isBlank(input[1])? null : fm.formatBigDecimal(input[1]));
+				ttrnRiskRemarks.setLayerNo(fm.formatBigDecimal(input[2]));
 				ttrnRiskRemarks.setDeptId(input[3]);
 				ttrnRiskRemarks.setProductId(input[4]);
 				ttrnRiskRemarks.setAmendId(input[5]);
@@ -541,7 +544,7 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 			ttrnCedentRet = new TtrnCedentRet();
 				ttrnCedentRet.setProposalNo(input[0]);
 				ttrnCedentRet.setContractNo(input[1]);
-				ttrnCedentRet.setLayerNo(new BigDecimal(input[2]));
+				ttrnCedentRet.setLayerNo(fm.formatBigDecimal(input[2]));
 				ttrnCedentRet.setDeptId(input[3]);
 				ttrnCedentRet.setProductId(input[4]);
 				ttrnCedentRet.setAmendId(input[5]);
@@ -551,12 +554,12 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 				ttrnCedentRet.setRskType(input[9]);
 				ttrnCedentRet.setRskRettype(input[10]);
 				ttrnCedentRet.setRskBasistype(input[11]);
-				ttrnCedentRet.setRskFirstRetOc(new BigDecimal(input[12]));
-				ttrnCedentRet.setRskSecondRetOc(new BigDecimal(input[13]));
-				ttrnCedentRet.setRskRetTlFstOc(new BigDecimal(input[14]));
-				ttrnCedentRet.setRskRetTlSstOc(new BigDecimal(input[15]));
-				ttrnCedentRet.setRskRetElFstOc(new BigDecimal(input[16]));
-				ttrnCedentRet.setRskRetElSstOc(new BigDecimal(input[17]));
+				ttrnCedentRet.setRskFirstRetOc(fm.formatBigDecimal(input[12]));
+				ttrnCedentRet.setRskSecondRetOc(fm.formatBigDecimal(input[13]));
+				ttrnCedentRet.setRskRetTlFstOc(fm.formatBigDecimal(input[14]));
+				ttrnCedentRet.setRskRetTlSstOc(fm.formatBigDecimal(input[15]));
+				ttrnCedentRet.setRskRetElFstOc(fm.formatBigDecimal(input[16]));
+				ttrnCedentRet.setRskRetElSstOc(fm.formatBigDecimal(input[17]));
 				ttrnCedentRet.setLoginId(input[18]);
 				ttrnCedentRet.setBranchCode(input[19]);
 				ttrnCedentRet.setSysDate(new Date());			
@@ -575,26 +578,26 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 		if(args != null) {
 			
 			ttrnRiskProposal = ttrnRiskProposalRepository.findByRskProposalNumberAndRskEndorsementNo(
-					args[16],new BigDecimal(args[17]));
+					args[16],fm.formatBigDecimal(args[17]));
 			if(ttrnRiskProposal!=null) {
-				ttrnRiskProposal.setRskLimitOsOc(StringUtils.isBlank(args[0])? null : new BigDecimal(args[0]));
-				ttrnRiskProposal.setRskLimitOsDc(new BigDecimal(args[1]));
-				ttrnRiskProposal.setRskEpiOsofOc(StringUtils.isBlank(args[2])? null : new BigDecimal(args[2]));		
-				ttrnRiskProposal.setRskEpiOsofDc(new BigDecimal(args[3]));		
-				ttrnRiskProposal.setRskEpiOsoeOc(new BigDecimal(args[4]));		
-				ttrnRiskProposal.setRskEpiOsoeDc(new BigDecimal(args[5]));	
+				ttrnRiskProposal.setRskLimitOsOc(StringUtils.isBlank(args[0])? null : fm.formatBigDecimal(args[0]));
+				ttrnRiskProposal.setRskLimitOsDc(fm.formatBigDecimal(args[1]));
+				ttrnRiskProposal.setRskEpiOsofOc(StringUtils.isBlank(args[2])? null : fm.formatBigDecimal(args[2]));		
+				ttrnRiskProposal.setRskEpiOsofDc(fm.formatBigDecimal(args[3]));		
+				ttrnRiskProposal.setRskEpiOsoeOc(fm.formatBigDecimal(args[4]));		
+				ttrnRiskProposal.setRskEpiOsoeDc(fm.formatBigDecimal(args[5]));	
 				if(StringUtils.isNotEmpty(args[6]))
-				ttrnRiskProposal.setRskXlcostOsOc(new BigDecimal(args[6]));	
+				ttrnRiskProposal.setRskXlcostOsOc(fm.formatBigDecimal(args[6]));	
 				if(StringUtils.isNotEmpty(args[7]))
-				ttrnRiskProposal.setRskXlcostOsDc(new BigDecimal(args[7]));	
-				ttrnRiskProposal.setRskPremiumQuotaShare(new BigDecimal(args[8]));
-				ttrnRiskProposal.setRskPremiumSurpuls(new BigDecimal(args[9]));
-				ttrnRiskProposal.setRskPremiumQuotaShareDc(new BigDecimal(args[10]));
-				ttrnRiskProposal.setRskPremiumSurplusDc(new BigDecimal(args[11]));
-				ttrnRiskProposal.setCommQsAmt(new BigDecimal(args[12]));
-				ttrnRiskProposal.setCommSurplusAmt(new BigDecimal(args[13]));
-				ttrnRiskProposal.setCommQsAmtDc(new BigDecimal(args[14]));
-				ttrnRiskProposal.setCommSurplusAmtDc(new BigDecimal(args[15]));
+				ttrnRiskProposal.setRskXlcostOsDc(fm.formatBigDecimal(args[7]));	
+				ttrnRiskProposal.setRskPremiumQuotaShare(fm.formatBigDecimal(args[8]));
+				ttrnRiskProposal.setRskPremiumSurpuls(fm.formatBigDecimal(args[9]));
+				ttrnRiskProposal.setRskPremiumQuotaShareDc(fm.formatBigDecimal(args[10]));
+				ttrnRiskProposal.setRskPremiumSurplusDc(fm.formatBigDecimal(args[11]));
+				ttrnRiskProposal.setCommQsAmt(fm.formatBigDecimal(args[12]));
+				ttrnRiskProposal.setCommSurplusAmt(fm.formatBigDecimal(args[13]));
+				ttrnRiskProposal.setCommQsAmtDc(fm.formatBigDecimal(args[14]));
+				ttrnRiskProposal.setCommSurplusAmtDc(fm.formatBigDecimal(args[15]));
 			}
 		}
 	}catch(Exception e) {
@@ -610,43 +613,43 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 		try {
 		if(args != null) {
 			ttrnRiskCommission = ttrnRiskCommissionRepository.findByRskProposalNumberAndRskEndorsementNo(
-					args[65],new BigDecimal(args[66]));
+					args[65],fm.formatBigDecimal(args[66]));
 			if(ttrnRiskCommission!=null) {
-				ttrnRiskCommission.setRskBrokerage(new BigDecimal(args[0]));
-				ttrnRiskCommission.setRskTax(new BigDecimal(args[1]));
-				ttrnRiskCommission.setRskProfitComm(new BigDecimal(args[2]));
-				ttrnRiskCommission.setRskAcquistionCostOc(new BigDecimal(args[3]));	
-				ttrnRiskCommission.setRskAcquistionCostDc(new BigDecimal(args[4]));	
-				ttrnRiskCommission.setRskCommQuotashare(new BigDecimal(args[5]));
-				ttrnRiskCommission.setRskCommSurplus(new BigDecimal(args[6]));
-				ttrnRiskCommission.setRskOverriderPerc(new BigDecimal(args[7]));
-				ttrnRiskCommission.setRskPremiumReserve(new BigDecimal(args[8]));
-				ttrnRiskCommission.setRskLossReserve(new BigDecimal(args[9]));
-				ttrnRiskCommission.setRskInterest(new BigDecimal(args[10]));
-				ttrnRiskCommission.setRskPfInoutPrem(new BigDecimal(args[11]));
-				ttrnRiskCommission.setRskPfInoutLoss(new BigDecimal(args[12]));
+				ttrnRiskCommission.setRskBrokerage(fm.formatBigDecimal(args[0]));
+				ttrnRiskCommission.setRskTax(fm.formatBigDecimal(args[1]));
+				ttrnRiskCommission.setRskProfitComm(fm.formatBigDecimal(args[2]));
+				ttrnRiskCommission.setRskAcquistionCostOc(fm.formatBigDecimal(args[3]));	
+				ttrnRiskCommission.setRskAcquistionCostDc(fm.formatBigDecimal(args[4]));	
+				ttrnRiskCommission.setRskCommQuotashare(fm.formatBigDecimal(args[5]));
+				ttrnRiskCommission.setRskCommSurplus(fm.formatBigDecimal(args[6]));
+				ttrnRiskCommission.setRskOverriderPerc(fm.formatBigDecimal(args[7]));
+				ttrnRiskCommission.setRskPremiumReserve(fm.formatBigDecimal(args[8]));
+				ttrnRiskCommission.setRskLossReserve(fm.formatBigDecimal(args[9]));
+				ttrnRiskCommission.setRskInterest(fm.formatBigDecimal(args[10]));
+				ttrnRiskCommission.setRskPfInoutPrem(fm.formatBigDecimal(args[11]));
+				ttrnRiskCommission.setRskPfInoutLoss(fm.formatBigDecimal(args[12]));
 				ttrnRiskCommission.setRskLossadvice(args[13]);
-				ttrnRiskCommission.setRskCashlossLmtOc(new BigDecimal(args[14]));
-				ttrnRiskCommission.setRskCashlossLmtDc(new BigDecimal(args[15]));
+				ttrnRiskCommission.setRskCashlossLmtOc(fm.formatBigDecimal(args[14]));
+				ttrnRiskCommission.setRskCashlossLmtDc(fm.formatBigDecimal(args[15]));
 				ttrnRiskCommission.setRskLeadUw(args[16]);
-				ttrnRiskCommission.setRskLeadUwShare(new BigDecimal(args[17]));
+				ttrnRiskCommission.setRskLeadUwShare(fm.formatBigDecimal(args[17]));
 				ttrnRiskCommission.setRskAccounts(args[18]);
 				ttrnRiskCommission.setRskExclusion(args[19]);
 				ttrnRiskCommission.setRskRemarks(args[20]);
 				ttrnRiskCommission.setRskUwRecomm(args[21]);
 				ttrnRiskCommission.setRskGmApproval(args[22]);
-				ttrnRiskCommission.setRskOtherCost(new BigDecimal(args[23]));
+				ttrnRiskCommission.setRskOtherCost(fm.formatBigDecimal(args[23]));
 				ttrnRiskCommission.setRskCreastaStatus(args[24]);
-				ttrnRiskCommission.setRskEventLimitOc(StringUtils.isBlank(args[25])? null : new BigDecimal(args[25]));	
-				ttrnRiskCommission.setRskEventLimitDc(new BigDecimal(args[26]));	
-				ttrnRiskCommission.setRskAggregateLimitOc(StringUtils.isBlank(args[27])? null : new BigDecimal(args[27]));
-				ttrnRiskCommission.setRskAggregateLimitDc(new BigDecimal(args[28]));
-				ttrnRiskCommission.setRskOccurrentLimitOc(StringUtils.isBlank(args[29])? null : new BigDecimal(args[29]));
-				ttrnRiskCommission.setRskOccurrentLimitDc(new BigDecimal(args[30]));
+				ttrnRiskCommission.setRskEventLimitOc(StringUtils.isBlank(args[25])? null : fm.formatBigDecimal(args[25]));	
+				ttrnRiskCommission.setRskEventLimitDc(fm.formatBigDecimal(args[26]));	
+				ttrnRiskCommission.setRskAggregateLimitOc(StringUtils.isBlank(args[27])? null : fm.formatBigDecimal(args[27]));
+				ttrnRiskCommission.setRskAggregateLimitDc(fm.formatBigDecimal(args[28]));
+				ttrnRiskCommission.setRskOccurrentLimitOc(StringUtils.isBlank(args[29])? null : fm.formatBigDecimal(args[29]));
+				ttrnRiskCommission.setRskOccurrentLimitDc(fm.formatBigDecimal(args[30]));
 				ttrnRiskCommission.setRskSladscaleComm(args[31]);
 				ttrnRiskCommission.setRskLossPartCarridor(args[32]);
 				ttrnRiskCommission.setRskCombinSubClass(args[33]);
-				ttrnRiskCommission.setSubClass(new BigDecimal(args[34]));
+				ttrnRiskCommission.setSubClass(fm.formatBigDecimal(args[34]));
 				ttrnRiskCommission.setLoginId(args[35]);
 				ttrnRiskCommission.setBranchCode(args[36]);
 				ttrnRiskCommission.setSysDate(new Date());
@@ -657,19 +660,19 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 				ttrnRiskCommission.setRskLossCombinSubClass(args[41]);
 				ttrnRiskCommission.setRskSlideCombinSubClass(args[42]);
 				ttrnRiskCommission.setRskCrestaCombinSubClass(args[43]);
-				ttrnRiskCommission.setRskProManagementExp(StringUtils.isBlank(args[44])? null : new BigDecimal(args[44]));
+				ttrnRiskCommission.setRskProManagementExp(StringUtils.isBlank(args[44])? null : fm.formatBigDecimal(args[44]));
 				ttrnRiskCommission.setRskProCommType(args[45]);
-				ttrnRiskCommission.setRskProCommPer(new BigDecimal(args[46]));
+				ttrnRiskCommission.setRskProCommPer(fm.formatBigDecimal(args[46]));
 				ttrnRiskCommission.setRskProSetUp(args[47]);
-				ttrnRiskCommission.setRskProSubPfoCom(StringUtils.isBlank(args[48])? null : new BigDecimal(args[48]));
+				ttrnRiskCommission.setRskProSubPfoCom(StringUtils.isBlank(args[48])? null : fm.formatBigDecimal(args[48]));
 				ttrnRiskCommission.setRskProLossCaryType(args[49]);
 				ttrnRiskCommission.setRskProLossCaryYear(args[50]);
 				ttrnRiskCommission.setRskProProfitCaryType(args[51]);
 				ttrnRiskCommission.setRskProProfitCaryYear(args[52]);
-				ttrnRiskCommission.setRskProFirstPfoCom(StringUtils.isBlank(args[53])? null : new BigDecimal(args[53]));
+				ttrnRiskCommission.setRskProFirstPfoCom(StringUtils.isBlank(args[53])? null : fm.formatBigDecimal(args[53]));
 				ttrnRiskCommission.setRskProFirstPfoComPrd(args[54]);
 				ttrnRiskCommission.setRskProSubPfoComPrd(args[55]);
-				ttrnRiskCommission.setRskProSubPfoCom(StringUtils.isBlank(args[56])? null : new BigDecimal(args[56]));
+				ttrnRiskCommission.setRskProSubPfoCom(StringUtils.isBlank(args[56])? null : fm.formatBigDecimal(args[56]));
 				ttrnRiskCommission.setRskProSubSeqCal(args[57]);
 				ttrnRiskCommission.setRskProNotes(args[58]);
 				ttrnRiskCommission.setRskDocStatus(args[59]);
@@ -696,27 +699,27 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 		if(args != null) {
 			ttrnRiskCommission = new TtrnRiskCommission();
 				ttrnRiskCommission.setRskProposalNumber(args[0]);
-				ttrnRiskCommission.setRskEndorsementNo(new BigDecimal(args[1]));
-				ttrnRiskCommission.setRskLayerNo(new BigDecimal(args[2]));
-				ttrnRiskCommission.setRskBrokerage(new BigDecimal(args[3]));	
-				ttrnRiskCommission.setRskTax(new BigDecimal(args[4]));
-				ttrnRiskCommission.setRskProfitComm(new BigDecimal(args[5]));
-				ttrnRiskCommission.setRskReserveOnLoss(new BigDecimal(args[6]));
-				ttrnRiskCommission.setRskAcquistionCostOc(new BigDecimal(args[7]));				
-				ttrnRiskCommission.setRskAcquistionCostDc(new BigDecimal(args[8]));	
-				ttrnRiskCommission.setRskCommQuotashare(new BigDecimal(args[9]));
-				ttrnRiskCommission.setRskCommSurplus(new BigDecimal(args[10]));
-				ttrnRiskCommission.setRskOverriderPerc(new BigDecimal(args[11]));
-				ttrnRiskCommission.setRskPremiumReserve(new BigDecimal(args[12]));
-				ttrnRiskCommission.setRskLossReserve(new BigDecimal(args[13]));
-				ttrnRiskCommission.setRskInterest(new BigDecimal(args[14]));
-				ttrnRiskCommission.setRskPfInoutPrem(new BigDecimal(args[15]));
-				ttrnRiskCommission.setRskPfInoutLoss(new BigDecimal(args[16]));
+				ttrnRiskCommission.setRskEndorsementNo(fm.formatBigDecimal(args[1]));
+				ttrnRiskCommission.setRskLayerNo(fm.formatBigDecimal(args[2]));
+				ttrnRiskCommission.setRskBrokerage(fm.formatBigDecimal(args[3]));	
+				ttrnRiskCommission.setRskTax(fm.formatBigDecimal(args[4]));
+				ttrnRiskCommission.setRskProfitComm(fm.formatBigDecimal(args[5]));
+				ttrnRiskCommission.setRskReserveOnLoss(fm.formatBigDecimal(args[6]));
+				ttrnRiskCommission.setRskAcquistionCostOc(fm.formatBigDecimal(args[7]));				
+				ttrnRiskCommission.setRskAcquistionCostDc(fm.formatBigDecimal(args[8]));	
+				ttrnRiskCommission.setRskCommQuotashare(fm.formatBigDecimal(args[9]));
+				ttrnRiskCommission.setRskCommSurplus(fm.formatBigDecimal(args[10]));
+				ttrnRiskCommission.setRskOverriderPerc(fm.formatBigDecimal(args[11]));
+				ttrnRiskCommission.setRskPremiumReserve(fm.formatBigDecimal(args[12]));
+				ttrnRiskCommission.setRskLossReserve(fm.formatBigDecimal(args[13]));
+				ttrnRiskCommission.setRskInterest(fm.formatBigDecimal(args[14]));
+				ttrnRiskCommission.setRskPfInoutPrem(fm.formatBigDecimal(args[15]));
+				ttrnRiskCommission.setRskPfInoutLoss(fm.formatBigDecimal(args[16]));
 				ttrnRiskCommission.setRskLossadvice(args[17]);
-				ttrnRiskCommission.setRskCashlossLmtOc(new BigDecimal(args[18]));
-				ttrnRiskCommission.setRskCashlossLmtDc(new BigDecimal(args[19]));
+				ttrnRiskCommission.setRskCashlossLmtOc(fm.formatBigDecimal(args[18]));
+				ttrnRiskCommission.setRskCashlossLmtDc(fm.formatBigDecimal(args[19]));
 				ttrnRiskCommission.setRskLeadUw(args[20]);
-				ttrnRiskCommission.setRskLeadUwShare(new BigDecimal(args[21]));
+				ttrnRiskCommission.setRskLeadUwShare(fm.formatBigDecimal(args[21]));
 				ttrnRiskCommission.setRskAccounts(args[22]);
 				ttrnRiskCommission.setRskExclusion(args[23]);
 				ttrnRiskCommission.setRskRemarks(args[24]);
@@ -726,18 +729,18 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 				ttrnRiskCommission.setRskEntryDate(new Date());
 				ttrnRiskCommission.setRskEndDate(new Date());
 				ttrnRiskCommission.setRskStatus(args[28]);		
-				ttrnRiskCommission.setRskOtherCost(new BigDecimal(args[29]));
+				ttrnRiskCommission.setRskOtherCost(fm.formatBigDecimal(args[29]));
 				ttrnRiskCommission.setRskCreastaStatus(StringUtils.isBlank(args[30])?null:args[30]);
-				ttrnRiskCommission.setRskEventLimitOc(new BigDecimal(args[31]));
-				ttrnRiskCommission.setRskEventLimitDc(new BigDecimal(args[32]));
-				ttrnRiskCommission.setRskAggregateLimitOc(new BigDecimal(args[33]));
-				ttrnRiskCommission.setRskAggregateLimitDc(new BigDecimal(args[34]));
-				ttrnRiskCommission.setRskOccurrentLimitOc(new BigDecimal(args[35]));
-				ttrnRiskCommission.setRskOccurrentLimitDc(new BigDecimal(args[36]));			
+				ttrnRiskCommission.setRskEventLimitOc(fm.formatBigDecimal(args[31]));
+				ttrnRiskCommission.setRskEventLimitDc(fm.formatBigDecimal(args[32]));
+				ttrnRiskCommission.setRskAggregateLimitOc(fm.formatBigDecimal(args[33]));
+				ttrnRiskCommission.setRskAggregateLimitDc(fm.formatBigDecimal(args[34]));
+				ttrnRiskCommission.setRskOccurrentLimitOc(fm.formatBigDecimal(args[35]));
+				ttrnRiskCommission.setRskOccurrentLimitDc(fm.formatBigDecimal(args[36]));			
 				ttrnRiskCommission.setRskSladscaleComm(args[37]);
 				ttrnRiskCommission.setRskLossPartCarridor(args[38]);
 				ttrnRiskCommission.setRskCombinSubClass(args[39]);
-				ttrnRiskCommission.setSubClass(new BigDecimal(args[40]));
+				ttrnRiskCommission.setSubClass(fm.formatBigDecimal(args[40]));
 				ttrnRiskCommission.setLoginId(args[41]);
 				ttrnRiskCommission.setBranchCode(args[42]);
 				ttrnRiskCommission.setSysDate(new Date());
@@ -748,19 +751,19 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 				ttrnRiskCommission.setRskLossCombinSubClass(args[47]);
 				ttrnRiskCommission.setRskSlideCombinSubClass(args[48]);
 				ttrnRiskCommission.setRskCrestaCombinSubClass(args[49]);
-				ttrnRiskCommission.setRskProManagementExp(StringUtils.isBlank(args[50])? null :new BigDecimal(args[50]));
+				ttrnRiskCommission.setRskProManagementExp(StringUtils.isBlank(args[50])? null :fm.formatBigDecimal(args[50]));
 				ttrnRiskCommission.setRskProCommType(args[51]);	
-				ttrnRiskCommission.setRskProCommPer(StringUtils.isBlank(args[52])? null :new BigDecimal(args[52]));
+				ttrnRiskCommission.setRskProCommPer(StringUtils.isBlank(args[52])? null :fm.formatBigDecimal(args[52]));
 				ttrnRiskCommission.setRskProSetUp(args[53]);
 				ttrnRiskCommission.setRskProSupProCom(args[54]);
 				ttrnRiskCommission.setRskProLossCaryType(args[55]);
 				ttrnRiskCommission.setRskProLossCaryYear(args[56]);
 				ttrnRiskCommission.setRskProProfitCaryType(args[57]);
 				ttrnRiskCommission.setRskProProfitCaryYear(args[58]);
-				ttrnRiskCommission.setRskProFirstPfoCom(StringUtils.isBlank(args[59])? null :new BigDecimal(args[59]));
+				ttrnRiskCommission.setRskProFirstPfoCom(StringUtils.isBlank(args[59])? null :fm.formatBigDecimal(args[59]));
 				ttrnRiskCommission.setRskProFirstPfoComPrd(args[60]);	
 				ttrnRiskCommission.setRskProSubPfoComPrd(args[61]);	
-				ttrnRiskCommission.setRskProSubPfoCom(StringUtils.isBlank(args[62])? null :new BigDecimal(args[62]));		
+				ttrnRiskCommission.setRskProSubPfoCom(StringUtils.isBlank(args[62])? null :fm.formatBigDecimal(args[62]));		
 				ttrnRiskCommission.setRskProSubSeqCal(args[63]);
 				ttrnRiskCommission.setRskProNotes(args[64]);
 				ttrnRiskCommission.setRskDocStatus(args[65]);
@@ -805,17 +808,17 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 		try {
 		if(obj != null) {
 			ttrnInsurerDetails = new TtrnInsurerDetails();
-			ttrnInsurerDetails.setInsurerNo(new BigDecimal(obj[0]));
+			ttrnInsurerDetails.setInsurerNo(fm.formatBigDecimal(obj[0]));
 			ttrnInsurerDetails.setProposalNo(obj[1]);
 			ttrnInsurerDetails.setContractNo(obj[2]);
-			ttrnInsurerDetails.setEndorsementNo(new BigDecimal(obj[3]));
+			ttrnInsurerDetails.setEndorsementNo(fm.formatBigDecimal(obj[3]));
 			ttrnInsurerDetails.setType(obj[4]);
-			ttrnInsurerDetails.setRetroPercentage(new BigDecimal(obj[5]));
+			ttrnInsurerDetails.setRetroPercentage(fm.formatBigDecimal(obj[5]));
 			ttrnInsurerDetails.setStatus(obj[6]);
 			ttrnInsurerDetails.setUwYear(obj[7]);
 			ttrnInsurerDetails.setRetroType(obj[8]);
 			ttrnInsurerDetails.setEntryDate(new Date());
-			ttrnInsurerDetails.setSubClass(new BigDecimal(obj[9]));
+			ttrnInsurerDetails.setSubClass(fm.formatBigDecimal(obj[9]));
 			ttrnInsurerDetails.setLoginId(obj[10]);
 			ttrnInsurerDetails.setBranchCode(obj[11]);			
 			}
@@ -832,8 +835,8 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 		try {
 		if(input != null) {
 			ttrnCrestazoneDetails = new TtrnCrestazoneDetails();
-			ttrnCrestazoneDetails.setContractNo(new BigDecimal(input[0]));
-			ttrnCrestazoneDetails.setProposalNo(new BigDecimal(input[1]));
+			ttrnCrestazoneDetails.setContractNo(fm.formatBigDecimal(input[0]));
+			ttrnCrestazoneDetails.setProposalNo(fm.formatBigDecimal(input[1]));
 			ttrnCrestazoneDetails.setAmendId(input[2]);
 			ttrnCrestazoneDetails.setSubClass(input[3]);
 			ttrnCrestazoneDetails.setCrestaId(input[4]);
@@ -861,8 +864,8 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 		try {
 		if(input != null) {
 			ttrnBonus = new TtrnBonus();
-			ttrnBonus.setProposalNo(new BigDecimal(input[0]));
-			ttrnBonus.setContractNo(new BigDecimal(input[1]));
+			ttrnBonus.setProposalNo(fm.formatBigDecimal(input[0]));
+			ttrnBonus.setContractNo(fm.formatBigDecimal(input[1]));
 			ttrnBonus.setProductId(input[2]);
 			ttrnBonus.setLcbType(input[3]);
 			ttrnBonus.setLcbFrom(input[4]);
@@ -872,7 +875,7 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 			ttrnBonus.setBranch(input[8]);
 			ttrnBonus.setLcbId(input[9]);
 			ttrnBonus.setType(input[10]);
-			ttrnBonus.setEndorsementNo(new BigDecimal(input[11]));
+			ttrnBonus.setEndorsementNo(fm.formatBigDecimal(input[11]));
 			ttrnBonus.setSubClass(input[12]);
 			ttrnBonus.setSysDate(new Date());
 			ttrnBonus.setLayerNo(input[13]);
@@ -883,8 +886,8 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 			ttrnBonus.setSubProfitComm(input[18]);
 			ttrnBonus.setSpcDurationType(input[19]);
 			ttrnBonus.setSubSecCal(input[20]);	
-			ttrnBonus.setReferenceNo(new BigDecimal(input[21]));
-			ttrnBonus.setScaleMaxPartPercent(new BigDecimal(input[22]));
+			ttrnBonus.setReferenceNo(fm.formatBigDecimal(input[21]));
+			ttrnBonus.setScaleMaxPartPercent(fm.formatBigDecimal(input[22]));
 			ttrnBonus.setFpcType(input[23]);
 			ttrnBonus.setFpcFixedDate(sdf.parse(input[24]));
 			}
@@ -905,9 +908,9 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 			ttrnCommissionDetails.setCommFrom(input[1]);	
 			ttrnCommissionDetails.setCommTo(input[2]);
 			ttrnCommissionDetails.setProfitComm(input[3]);
-			ttrnCommissionDetails.setProposalNo(new BigDecimal(input[4]));
-			ttrnCommissionDetails.setContractNo(new BigDecimal(input[5]));
-			ttrnCommissionDetails.setEndorsementNo(new BigDecimal(input[6]));
+			ttrnCommissionDetails.setProposalNo(fm.formatBigDecimal(input[4]));
+			ttrnCommissionDetails.setContractNo(fm.formatBigDecimal(input[5]));
+			ttrnCommissionDetails.setEndorsementNo(fm.formatBigDecimal(input[6]));
 			ttrnCommissionDetails.setProductId(input[7]);
 			ttrnCommissionDetails.setBranchCode(input[8]);
 			ttrnCommissionDetails.setSubClass(input[9]);
@@ -1683,7 +1686,7 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 			
 			Predicate n1 = cb.equal(rd.get("endorsementNo"),args[0]);
 			Predicate n2 = cb.equal(rd.get("proposalNo"), args[1]); 
-			Predicate n3 = cb.between(rd.get("insurerNo"), BigDecimal.ZERO, new BigDecimal(args[2]));
+			Predicate n3 = cb.between(rd.get("insurerNo"), BigDecimal.ZERO, fm.formatBigDecimal(args[2]));
 			query1.where(n1,n2,n3).orderBy(orderList);
 	
 			TypedQuery<Tuple> result = em.createQuery(query1);
@@ -1719,7 +1722,7 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 			
 			Predicate n1 = cb.equal(rd.get("endorsementNo"),end);
 			Predicate n2 = cb.equal(rd.get("proposalNo"), args[0]); 
-			Predicate n3 = cb.between(rd.get("insurerNo"), BigDecimal.ZERO, new BigDecimal(args[1]));
+			Predicate n3 = cb.between(rd.get("insurerNo"), BigDecimal.ZERO, fm.formatBigDecimal(args[1]));
 			query1.where(n1,n2,n3).orderBy(orderList);
 	
 			TypedQuery<Tuple> result = em.createQuery(query1);
@@ -1920,24 +1923,24 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 		try {
 		if(args != null) {
 			ttrnRiskProposal = ttrnRiskProposalRepository.findByRskEndorsementNoAndRskProposalNumber(
-					new BigDecimal(args[16]),args[17]);
+					fm.formatBigDecimal(args[16]),args[17]);
 			if(ttrnRiskProposal!=null) {
-				ttrnRiskProposal.setRskLimitOsOc(new BigDecimal(args[0]));
-				ttrnRiskProposal.setRskLimitOsDc(new BigDecimal(args[1]));
-				ttrnRiskProposal.setRskEpiOsofOc(new BigDecimal(args[2]));
-				ttrnRiskProposal.setRskEpiOsofDc(new BigDecimal(args[3]));
-				ttrnRiskProposal.setRskEpiOsoeOc(new BigDecimal(args[4]));
-				ttrnRiskProposal.setRskEpiOsoeDc(new BigDecimal(args[5]));
-				ttrnRiskProposal.setRskXlcostOsOc(new BigDecimal(args[6]));	
-				ttrnRiskProposal.setRskXlcostOsDc(new BigDecimal(args[7]));
-				ttrnRiskProposal.setRskPremiumQuotaShare(new BigDecimal(args[8]));
-				ttrnRiskProposal.setRskPremiumSurpuls(new BigDecimal(args[9]));	
-				ttrnRiskProposal.setRskPremiumQuotaShareDc(new BigDecimal(args[10]));
-				ttrnRiskProposal.setRskPremiumSurplusDc(new BigDecimal(args[11]));
-				ttrnRiskProposal.setCommQsAmt(new BigDecimal(args[12]));
-				ttrnRiskProposal.setCommSurplusAmt(new BigDecimal(args[13]));
-				ttrnRiskProposal.setCommQsAmtDc(new BigDecimal(args[14]));	
-				ttrnRiskProposal.setCommSurplusAmtDc(new BigDecimal(args[15]));
+				ttrnRiskProposal.setRskLimitOsOc(fm.formatBigDecimal(args[0]));
+				ttrnRiskProposal.setRskLimitOsDc(fm.formatBigDecimal(args[1]));
+				ttrnRiskProposal.setRskEpiOsofOc(fm.formatBigDecimal(args[2]));
+				ttrnRiskProposal.setRskEpiOsofDc(fm.formatBigDecimal(args[3]));
+				ttrnRiskProposal.setRskEpiOsoeOc(fm.formatBigDecimal(args[4]));
+				ttrnRiskProposal.setRskEpiOsoeDc(fm.formatBigDecimal(args[5]));
+				ttrnRiskProposal.setRskXlcostOsOc(fm.formatBigDecimal(args[6]));	
+				ttrnRiskProposal.setRskXlcostOsDc(fm.formatBigDecimal(args[7]));
+				ttrnRiskProposal.setRskPremiumQuotaShare(fm.formatBigDecimal(args[8]));
+				ttrnRiskProposal.setRskPremiumSurpuls(fm.formatBigDecimal(args[9]));	
+				ttrnRiskProposal.setRskPremiumQuotaShareDc(fm.formatBigDecimal(args[10]));
+				ttrnRiskProposal.setRskPremiumSurplusDc(fm.formatBigDecimal(args[11]));
+				ttrnRiskProposal.setCommQsAmt(fm.formatBigDecimal(args[12]));
+				ttrnRiskProposal.setCommSurplusAmt(fm.formatBigDecimal(args[13]));
+				ttrnRiskProposal.setCommQsAmtDc(fm.formatBigDecimal(args[14]));	
+				ttrnRiskProposal.setCommSurplusAmtDc(fm.formatBigDecimal(args[15]));
 					}
 		}
 	}catch(Exception e) {
@@ -1983,7 +1986,7 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 
 	@Override
 	public TtrnPttySection insertSectionDetails(String[] args) {
-		TtrnPttySection ttrnPttySection = null;
+		TtrnPttySection ttrnPttySection = new TtrnPttySection();;
 		//INSERT_SECTION_DETAILS
 		try {
 		if(args != null) {
@@ -2447,33 +2450,33 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 
 	@Override
 	public void insertScMethodInfo(String[] args) {
-		TtrnBonus ttrnBonus = null;
+		TtrnBonus ttrnBonus = new TtrnBonus() ;
 		//INSERT_SECTION_DETAILS
 		try {
 		if(args != null) {
-			ttrnBonus.setProposalNo(new BigDecimal(args[0]));	
-			ttrnBonus.setContractNo(new BigDecimal(args[1]));
+			ttrnBonus.setProposalNo(fm.formatBigDecimal(args[0]));	
+			ttrnBonus.setContractNo(fm.formatBigDecimal(args[1]));
 			ttrnBonus.setProductId(args[2]);
 			ttrnBonus.setLcbType(args[3]);
-			ttrnBonus.setProvisionalCommisiion(new BigDecimal(args[4]));
+			ttrnBonus.setProvisionalCommisiion(fm.formatBigDecimal(args[4]));
 			ttrnBonus.setScMethodType(args[5]);
-			ttrnBonus.setScMinLossRatio(new BigDecimal(args[6]));	
-			ttrnBonus.setScMaxLossRatio(new BigDecimal(args[7]));
-			ttrnBonus.setScCombineLossRatio(new BigDecimal(args[8]));
-			ttrnBonus.setScBandingStep(new BigDecimal(args[9]));
-			ttrnBonus.setScNoOfDigit(new BigDecimal(args[10]));
+			ttrnBonus.setScMinLossRatio(fm.formatBigDecimal(args[6]));	
+			ttrnBonus.setScMaxLossRatio(fm.formatBigDecimal(args[7]));
+			ttrnBonus.setScCombineLossRatio(fm.formatBigDecimal(args[8]));
+			ttrnBonus.setScBandingStep(fm.formatBigDecimal(args[9]));
+			ttrnBonus.setScNoOfDigit(fm.formatBigDecimal(args[10]));
 			ttrnBonus.setUserId(args[11]);
 			ttrnBonus.setBranch(args[12]);
 			ttrnBonus.setType(args[13]);	
-			ttrnBonus.setEndorsementNo(new BigDecimal(args[14]));	
+			ttrnBonus.setEndorsementNo(fm.formatBigDecimal(args[14]));	
 			ttrnBonus.setSubClass(args[15]);
 			ttrnBonus.setSysDate(new Date());
 			ttrnBonus.setLayerNo(args[16]);
 			ttrnBonus.setRemarks(args[17]);
-			ttrnBonus.setReferenceNo(new BigDecimal(args[18]));
+			ttrnBonus.setReferenceNo(fm.formatBigDecimal(args[18]));
 			ttrnBonus.setLcbFrom(args[19]);
 			ttrnBonus.setLcbTo(args[20]);
-			ttrnBonus.setDeltaLossRatio(new BigDecimal(args[21]));
+			ttrnBonus.setDeltaLossRatio(fm.formatBigDecimal(args[21]));
 			ttrnBonus.setLcbPercentage(args[22]);
 			ttrnBonusRepository.saveAndFlush(ttrnBonus);
 			}
@@ -2623,7 +2626,7 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 
 	@Override
 	public void insertRiDetails(String[] args) {
-		TtrnRi ttrnRi = null;
+		TtrnRi ttrnRi = new TtrnRi();
 		//INSERT_SECTION_DETAILS
 		try {
 			
@@ -2638,25 +2641,25 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 			BigDecimal riNo = result.getResultList().get(0);
 			int a = riNo==null?1:(riNo.intValue()+1);
 			
-			ttrnRi.setRiNo(new BigDecimal(a));
-			ttrnRi.setStatusNo(new BigDecimal(args[0]));
-			ttrnRi.setSno(new BigDecimal(args[1]));
-			ttrnRi.setBouquetNo(new BigDecimal(args[2]));
-			ttrnRi.setBaseProposalNo(new BigDecimal(args[3]));
-			ttrnRi.setProposalNo(new BigDecimal(args[4]));
-			ttrnRi.setContractNo(new BigDecimal(args[5]));
-			ttrnRi.setSubContractNo(new BigDecimal(args[6]));
-			ttrnRi.setLayerNo(new BigDecimal(args[7]));
-			ttrnRi.setSectionNo(new BigDecimal(args[8]));
-			ttrnRi.setAmendId(new BigDecimal(args[9]));
+			ttrnRi.setRiNo(fm.formatBigDecimal(String.valueOf(a)));
+			ttrnRi.setStatusNo(fm.formatBigDecimal(args[0]));
+			ttrnRi.setSno(fm.formatBigDecimal(args[1]));
+			ttrnRi.setBouquetNo(fm.formatBigDecimal(args[2]));
+			ttrnRi.setBaseProposalNo(fm.formatBigDecimal(args[3]));
+			ttrnRi.setProposalNo(fm.formatBigDecimal(args[4]));
+			ttrnRi.setContractNo(fm.formatBigDecimal(args[5]));
+			ttrnRi.setSubContractNo(fm.formatBigDecimal(args[6]));
+			ttrnRi.setLayerNo(fm.formatBigDecimal(args[7]));
+			ttrnRi.setSectionNo(fm.formatBigDecimal(args[8]));
+			ttrnRi.setAmendId(fm.formatBigDecimal(args[9]));
 			ttrnRi.setReinsurerId(args[10]);
 			ttrnRi.setBrokerId(args[11]);	
-			ttrnRi.setShareOffered(new BigDecimal(args[12]));
-			ttrnRi.setShareWritten(new BigDecimal(args[13]));
-			ttrnRi.setShareProposalWritten(new BigDecimal(args[14]));
-			ttrnRi.setShareSigned(new BigDecimal(args[15]));
-			ttrnRi.setShareProposedSigned(new BigDecimal(args[16]));
-			ttrnRi.setBrokerage(new BigDecimal(args[17]));
+			ttrnRi.setShareOffered(fm.formatBigDecimal(args[12]));
+			ttrnRi.setShareWritten(fm.formatBigDecimal(args[13]));
+			ttrnRi.setShareProposalWritten(fm.formatBigDecimal(args[14]));
+			ttrnRi.setShareSigned(fm.formatBigDecimal(args[15]));
+			ttrnRi.setShareProposedSigned(fm.formatBigDecimal(args[16]));
+			ttrnRi.setBrokerage(fm.formatBigDecimal(args[17]));
 			ttrnRi.setCurrentStatus(args[18]);
 			ttrnRi.setNewStatus(args[19]);
 			ttrnRi.setApproveStatus(args[20]);

@@ -203,7 +203,7 @@ public interface DropDownService {
 
 	GetCommonDropDownRes getDeptName(String branchCode);
 
-	GetYearToListValueRes getYearToListValue(GetYearToListValueReq req);
+	GetCommonDropDownRes getYearToListValue(GetYearToListValueReq req);
 
 	CommonResponse updateBaseLayer(String baseLayer, String proposalNo);
 

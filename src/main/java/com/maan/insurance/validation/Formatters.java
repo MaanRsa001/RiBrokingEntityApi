@@ -1,5 +1,6 @@
 package com.maan.insurance.validation;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -158,5 +159,9 @@ public class Formatters {
 		}
 		return dates;
 	}
-
+	public BigDecimal formatBigDecimal(String input) {
+		if(StringUtils.isBlank(input))
+			return new BigDecimal("0.0");
+		return new BigDecimal(input);
+	}
 }

@@ -1585,35 +1585,35 @@ return list;
 		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
 		
 		if(StringUtils.isBlank(req.getProposalNo())) {
-			list.add(new ErrorCheck("Please Enter Proposalno", "Proposalno" ,"1"));
+			//list.add(new ErrorCheck("Please Enter Proposalno", "Proposalno" ,"1"));
 		}
 		
 		if(StringUtils.isBlank(req.getContractNo())) {
-			list.add(new ErrorCheck("Please Enter ContractNo", "contractNo" ,"2"));
+			//list.add(new ErrorCheck("Please Enter ContractNo", "contractNo" ,"2"));
 		}
 		
 		if(StringUtils.isBlank(req.getProductid())) {
-			list.add(new ErrorCheck("Please Enter ProductId", "ProductId" ,"3"));
+			//list.add(new ErrorCheck("Please Enter ProductId", "ProductId" ,"3"));
 		}
 		
 		if(StringUtils.isBlank(req.getType())) {
-			list.add(new ErrorCheck("Please Enter Type", "Type" ,"4"));
+			//list.add(new ErrorCheck("Please Enter Type", "Type" ,"4"));
 		}
 		
 		if(StringUtils.isBlank(req.getBonusTypeId())) {
-			list.add(new ErrorCheck("Please Enter BonusTypeId", "Type" ,"5"));
+			//list.add(new ErrorCheck("Please Enter BonusTypeId", "Type" ,"5"));
 		}
 		
 		if(StringUtils.isBlank(req.getLoginId())) {
-			list.add(new ErrorCheck("Please Enter LoginId", "LoginId" ,"6"));
+			//list.add(new ErrorCheck("Please Enter LoginId", "LoginId" ,"6"));
 		}
 		
 		if(StringUtils.isBlank(req.getLayerNo())) {
-			list.add(new ErrorCheck("Please Enter LayerNo", "LayerNo" ,"7"));
+			//list.add(new ErrorCheck("Please Enter LayerNo", "LayerNo" ,"7"));
 		}
 		
 		if(StringUtils.isBlank(req.getBonusremarks())) {
-			list.add(new ErrorCheck("Please Enter Bonusremarks", "Bonusremarks" ,"8"));
+			//list.add(new ErrorCheck("Please Enter Bonusremarks", "Bonusremarks" ,"8"));
 		}
 		
 		return list;

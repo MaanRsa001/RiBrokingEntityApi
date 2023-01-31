@@ -4635,9 +4635,9 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 	
 	}
 
-	public GetYearToListValueRes getYearToListValue(GetYearToListValueReq req) {
-		GetYearToListValueRes response = new GetYearToListValueRes();
-		List<GetYearToListValueRes1> resList = new ArrayList<GetYearToListValueRes1>();
+	public GetCommonDropDownRes getYearToListValue(GetYearToListValueReq req) {
+		GetCommonDropDownRes response = new GetCommonDropDownRes();
+		List<CommonResDropDown> resList = new ArrayList<CommonResDropDown>();
 		try {
 			if(StringUtils.isNotBlank(req.getInceptionDate())){
 				 String format = "dd/MM/yyyy" ;
@@ -4658,12 +4658,13 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 			    int year1 =cal1.get(Calendar.YEAR);
 	        
 			   for(int j=year;j<=year1;j++){
-					GetYearToListValueRes1 res = new GetYearToListValueRes1();
-					res.setYear(String.valueOf(j));;
+				   CommonResDropDown res = new CommonResDropDown();
+					res.setCode(String.valueOf(j));
+					res.setCodeDescription(String.valueOf(j));
 					resList.add(res);
 				}
 		 }
-		 response.setCommonResponse(resList);
+			response.setCommonResponse(resList);
 			response.setMessage("Success");
 			response.setIsError(false);
 		}catch(Exception e){

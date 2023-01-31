@@ -623,7 +623,7 @@ public class DropDownController {
 	}
 
 	@PostMapping("/getYearToListValue")
-	public GetYearToListValueRes getYearToListValue(@RequestBody GetYearToListValueReq req)
+	public GetCommonDropDownRes getYearToListValue(@RequestBody GetYearToListValueReq req)
 			throws CommonValidationException {
 		List<ErrorCheck> error = dropDownVali.getYearToListValueVali(req);
 		if (error != null && error.size() > 0) {

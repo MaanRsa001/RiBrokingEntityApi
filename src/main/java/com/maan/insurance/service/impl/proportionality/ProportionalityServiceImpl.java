@@ -1717,9 +1717,9 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 		if("1".equalsIgnoreCase(beanObj.getShareProfitCommission())){
 			obj[44] = StringUtils.isEmpty(beanObj.getManagementExpenses())?"":beanObj.getManagementExpenses();
 			obj[45] = StringUtils.isEmpty(beanObj.getCommissionType())?"":beanObj.getCommissionType();
-			obj[46] = StringUtils.isEmpty(beanObj.getProfitCommissionPer())?"":beanObj.getProfitCommissionPer();
+			obj[46] = StringUtils.isEmpty(beanObj.getProfitCommissionPer())?"0":beanObj.getProfitCommissionPer();
 			obj[47] = StringUtils.isEmpty(beanObj.getSetup())?"":beanObj.getSetup();
-			obj[48] = StringUtils.isEmpty(beanObj.getSuperProfitCommission())?"":beanObj.getSuperProfitCommission();
+			obj[48] = StringUtils.isEmpty(beanObj.getSuperProfitCommission())?"0":beanObj.getSuperProfitCommission();
 			obj[49] = StringUtils.isEmpty(beanObj.getLossCarried())?"":beanObj.getLossCarried();
 			obj[50] = StringUtils.isEmpty(beanObj.getLossyear())?"":beanObj.getLossyear();
 			obj[51] = StringUtils.isEmpty(beanObj.getProfitCarried())?"":beanObj.getProfitCarried();
@@ -1729,7 +1729,7 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 			obj[55] = StringUtils.isEmpty(beanObj.getSubProfitMonth())?"":beanObj.getSubProfitMonth();
 			obj[56] = StringUtils.isEmpty(beanObj.getSubpc())?"":beanObj.getSubpc();
 			obj[57] = StringUtils.isEmpty(beanObj.getSubSeqCalculation())?"":beanObj.getSubSeqCalculation();
-			obj[58] = StringUtils.isEmpty(beanObj.getProfitCommission())?"":beanObj.getProfitCommission();
+			obj[58] = StringUtils.isEmpty(beanObj.getProfitCommission())?"0":beanObj.getProfitCommission();
 			}
 			else{
 				obj[44] = "";
