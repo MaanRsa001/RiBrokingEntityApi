@@ -33,6 +33,7 @@ import com.maan.insurance.model.req.proportionality.BaseLayerStatusReq;
 import com.maan.insurance.model.req.proportionality.RiskDetailsEditModeReq;
 import com.maan.insurance.model.req.proportionality.ShowSecondpageEditItemsReq;
 import com.maan.insurance.model.req.proportionality.ViewRiskDetailsReq;
+import com.maan.insurance.model.req.proportionality.getScaleCommissionListReq;
 import com.maan.insurance.model.res.proportionality.BaseLayerStatusRes;
 import com.maan.insurance.model.res.proportionality.CancelProposalRes;
 import com.maan.insurance.model.res.proportionality.CheckProductMatchRes;
@@ -116,7 +117,7 @@ public interface ProportionalityService {
 
 	GetRetentionDetailsRes getRetentionDetails(GetRetentionDetailsReq req);
 
-	GetScaleCommissionListRes getScaleCommissionList(String proposalNo, String branchCode, String pageFor, String referenceNo);
+	GetScaleCommissionListRes getScaleCommissionList(getScaleCommissionListReq req);
 
 	ViewRiskDetailsRes viewRiskDetails(ViewRiskDetailsReq req);
 	

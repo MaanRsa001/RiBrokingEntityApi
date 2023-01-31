@@ -62,6 +62,7 @@ import com.maan.insurance.model.req.proportionality.BaseLayerStatusReq;
 import com.maan.insurance.model.req.proportionality.RiskDetailsEditModeReq;
 import com.maan.insurance.model.req.proportionality.ShowSecondpageEditItemsReq;
 import com.maan.insurance.model.req.proportionality.ViewRiskDetailsReq;
+import com.maan.insurance.model.req.proportionality.getScaleCommissionListReq;
 import com.maan.insurance.model.res.DropDown.GetOpenPeriodRes;
 import com.maan.insurance.model.res.claim.ContractDetailsMode1Res;
 import com.maan.insurance.model.res.proportionality.BaseLayerStatusRes;
@@ -278,9 +279,9 @@ public class ProportionalityController {
 				}
 				return propService.getRetentionDetails(req);
 			}
-			@GetMapping("/getScaleCommissionList/{proposalNo}/{branchCode}/{pageFor}/{referenceNo}")
-			public GetScaleCommissionListRes getScaleCommissionList(@PathVariable ("proposalNo") String proposalNo,@PathVariable ("branchCode") String branchCode,@PathVariable ("pageFor") String pageFor,@PathVariable ("referenceNo") String referenceNo) throws CommonValidationException {
-							return propService.getScaleCommissionList(proposalNo,branchCode,pageFor,referenceNo);
+			@GetMapping("/getScaleCommissionList")
+			public GetScaleCommissionListRes getScaleCommissionList(@RequestBody getScaleCommissionListReq req) throws CommonValidationException {
+							return propService.getScaleCommissionList(req);
 				}
 		
 			@PostMapping("/viewRiskDetails")

@@ -102,6 +102,7 @@ import com.maan.insurance.model.req.proportionality.ShowRetroContractsReq;
 import com.maan.insurance.model.req.proportionality.ShowSecondPageDataReq;
 import com.maan.insurance.model.req.proportionality.ShowSecondpageEditItemsReq;
 import com.maan.insurance.model.req.proportionality.ViewRiskDetailsReq;
+import com.maan.insurance.model.req.proportionality.getScaleCommissionListReq;
 import com.maan.insurance.model.req.proportionality.saveRiskDeatilsSecondFormReq;
 import com.maan.insurance.model.req.proportionality.showSecondPageData1Req;
 import com.maan.insurance.model.res.DropDown.CommonResDropDown;
@@ -3681,25 +3682,25 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 				return response;
 	}
 	@Override
-	public GetScaleCommissionListRes getScaleCommissionList(String proposalNo, String branchCode, String pageFor,String referenceNo) {
+	public GetScaleCommissionListRes getScaleCommissionList(getScaleCommissionListReq req) {
 		GetScaleCommissionListRes response= new GetScaleCommissionListRes();
 		List<GetScaleCommissionListRes1> resList = new ArrayList<GetScaleCommissionListRes1>();
 		List<Tuple> list = new ArrayList<>();
 	//	List<BonusDetailsRes> bonusResList = new ArrayList<BonusDetailsRes>();
 		try{
-			 if("scale".equalsIgnoreCase(pageFor)){
+			 if("scale".equalsIgnoreCase(req.getPageFor())){
 				//BONUS_MAIN_SELECT
-				 	list =  proportionalityCustomRepository.bonusMainSelect(proposalNo,branchCode);
+				 	list =  proportionalityCustomRepository.bonusMainSelect(req.getProposalNo(),req.getBranchCode());
 				 	
 					if(CollectionUtils.isEmpty(list)) {
-						list= proportionalityCustomRepository.bonusMainSelectReference(referenceNo,branchCode);
+						list= proportionalityCustomRepository.bonusMainSelectReference(req.getReferenceNo(),req.getBranchCode());
 					}
 				 }else {
 					//BONUS_MAIN_SELECT_LPC
-					 list= proportionalityCustomRepository.bonusMainSelectLpc(proposalNo,branchCode); //lpc
+					 list= proportionalityCustomRepository.bonusMainSelectLpc(req.getProposalNo(),req.getBranchCode()); //lpc
 						if(CollectionUtils.isEmpty(list)) {
 							//BONUS_MAIN_SELECT_REFERENCE_LPC
-							 list= proportionalityCustomRepository.bonusMainSelectReferenceLpc(referenceNo,branchCode);
+							 list= proportionalityCustomRepository.bonusMainSelectReferenceLpc(req.getReferenceNo(),req.getBranchCode());
 						}
 				 }
 					
@@ -3711,7 +3712,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 		               res.setBonusTo(tempMap.get("LCB_TO")==null?"":fm.formatter(tempMap.get("LCB_TO").toString()));
 		               res.setBonusLowClaimBonus(tempMap.get("LCB_PERCENTAGE")==null?"":fm.formatter(tempMap.get("LCB_PERCENTAGE").toString()));
 			           res.setScaleMaxPartPercent(tempMap.get("SCALE_MAX_PART_PERCENT")==null?"":dropDowmImpl.formatter(tempMap.get("SCALE_MAX_PART_PERCENT").toString()));
-		               if(!"scale".equalsIgnoreCase(pageFor)){
+		               if(!"scale".equalsIgnoreCase(req.getPageFor())){
 		               res.setBonusTypeId(tempMap.get("LCB_TYPE")==null?"":tempMap.get("LCB_TYPE").toString());
 		               }
 		               res.setQuotaShare(tempMap.get("QUOTA_SHARE")==null?"":tempMap.get("QUOTA_SHARE").toString());
