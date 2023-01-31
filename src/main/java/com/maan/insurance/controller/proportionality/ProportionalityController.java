@@ -384,7 +384,17 @@ public class ProportionalityController {
 						throw new CommonValidationException("error",error);
 					}
 					return propService.convertPolicy(req);
-				} 
+				}
+				
+				@PostMapping("/getcalculateSC")
+				public GetcalculateSCRes getcalculateSC(@RequestBody GetcalculateSCReq req) throws CommonValidationException {
+					List<ErrorCheck> error=propValidation.getcalculateSCVali(req);
+				if(error!=null&& error.size()>0) {
+					throw new CommonValidationException("error", error);
+				}
+				return propService.getcalculateSC(req);
+				}
+				
 }
 
 
