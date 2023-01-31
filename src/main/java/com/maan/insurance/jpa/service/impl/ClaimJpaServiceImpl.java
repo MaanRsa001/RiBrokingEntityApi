@@ -1490,7 +1490,7 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 		ContractDetailsMode1Res response = new ContractDetailsMode1Res();
 		List<ContractDetailsListMode1res> finalList = new ArrayList<ContractDetailsListMode1res>();
 		ContractDetailsListMode1res res = new ContractDetailsListMode1res();
-		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+		List<Tuple> list = new ArrayList<>();
 		try {
 			if ("1".equalsIgnoreCase(req.getProductId()))
 				// query -- claim.select.facGetCliamQuery
@@ -1503,7 +1503,7 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 
 			if (list.size() > 0) {
 				for (int i = 0; i < list.size(); i++) {
-					Map<String,Object> contractDetails=(Map<String,Object>) list.get(i);
+					Tuple contractDetails=  list.get(i);
 					res.setPolicyContractNo(contractDetails.get("RSK_CONTRACT_NO")==null?"":contractDetails.get("RSK_CONTRACT_NO").toString());
 					res.setAmendId(contractDetails.get("RSK_ENDORSEMENT_NO")==null?"":contractDetails.get("RSK_ENDORSEMENT_NO").toString());
 					res.setCedingcompanyName(contractDetails.get("CEDING_COMPANY")==null?"":contractDetails.get("CEDING_COMPANY").toString());
@@ -1518,10 +1518,10 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 					res.setLimitOurshareUSD(contractDetails.get("SUM_INSURED_OUR_SHARE_DC")==null?"":fm.formatter(contractDetails.get("SUM_INSURED_OUR_SHARE_DC").toString()));
 					res.setSumInsOSOC(contractDetails.get("SUM_INSURED_OUR_SHARE_OC")==null?"":fm.formatter(contractDetails.get("SUM_INSURED_OUR_SHARE_OC").toString()));
 					res.setSumInsOSDC(contractDetails.get("SUM_INSURED_OUR_SHARE_DC")==null?"":fm.formatter(contractDetails.get("SUM_INSURED_OUR_SHARE_DC").toString()));
-					list =queryImpl.selectList("claim.select.tmasDeptName",new String[]{res.getDepartmentId(),req.getProductId(),req.getBranchCode()});
-					if (!CollectionUtils.isEmpty(list)) {
-						res.setDepartmentName(list.get(0).get("TMAS_NAME") == null ? ""
-								: list.get(0).get("TMAS_NAME").toString());
+					List<Map<String, Object>>	list1 =queryImpl.selectList("claim.select.tmasDeptName",new String[]{res.getDepartmentId(),req.getProductId(),req.getBranchCode()});
+					if (!CollectionUtils.isEmpty(list1)) {
+						res.setDepartmentName(list1.get(0).get("TMAS_NAME") == null ? ""
+								: list1.get(0).get("TMAS_NAME").toString());
 					}
 
 					}else
@@ -1585,7 +1585,7 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 	//claimPaymentList(ClaimPaymentListReq req) -- STARTS
 	public ClaimPaymentListRes1 claimPaymentList(ClaimPaymentListReq req) {
 		ClaimPaymentListRes1 res = new ClaimPaymentListRes1();
-		List<Map<String, Object>> allocists = new ArrayList<Map<String, Object>>();
+		List<Tuple> allocists = new ArrayList<>();
 		List<ClaimPaymentListRes> finalList = new ArrayList<ClaimPaymentListRes>();
 		int count = 0;
 		try {
@@ -1598,7 +1598,7 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 			}
 
 			for (int i = 0; i < allocists.size(); i++) {
-				Map<String, Object> tempMap = (Map<String, Object>) allocists.get(i);
+				Tuple tempMap = allocists.get(i);
 				ClaimPaymentListRes tempBean = new ClaimPaymentListRes();
 				tempBean.setClaimNo(tempMap.get("CLAIM_NO") == null ? "" : tempMap.get("CLAIM_NO").toString());
 				tempBean.setPolicyContractNo(
@@ -1629,9 +1629,9 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 				tempBean.setSettlementStatus(
 						tempMap.get("SETTLEMENT_STATUS") == null ? "" : tempMap.get("SETTLEMENT_STATUS").toString());
 				tempBean.setTransactionType(
-						tempMap.get("TRANS_TYPE") == null ? "" : tempMap.get("TRANS_TYPE").toString());
+						tempMap.get("TRANS_TYPE") == null ? "" : tempMap.get("TRANS_TYPE").toString()); // not in query doubt
 				tempBean.setTransactionNumber(
-						tempMap.get("RECEIPT_NO") == null ? "" : tempMap.get("RECEIPT_NO").toString());
+						tempMap.get("RECEIPT_NO") == null ? "" : tempMap.get("RECEIPT_NO").toString()); // not in query doubt
 				tempBean.setDepartmentId(tempMap.get("DEPT_ID") == null ? "" : tempMap.get("DEPT_ID").toString());
 				tempBean.setSectionNo(tempMap.get("SECTION_NO") == null ? "" : tempMap.get("SECTION_NO").toString());
 				tempBean.setCurrency(tempMap.get("CURRENCY") == null ? "" : tempMap.get("CURRENCY").toString());
@@ -2312,13 +2312,13 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 	@Override
 	public ClaimPaymentListRes1 claimPaymentRiList(ClaimPaymentListReq req) {
 		ClaimPaymentListRes1 res = new ClaimPaymentListRes1();
-		List<Map<String, Object>> allocists = new ArrayList<Map<String, Object>>();
+		List<Tuple>  allocists = new ArrayList<>();
 		List<ClaimPaymentListRes> finalList = new ArrayList<ClaimPaymentListRes>();
 		int count = 0;
 		try {
 			allocists = claimCustomRepository.partialSelectGetpaymentRilist(req);
 			for (int i = 0; i < allocists.size(); i++) {
-				Map<String, Object> tempMap = (Map<String, Object>) allocists.get(i);
+				Tuple tempMap =  allocists.get(i);
 				ClaimPaymentListRes tempBean = new ClaimPaymentListRes();
 				tempBean.setClaimNo(tempMap.get("CLAIM_NO") == null ? "" : tempMap.get("CLAIM_NO").toString());
 				tempBean.setPolicyContractNo(
@@ -2349,9 +2349,9 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 				tempBean.setSettlementStatus(
 						tempMap.get("SETTLEMENT_STATUS") == null ? "" : tempMap.get("SETTLEMENT_STATUS").toString());
 				tempBean.setTransactionType(
-						tempMap.get("TRANS_TYPE") == null ? "" : tempMap.get("TRANS_TYPE").toString());
+						tempMap.get("TRANS_TYPE") == null ? "" : tempMap.get("TRANS_TYPE").toString()); // not in query
 				tempBean.setTransactionNumber(
-						tempMap.get("RECEIPT_NO") == null ? "" : tempMap.get("RECEIPT_NO").toString());
+						tempMap.get("RECEIPT_NO") == null ? "" : tempMap.get("RECEIPT_NO").toString()); // not in query
 				tempBean.setDepartmentId(tempMap.get("DEPT_ID") == null ? "" : tempMap.get("DEPT_ID").toString());
 				tempBean.setSectionNo(tempMap.get("SECTION_NO") == null ? "" : tempMap.get("SECTION_NO").toString());
 				tempBean.setClaimPaymentRiNo(tempMap.get("RI_TRANSACTION_NO") == null ? "" : tempMap.get("RI_TRANSACTION_NO").toString());
@@ -2400,7 +2400,6 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 			res.setIsError(false);
 
 		} catch (Exception e) {
-			log.error(e);
 			e.printStackTrace();
 			res.setMessage("Failed");
 			res.setIsError(true);

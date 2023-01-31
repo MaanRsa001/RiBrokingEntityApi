@@ -13,4 +13,7 @@ public interface MailNotificationDetailRepository  extends JpaRepository<MailNot
 	MailNotificationDetail findByProposalNoAndReinsurerIdAndBrokerIdAndBranchCode(BigDecimal bigDecimal,
 			String reinsurerId, String brokerId, String branchCode);
 
+	MailNotificationDetail findByProposalNoAndReinsurerIdAndBrokerIdAndBranchCodeAndStatusNo(BigDecimal bigDecimal,
+			String reinsurerIds, String brokerIds, String branchCode, String statusNo);
+
 }

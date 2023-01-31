@@ -119,7 +119,31 @@ public class TtrnBonus implements Serializable{
     private BigDecimal    scaleMaxPartPercent ;
     
     @Column(name="FPC_TYPE")
-    private String     fpcType ;
-
+    private String     fpcType ; 
+    
+    //  Ri
+    @Column(name="PROVISIONAL_COMMISIION")
+    private BigDecimal     provisionalCommisiion ;
+    
+    @Column(name="SC_METHOD_TYPE")
+    private String     scMethodType ;
+    
+    @Column(name="SC_MAX_LOSS_RATIO")
+    private BigDecimal     scMaxLossRatio ;
+    
+    @Column(name="SC_MIN_LOSS_RATIO")
+    private BigDecimal     scMinLossRatio ;
+    
+    @Column(name="SC_COMBINE_LOSS_RATIO")
+    private BigDecimal     scCombineLossRatio ;
+    
+    @Column(name="SC_BANDING_STEP")
+    private BigDecimal     scBandingStep ;
+    
+    @Column(name="SC_NO_OF_DIGIT")
+    private BigDecimal     scNoOfDigit ;
+    
+    @Column(name="DELTA_LOSS_RATIO")
+    private BigDecimal     deltaLossRatio ;
   
 }

@@ -34,6 +34,7 @@ import com.maan.insurance.jpa.entity.propPremium.TtrnInsurerDetails;
 import com.maan.insurance.jpa.entity.xolpremium.TtrnMndInstallments;
 import com.maan.insurance.model.entity.ConstantDetail;
 import com.maan.insurance.model.entity.CurrencyMaster;
+import com.maan.insurance.model.entity.MailNotificationDetail;
 import com.maan.insurance.model.entity.PersonalInfo;
 import com.maan.insurance.model.entity.PositionMaster;
 import com.maan.insurance.model.entity.TmasBranchMaster;
@@ -44,10 +45,15 @@ import com.maan.insurance.model.entity.TtrnBonus;
 import com.maan.insurance.model.entity.TtrnCedentRet;
 import com.maan.insurance.model.entity.TtrnCommissionDetails;
 import com.maan.insurance.model.entity.TtrnCrestazoneDetails;
+import com.maan.insurance.model.entity.TtrnPttySection;
+import com.maan.insurance.model.entity.TtrnRi;
+import com.maan.insurance.model.entity.TtrnRiPlacement;
 import com.maan.insurance.model.entity.TtrnRiskCommission;
 import com.maan.insurance.model.entity.TtrnRiskDetails;
 import com.maan.insurance.model.entity.TtrnRiskProposal;
 import com.maan.insurance.model.entity.TtrnRiskRemarks;
+import com.maan.insurance.model.repository.ConstantDetailRepository;
+import com.maan.insurance.model.repository.MailNotificationDetailRepository;
 import com.maan.insurance.model.repository.PositionMasterRepository;
 import com.maan.insurance.model.repository.TtrnBonusRepository;
 import com.maan.insurance.model.repository.TtrnCedentRetRepository;
@@ -55,6 +61,8 @@ import com.maan.insurance.model.repository.TtrnCommissionDetailsRepository;
 import com.maan.insurance.model.repository.TtrnCrestazoneDetailsRepository;
 import com.maan.insurance.model.repository.TtrnInsurerDetailsRepository;
 import com.maan.insurance.model.repository.TtrnMndInstallmentsRepository;
+import com.maan.insurance.model.repository.TtrnPttySectionRepository;
+import com.maan.insurance.model.repository.TtrnRiPlacementRepository;
 import com.maan.insurance.model.repository.TtrnRiskCommissionRepository;
 import com.maan.insurance.model.repository.TtrnRiskDetailsRepository;
 import com.maan.insurance.model.repository.TtrnRiskProposalRepository;
@@ -207,10 +215,21 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 	private  TtrnCommissionDetailsRepository ttrnCommissionDetailsRepository;
 	@Autowired
 	private  TtrnMndInstallmentsRepository ttrnMndInstallmentsRepository;
+
 	
 	private String DateFormat(Object input) {
 		return new SimpleDateFormat("dd/MM/yyyy").format(input).toString();
 		}
+
+	@Autowired
+	private  TtrnPttySectionRepository ttrnPttySectionRepository;
+	@Autowired
+	private  ConstantDetailRepository constantDetailRepository;
+	@Autowired
+	private  TtrnRiPlacementRepository ttrnRiPlacementRepository;
+	@Autowired
+	private  MailNotificationDetailRepository mailNotificationDetailRepository;
+
 
 	@Override
 	public FirstpagesaveRes insertProportionalTreaty(FirstpageSaveReq req, boolean saveFlag, final boolean amendId) {
@@ -3170,11 +3189,11 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 				res.setUnderwriter(resMap.get("RSK_UWYEAR")==null?"":resMap.get("RSK_UWYEAR").toString());
 				res.setPolicyBranch(resMap.get("TMAS_POL_BRANCH_NAME")==null?"":resMap.get("TMAS_POL_BRANCH_NAME").toString());
 				res.setDepartClass(resMap.get("TMAS_DEPARTMENT_NAME")==null?"":resMap.get("TMAS_DEPARTMENT_NAME").toString());
-				String query="risk.select.CEASE_STATUS";
-				List<Map<String, Object>> list1 = queryImpl.selectList(query,new String[]{req.getProposalNo()});
-				if(!CollectionUtils.isEmpty(list1)) {
-					res.setCeaseStatus(list1.get(0).get("RSK_ENDORSEMENT_NO")==null?"":list1.get(0).get("RSK_ENDORSEMENT_NO").toString());
-				}
+
+				//risk.select.CEASE_STATUS
+				String ceaseStatus = proportionalityCustomRepository.riskSelectCeaseStatus(req.getProposalNo());
+					res.setCeaseStatus(ceaseStatus==null?"":ceaseStatus);
+					
 				res.setEndttypename(resMap.get("DETAIL_NAME")==null?"":resMap.get("DETAIL_NAME").toString());
 			}
 			List<RetroFinalListres>  finalList = new ArrayList<RetroFinalListres>();
@@ -3665,59 +3684,27 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 	public GetScaleCommissionListRes getScaleCommissionList(String proposalNo, String branchCode, String pageFor,String referenceNo) {
 		GetScaleCommissionListRes response= new GetScaleCommissionListRes();
 		List<GetScaleCommissionListRes1> resList = new ArrayList<GetScaleCommissionListRes1>();
-		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
+		List<Tuple> list = new ArrayList<>();
 	//	List<BonusDetailsRes> bonusResList = new ArrayList<BonusDetailsRes>();
 		try{
 			 if("scale".equalsIgnoreCase(pageFor)){
-					//BONUS_MAIN_SELECT
-//				 	CriteriaBuilder cb = em.getCriteriaBuilder(); 
-//					CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
-//					Root<TtrnBonus> pm = query.from(TtrnBonus.class);
-//					query.multiselect(pm.get("lcbId").alias("LCB_ID"),pm.get("lcbFrom").alias("LCB_FROM"),
-//							pm.get("lcbTo").alias("LCB_TO"),pm.get("lcbPercentage").alias("LCB_PERCENTAGE"),
-//							pm.get("lcbType").alias("LCB_TYPE"),pm.get("quotaShare").alias("QUOTA_SHARE"),
-//							pm.get("remarks").alias("REMARKS"),pm.get("firstProfitComm").alias("FIRST_PROFIT_COMM"),
-//							pm.get("fpcDurationType").alias("FPC_DURATION_TYPE"),pm.get("subProfitComm").alias("SUB__PROFIT_COMM"),
-//							pm.get("spcDurationType").alias("SPC_DURATION_TYPE"),pm.get("subSecCal").alias("SUB_SEC_CAL"),
-//				 			pm.get("scaleMaxPartPercent").alias("SCALE_MAX_PART_PERCENT"),pm.get("fpcType").alias("FPC_TYPE"),
-//							pm.get("fpcFixedDate").alias("FPC_FIXED_DATE"));
-//				
-//					//end
-//					Subquery<Long> end = query.subquery(Long.class);
-//					Root<TtrnBonus> rds = end.from(TtrnBonus.class);
-//					end.select(cb.max(rds.get("endorsementNo")));
-//					Predicate a1 = cb.equal(rds.get("proposalNo"), pm.get("proposalNo"));
-//					Predicate a2 = cb.equal(rds.get("branch"), pm.get("branch"));
-//					Predicate a3 = cb.equal(rds.get("type"), pm.get("type"));
-//					end.where(a1,a2,a3);
-//					List<Order> orderList = new ArrayList<Order>();
-//					orderList.add(cb.asc(pm.get("lcbId")));
-//
-//					Predicate n1 = cb.equal(pm.get("proposalNo"), proposalNo);
-//					Predicate n2 = cb.equal(pm.get("branch"), branchCode);
-//					Predicate n3 = cb.equal(pm.get("type"), "SSC");
-//					Predicate n4 = cb.equal(pm.get("endorsementNo"), end);
-//					Predicate n5 = cb.equal(pm.get("lcbType"), "SSC2");
-//					query.where(n1,n2,n3,n4,n5).orderBy(orderList);
-//					
-//					TypedQuery<Tuple> res1 = em.createQuery(query);
-//					List<Tuple> result = res1.getResultList();
-				
-				 list= queryImpl.selectList("BONUS_MAIN_SELECT",new String[] {proposalNo,branchCode,"SSC","SSC2"});
-					
+				//BONUS_MAIN_SELECT
+				 	list =  proportionalityCustomRepository.bonusMainSelect(proposalNo,branchCode);
+				 	
 					if(CollectionUtils.isEmpty(list)) {
-						list= queryImpl.selectList("BONUS_MAIN_SELECT_REFERENCE",new String[] {referenceNo});
+						list= proportionalityCustomRepository.bonusMainSelectReference(referenceNo,branchCode);
 					}
 				 }else {
-					
-					 list= queryImpl.selectList("BONUS_MAIN_SELECT_LPC",new String[] {proposalNo,branchCode,"LPC"});
+					//BONUS_MAIN_SELECT_LPC
+					 list= proportionalityCustomRepository.bonusMainSelectLpc(proposalNo,branchCode); //lpc
 						if(CollectionUtils.isEmpty(list)) {
-							 list= queryImpl.selectList("BONUS_MAIN_SELECT_REFERENCE_LPC",new String[] {referenceNo});
+							//BONUS_MAIN_SELECT_REFERENCE_LPC
+							 list= proportionalityCustomRepository.bonusMainSelectReferenceLpc(referenceNo,branchCode);
 						}
 				 }
 					
 				for(int i=0;i<list.size();i++){
-					 Map<String,Object> tempMap = list.get(i);
+					Tuple tempMap = list.get(i);
 		               GetScaleCommissionListRes1 res = new GetScaleCommissionListRes1();
 		               res.setBonusSno(tempMap.get("LCB_ID")==null?"":tempMap.get("LCB_ID").toString());
 		               res.setBonusFrom(tempMap.get("LCB_FROM")==null?"":fm.formattereight(tempMap.get("LCB_FROM").toString()));
@@ -3731,7 +3718,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 		               res.setBonusremarks(tempMap.get("REMARKS")==null?"":tempMap.get("REMARKS").toString());
 		               res.setScFistpc(tempMap.get("FIRST_PROFIT_COMM")==null?"":tempMap.get("FIRST_PROFIT_COMM").toString());
 		               res.setScProfitMont(tempMap.get("FPC_DURATION_TYPE")==null?"":tempMap.get("FPC_DURATION_TYPE").toString());
-		               res.setScSubpc(tempMap.get("SUB__PROFIT_COMM")==null?"":tempMap.get("SUB__PROFIT_COMM").toString());
+		               res.setScSubpc(tempMap.get("SUB_PROFIT_COMM")==null?"":tempMap.get("SUB_PROFIT_COMM").toString());
 		               res.setScSubProfitMonth(tempMap.get("SPC_DURATION_TYPE")==null?"":tempMap.get("SPC_DURATION_TYPE").toString());
 		               res.setScSubSeqCalculation(tempMap.get("SUB_SEC_CAL")==null?"":tempMap.get("SUB_SEC_CAL").toString());
 		               res.setFpcType(tempMap.get("FPC_TYPE")==null?"":tempMap.get("FPC_TYPE").toString());
@@ -3804,9 +3791,12 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 				res.setRetroType(resMap.get("RSK_RETRO_TYPE")==null?"0":resMap.get("RSK_RETRO_TYPE").toString());
 				res.setNoRetroCess(resMap.get("RETRO_CESSIONARIES")==null?"0":resMap.get("RETRO_CESSIONARIES").toString());
 				if (resMap.get("RSK_BASIS") != null && !"0".equals(resMap.get("RSK_BASIS"))) {
-					List<Map<String, Object>> result = queryImpl.selectList("risk.select.getDtlName",new String[]{resMap.get("RSK_BASIS")==null?"":resMap.get("RSK_BASIS").toString()});
-					if(!CollectionUtils.isEmpty(result)) {
-						res.setBasis(result.get(0).get("DETAIL_NAME")==null?"":result.get(0).get("DETAIL_NAME").toString());
+					//risk.select.getDtlName
+					List<ConstantDetail> cd = constantDetailRepository.findByCategoryIdAndStatusAndCategoryDetailId(
+							new BigDecimal(6),"Y",new BigDecimal(resMap.get("RSK_BASIS").toString()));
+					
+					if(!CollectionUtils.isEmpty(cd)) {
+						res.setBasis(cd.get(0).getDetailName()==null?"":cd.get(0).getDetailName().toString());
 					}
 				}
 				res.setPnoc(resMap.get("RSK_PERIOD_OF_NOTICE")==null?"":resMap.get("RSK_PERIOD_OF_NOTICE").toString());
@@ -4310,7 +4300,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 			String profitSno) {
 		getprofitCommissionDeleteRes response = new getprofitCommissionDeleteRes();
 		try {
-			String query="PROFIT_COMMISSION_DELETE";
+			String query="PROFIT_COMMISSION_DELETE"; //table not exist
 			String [] args = new String[3];
 			args[0] = proposalno;
 			args[1] = branchCode;
@@ -4520,7 +4510,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 //			
 //			TypedQuery<Tuple> res1 = em.createQuery(query);
 //			List<Tuple> list = res1.getResultList();
-			 String query = "PROFIT_COMMISSION_EDIT";
+			 String query = "PROFIT_COMMISSION_EDIT"; //table not exists
 			String [] args = new String [3];
 			args[0] = proposalno;
 			args[1] = branchCode;
@@ -4624,8 +4614,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 		
 		  if(StringUtils.isBlank(req.getProposalNo()) && StringUtils.isBlank(req.getReferenceNo())) { //Ri
 	        	String referenceNo="";
-	        	String query="GET_REFERENCE_NO_SEQ";
-	        	List<Map<String, Object>> list  = queryImpl.selectSingle(query,new String[]{}); 
+	        	List<Map<String, Object>> list  = queryImpl.selectSingle("SELECT  REFERENCENO_SEQ.NEXTVAL REFERENCENO FROM DUAL",new String[]{}); 
 	        	if (!CollectionUtils.isEmpty(list)) {
 	        		referenceNo = list.get(0).get("REFERENCENO") == null ? ""
 							: list.get(0).get("REFERENCENO").toString();
@@ -4877,10 +4866,14 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 								}
 							}
 							args[3] = req.getProposalno();
-							query = "risk.update.homeContNo";
-							int k=0;
-							for(Object str:args)
-								out = queryImpl.updateQuery(query,args);
+							//risk.update.homeContNo
+							PositionMaster list3 = positionMasterRepository.findByProposalNo(new BigDecimal(args[3]));
+							if( list3!=null) {
+								list3.setContractNo(new BigDecimal(args[0]));
+								list3.setProposalStatus(args[1]);
+								list3.setContractStatus(args[2]);
+								positionMasterRepository.saveAndFlush(list3);
+								}
 						}
 					}
 				}
@@ -5001,8 +4994,14 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 						args[1] = getMaxproposalStatus(req.getProposalno());
 						args[2] = args[1];
 						args[3] = req.getProposalno();
-						query = "risk.update.homeContNo";
-						out = queryImpl.updateQuery(query,args);
+						//risk.update.homeContNo
+						PositionMaster list3 = positionMasterRepository.findByProposalNo(new BigDecimal(args[3]));
+						if( list3!=null) {
+							list3.setContractNo(new BigDecimal(args[0]));
+							list3.setProposalStatus(args[1]);
+							list3.setContractStatus(args[2]);
+							positionMasterRepository.saveAndFlush(list3);
+							}
 						if(StringUtils.isNotBlank(req.getBaseLayer())){
 							res.setContractGendration("A new proposal "+req.getProposalno()+" has been created under contract number "+req.getContNo()+".");
 						}
@@ -5011,11 +5010,16 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 						}else{
 							res.setContractGendration("Your Proposal is Renewaled with Proposal No : "+req.getProposalno() +", Old Contract No:"+maxContarctNo+" and New Contract No : "+maxContarctNo+".");
 						}
-						query = "risk.update.mndInstallments";
+					
 						args = new String [2];
 						args[0] = maxContarctNo;
 						args[1] = req.getProposalno();
-						out = queryImpl.updateQuery(query, args);				
+						//risk.update.mndInstallments
+						TtrnMndInstallments list4 = ttrnMndInstallmentsRepository.findByProposalNo(args[1]);
+						if(list4!=null) {
+							list4.setContractNo(args[0]);	
+							ttrnMndInstallmentsRepository.saveAndFlush(list4);
+							}	
 						res.setContNo(maxContarctNo);
 					//}else{
 						//beanObj.setContractGendration("Your  Proposal No : "+ beanObj.getProposal_no()+"not converting into contract because base proposal of this proposal "+beanObj.getBaseLayerYN()+"is not converted as contract");
@@ -5032,18 +5036,20 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 
 				}
 			}else if (ContractEditMode == 2) {
-				query = "risk.select.endo";
+			
 				String endtNo = null;
-				args = new String [1];
-				args[0] = req.getProposalno();
-				list = queryImpl.selectList(query, args);
-				if(!CollectionUtils.isEmpty(list)) {
-					endtNo=list.get(0).get("RSK_ENDORSEMENT_NO")==null?"":list.get(0).get("RSK_ENDORSEMENT_NO").toString();
-				}
+				//risk.select.endo
+				TtrnRiskProposal rp = ttrnRiskProposalRepository.findTop1ByRskProposalNumberOrderByRskEndorsementNoDesc(req.getProposalno());
+				if(rp!=null) {
+					endtNo = rp.getRskEndorsementNo()==null?"":	rp.getRskEndorsementNo().toString();
+					}
 				
 				args = updateContractRiskDetailsSecondForm(req, req.getProductId(), endtNo);
-				query = "risk.update.pro24ContSecPage";
-				out = queryImpl.updateQuery(query, args);
+				//risk.update.pro24ContSecPage
+				TtrnRiskProposal update2 = proportionalityCustomRepository.riskUpdatePro24ContSecPage(args);
+				if(update2!=null) {
+					ttrnRiskProposalRepository.saveAndFlush(update2);	
+				}
 					res.setContractGendration("Your Contract is updated with Proposal No : "+req.getProposalno()+", Contract No : "+req.getContNo()+".");
 				/*insertQry = getQuery(DBConstants.RISK_INSERT_PRO2SECCOMM);
 				logger.info("InsertQry=>" + insertQry);
@@ -5093,13 +5099,8 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 		String query;
 		String result = null;
 		try {
-			query = "risk.select.getRskContractNo";
-			String [] args = new String [1];
-			args [0] = proposalNo;
-			list = queryImpl.selectList(query, args);
-			if(!CollectionUtils.isEmpty(list)) {
-				result=list.get(0).get("RSK_CONTRACT_NO")==null?"":list.get(0).get("RSK_CONTRACT_NO").toString();
-			}
+			//risk.select.getRskContractNo
+			result=proportionalityCustomRepository.riskSelectGetRskContractNo(proposalNo);
 			if ("0".equalsIgnoreCase(result)) {
 				mode = 1;
 			} else {
@@ -5234,8 +5235,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 	
 	private void insertSectionValue(InsertSectionValueReq req, String maxContarctNo) {
 		try{
-			String query = "";
-			query = "INSERT_SECTION_DETAILS";
+			//INSERT_SECTION_DETAILS
 			String args[]= new String[6];
 			args[0] ="1";
 			args[1] = maxContarctNo;
@@ -5243,7 +5243,11 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 			args[3] = "Main Section";
 			args[4] = req.getBranchCode();
 			args[5] = req.getLoginId();
-			queryImpl.updateQuery(query, args);
+			TtrnPttySection insert = proportionalityCustomRepository.insertSectionDetails(args);
+			if(insert!=null) {
+				ttrnPttySectionRepository.saveAndFlush(insert);	
+			}
+			
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -5252,18 +5256,15 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 
 	private String getproposalStatus(String proposalNo) {
 		String result="";
-		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
 		try{
-			String query;
-			String [] args = null;
-			query = "risk.select.getRskStatus";
-				args = new String [1];
-				args [1] = proposalNo;
-				list = queryImpl.selectList(query, args);
+			//risk.select.getRskStatus
+			List<TtrnRiskDetails> list = ttrnRiskDetailsRepository.findByRskProposalNumber(proposalNo);
+			
 				if(!CollectionUtils.isEmpty(list)) {
-					result=list.get(0).get("RSK_PROPOSAL_NUMBER")==null?"":list.get(0).get("RSK_PROPOSAL_NUMBER").toString();
+					result=list.get(0).getRskStatus()==null?"":list.get(0).getRskStatus().toString();
 				}
 		}catch(Exception e){
+			e.printStackTrace();
 		}
 		return result;
 	}
@@ -5457,19 +5458,11 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 	
 	public void updateRetentionContractNo(String contNo, String productId, String proposalNo, String departmentId){
 		try{
-			String query="GET_COUNT_RETENTION";
-			String args[] = new String[2];
-			args[0] = proposalNo;
-			args[1] = productId;
-			int count = queryImpl.updateQuery(query,args);
+			//GET_COUNT_RETENTION
+			int count = proportionalityCustomRepository.getCountRetention(proposalNo,productId);
 			if(count>=1){
-				query= "UPDATE_RETEN_CONTNO";
-				 	args = new String[4];
-				 	args[0] = contNo;
-				 	args[1] = departmentId;
-					args[2] = proposalNo;
-					args[3] = productId;
-					queryImpl.updateQuery(query,args);
+				//UPDATE_RETEN_CONTNO
+				proportionalityCustomRepository.updateRetenContno(contNo,productId,proposalNo,departmentId);
 			}
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -5480,12 +5473,28 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 		boolean saveFlag = false;
 		String result = "";
 		try {
-			List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
-			String query = "risk.select.getRskProIdByProNo";
-			list = queryImpl.selectList(query, new String [] {proposalno});
-			if(!CollectionUtils.isEmpty(list)) {
-				 result = list.get(0).get("RSK_PRODUCTID")==null?"":list.get(0).get("RSK_PRODUCTID").toString();
-				}
+			//risk.select.getRskProIdByProNo
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query1 = cb.createQuery(Tuple.class); 
+			Root<TtrnRiskDetails> rd = query1.from(TtrnRiskDetails.class);
+			query1.multiselect(rd.get("rskProductid").alias("RSK_PRODUCTID")); 
+			//amendId
+			Subquery<Long> end = query1.subquery(Long.class); 
+			Root<TtrnRiskCommission> p = end.from(TtrnRiskCommission.class);
+			end.select(cb.max(p.get("rskEndorsementNo")));
+			Predicate d1 = cb.equal(p.get("rskProposalNumber"), rd.get("rskProposalNumber"));
+			end.where(d1);
+			
+			Predicate n1 = cb.equal(rd.get("rskProposalNumber"),proposalno);
+			Predicate n2 = cb.equal(rd.get("rskEndorsementNo"), end); 
+			query1.where(n1,n2);
+
+			TypedQuery<Tuple> res = em.createQuery(query1);
+			List<Tuple> list = res.getResultList();
+			
+			if (!CollectionUtils.isEmpty(list)) {
+				result = list.get(0).get("RSK_PRODUCTID")== null ? "": list.get(0).get("RSK_PRODUCTID").toString();
+			}
 				if (result.equals(pid)) {
 					saveFlag = true;
 				} else {
@@ -5510,8 +5519,12 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 			if(StringUtils.isBlank(req.getOfferNo())) {
 				offerNo= fm.getSequence("Offer",req.getProductId(),"0",req.getBranchCode(),"","");
 				response.setResponse("OfferNo: "+offerNo);			
-				String query="UPDATE POSITION_MASTER SET OFFER_NO=? WHERE PROPOSAL_NO=?";
-				queryImpl.updateQuery(query, new String[] {req.getOfferNo(),req.getProposalNo()});
+				PositionMaster pm = positionMasterRepository.findByProposalNo(new BigDecimal(req.getProposalNo()));
+				if(pm!=null) {
+					pm.setOfferNo(req.getOfferNo());
+					positionMasterRepository.saveAndFlush(pm);
+				}
+				//UPDATE POSITION_MASTER SET OFFER_NO=? WHERE PROPOSAL_NO=?
 			}
 			response.setMessage("Success");
 			response.setIsError(false);
@@ -5522,14 +5535,13 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 		}
 		return response;
 	}
+	
 	@Override
-	public GetSlidingScaleMethodInfoRes getSlidingScaleMethodInfo(String proposalNo, String branchCode,
-			String referenceNo) {
+	public GetSlidingScaleMethodInfoRes getSlidingScaleMethodInfo(String proposalNo, String branchCode,String referenceNo) {
 		GetSlidingScaleMethodInfoRes response = new GetSlidingScaleMethodInfoRes();
 		List<GetSlidingScaleMethodInfoRes1> resList = new ArrayList<GetSlidingScaleMethodInfoRes1>();
 		String args[]=null;
-		List<Map<String, Object>> result = new ArrayList<Map<String,Object>>();
-		String query="";
+		List<Tuple> result = new ArrayList<>();
 	try {
 		args = new String[4];
 		args[0] = proposalNo;
@@ -5537,16 +5549,15 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 		args[2] ="SSC";
 		args[3] ="SSC1";
 		
-			query ="SELECT_SLIDING_SCALE_METHOD_INFO";
-			result= queryImpl.selectList(query,args);
+			//SELECT_SLIDING_SCALE_METHOD_INFO
+			result = proportionalityCustomRepository.selectSlidingScaleMethodInfo(proposalNo,branchCode);
+		
 			if(CollectionUtils.isEmpty(result)) {
-				args[0] = referenceNo;
-				query ="SELECT_SLIDING_SCALE_METHOD_INFO_REF";
-				result= queryImpl.selectList(query,args);
+				//SELECT_SLIDING_SCALE_METHOD_INFO_REF
+				result = proportionalityCustomRepository.selectSlidingScaleMethodInfoRef(referenceNo,branchCode);
 			}
-			//}
 		for(int i=0;i<result.size();i++){
-		       Map<String,Object> tempMap = result.get(i);
+		      Tuple tempMap = result.get(i);
 		       GetSlidingScaleMethodInfoRes1 bean = new GetSlidingScaleMethodInfoRes1();
 		       bean.setProvisionCom(tempMap.get("PROVISIONAL_COMMISIION")==null?"":tempMap.get("PROVISIONAL_COMMISIION").toString());
                bean.setScalementhod(tempMap.get("SC_METHOD_TYPE")==null?"":tempMap.get("SC_METHOD_TYPE").toString());
@@ -5575,7 +5586,6 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 	public CommonResponse insertSlidingScaleMentodInfo(InsertSlidingScaleMentodInfoReq bean) {
 		CommonResponse response = new CommonResponse();
 		try {
-			 String query ="INSERT_SC_METHOD_INFO";
 			 String args[]=new String[23];
 			   args[0] =bean.getProposalNo();
 	           args[1] = bean.getContractNo();
@@ -5608,7 +5618,8 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 	        	   args[21]="";
 	        	   args[22]="";
 	           }
-	           queryImpl.updateQuery(query, args);
+	           //INSERT_SC_METHOD_INFO
+	          proportionalityCustomRepository.insertScMethodInfo(args);
 	           response.setMessage("Success");
 	   		response.setIsError(false);
 	   	} catch (Exception e) {
@@ -5706,11 +5717,13 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 		GetSectionEditModeRes response = new GetSectionEditModeRes();
 		GetSectionEditModeRes1 beanObj = new GetSectionEditModeRes1();
 		try {
-			List<Map<String, Object>> res = queryImpl.selectList(GetRiskDetailsEditQuery(false),new String[] {proposalNo,proposalNo,proposalNo});
+			//risk.select.getEditModeData1,risk.select.getEditModeData2
+			List<Tuple> res = proportionalityCustomRepository.getRiskDetailsEditQuery(false,proposalNo);
+		//	List<Map<String, Object>> res = queryImpl.selectList(GetRiskDetailsEditQuery(false),new String[] {proposalNo,proposalNo,proposalNo});
 		
-			Map<String, Object> resMap = null;
+			Tuple resMap = null;
 			if(res!=null && res.size()>0)
-				resMap = (Map<String, Object>)res.get(0);
+				resMap = res.get(0);
 			if (resMap!=null) {
 				beanObj.setCedingCo(resMap.get("RSK_CEDINGID")==null?"":resMap.get("RSK_CEDINGID").toString());
 				beanObj.setIncepDate(resMap.get("RSK_INCEPTION_DATE")==null?"":resMap.get("RSK_INCEPTION_DATE").toString());
@@ -5737,59 +5750,98 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 	   	}
 	   	return response;
 	}
-	public String GetRiskDetailsEditQuery(boolean contractMode) {
-
-		String query = "";
-		query = "risk.select.getEditModeData";
-		if(contractMode){
-			query = "risk.select.getEditModeData1";
-		}
-		else {
-			query = "risk.select.getEditModeData2";
-		}
-		return query.toString();
-	}
+//	public String GetRiskDetailsEditQuery(boolean contractMode) {
+//
+//		String query = "";
+//		query = "risk.select.getEditModeData";
+//		if(contractMode){
+//			query = "risk.select.getEditModeData1";
+//		}
+//		else {
+//			query = "risk.select.getEditModeData2";
+//		}
+//		return query.toString();
+//	}
 	@Override
 	public CommonSaveRes getSectionDuplicationCheck(GetSectionDuplicationCheckReq formObj) {
 		CommonSaveRes response = new CommonSaveRes();
 		boolean result=false;
-		String query="";
-		List<Map<String, Object>> list=null;
 		try{
 			if (StringUtils.isNotBlank(formObj.getProposalNo()) && StringUtils.isNotBlank(formObj.getSectionNo()) ) {
-				query= "risk.select.getSectionDupcheckByProNo";
+				//risk.select.getSectionDupcheckByProNo
+				CriteriaBuilder cb = em.getCriteriaBuilder(); 
+				CriteriaQuery<BigDecimal> query1 = cb.createQuery(BigDecimal.class); 
+				Root<PositionMaster> pm = query1.from(PositionMaster.class);
 				
-				list=  queryImpl.selectList(query,new String[]{formObj.getSectionNo(),formObj.getProposalNo(),StringUtils.isBlank(formObj.getBaseLayer())?formObj.getProposalNo():formObj.getBaseLayer()});
+				query1.select(pm.get("sectionNo")); 
+				
+				Subquery<Long> amend = query1.subquery(Long.class); 
+				Root<PositionMaster> rcs = amend.from(PositionMaster.class);
+				amend.select(cb.max(rcs.get("amendId")));
+				Predicate f1 = cb.equal( rcs.get("proposalNo"),  pm.get("proposalNo"));
+				amend.where(f1);
+				
+				Predicate n1 = cb.equal(pm.get("sectionNo"),formObj.getSectionNo());
+				Predicate n2 = cb.notEqual(pm.get("proposalNo"), formObj.getProposalNo()); 
+				Predicate n3 = cb.equal(cb.coalesce(pm.get("baseLayer"),pm.get("proposalNo")),StringUtils.isBlank(formObj.getBaseLayer())?formObj.getProposalNo():formObj.getBaseLayer());
+				Predicate n4 = cb.notEqual(pm.get("contractStatus"), "P"); 
+				Predicate n5 = cb.equal(pm.get("amendId"), amend); 
+				query1.where(n1,n2,n3,n4,n5);	
+		
+				TypedQuery<BigDecimal> res1 = em.createQuery(query1);
+				List<BigDecimal> list = res1.getResultList();
+				
 				if(list!=null && list.size()>0){
 					for(int i=0;i<list.size();i++){
-						Map<String, Object> map=(Map<String, Object>)list.get(i);
-						String res=map.get("SECTION_NO")==null?"":map.get("SECTION_NO").toString();
+						String res=list.get(i)==null?"":list.get(i).toString();
 						if(res.equalsIgnoreCase(formObj.getSectionNo())){
 							result=true;
 						}
 					}
 				}
 			}else if (StringUtils.isNotBlank(formObj.getBaseLayer()) && StringUtils.isNotBlank(formObj.getSectionNo()) ){
-				query= "risk.select.getSectionDupcheckByBaseLayer";
+				//risk.select.getSectionDupcheckByBaseLayer
+				CriteriaBuilder cb = em.getCriteriaBuilder(); 
+				CriteriaQuery<BigDecimal> query1 = cb.createQuery(BigDecimal.class); 
+				Root<PositionMaster> pm = query1.from(PositionMaster.class);
 				
-				list= queryImpl.selectList(query,new String[]{formObj.getSectionNo(),formObj.getBaseLayer()});
+				query1.select(pm.get("sectionNo")); 
+				
+				Predicate n1 = cb.equal(pm.get("sectionNo"),formObj.getSectionNo());
+				Predicate n2 = cb.equal(cb.coalesce(pm.get("baseLayer"),pm.get("proposalNo")),formObj.getBaseLayer());
+				Predicate n3 = cb.notEqual(pm.get("contractStatus"), "P"); 
+				query1.where(n1,n2,n3);	
+		
+				TypedQuery<BigDecimal> res1 = em.createQuery(query1);
+				List<BigDecimal> list = res1.getResultList();
+				
 				if(list!=null && list.size()>0){
 					for(int i=0;i<list.size();i++){
-						Map<String, Object> map=(Map<String, Object>)list.get(i);
-						String res=map.get("SECTION_NO")==null?"":map.get("SECTION_NO").toString();
+						String res=list.get(i)==null?"":list.get(i).toString();
 						if(res.equalsIgnoreCase(formObj.getSectionNo())){
 							result=true;
 						}
 					}
 				}
 			}else if (StringUtils.isNotBlank(formObj.getProposalNo()) && StringUtils.isNotBlank(formObj.getSectionNo())){
-				query= "risk.select.getSectionDupcheckByBaseLayer";
+				//risk.select.getSectionDupcheckByBaseLayer
+				CriteriaBuilder cb = em.getCriteriaBuilder(); 
+				CriteriaQuery<BigDecimal> query1 = cb.createQuery(BigDecimal.class); 
+				Root<PositionMaster> pm = query1.from(PositionMaster.class);
 				
-				list= queryImpl.selectList(query,new String[]{formObj.getSectionNo(),formObj.getProposalNo()});
+				query1.select(pm.get("sectionNo")); 
+				
+				Predicate n1 = cb.equal(pm.get("sectionNo"),formObj.getSectionNo());
+				Predicate n2 = cb.equal(cb.coalesce(pm.get("baseLayer"),pm.get("proposalNo")),formObj.getProposalNo());
+				Predicate n3 = cb.notEqual(pm.get("contractStatus"), "P"); 
+				query1.where(n1,n2,n3);	
+		
+				TypedQuery<BigDecimal> res1 = em.createQuery(query1);
+				List<BigDecimal> list = res1.getResultList();
+				
 				if(list!=null && list.size()>0){
 					for(int i=0;i<list.size();i++){
-						Map<String, Object> map=(Map<String, Object>)list.get(i);
-						String res=map.get("SECTION_NO")==null?"":map.get("SECTION_NO").toString();
+						String res=list.get(i)==null?"":list.get(i).toString();
 						if(res.equalsIgnoreCase(formObj.getSectionNo())){
 							result=true;
 						}
@@ -5812,21 +5864,19 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 		ConvertPolicyRes1 res = new ConvertPolicyRes1();
 		try {
 			try {
-				String updateQry = "",insertQry = "",selectQry="",endom="";
 				String[] args=null;
 				String[] obj=null,obj1=null;
-				int out=0;
 				int chkSecPageMode = checkSecondPageMode(beanObj.getProposalNo()); //commission table count 0 mode=1 else 2
 				int ContractEditMode = contractEditMode(beanObj.getProposalNo()); // get contract no from risk details if empty mode=1 else 2
 				if (ContractEditMode == 1) {
 					if (chkSecPageMode == 2) {
 
-						selectQry = "risk.select.chechProposalStatus";
-						List<Map<String, Object>> result = queryImpl.selectList(selectQry,new String[] {beanObj.getProposalNo(),beanObj.getProposalNo(),beanObj.getProposalNo()});
+						//risk.select.chechProposalStatus
+						List<Tuple> result = proportionalityCustomRepository.riskSelectChechProposalStatus(beanObj.getProposalNo());
 						
-						Map<String, Object> resMap = null;
+						Tuple resMap = null;
 						if(result!=null &&result.size()>0)
-							resMap = (Map<String, Object>)result.get(0);
+							resMap = result.get(0);
 						if(resMap!=null){
 							res.setProStatus(resMap.get("RSK_STATUS")==null?"":resMap.get("RSK_STATUS").toString());
 							res.setSharSign(resMap.get("RSK_SHARE_SIGNED")==null?"":resMap.get("RSK_SHARE_SIGNED").toString());
@@ -5834,12 +5884,12 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 							if (res.getProStatus().matches("A") /* && !beanObj.getSharSign().matches("0") */) {
 								String maxContarctNo = null;
 								
-								String query="GET_BASE_LAYER_DETAILS";
-								List<Map<String, Object>> res1 =  queryImpl.selectList(query,new String[]{beanObj.getProductId(),beanObj.getBranchCode(),beanObj.getProposalNo()});
+								//GET_BASE_LAYER_DETAILS
+								List<Tuple> 	res1 = proportionalityCustomRepository.getBaseLayerDetails(beanObj.getProductId(),beanObj.getBranchCode(),beanObj.getProposalNo());	
 							
-								Map<String, Object> resMap1 = null;
+								Tuple resMap1 = null;
 								if(res1!=null && res1.size()>0)
-									resMap1 = (Map<String, Object>)res1.get(0);
+									resMap1 = res1.get(0);
 								if (resMap1 != null) {
 										res.setBaseLayerYN(resMap1.get("BASE_LAYER")==null?"":resMap1.get("BASE_LAYER").toString());
 								}
@@ -5851,13 +5901,13 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 									maxContarctNo = beanObj.getContractno();
 								}
 								else if(StringUtils.isNotBlank(beanObj.getBaseLayerYN())){
-									query="GET_BASE_LAYER_DETAILS";
+									//GET_BASE_LAYER_DETAILS
+									res1 = proportionalityCustomRepository.getBaseLayerDetails(beanObj.getProductId(),beanObj.getBranchCode(),beanObj.getBaseLayerYN());
 								
-									res1 = queryImpl.selectList(query,new String[]{beanObj.getProductId(),beanObj.getBranchCode(),beanObj.getBaseLayerYN()});
 									
 									resMap1 = null;
 									if(res1!=null && res1.size()>0)
-										resMap1 = (Map<String, Object>)res1.get(0);
+										resMap1 = res1.get(0);
 									if (resMap1 != null) {
 											res.setContNo(resMap1.get("CONTRACT_NO")==null?"":resMap1.get("CONTRACT_NO").toString());
 									}
@@ -5882,22 +5932,23 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 									}
 								}
 							
-								args = new String[2];
-								args[0] = maxContarctNo;
-								args[1] = beanObj.getProposalNo();
-								updateQry = "risk.update.contNo";
 								
-								out=queryImpl.updateQuery(updateQry,args);
+								//risk.update.contNo
+								List<TtrnRiskDetails> update1 = ttrnRiskDetailsRepository.findByRskProposalNumber(beanObj.getProposalNo());	
+								if(update1.size()>0) {
+									TtrnRiskDetails u =update1.get(0);		
+									u.setRskContractNo(maxContarctNo);				
+									ttrnRiskDetailsRepository.saveAndFlush(u);
+								}		
 							
-								updateQry="risk.update.homeContNo";
-								args = new String[4];
-								args[0] = maxContarctNo;
-								res.setContNo((String)args[0]);
-								args[1] = "A";
-								args[2] = "A";
-								args[3] = beanObj.getProposalNo();
-								
-								out=queryImpl.updateQuery(updateQry,args);
+								//risk.update.homeContNo
+								PositionMaster list3 = positionMasterRepository.findByProposalNo(new BigDecimal(args[3]));
+								if( list3!=null) {
+									list3.setContractNo(new BigDecimal(args[0]));
+									list3.setProposalStatus(args[1]);
+									list3.setContractStatus(args[2]);
+									positionMasterRepository.saveAndFlush(list3);
+									}
 						
 								res.setContNo(maxContarctNo);
 								if("".equals(beanObj.getRenewalContractNo())||"0".equals(beanObj.getRenewalContractNo())||"NEWCONTNO".equals(beanObj.getRenewalFlag())){
@@ -5905,9 +5956,13 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 								}else{
 									res.setContractGendration("Your Proposal is Renewaled with Proposal No : "+beanObj.getProposalNo() +", Old Contract No:"+maxContarctNo+" and New Contract No : "+maxContarctNo+".");
 								}
-								updateQry ="risk.update.mndInstallments";
+								//risk.update.mndInstallments
+								TtrnMndInstallments list4 = ttrnMndInstallmentsRepository.findByProposalNo(beanObj.getProposalNo());
+								if(list4!=null) {
+									list4.setContractNo(maxContarctNo);	
+									ttrnMndInstallmentsRepository.saveAndFlush(list4);
+									}
 								
-								out=queryImpl.updateQuery(updateQry,new String[]{maxContarctNo,beanObj.getProposalNo()});	
 							} else {
 								args = new String[4];
 								args[0] = res.getContNo();
@@ -5927,30 +5982,40 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 									}
 								}
 								args[3] = beanObj.getProposalNo();
-								updateQry="risk.update.homeContNo";
-								
-								int k=0;
-								for(Object str:args)
-								out=queryImpl.updateQuery("risk.update.homeContNo",args);
+								//risk.update.homeContNo
+								PositionMaster list3 = positionMasterRepository.findByProposalNo(new BigDecimal(args[3]));
+								if( list3!=null) {
+									list3.setContractNo(new BigDecimal(args[0]));
+									list3.setProposalStatus(args[1]);
+									list3.setContractStatus(args[2]);
+									positionMasterRepository.saveAndFlush(list3);
+									}
 							}
 						}
 					}
 				}else if (ContractEditMode == 2) {
 					String endtNo= "";
-					endom="risk.select.endo";
-					List<Map<String, Object>> list = queryImpl.selectList(endom, new String[]{beanObj.getProposalNo()});
-					if(!CollectionUtils.isEmpty(list)) {
-						endtNo=list.get(0).get("RSK_ENDORSEMENT_NO")==null?"":list.get(0).get("RSK_ENDORSEMENT_NO").toString();
-					}
+					//risk.select.endo
+					TtrnRiskProposal rp = ttrnRiskProposalRepository.findTop1ByRskProposalNumberOrderByRskEndorsementNoDesc(beanObj.getProposalNo());
+					if(rp!=null) {
+						endtNo = rp.getRskEndorsementNo()==null?"":	rp.getRskEndorsementNo().toString();
+						}
 
 					obj = updateContractRiskDetailsSecondForm(beanObj,beanObj.getProductId(),endtNo);
-					updateQry = "risk.update.pro24ContSecPage";
-					out=queryImpl.updateQuery(updateQry, obj);
+					//risk.update.pro24ContSecPage
+					TtrnRiskProposal update2 = proportionalityCustomRepository.riskUpdatePro24ContSecPage(obj);
+					if(update2!=null) {
+						ttrnRiskProposalRepository.saveAndFlush(update2);	
+					}
 						res.setContractGendration("Your Contract is updated with Proposal No : "+beanObj.getProposalNo()+", Contract No : "+res.getContNo()+".");
 
 					obj1 = updateRiskDetailsSecondFormSecondTable(beanObj, beanObj.getProductId(), getMaxAmednId(beanObj.getProposalNo()));
-					updateQry = "risk.update.pro2SecComm";
-					out=queryImpl.updateQuery(updateQry, obj1);
+				
+					//risk.update.pro2SecComm
+					TtrnRiskCommission update1 = proportionalityCustomRepository.ttrnRiskCommissionSecondPageUpdate(obj1);
+					if(update1!=null) {
+						ttrnRiskCommissionRepository.saveAndFlush(update1);	
+					}
 
 					res.setProStatus("A");
 				}
@@ -6148,9 +6213,8 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 		
 	}
 	private void insertRiDetails(ConvertPolicyReq bean) {
-		String query="";
 		try {
-			query="INSERT_RI_DETAILS";
+			//INSERT_RI_DETAILS
 			for(int i=0;i<bean.getConvertPolicyReq1().size();i++) {
 				ConvertPolicyReq1 req = bean.getConvertPolicyReq1().get(i);
 				if("CSL".equalsIgnoreCase(req.getCurrentStatus()) || "CSL".equalsIgnoreCase(req.getNewStatus())) {
@@ -6179,7 +6243,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 					obj[20]="Y";
 					obj[21]=bean.getLoginId();
 					obj[22]=bean.getBranchCode();
-					queryImpl.updateQuery(query,obj);
+					proportionalityCustomRepository.insertRiDetails(obj);
 				}
 			}
 		} catch (Exception e) {
@@ -6187,32 +6251,28 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 		}
 	}
 	private void updateRiContractStatus(ConvertPolicyReq bean) {
-		String query="";
 		try {
 			for(int i=0;i<bean.getConvertPolicyReq1().size();i++) {
 				ConvertPolicyReq1 req = bean.getConvertPolicyReq1().get(i);
 				if("CSL".equalsIgnoreCase(req.getCurrentStatus())|| "CSL".equalsIgnoreCase(req.getNewStatus())) {
-					String obj[]=new String[7];
-					obj[0]=bean.getContNo();
-					obj[1]=bean.getAmendId();
-					obj[2]=bean.getProposalNo();
-					obj[3]=req.getReinsurerIds();
-					obj[4]=req.getBrokerIds();
-					obj[5]=bean.getBranchCode();
-					obj[6]=req.getStatusNo();
-					query="UPDATE_RI_CONTRACT";
-				
-					queryImpl.updateQuery(query,obj);
-					obj=new String[6];
-					obj[0]=bean.getContNo();
-					obj[1]=bean.getProposalNo();
-					obj[2]=req.getReinsurerIds();
-					obj[3]=req.getBrokerIds();
-					obj[4]=bean.getBranchCode();
-					obj[5]=req.getStatusNo();
-					query="UPDATE_MAIL_CONTRACT";
-				
-					queryImpl.updateQuery(query,obj);
+					
+					//UPDATE_RI_CONTRACT
+					TtrnRiPlacement list = ttrnRiPlacementRepository.findByProposalNoAndReinsurerIdAndBrokerIdAndBranchCodeAndStatusNo(
+						new BigDecimal(bean.getProposalNo()),req.getReinsurerIds(),req.getBrokerIds(),bean.getBranchCode(),new BigDecimal(req.getStatusNo()));
+				if(list!=null) {
+					list.setContractNo(new BigDecimal(bean.getContNo()));	
+					list.setAmendId(new BigDecimal(bean.getAmendId()));
+					ttrnRiPlacementRepository.saveAndFlush(list);
+					}
+					
+					//UPDATE_MAIL_CONTRACT
+					
+					MailNotificationDetail list1 = mailNotificationDetailRepository.findByProposalNoAndReinsurerIdAndBrokerIdAndBranchCodeAndStatusNo(
+							new BigDecimal(bean.getProposalNo()),req.getReinsurerIds(),req.getBrokerIds(),bean.getBranchCode(),req.getStatusNo());
+					if(list1!=null) {
+						list1.setContractNo(new BigDecimal(bean.getContNo()));	
+						mailNotificationDetailRepository.saveAndFlush(list1);
+						}
 				}
 			}
 			
@@ -6220,11 +6280,25 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 			e.printStackTrace();
 		}
 	}
-	private void updateShareSign(String prroposalNo) {
-		String query="";
+	private void updateShareSign(String proposalNo) {
 		try {
-			query="UPDATE_SHARE_SHIGN";
-			queryImpl.updateQuery(query,new String[] {prroposalNo});			
+			//UPDATE_SHARE_SHIGN
+			CriteriaBuilder cb = this.em.getCriteriaBuilder();
+			CriteriaUpdate<TtrnRiskProposal> update = cb.createCriteriaUpdate(TtrnRiskProposal.class);
+			Root<TtrnRiskProposal> m = update.from(TtrnRiskProposal.class);
+			//sharesigned
+			Subquery<Long> sharesigned = update.subquery(Long.class); 
+			Root<TtrnRi> rds = sharesigned.from(TtrnRi.class);
+			sharesigned.select(cb.sum(rds.get("shareSigned")));
+			Predicate a1 = cb.equal( rds.get("proposalNo"), m.get("rskProposalNumber"));
+			sharesigned.where(a1);
+			update.set("rskShareSigned", sharesigned);
+			
+			
+			Predicate n1 = cb.equal(m.get("rskProposalNumber"),proposalNo);
+			update.where(n1 );
+			em.createQuery(update).executeUpdate();
+			 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

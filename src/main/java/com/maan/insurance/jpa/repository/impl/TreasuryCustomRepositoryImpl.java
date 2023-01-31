@@ -2165,7 +2165,7 @@ public class TreasuryCustomRepositoryImpl implements TreasuryCustomRepository {
 	@Override
 	public List<Map<String, Object>> getReversalInfo(String[] args) {
 		List<Map<String,Object>> list;
-		
+		//LEFT OUTER JOIN
 		Query q = em.createNativeQuery("SELECT   DECODE (PI.COMPANY_NAME, 'DIRECT', NULL, PI.COMPANY_NAME)COMPANY_NAME,"
 				+ " PIB.FIRST_NAME || ' ' || PIB.LAST_NAME broker, AB.BROKER_ID,"
 				+ " CM.SHORT_NAME CURRENCY_NAME,AB.EXCHANGE_RATE,AB.PAYMENT_RECEIPT_NO,"
@@ -2199,7 +2199,7 @@ public class TreasuryCustomRepositoryImpl implements TreasuryCustomRepository {
 	@Override
 	public List<Map<String, Object>> getReversalInfoTreasury(String[] args) {
 		List<Map<String, Object>> list;
-
+		//LEFT OUTER JOIN
 		Query q = em.createNativeQuery("SELECT   DECODE (PI.COMPANY_NAME, 'DIRECT', NULL, PI.COMPANY_NAME)COMPANY_NAME,"
 				+ " PIB.FIRST_NAME || ' ' || PIB.LAST_NAME broker, AB.BROKER_ID, CM.SHORT_NAME CURRENCY_NAME,"
 				+ "AB.EXCHANGE_RATE,AB.PAYMENT_RECEIPT_NO, AB.PAID_AMT, Ab.CEDING_ID, AB.STATUS From  "

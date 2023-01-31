@@ -38,4 +38,6 @@ public interface TtrnRiskProposalRepository  extends JpaRepository<TtrnRiskPropo
 
 	TtrnRiskProposal findByRskProposalNumberAndRskEndorsementNo(String proposalNo, BigDecimal bigDecimal);
 
+	TtrnRiskProposal findByRskEndorsementNoAndRskProposalNumber(BigDecimal bigDecimal, String string);
+
 }

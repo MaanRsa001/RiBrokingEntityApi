@@ -61,8 +61,6 @@ import com.maan.insurance.model.res.nonproportionality.BonusRes;
 import com.maan.insurance.model.res.nonproportionality.CheckAvialabilityRes;
 import com.maan.insurance.model.res.nonproportionality.CommonResponse;
 import com.maan.insurance.model.res.nonproportionality.CommonSaveRes;
-import com.maan.insurance.model.res.nonproportionality.CoverLimitAmountInstate;
-import com.maan.insurance.model.res.nonproportionality.CoverListInstate;
 import com.maan.insurance.model.res.nonproportionality.GetClassLimitDetailsRes;
 import com.maan.insurance.model.res.nonproportionality.GetClassLimitDetailsRes1;
 import com.maan.insurance.model.res.nonproportionality.GetCommonValueRes;
@@ -129,22 +127,17 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 
 	@Autowired
 	private Formatters fm;
+	
+	@Autowired
+	private NonProportionalityCustomRepository nonProportCustomRepository;
 
 	@Override
 	public GetCommonValueRes getShortname(String branchCode) {
 		GetCommonValueRes response = new GetCommonValueRes();
-		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
 		String Short="";
-		String query ="";
 		try {
-			query = "GET_SHORT_NAME";
-			list= queryImpl.selectList(query,new String[] {branchCode});
-			if (!CollectionUtils.isEmpty(list)) {
-				Short = list.get(0).get("COUNTRY_SHORT_NAME") == null ? ""
-						: list.get(0).get("COUNTRY_SHORT_NAME").toString();
-			}
-		
-		
+			//GET_SHORT_NAME
+			Short = nonProportCustomRepository.getShortName(branchCode);
 		response.setCommonResponse(Short);
 		response.setMessage("Success");
 		response.setIsError(false);
@@ -163,19 +156,11 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		ShowSecondPageData1Res response = new ShowSecondPageData1Res();
 		ShowSecondPageData1Res1 res = new ShowSecondPageData1Res1();
 		try{
-			String[] args=new String[7];
-			args[0]=req.getProposalNo();
-			args[1]=req.getBranchCode();
-			args[2]=req.getBranchCode();
-			args[3]=req.getProductId();
-			args[4]=req.getBranchCode();
-			args[5]=req.getBranchCode();
-			args[6]=req.getBranchCode();
-			String selectQry = "risk.select.getSecPageData";
-			List<Map<String, Object>> list = queryImpl.selectList(selectQry,args);
-			Map<String, Object> resMap = null;
+			//risk.select.getSecPageData //select RTRIM(XMLAGG(XMLELEMEN pending
+			List<Tuple> list =	nonProportCustomRepository.riskSelectGetSecPageData(req.getProposalNo(),req.getBranchCode(),req.getProductId());
+			Tuple resMap = null;
 			if(list!=null && list.size()>0) {
-				resMap = (Map<String, Object>)list.get(0);
+				resMap = list.get(0);
 				if(resMap!=null) {
 					res.setProposalNo(resMap.get("RSK_PROPOSAL_NUMBER")==null?"":resMap.get("RSK_PROPOSAL_NUMBER").toString());
 					res.setSubProfitCenter(resMap.get("TMAS_SPFC_NAME")==null?"":resMap.get("TMAS_SPFC_NAME").toString()); 

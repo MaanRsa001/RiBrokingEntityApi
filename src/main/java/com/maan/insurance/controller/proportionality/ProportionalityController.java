@@ -358,7 +358,7 @@ public class ProportionalityController {
 							return propService.getSlidingScaleMethodInfo(proposalNo,branchCode,referenceNo);
 				} 
 			@PostMapping("/insertSlidingScaleMentodInfo")
-				public CommonResponse updateOfferNo(@RequestBody InsertSlidingScaleMentodInfoReq req) throws CommonValidationException {
+				public CommonResponse insertSlidingScaleMentodInfo(@RequestBody InsertSlidingScaleMentodInfoReq req) throws CommonValidationException {
 					List<ErrorCheck> error=propValidation.insertSlidingScaleMentodInfoVali(req);
 					if(error!=null && error.size()>0) {
 						throw new CommonValidationException("error",error);

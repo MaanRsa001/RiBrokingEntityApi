@@ -113,6 +113,7 @@ import com.maan.insurance.model.repository.TtrnRetroCessionaryRepository;
 import com.maan.insurance.model.repository.TtrnRetroClaimDetailsRepository;
 import com.maan.insurance.model.repository.TtrnRiPlacementRepository;
 import com.maan.insurance.model.repository.TtrnRiskCommissionRepository;
+import com.maan.insurance.model.repository.TtrnSoaDueRepository;
 import com.maan.insurance.model.repository.UnderwritterCapacityMasterRepository;
 import com.maan.insurance.model.repository.UnderwritterMasterRepository;
 import com.maan.insurance.model.req.DropDown.DuplicateCountCheckReq;
@@ -200,6 +201,9 @@ public class DropDownServiceImple implements DropDownService{
 	private  UnderwritterCapacityMasterRepository uwcRepo;
 	@Autowired
 	private  TmasCrestaMasterRepository cresRepo;
+	@Autowired
+	private  TtrnSoaDueRepository ttrnSoaDueRepository;
+	
 	
 	SimpleDateFormat sdf=new SimpleDateFormat("dd/MM/yyyy");
 //	@Autowired
@@ -5788,14 +5792,10 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 		public void getSOATableInsert(String proposalNo, String contractno,String branchCode) {
 			Connection con = null;
 			CallableStatement cstmt = null;
-			String error="";
 			try {
-				String query = "DELETE FROM TTRN_SOA_DUE WHERE PROPOSAL_NO=? AND CONTRACT_NO=? AND BRANCH_CODE=?";
-				String args[] = new String[3];
-				args[0]=proposalNo;
-				args[1] =contractno;
-				args[2] =branchCode;
-				queryImpl.updateQuery(query,args);
+				//DELETE FROM TTRN_SOA_DUE WHERE PROPOSAL_NO=? AND CONTRACT_NO=? AND BRANCH_CODE=?
+				ttrnSoaDueRepository.deleteByProposalNoAndContractNoAndBranchCode(new BigDecimal(proposalNo),new BigDecimal(contractno),branchCode);	
+				
 //				con = this.mytemplate.getDataSource().getConnection(); 	
 //				cstmt = con.prepareCall("{CALL PRC_SOA_PENDING_DUE(?,?,?,?)}");
 //				cstmt.setString(1, branchCode.trim() );	

@@ -97,14 +97,14 @@ public interface ClaimCustomRepository {
 
 	public List<Tuple> getRdsDate(GetReInsValueReq req);
 
-	public List<Map<String, Object>> selectFacGetCliamQuery(String proposalNo, String productId, String branchCode);
+	public List<Tuple> selectFacGetCliamQuery(String proposalNo, String productId, String branchCode);
 
-	public List<Map<String, Object>> selectXolOrTeatyGetClimeQuery(String proposalNo, String productId,
+	public List<Tuple> selectXolOrTeatyGetClimeQuery(String proposalNo, String productId,
 			String branchCode);
 	
-	public List<Map<String, Object>> selectGetpaymentlist(ClaimPaymentListReq req);
+	public List<Tuple>  selectGetpaymentlist(ClaimPaymentListReq req);
 	
-	public List<Map<String, Object>> partialSelectGetpaymentlist(ClaimPaymentListReq req);
+	public List<Tuple>  partialSelectGetpaymentlist(ClaimPaymentListReq req);
 
 	public String selectCountAllocatedYN(String policyContractNo, String claimNo, String layerNo);
 	
@@ -122,6 +122,6 @@ public interface ClaimCustomRepository {
 
 	public String selectMaxReservevId(String claimNo, String policyContractNo);
 
-	public List<Map<String, Object>> partialSelectGetpaymentRilist(ClaimPaymentListReq req);
+	public List<Tuple>  partialSelectGetpaymentRilist(ClaimPaymentListReq req);
 	
 }

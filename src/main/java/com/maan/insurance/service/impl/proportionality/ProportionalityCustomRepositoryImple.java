@@ -30,23 +30,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.maan.insurance.jpa.entity.propPremium.TtrnInsurerDetails;
-import com.maan.insurance.jpa.entity.xolpremium.TtrnMndInstallments;
-import com.maan.insurance.model.entity.CurrencyMaster;
 import com.maan.insurance.model.entity.PersonalInfo;
 import com.maan.insurance.model.entity.PositionMaster;
-import com.maan.insurance.model.entity.RskPremiumDetails;
 import com.maan.insurance.model.entity.TmasDepartmentMaster;
-import com.maan.insurance.model.entity.TmasDocTypeMaster;
 import com.maan.insurance.model.entity.TtrnBonus;
 import com.maan.insurance.model.entity.TtrnCedentRet;
 import com.maan.insurance.model.entity.TtrnCommissionDetails;
 import com.maan.insurance.model.entity.TtrnCrestazoneDetails;
+import com.maan.insurance.model.entity.TtrnPttySection;
+import com.maan.insurance.model.entity.TtrnRi;
 import com.maan.insurance.model.entity.TtrnRiskCommission;
 import com.maan.insurance.model.entity.TtrnRiskDetails;
 import com.maan.insurance.model.entity.TtrnRiskProposal;
 import com.maan.insurance.model.entity.TtrnRiskRemarks;
 import com.maan.insurance.model.repository.PositionMasterRepository;
-import com.maan.insurance.model.repository.TtrnInsurerDetailsRepository;
+import com.maan.insurance.model.repository.TtrnBonusRepository;
+import com.maan.insurance.model.repository.TtrnRiRepository;
 import com.maan.insurance.model.repository.TtrnRiskCommissionRepository;
 import com.maan.insurance.model.repository.TtrnRiskDetailsRepository;
 import com.maan.insurance.model.repository.TtrnRiskProposalRepository;
@@ -64,8 +63,11 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 	private PositionMasterRepository positionMasterRepository;
 	@Autowired
 	private TtrnRiskCommissionRepository ttrnRiskCommissionRepository;
+
 	@Autowired
-	private TtrnInsurerDetailsRepository ttrnInsurerDetailsRepository;
+	private TtrnBonusRepository ttrnBonusRepository;
+	@Autowired
+	private  TtrnRiRepository ttrnRiRepository;
 
 	@Override
 	public TtrnRiskDetails ttrnRiskDetailsUpdate(String[] args) throws ParseException {
@@ -1874,6 +1876,799 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 			e.printStackTrace();
 		}
 		return list;
+	}
+
+	@Override
+	public String riskSelectCeaseStatus(String proposalNo) {
+		String ceaseStatus = "";
+		try {
+			//risk.select.CEASE_STATUS
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<String> query1 = cb.createQuery(String.class); 
+			Root<PositionMaster> pm = query1.from(PositionMaster.class);
+			
+			query1.select(pm.get("ceaseStatus")); 
+			
+			Subquery<Long> amend = query1.subquery(Long.class); 
+			Root<PositionMaster> rcs = amend.from(PositionMaster.class);
+			amend.select(cb.max(rcs.get("amendId")));
+			Predicate f1 = cb.equal( rcs.get("proposalNo"),  pm.get("proposalNo"));
+			amend.where(f1);
+			
+			Predicate n1 = cb.equal(pm.get("proposalNo"),proposalNo);
+			Predicate n2 = cb.equal(pm.get("amendId"), amend); 
+			query1.where(n1,n2);
+	
+			TypedQuery<String> result = em.createQuery(query1);
+			List<String> list = result.getResultList();
+			
+			if(list!=null) {
+				ceaseStatus = list.get(0)==null?"":list.get(0);
+				}
+			
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+			return ceaseStatus;
+	}
+
+	@Override
+	public TtrnRiskProposal riskUpdatePro24ContSecPage(String[] args) {
+
+		TtrnRiskProposal ttrnRiskProposal = null;
+		//risk.update.pro24ContSecPage
+		try {
+		if(args != null) {
+			ttrnRiskProposal = ttrnRiskProposalRepository.findByRskEndorsementNoAndRskProposalNumber(
+					new BigDecimal(args[16]),args[17]);
+			if(ttrnRiskProposal!=null) {
+				ttrnRiskProposal.setRskLimitOsOc(new BigDecimal(args[0]));
+				ttrnRiskProposal.setRskLimitOsDc(new BigDecimal(args[1]));
+				ttrnRiskProposal.setRskEpiOsofOc(new BigDecimal(args[2]));
+				ttrnRiskProposal.setRskEpiOsofDc(new BigDecimal(args[3]));
+				ttrnRiskProposal.setRskEpiOsoeOc(new BigDecimal(args[4]));
+				ttrnRiskProposal.setRskEpiOsoeDc(new BigDecimal(args[5]));
+				ttrnRiskProposal.setRskXlcostOsOc(new BigDecimal(args[6]));	
+				ttrnRiskProposal.setRskXlcostOsDc(new BigDecimal(args[7]));
+				ttrnRiskProposal.setRskPremiumQuotaShare(new BigDecimal(args[8]));
+				ttrnRiskProposal.setRskPremiumSurpuls(new BigDecimal(args[9]));	
+				ttrnRiskProposal.setRskPremiumQuotaShareDc(new BigDecimal(args[10]));
+				ttrnRiskProposal.setRskPremiumSurplusDc(new BigDecimal(args[11]));
+				ttrnRiskProposal.setCommQsAmt(new BigDecimal(args[12]));
+				ttrnRiskProposal.setCommSurplusAmt(new BigDecimal(args[13]));
+				ttrnRiskProposal.setCommQsAmtDc(new BigDecimal(args[14]));	
+				ttrnRiskProposal.setCommSurplusAmtDc(new BigDecimal(args[15]));
+					}
+		}
+	}catch(Exception e) {
+		e.printStackTrace();
+	}
+	return ttrnRiskProposal;
+	
+	}
+
+	@Override
+	public String riskSelectGetRskContractNo(String proposalNo) {
+		String contNo = "";
+		try {
+			//risk.select.getRskContractNo
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<String> query1 = cb.createQuery(String.class); 
+			Root<TtrnRiskDetails> pm = query1.from(TtrnRiskDetails.class);
+			
+			query1.select(cb.coalesce(pm.get("rskContractNo"), "0")); 
+			
+			Subquery<Long> end = query1.subquery(Long.class); 
+			Root<TtrnRiskDetails> rcs = end.from(TtrnRiskDetails.class);
+			end.select(cb.max(rcs.get("rskEndorsementNo")));
+			Predicate f1 = cb.equal( rcs.get("rskProposalNumber"),  pm.get("rskProposalNumber"));
+			end.where(f1);
+			
+			Predicate n1 = cb.equal(pm.get("rskProposalNumber"),proposalNo);
+			Predicate n2 = cb.equal(pm.get("rskEndorsementNo"), end); 
+			query1.where(n1,n2);
+	
+			TypedQuery<String> result = em.createQuery(query1);
+			List<String> list = result.getResultList();
+			
+			if(list!=null) {
+				contNo = list.get(0)==null?"":list.get(0);
+				}
+			
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+			return contNo;
+	}
+
+	@Override
+	public TtrnPttySection insertSectionDetails(String[] args) {
+		TtrnPttySection ttrnPttySection = null;
+		//INSERT_SECTION_DETAILS
+		try {
+		if(args != null) {
+			ttrnPttySection.setSectionNo(args[0]);
+			ttrnPttySection.setContractNo(args[1]);
+			ttrnPttySection.setDeptId(args[2]);
+			ttrnPttySection.setSectionName(args[3]);
+			ttrnPttySection.setAmendId("0");
+			ttrnPttySection.setBranchCode(args[4]);
+			ttrnPttySection.setLoginId(args[5]);			
+			ttrnPttySection.setEntry_date(new Date());
+			
+		}
+	}catch(Exception e) {
+		e.printStackTrace();
+	}
+	return ttrnPttySection;
+	}
+
+	@Override
+	public int getCountRetention(String proposalNo, String productId) {
+		int count = 0;
+		try {
+			//GET_COUNT_RETENTION
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Integer> query1 = cb.createQuery(Integer.class); 
+			Root<TtrnCedentRet> pm = query1.from(TtrnCedentRet.class);
+			
+			query1.multiselect(cb.count(pm)); 
+			
+			Subquery<Long> amend = query1.subquery(Long.class); 
+			Root<TtrnCedentRet> rcs = amend.from(TtrnCedentRet.class);
+			amend.select(cb.max(rcs.get("amendId")));
+			Predicate f1 = cb.equal( rcs.get("proposalNo"),  pm.get("proposalNo"));
+			amend.where(f1);
+			
+			Predicate n1 = cb.equal(pm.get("proposalNo"),proposalNo);
+			Predicate n2 = cb.equal(pm.get("productId"), productId); 
+			Predicate n3 = cb.equal(pm.get("amendId"), amend); 
+			query1.where(n1,n2,n3);
+	
+			TypedQuery<Integer> result = em.createQuery(query1);
+			List<Integer> list = result.getResultList();
+			
+			if(list!=null) {
+				count = list.get(0)==null?0:list.get(0);
+				}
+			
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+			return count;
+	}
+
+	@Override
+	public void updateRetenContno(String contNo, String productId, String proposalNo, String departmentId) {
+		try{
+			//UPDATE_RETEN_CONTNO
+			CriteriaBuilder cb = this.em.getCriteriaBuilder();
+			CriteriaUpdate<TtrnCedentRet> update = cb.createCriteriaUpdate(TtrnCedentRet.class);
+			Root<TtrnCedentRet> m = update.from(TtrnCedentRet.class);
+			
+			Subquery<Long> amend = update.subquery(Long.class); 
+			Root<TtrnCedentRet> rcs = amend.from(TtrnCedentRet.class);
+			amend.select(cb.max(rcs.get("amendId")));
+			Predicate f1 = cb.equal( rcs.get("proposalNo"),  m.get("proposalNo"));
+			amend.where(f1);
+		
+			update.set("contractNo", contNo);
+			update.set("deptId", departmentId);
+			Predicate n1 = cb.equal(m.get("proposalNo"), proposalNo);
+			Predicate n2 = cb.equal(m.get("productId"), productId);
+			Predicate n3 = cb.equal(m.get("amendId"), amend); 
+			update.where(n1,n2,n3 );
+			
+			em.createQuery(update).executeUpdate();
+
+		}catch(Exception e) {
+			e.printStackTrace();
+			}
+	}
+
+	@Override
+	public List<Tuple> bonusMainSelect(String proposalNo, String branchCode) {
+		List<Tuple> list = new ArrayList<>();
+		try{
+			//BONUS_MAIN_SELECT
+		 	CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			Root<TtrnBonus> pm = query.from(TtrnBonus.class);
+			query.multiselect(
+					pm.get("proposalNo").alias("PROPOSAL_NO"),
+					pm.get("contractNo").alias("CONTRACT_NO"),
+					pm.get("productId").alias("PRODUCT_ID"),
+					pm.get("lcbType").alias("LCB_TYPE"),
+					pm.get("lcbFrom").alias("LCB_FROM"),
+					pm.get("lcbTo").alias("LCB_TO"),
+					pm.get("lcbPercentage").alias("LCB_PERCENTAGE"),
+					pm.get("userId").alias("USERID"),
+					pm.get("branch").alias("BRANCH"),
+					pm.get("lcbId").alias("LCB_ID"),
+					pm.get("type").alias("TYPE"),
+					pm.get("endorsementNo").alias("ENDORSEMENT_NO"),
+					pm.get("subClass").alias("SUB_CLASS"),
+					pm.get("sysDate").alias("SYS_DATE"),
+					pm.get("layerNo").alias("LAYERNO"),
+					pm.get("quotaShare").alias("QUOTA_SHARE"),
+					pm.get("remarks").alias("REMARKS"),
+					pm.get("firstProfitComm").alias("FIRST_PROFIT_COMM"),
+					pm.get("fpcDurationType").alias("FPC_DURATION_TYPE"),
+					pm.get("subProfitComm").alias("SUB_PROFIT_COMM"),
+					pm.get("spcDurationType").alias("SPC_DURATION_TYPE"),
+					pm.get("subSecCal").alias("SUB_SEC_CAL"),
+					pm.get("referenceNo").alias("REFERENCE_NO"),
+					pm.get("scaleMaxPartPercent").alias("SCALE_MAX_PART_PERCENT"),
+		 			pm.get("fpcType").alias("FPC_TYPE"),
+					pm.get("fpcFixedDate").alias("FPC_FIXED_DATE"));
+					
+		
+			//end
+			Subquery<Long> end = query.subquery(Long.class);
+			Root<TtrnBonus> rds = end.from(TtrnBonus.class);
+			end.select(cb.max(rds.get("endorsementNo")));
+			Predicate a1 = cb.equal(rds.get("proposalNo"), pm.get("proposalNo"));
+			Predicate a2 = cb.equal(rds.get("branch"), pm.get("branch"));
+			Predicate a3 = cb.equal(rds.get("type"), pm.get("type"));
+			Predicate a4 = cb.equal(rds.get("lcbType"), pm.get("lcbType"));
+			end.where(a1,a2,a3,a4);
+			
+			List<Order> orderList = new ArrayList<Order>();
+			orderList.add(cb.asc(pm.get("lcbId")));
+	
+			Predicate n1 = cb.equal(pm.get("proposalNo"), proposalNo);
+			Predicate n2 = cb.equal(pm.get("branch"), branchCode);
+			Predicate n3 = cb.equal(pm.get("type"), "SSC");
+			Predicate n4 = cb.equal(pm.get("endorsementNo"), end);
+			Predicate n5 = cb.equal(pm.get("lcbType"), "SSC2");
+			query.where(n1,n2,n3,n4,n5).orderBy(orderList);
+			
+			TypedQuery<Tuple> res1 = em.createQuery(query);
+			list = res1.getResultList();
+			}catch(Exception e) {
+				e.printStackTrace();
+				}
+			return list;
+	}
+
+	@Override
+	public List<Tuple> bonusMainSelectReference(String referenceNo, String branchCode) {
+		
+		List<Tuple> list = new ArrayList<>();
+		try{
+			// bonus_Main_Select_Reference
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			Root<TtrnBonus> pm = query.from(TtrnBonus.class);
+			query.multiselect(
+					pm.get("proposalNo").alias("PROPOSAL_NO"),
+					pm.get("contractNo").alias("CONTRACT_NO"),
+					pm.get("productId").alias("PRODUCT_ID"),
+					pm.get("lcbType").alias("LCB_TYPE"),
+					pm.get("lcbFrom").alias("LCB_FROM"),
+					pm.get("lcbTo").alias("LCB_TO"),
+					pm.get("lcbPercentage").alias("LCB_PERCENTAGE"),
+					pm.get("userId").alias("USERID"),
+					pm.get("branch").alias("BRANCH"),
+					pm.get("lcbId").alias("LCB_ID"),
+					pm.get("type").alias("TYPE"),
+					pm.get("endorsementNo").alias("ENDORSEMENT_NO"),
+					pm.get("subClass").alias("SUB_CLASS"),
+					pm.get("sysDate").alias("SYS_DATE"),
+					pm.get("layerNo").alias("LAYERNO"),
+					pm.get("quotaShare").alias("QUOTA_SHARE"),
+					pm.get("remarks").alias("REMARKS"),
+					pm.get("firstProfitComm").alias("FIRST_PROFIT_COMM"),
+					pm.get("fpcDurationType").alias("FPC_DURATION_TYPE"),
+					pm.get("subProfitComm").alias("SUB_PROFIT_COMM"),
+					pm.get("spcDurationType").alias("SPC_DURATION_TYPE"),
+					pm.get("subSecCal").alias("SUB_SEC_CAL"),
+					pm.get("referenceNo").alias("REFERENCE_NO"),
+					pm.get("scaleMaxPartPercent").alias("SCALE_MAX_PART_PERCENT"),
+		 			pm.get("fpcType").alias("FPC_TYPE"),
+					pm.get("fpcFixedDate").alias("FPC_FIXED_DATE"));
+		
+			//end
+			Subquery<Long> end = query.subquery(Long.class);
+			Root<TtrnBonus> rds = end.from(TtrnBonus.class);
+			end.select(cb.max(rds.get("endorsementNo")));
+			Predicate a1 = cb.equal(rds.get("referenceNo"), pm.get("referenceNo"));
+			Predicate a2 = cb.equal(rds.get("branch"), pm.get("branch"));
+			Predicate a3 = cb.equal(rds.get("type"), pm.get("type"));
+			Predicate a4 = cb.equal(rds.get("lcbType"), pm.get("lcbType"));
+			end.where(a1,a2,a3,a4);
+			
+			List<Order> orderList = new ArrayList<Order>();
+			orderList.add(cb.asc(pm.get("lcbId")));
+	
+			Predicate n1 = cb.equal(pm.get("referenceNo"), referenceNo);
+			Predicate n2 = cb.equal(pm.get("branch"), branchCode);
+			Predicate n3 = cb.equal(pm.get("type"), "SSC");
+			Predicate n4 = cb.equal(pm.get("endorsementNo"), end);
+			Predicate n5 = cb.equal(pm.get("lcbType"), "SSC2");
+			query.where(n1,n2,n3,n4,n5).orderBy(orderList);
+			
+			TypedQuery<Tuple> res1 = em.createQuery(query);
+			list = res1.getResultList();
+			}catch(Exception e) {
+				e.printStackTrace();
+				}
+			return list;
+	}
+
+	@Override
+	public List<Tuple> bonusMainSelectLpc(String proposalNo, String branchCode) {
+		List<Tuple> list = new ArrayList<>();
+		try {
+		CriteriaBuilder cb = em.getCriteriaBuilder(); 
+		CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+		Root<TtrnBonus> pm = query.from(TtrnBonus.class);
+		query.multiselect(
+				pm.get("proposalNo").alias("PROPOSAL_NO"),
+				pm.get("contractNo").alias("CONTRACT_NO"),
+				pm.get("productId").alias("PRODUCT_ID"),
+				pm.get("lcbType").alias("LCB_TYPE"),
+				pm.get("lcbFrom").alias("LCB_FROM"),
+				pm.get("lcbTo").alias("LCB_TO"),
+				pm.get("lcbPercentage").alias("LCB_PERCENTAGE"),
+				pm.get("userId").alias("USERID"),
+				pm.get("branch").alias("BRANCH"),
+				pm.get("lcbId").alias("LCB_ID"),
+				pm.get("type").alias("TYPE"),
+				pm.get("endorsementNo").alias("ENDORSEMENT_NO"),
+				pm.get("subClass").alias("SUB_CLASS"),
+				pm.get("sysDate").alias("SYS_DATE"),
+				pm.get("layerNo").alias("LAYERNO"),
+				pm.get("quotaShare").alias("QUOTA_SHARE"),
+				pm.get("remarks").alias("REMARKS"),
+				pm.get("firstProfitComm").alias("FIRST_PROFIT_COMM"),
+				pm.get("fpcDurationType").alias("FPC_DURATION_TYPE"),
+				pm.get("subProfitComm").alias("SUB_PROFIT_COMM"),
+				pm.get("spcDurationType").alias("SPC_DURATION_TYPE"),
+				pm.get("subSecCal").alias("SUB_SEC_CAL"),
+				pm.get("referenceNo").alias("REFERENCE_NO"),
+				pm.get("scaleMaxPartPercent").alias("SCALE_MAX_PART_PERCENT"),
+	 			pm.get("fpcType").alias("FPC_TYPE"),
+				pm.get("fpcFixedDate").alias("FPC_FIXED_DATE"));
+				
+	
+		//end
+		Subquery<Long> end = query.subquery(Long.class);
+		Root<TtrnBonus> rds = end.from(TtrnBonus.class);
+		end.select(cb.max(rds.get("endorsementNo")));
+		Predicate a1 = cb.equal(rds.get("proposalNo"), pm.get("proposalNo"));
+		Predicate a2 = cb.equal(rds.get("branch"), pm.get("branch"));
+		Predicate a3 = cb.equal(rds.get("type"), pm.get("type"));
+		end.where(a1,a2,a3);
+		
+		List<Order> orderList = new ArrayList<Order>();
+		orderList.add(cb.asc(pm.get("lcbId")));
+
+		Predicate n1 = cb.equal(pm.get("proposalNo"), proposalNo);
+		Predicate n2 = cb.equal(pm.get("branch"), branchCode);
+		Predicate n3 = cb.equal(pm.get("type"), "SSC");
+		Predicate n4 = cb.equal(pm.get("endorsementNo"), end);
+		query.where(n1,n2,n3,n4).orderBy(orderList);
+		
+		TypedQuery<Tuple> res1 = em.createQuery(query);
+		list = res1.getResultList();
+		}catch(Exception e) {
+			e.printStackTrace();
+			}
+		return list;
+	}
+
+	@Override
+	public List<Tuple> bonusMainSelectReferenceLpc(String referenceNo, String branchCode) {
+
+		List<Tuple> list = new ArrayList<>();
+		try{
+			// bonus_Main_Select_Reference
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			Root<TtrnBonus> pm = query.from(TtrnBonus.class);
+			query.multiselect(
+					pm.get("proposalNo").alias("PROPOSAL_NO"),
+					pm.get("contractNo").alias("CONTRACT_NO"),
+					pm.get("productId").alias("PRODUCT_ID"),
+					pm.get("lcbType").alias("LCB_TYPE"),
+					pm.get("lcbFrom").alias("LCB_FROM"),
+					pm.get("lcbTo").alias("LCB_TO"),
+					pm.get("lcbPercentage").alias("LCB_PERCENTAGE"),
+					pm.get("userId").alias("USERID"),
+					pm.get("branch").alias("BRANCH"),
+					pm.get("lcbId").alias("LCB_ID"),
+					pm.get("type").alias("TYPE"),
+					pm.get("endorsementNo").alias("ENDORSEMENT_NO"),
+					pm.get("subClass").alias("SUB_CLASS"),
+					pm.get("sysDate").alias("SYS_DATE"),
+					pm.get("layerNo").alias("LAYERNO"),
+					pm.get("quotaShare").alias("QUOTA_SHARE"),
+					pm.get("remarks").alias("REMARKS"),
+					pm.get("firstProfitComm").alias("FIRST_PROFIT_COMM"),
+					pm.get("fpcDurationType").alias("FPC_DURATION_TYPE"),
+					pm.get("subProfitComm").alias("SUB_PROFIT_COMM"),
+					pm.get("spcDurationType").alias("SPC_DURATION_TYPE"),
+					pm.get("subSecCal").alias("SUB_SEC_CAL"),
+					pm.get("referenceNo").alias("REFERENCE_NO"),
+					pm.get("scaleMaxPartPercent").alias("SCALE_MAX_PART_PERCENT"),
+		 			pm.get("fpcType").alias("FPC_TYPE"),
+					pm.get("fpcFixedDate").alias("FPC_FIXED_DATE"));
+		
+			//end
+			Subquery<Long> end = query.subquery(Long.class);
+			Root<TtrnBonus> rds = end.from(TtrnBonus.class);
+			end.select(cb.max(rds.get("endorsementNo")));
+			Predicate a1 = cb.equal(rds.get("referenceNo"), pm.get("referenceNo"));
+			Predicate a2 = cb.equal(rds.get("branch"), pm.get("branch"));
+			Predicate a3 = cb.equal(rds.get("type"), pm.get("type"));
+			end.where(a1,a2,a3);
+			
+			List<Order> orderList = new ArrayList<Order>();
+			orderList.add(cb.asc(pm.get("lcbId")));
+	
+			Predicate n1 = cb.equal(pm.get("referenceNo"), referenceNo);
+			Predicate n2 = cb.equal(pm.get("branch"), branchCode);
+			Predicate n3 = cb.equal(pm.get("type"), "SSC");
+			Predicate n4 = cb.equal(pm.get("endorsementNo"), end);
+			query.where(n1,n2,n3,n4).orderBy(orderList);
+			
+			TypedQuery<Tuple> res1 = em.createQuery(query);
+			list = res1.getResultList();
+			}catch(Exception e) {
+				e.printStackTrace();
+				}
+			return list;
+	}
+
+	@Override
+	public List<Tuple> selectSlidingScaleMethodInfo(String proposalNo, String branchCode) {
+		List<Tuple> list = new ArrayList<>();
+		try{
+			//SELECT_SLIDING_SCALE_METHOD_INFO
+		 	CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			Root<TtrnBonus> pm = query.from(TtrnBonus.class);
+			query.multiselect(
+					pm.get("proposalNo").alias("PROPOSAL_NO"),
+					pm.get("contractNo").alias("CONTRACT_NO"),
+					pm.get("productId").alias("PRODUCT_ID"),
+					pm.get("lcbType").alias("LCB_TYPE"),
+					pm.get("provisionalCommisiion").alias("PROVISIONAL_COMMISIION"),
+					pm.get("scMethodType").alias("SC_METHOD_TYPE"),
+					pm.get("scMinLossRatio").alias("SC_MIN_LOSS_RATIO"),
+					pm.get("scMaxLossRatio").alias("SC_MAX_LOSS_RATIO"),
+					pm.get("scCombineLossRatio").alias("SC_COMBINE_LOSS_RATIO"),
+					pm.get("scBandingStep").alias("SC_BANDING_STEP"),
+					pm.get("scNoOfDigit").alias("SC_NO_OF_DIGIT"),
+					pm.get("userId").alias("USERID"),
+					pm.get("branch").alias("BRANCH"),
+					pm.get("type").alias("TYPE"),
+					pm.get("endorsementNo").alias("ENDORSEMENT_NO"),
+					pm.get("subClass").alias("SUB_CLASS"),
+					pm.get("sysDate").alias("SYS_DATE"),
+					pm.get("layerNo").alias("LAYERNO"),
+					pm.get("remarks").alias("REMARKS"),
+					pm.get("referenceNo").alias("REFERENCE_NO"),
+					pm.get("lcbFrom").alias("LCB_FROM"),
+					pm.get("lcbTo").alias("LCB_TO"),
+					pm.get("deltaLossRatio").alias("DELTA_LOSS_RATIO"),
+					pm.get("lcbPercentage").alias("LCB_PERCENTAGE"));
+				
+			//end
+			Subquery<Long> end = query.subquery(Long.class);
+			Root<TtrnBonus> rds = end.from(TtrnBonus.class);
+			end.select(cb.max(rds.get("endorsementNo")));
+			Predicate a1 = cb.equal(rds.get("proposalNo"), pm.get("proposalNo"));
+			Predicate a2 = cb.equal(rds.get("branch"), pm.get("branch"));
+			Predicate a3 = cb.equal(rds.get("type"), pm.get("type"));
+			Predicate a4 = cb.equal(rds.get("lcbType"), pm.get("lcbType"));
+			end.where(a1,a2,a3,a4);
+			
+			List<Order> orderList = new ArrayList<Order>();
+			orderList.add(cb.asc(pm.get("lcbId")));
+	
+			Predicate n1 = cb.equal(pm.get("proposalNo"), proposalNo);
+			Predicate n2 = cb.equal(pm.get("branch"), branchCode);
+			Predicate n3 = cb.equal(pm.get("type"), "SSC");
+			Predicate n4 = cb.equal(pm.get("endorsementNo"), end);
+			Predicate n5 = cb.equal(pm.get("lcbType"), "SSC2");
+			query.where(n1,n2,n3,n4,n5).orderBy(orderList);
+			
+			TypedQuery<Tuple> res1 = em.createQuery(query);
+			list = res1.getResultList();
+			}catch(Exception e) {
+				e.printStackTrace();
+				}
+			return list;
+	}
+
+	@Override
+	public List<Tuple> selectSlidingScaleMethodInfoRef(String referenceNo, String branchCode) {
+		List<Tuple> list = new ArrayList<>();
+		try{
+			//SELECT_SLIDING_SCALE_METHOD_INFO_REF
+		 	CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			Root<TtrnBonus> pm = query.from(TtrnBonus.class);
+			query.multiselect(
+					pm.get("proposalNo").alias("PROPOSAL_NO"),
+					pm.get("contractNo").alias("CONTRACT_NO"),
+					pm.get("productId").alias("PRODUCT_ID"),
+					pm.get("lcbType").alias("LCB_TYPE"),
+					pm.get("provisionalCommisiion").alias("PROVISIONAL_COMMISIION"),
+					pm.get("scMethodType").alias("SC_METHOD_TYPE"),
+					pm.get("scMinLossRatio").alias("SC_MIN_LOSS_RATIO"),
+					pm.get("scMaxLossRatio").alias("SC_MAX_LOSS_RATIO"),
+					pm.get("scCombineLossRatio").alias("SC_COMBINE_LOSS_RATIO"),
+					pm.get("scBandingStep").alias("SC_BANDING_STEP"),
+					pm.get("scNoOfDigit").alias("SC_NO_OF_DIGIT"),
+					pm.get("userId").alias("USERID"),
+					pm.get("branch").alias("BRANCH"),
+					pm.get("type").alias("TYPE"),
+					pm.get("endorsementNo").alias("ENDORSEMENT_NO"),
+					pm.get("subClass").alias("SUB_CLASS"),
+					pm.get("sysDate").alias("SYS_DATE"),
+					pm.get("layerNo").alias("LAYERNO"),
+					pm.get("remarks").alias("REMARKS"),
+					pm.get("referenceNo").alias("REFERENCE_NO"),
+					pm.get("lcbFrom").alias("LCB_FROM"),
+					pm.get("lcbTo").alias("LCB_TO"),
+					pm.get("deltaLossRatio").alias("DELTA_LOSS_RATIO"),
+					pm.get("lcbPercentage").alias("LCB_PERCENTAGE"));
+				
+			//end
+			Subquery<Long> end = query.subquery(Long.class);
+			Root<TtrnBonus> rds = end.from(TtrnBonus.class);
+			end.select(cb.max(rds.get("endorsementNo")));
+			Predicate a1 = cb.equal(rds.get("referenceNo"), pm.get("referenceNo"));
+			Predicate a2 = cb.equal(rds.get("branch"), pm.get("branch"));
+			Predicate a3 = cb.equal(rds.get("type"), pm.get("type"));
+			Predicate a4 = cb.equal(rds.get("lcbType"), pm.get("lcbType"));
+			end.where(a1,a2,a3,a4);
+			
+			List<Order> orderList = new ArrayList<Order>();
+			orderList.add(cb.asc(pm.get("lcbId")));
+	
+			Predicate n1 = cb.equal(pm.get("referenceNo"), referenceNo);
+			Predicate n2 = cb.equal(pm.get("branch"), branchCode);
+			Predicate n3 = cb.equal(pm.get("type"), "SSC");
+			Predicate n4 = cb.equal(pm.get("endorsementNo"), end);
+			Predicate n5 = cb.equal(pm.get("lcbType"), "SSC2");
+			query.where(n1,n2,n3,n4,n5).orderBy(orderList);
+			
+			TypedQuery<Tuple> res1 = em.createQuery(query);
+			list = res1.getResultList();
+			}catch(Exception e) {
+				e.printStackTrace();
+				}
+			return list;
+	}
+
+	@Override
+	public void insertScMethodInfo(String[] args) {
+		TtrnBonus ttrnBonus = null;
+		//INSERT_SECTION_DETAILS
+		try {
+		if(args != null) {
+			ttrnBonus.setProposalNo(new BigDecimal(args[0]));	
+			ttrnBonus.setContractNo(new BigDecimal(args[1]));
+			ttrnBonus.setProductId(args[2]);
+			ttrnBonus.setLcbType(args[3]);
+			ttrnBonus.setProvisionalCommisiion(new BigDecimal(args[4]));
+			ttrnBonus.setScMethodType(args[5]);
+			ttrnBonus.setScMinLossRatio(new BigDecimal(args[6]));	
+			ttrnBonus.setScMaxLossRatio(new BigDecimal(args[7]));
+			ttrnBonus.setScCombineLossRatio(new BigDecimal(args[8]));
+			ttrnBonus.setScBandingStep(new BigDecimal(args[9]));
+			ttrnBonus.setScNoOfDigit(new BigDecimal(args[10]));
+			ttrnBonus.setUserId(args[11]);
+			ttrnBonus.setBranch(args[12]);
+			ttrnBonus.setType(args[13]);	
+			ttrnBonus.setEndorsementNo(new BigDecimal(args[14]));	
+			ttrnBonus.setSubClass(args[15]);
+			ttrnBonus.setSysDate(new Date());
+			ttrnBonus.setLayerNo(args[16]);
+			ttrnBonus.setRemarks(args[17]);
+			ttrnBonus.setReferenceNo(new BigDecimal(args[18]));
+			ttrnBonus.setLcbFrom(args[19]);
+			ttrnBonus.setLcbTo(args[20]);
+			ttrnBonus.setDeltaLossRatio(new BigDecimal(args[21]));
+			ttrnBonus.setLcbPercentage(args[22]);
+			ttrnBonusRepository.saveAndFlush(ttrnBonus);
+			}
+	}catch(Exception e) {
+		e.printStackTrace();
+	}
+		
+	}
+
+	@Override
+	public List<Tuple> getRiskDetailsEditQuery(boolean contractMode, String proposalNo) {
+		//risk.select.getEditModeData1,risk.select.getEditModeData2
+		List<Tuple> list = new ArrayList<>();
+		try {
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			
+			Root<TtrnRiskDetails> de = query.from(TtrnRiskDetails.class);
+			Root<TtrnRiskProposal> pr = query.from(TtrnRiskProposal.class);
+			Root<PositionMaster> pm = query.from(PositionMaster.class);
+			
+			query.multiselect(
+					de.get("rskCedingid").alias("RSK_CEDINGID"),
+					de.get("rskInceptionDate").alias("RSK_INCEPTION_DATE"),
+					de.get("rskExpiryDate").alias("RSK_EXPIRY_DATE"),
+					de.get("rskUwyear").alias("RSK_UWYEAR"),
+					pm.get("uwYearTo").alias("UW_YEAR_TO"),
+					pm.get("bouquetModeYn").alias("BOUQUET_MODE_YN"),
+					pm.get("bouquetNo").alias("BOUQUET_NO"),
+					de.get("rskProposalNumber").alias("RSK_PROPOSAL_NUMBER"),
+					pm.get("baseLayer").alias("BASE_LAYER"),
+					de.get("rskEndorsementNo").alias("RSK_ENDORSEMENT_NO"),
+					de.get("rskContractNo").alias("RSK_CONTRACT_NO"),
+					de.get("rskLayerNo").alias("RSK_LAYER_NO"),
+					de.get("rskProductid").alias("RSK_PRODUCTID"),
+					de.get("rskDeptid").alias("RSK_DEPTID")
+					);
+				if(contractMode) {
+					//endpr
+					Subquery<Long> endde = query.subquery(Long.class);
+					Root<TtrnRiskDetails> des = endde.from(TtrnRiskDetails.class);
+					endde.select(cb.max(des.get("rskEndorsementNo")));
+					Predicate a1 = cb.equal(des.get("rskContractNo"), proposalNo);
+					endde.where(a1);
+					
+					Subquery<Long> endpr = query.subquery(Long.class);
+					Root<TtrnRiskProposal> b = endpr.from(TtrnRiskProposal.class);
+					Root<TtrnRiskDetails> a = endde.from(TtrnRiskDetails.class);
+					endpr.select(cb.max(b.get("rskEndorsementNo")));
+					Predicate b1 = cb.equal(a.get("rskContractNo"), proposalNo);
+					Predicate b2 = cb.equal(a.get("rskProposalNumber"), b.get("rskProposalNumber"));
+					endpr.where(b1,b2);
+					
+					Subquery<Long> amend = query.subquery(Long.class);
+					Root<PositionMaster> pms = amend.from(PositionMaster.class);
+					amend.select(cb.max(pms.get("amendId")));
+					Predicate c1 = cb.equal(pms.get("proposalNo"), pm.get("proposalNo"));
+					amend.where(c1);
+					
+					Predicate n1 = cb.equal(de.get("rskContractNo"), proposalNo);
+					Predicate n2 = cb.equal(de.get("rskProposalNumber"), pr.get("rskProposalNumber"));
+					Predicate n3 = cb.equal(de.get("rskEndorsementNo"), endde);
+					Predicate n4 = cb.equal(pr.get("rskEndorsementNo"), endpr);
+					Predicate n5 = cb.equal(pm.get("proposalNo"), de.get("rskProposalNumber"));
+					Predicate n6 = cb.equal(pm.get("amendId"), amend);
+					query.where(n1,n2,n3,n4,n5,n6);
+				}else {
+					//endpr
+					Subquery<Long> endde = query.subquery(Long.class);
+					Root<TtrnRiskDetails> des = endde.from(TtrnRiskDetails.class);
+					endde.select(cb.max(des.get("rskEndorsementNo")));
+					Predicate a1 = cb.equal(des.get("rskProposalNumber"), proposalNo);
+					endde.where(a1);
+					
+					Subquery<Long> endpr = query.subquery(Long.class);
+					Root<TtrnRiskProposal> b = endpr.from(TtrnRiskProposal.class);
+					endpr.select(cb.max(b.get("rskEndorsementNo")));
+					Predicate b1 = cb.equal(b.get("rskProposalNumber"), proposalNo);
+					endpr.where(b1);
+					
+					Subquery<Long> amend = query.subquery(Long.class);
+					Root<PositionMaster> pms = amend.from(PositionMaster.class);
+					amend.select(cb.max(pms.get("amendId")));
+					Predicate c1 = cb.equal(pms.get("proposalNo"), pm.get("proposalNo"));
+					amend.where(c1);
+					
+					Predicate n1 = cb.equal(de.get("rskProposalNumber"), proposalNo);
+					Predicate n2 = cb.equal(de.get("rskProposalNumber"), pr.get("rskProposalNumber"));
+					Predicate n3 = cb.equal(de.get("rskEndorsementNo"), endde);
+					Predicate n4 = cb.equal(pr.get("rskEndorsementNo"), endpr);
+					Predicate n5 = cb.equal(pm.get("proposalNo"), de.get("rskProposalNumber"));
+					Predicate n6 = cb.equal(pm.get("amendId"), amend);
+					query.where(n1,n2,n3,n4,n5,n6);
+				}
+			TypedQuery<Tuple> res1 = em.createQuery(query);
+			list = res1.getResultList();
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+
+	@Override
+	public List<Tuple> riskSelectChechProposalStatus(String proposalNo) {
+		List<Tuple> list = new ArrayList<>();
+		try {
+			//risk.select.chechProposalStatus
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query1 = cb.createQuery(Tuple.class); 
+			
+			Root<TtrnRiskProposal> a = query1.from(TtrnRiskProposal.class);
+			Root<TtrnRiskDetails> b = query1.from(TtrnRiskDetails.class);
+			
+			query1.multiselect(
+					b.get("rskStatus").alias("RSK_STATUS"),
+					a.get("rskShareSigned").alias("RSK_SHARE_SIGNED"),
+					b.get("rskContractNo").alias("RSK_CONTRACT_NO")
+					); 
+			
+			Subquery<Long> endA = query1.subquery(Long.class);
+			Root<TtrnRiskProposal> des = endA.from(TtrnRiskProposal.class);
+			endA.select(cb.max(des.get("rskEndorsementNo")));
+			Predicate a1 = cb.equal(des.get("rskProposalNumber"), proposalNo);
+			endA.where(a1);
+			
+			Subquery<Long> endB = query1.subquery(Long.class);
+			Root<TtrnRiskDetails> rd = endB.from(TtrnRiskDetails.class);
+			endB.select(cb.max(rd.get("rskEndorsementNo")));
+			Predicate b1 = cb.equal(rd.get("rskProposalNumber"), proposalNo);
+			endB.where(b1);
+			
+			Predicate n1 = cb.equal(a.get("rskProposalNumber"),b.get("rskProposalNumber"));
+			Predicate n2 = cb.equal(a.get("rskProposalNumber"),proposalNo);
+			Predicate n3 = cb.equal(a.get("rskEndorsementNo"), endA); 
+			Predicate n4 = cb.equal(b.get("rskEndorsementNo"), endB); 
+			query1.where(n1,n2,n3,n4);	
+	
+			TypedQuery<Tuple> res1 = em.createQuery(query1);
+			list = res1.getResultList();
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+
+	@Override
+	public void insertRiDetails(String[] args) {
+		TtrnRi ttrnRi = null;
+		//INSERT_SECTION_DETAILS
+		try {
+			
+		if(args != null) {
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<BigDecimal> query1 = cb.createQuery(BigDecimal.class); 
+			Root<TtrnRi> rd = query1.from(TtrnRi.class);
+			query1.multiselect(cb.max(rd.get("riNo"))); 
+			//amendId
+			
+			TypedQuery<BigDecimal> result = em.createQuery(query1);
+			BigDecimal riNo = result.getResultList().get(0);
+			int a = riNo==null?1:(riNo.intValue()+1);
+			
+			ttrnRi.setRiNo(new BigDecimal(a));
+			ttrnRi.setStatusNo(new BigDecimal(args[0]));
+			ttrnRi.setSno(new BigDecimal(args[1]));
+			ttrnRi.setBouquetNo(new BigDecimal(args[2]));
+			ttrnRi.setBaseProposalNo(new BigDecimal(args[3]));
+			ttrnRi.setProposalNo(new BigDecimal(args[4]));
+			ttrnRi.setContractNo(new BigDecimal(args[5]));
+			ttrnRi.setSubContractNo(new BigDecimal(args[6]));
+			ttrnRi.setLayerNo(new BigDecimal(args[7]));
+			ttrnRi.setSectionNo(new BigDecimal(args[8]));
+			ttrnRi.setAmendId(new BigDecimal(args[9]));
+			ttrnRi.setReinsurerId(args[10]);
+			ttrnRi.setBrokerId(args[11]);	
+			ttrnRi.setShareOffered(new BigDecimal(args[12]));
+			ttrnRi.setShareWritten(new BigDecimal(args[13]));
+			ttrnRi.setShareProposalWritten(new BigDecimal(args[14]));
+			ttrnRi.setShareSigned(new BigDecimal(args[15]));
+			ttrnRi.setShareProposedSigned(new BigDecimal(args[16]));
+			ttrnRi.setBrokerage(new BigDecimal(args[17]));
+			ttrnRi.setCurrentStatus(args[18]);
+			ttrnRi.setNewStatus(args[19]);
+			ttrnRi.setApproveStatus(args[20]);
+			ttrnRi.setUserId(args[21]);
+			ttrnRi.setBranchCode(args[22]);
+			ttrnRi.setSysDate(new Date());	
+			
+			ttrnRiRepository.saveAndFlush(ttrnRi);
+			}
+	}catch(Exception e) {
+		e.printStackTrace();
+	}
 	}
 		
 	}

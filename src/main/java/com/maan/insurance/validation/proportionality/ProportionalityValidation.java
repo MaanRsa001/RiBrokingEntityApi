@@ -2649,12 +2649,12 @@ return list;
 
 	public List<ErrorCheck> getSectionDuplicationCheckVali(GetSectionDuplicationCheckReq req) {
 		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
-		if (StringUtils.isBlank(req.getBaseLayer())) {
-			list.add(new ErrorCheck("Please Enter BaseLayer", "BaseLayer", "1"));
-		}
-		if (StringUtils.isBlank(req.getProposalNo())) {
-			list.add(new ErrorCheck("Please Enter ProposalNo", "ProposalNo", "2"));
-		}
+//		if (StringUtils.isBlank(req.getBaseLayer())) {
+//			list.add(new ErrorCheck("Please Enter BaseLayer", "BaseLayer", "1"));
+//		}
+//		if (StringUtils.isBlank(req.getProposalNo())) {
+//			list.add(new ErrorCheck("Please Enter ProposalNo", "ProposalNo", "2"));
+//		}
 		if (StringUtils.isBlank(req.getSectionNo())) {
 			list.add(new ErrorCheck("Please Enter SectionNo", "SectionNo", "3"));
 		}

@@ -32,4 +32,8 @@ public interface TtrnRiPlacementRepository  extends JpaRepository<TtrnRiPlacemen
 	TtrnRiPlacement findTop1ByBranchCodeAndProposalNoAndReinsurerIdAndBrokerIdOrderByPlacementAmendIdDesc(
 			String branchCode, BigDecimal bigDecimal, String reinsurerId, String brokerId);
 
+
+	TtrnRiPlacement findByProposalNoAndReinsurerIdAndBrokerIdAndBranchCodeAndStatusNo(BigDecimal bigDecimal,
+			String reinsurerIds, String brokerIds, String branchCode, BigDecimal bigDecimal2);
+
 }

@@ -40,6 +40,7 @@ import com.maan.insurance.jpa.entity.claim.TtrnClaimAcc;
 import com.maan.insurance.jpa.entity.claim.TtrnClaimPaymentArchive;
 import com.maan.insurance.jpa.entity.claim.TtrnClaimReview;
 import com.maan.insurance.jpa.entity.claim.TtrnClaimUpdation;
+import com.maan.insurance.jpa.entity.facultative.TtrnFacRiskProposal;
 import com.maan.insurance.jpa.entity.treasury.TtrnAllocatedTransaction;
 import com.maan.insurance.jpa.entity.treasury.TtrnPaymentReceipt;
 import com.maan.insurance.jpa.repository.claim.ClaimCustomRepository;
@@ -52,7 +53,9 @@ import com.maan.insurance.model.entity.TmasProductMaster;
 import com.maan.insurance.model.entity.TtrnClaimDetails;
 import com.maan.insurance.model.entity.TtrnClaimPayment;
 import com.maan.insurance.model.entity.TtrnClaimPaymentRi;
+import com.maan.insurance.model.entity.TtrnRiskCommission;
 import com.maan.insurance.model.entity.TtrnRiskDetails;
+import com.maan.insurance.model.entity.TtrnRiskProposal;
 import com.maan.insurance.model.entity.UnderwritterMaster;
 import com.maan.insurance.model.req.claim.ClaimListReq;
 import com.maan.insurance.model.req.claim.ClaimPaymentEditReq;
@@ -1180,224 +1183,468 @@ public class ClaimCustomRepositoryImpl implements ClaimCustomRepository{
 	}
 
 	@Override
-	public List<Map<String, Object>> selectFacGetCliamQuery(String proposalNo, String productId, String branchCode) {
+	public List<Tuple> selectFacGetCliamQuery(String proposalNo, String productId, String branchCode) {
+		List<Tuple> list = new ArrayList<>();
+		try { // select RTRIM(XMLAGG(XMLELEMENT(E,TMAS_SPFC_NAME, pending
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query1 = cb.createQuery(Tuple.class); 
+			
+			Root<TtrnRiskDetails> rk = query1.from(TtrnRiskDetails.class);
+			Root<PersonalInfo> personal = query1.from(PersonalInfo.class);
+			Root<TtrnFacRiskProposal> rp = query1.from(TtrnFacRiskProposal.class);
+			Root<PersonalInfo> pi = query1.from(PersonalInfo.class);
 		
-		List<Map<String,Object>> resultList = new ArrayList<>();
-		
-		String nativeQuery = "SELECT   (select RTRIM(XMLAGG(XMLELEMENT(E,TMAS_SPFC_NAME,',')).EXTRACT('//text()'),',') "
-				+ " from TMAS_SPFC_MASTER SPFC where SPFC.TMAS_SPFC_ID in(select * from "
-				+ "table(SPLIT_TEXT_FN(replace(RK.RSK_SPFCID,' ', '')))) AND  SPFC.TMAS_PRODUCT_ID ="
-				+ " RK.RSK_PRODUCTID AND PERSONAL.BRANCH_CODE = SPFC.BRANCH_CODE)TMAS_SPFC_NAME,"
-				+ "RK.RSK_CONTRACT_NO,RK.RSK_ORIGINAL_CURR,RK.RSK_ENDORSEMENT_NO,PERSONAL.COMPANY_NAME "
-				+ "CEDING_COMPANY,RK.RSK_CEDINGID, RK.RSK_PROPOSAL_NUMBER, RP.SHARE_SIGNED, SUM_INSURED_OUR_SHARE_DC,"
-				+ " SUM_INSURED_OUR_SHARE_OC, RP.RSK_CEDANT_RETENTION, TO_CHAR (RK.RSK_INCEPTION_DATE, 'DD/MM/YYYY') "
-				+ "INCP_DATE,TO_CHAR(RK.RSK_ACCOUNT_DATE, 'DD/MM/YYYY') RSK_ACCOUNT_DATE, TO_CHAR (RK.RSK_EXPIRY_DATE, "
-				+ "'DD/MM/YYYY') EXP_DATE, RK.RSK_TREATYID, PI.FIRST_NAME||' '||PI.LAST_NAME BROKER_NAME, RK.RSK_BROKERID,"
-				+ "(select TMAS_DEPARTMENT_NAME from TMAS_DEPARTMENT_MASTER where TMAS_DEPARTMENT_ID=RK.RSK_DEPTID AND "
-				+ "RK.RSK_PRODUCTID=TMAS_PRODUCT_ID and Branch_code=PERSONAL.BRANCH_CODE and TMAS_STATUS='Y') TMAS_DEPARTMENT_NAME,"
-				+ " RK.RSK_INSURED_NAME, RK.RSK_PROPOSAL_NUMBER,RK.RSK_SPFCID,RK.RSK_DEPTID FROM   TTRN_RISK_DETAILS RK,"
-				+ " PERSONAL_INFO PERSONAL, TTRN_FAC_RISK_PROPOSAL RP,PERSONAL_INFO PI WHERE RK.RSK_PROPOSAL_NUMBER = ? "
-				+ "AND RK.RSK_PRODUCTID = ? AND RK.RSK_CEDINGID = PERSONAL.CUSTOMER_ID AND PERSONAL.BRANCH_CODE=? AND"
-				+ " PERSONAL.CUSTOMER_TYPE='C' AND PERSONAL.AMEND_ID=(SELECT MAX(AMEND_ID) FROM PERSONAL_INFO WHERE"
-				+ " CUSTOMER_ID=PERSONAL.CUSTOMER_ID AND BRANCH_CODE=PERSONAL.BRANCH_CODE AND CUSTOMER_TYPE="
-				+ "PERSONAL.CUSTOMER_TYPE) AND RK.RSK_BROKERID = PI.CUSTOMER_ID AND PI.BRANCH_CODE=? AND PI.CUSTOMER_TYPE="
-				+ "'B' AND PI.AMEND_ID=(SELECT MAX(AMEND_ID) FROM PERSONAL_INFO  WHERE CUSTOMER_ID=PI.CUSTOMER_ID AND"
-				+ " BRANCH_CODE=PI.BRANCH_CODE AND CUSTOMER_TYPE=PI.CUSTOMER_TYPE) AND RP.RSK_PROPOSAL_NUMBER = "
-				+ "RK.RSK_PROPOSAL_NUMBER AND RK.RSK_CEDINGID = PERSONAL.CUSTOMER_ID AND RK.RSK_ENDORSEMENT_NO = "
-				+ "(SELECT   MAX (RSK_ENDORSEMENT_NO) FROM   TTRN_RISK_DETAILS WHERE   RSK_PROPOSAL_NUMBER =? ) "
-				+ "AND RP.RSK_ENDORSEMENT_NO = (SELECT   MAX (RSK_ENDORSEMENT_NO) FROM   TTRN_FAC_RISK_PROPOSAL WHERE  "
-				+ " RSK_PROPOSAL_NUMBER = RK.RSK_PROPOSAL_NUMBER)"; 
-		
-	    Query query = em.createNativeQuery(nativeQuery);
-	    query.setParameter(1,proposalNo);
-	    query.setParameter(2,productId);
-	    query.setParameter(3,branchCode);
-	    query.setParameter(4,branchCode);
-	    query.setParameter(5,proposalNo);
-
-	    query.unwrap(NativeQueryImpl.class).setResultTransformer(AliasToEntityMapResultTransformer.INSTANCE);
-	    resultList =  query.getResultList();
-		return resultList;
-	}
-
-	@Override
-	public List<Map<String, Object>> selectXolOrTeatyGetClimeQuery(String proposalNo, String productId,
-			String branchCode) {
-		List<Map<String,Object>> resultList = new ArrayList<>();
-		
-		String nativeQuery = "SELECT   (select RTRIM(XMLAGG(XMLELEMENT(E,TMAS_SPFC_NAME,',')).EXTRACT('//text()'),',')"
-				+ "  from TMAS_SPFC_MASTER SPFC where SPFC.TMAS_SPFC_ID in(select * from "
-				+ "table(SPLIT_TEXT_FN(replace(RK.RSK_SPFCID,' ', '')))) AND  SPFC.TMAS_PRODUCT_ID = "
-				+ "RK.RSK_PRODUCTID AND PERSONAL.BRANCH_CODE = SPFC.BRANCH_CODE)TMAS_SPFC_NAME,"
-				+ "RK.RSK_CONTRACT_NO,RK.RSK_ENDORSEMENT_NO,  PERSONAL.COMPANY_NAME CEDING_COMPANY, "
-				+ " RK.RSK_CEDINGID,   RK.RSK_PROPOSAL_NUMBER, RP.RSK_SHARE_SIGNED,  RP.RSK_LIMIT_OC,"
-				+ "  RP.RSK_LIMIT_DC,  RSK_TREATY_SURP_LIMIT_OC,RSK_TREATY_SURP_LIMIT_DC, RP.RSK_CEDANT_RETENTION, "
-				+ " TO_CHAR (RK.RSK_INCEPTION_DATE, 'DD/MM/YYYY') INCP_DATE,TO_CHAR(RK.RSK_ACCOUNT_DATE,"
-				+ " 'DD/MM/YYYY') RSK_ACCOUNT_DATE,  TO_CHAR (RK.RSK_EXPIRY_DATE, 'DD/MM/YYYY') EXP_DATE,"
-				+ "  RK.RSK_TREATYID,  RP.RSK_PF_COVERED,  RK.RSK_INSURED_NAME,  RK.RSK_RISK_COVERED,"
-				+ "  PI.FIRST_NAME||' '||PI.LAST_NAME BROKER_NAME,  RK.RSK_BROKERID, RK.RSK_PROPOSAL_TYPE,"
-				+ "RK.RSK_BASIS, RC.RSK_CASHLOSS_LMT_OC,RC.RSK_CASHLOSS_LMT_DC,(select TMAS_DEPARTMENT_NAME "
-				+ "from TMAS_DEPARTMENT_MASTER where TMAS_DEPARTMENT_ID=RK.RSK_DEPTID AND RK.RSK_PRODUCTID="
-				+ "TMAS_PRODUCT_ID and Branch_code=PERSONAL.BRANCH_CODE and TMAS_STATUS='Y')"
-				+ " TMAS_DEPARTMENT_NAME,RK.RSK_SPFCID,RK.RSK_DEPTID,RK.RSK_UWYEAR ,RC.RSK_REINSTATEMENT_PREMIUM,RK.RSK_ORIGINAL_CURR "
-				+ "FROM TTRN_RISK_DETAILS RK, PERSONAL_INFO PERSONAL, TTRN_RISK_PROPOSAL RP,PERSONAL_INFO PI"
-				+ ",TTRN_RISK_COMMISSION RC  WHERE RK.RSK_PROPOSAL_NUMBER = ?  AND RK.RSK_PRODUCTID = ?"
-				+ "  AND RK.RSK_CEDINGID = PERSONAL.CUSTOMER_ID  AND PERSONAL.BRANCH_CODE=? AND"
-				+ " PERSONAL.CUSTOMER_TYPE='C' AND PERSONAL.AMEND_ID=(SELECT MAX(AMEND_ID) FROM PERSONAL_INFO "
-				+ "WHERE CUSTOMER_ID=PERSONAL.CUSTOMER_ID  AND BRANCH_CODE=PERSONAL.BRANCH_CODE AND CUSTOMER_TYPE"
-				+ "=PERSONAL.CUSTOMER_TYPE)  AND RK.RSK_BROKERID = PI.CUSTOMER_ID  AND PI.BRANCH_CODE=? AND "
-				+ "PI.CUSTOMER_TYPE='B' AND PI.AMEND_ID=(SELECT MAX(AMEND_ID) FROM PERSONAL_INFO  WHERE CUSTOMER_ID"
-				+ "=PI.CUSTOMER_ID  AND BRANCH_CODE=PI.BRANCH_CODE AND CUSTOMER_TYPE=PI.CUSTOMER_TYPE)  AND "
-				+ "RP.RSK_PROPOSAL_NUMBER = RK.RSK_PROPOSAL_NUMBER  AND RK.RSK_CEDINGID = PERSONAL.CUSTOMER_ID "
-				+ " AND RK.RSK_ENDORSEMENT_NO = (SELECT   MAX (RSK_ENDORSEMENT_NO)  FROM   TTRN_RISK_DETAILS "
-				+ " WHERE   RSK_PROPOSAL_NUMBER =? )  AND RP.RSK_ENDORSEMENT_NO =  (SELECT   MAX (RSK_ENDORSEMENT_NO) "
-				+ " FROM   TTRN_RISK_PROPOSAL  WHERE   RSK_PROPOSAL_NUMBER = RK.RSK_PROPOSAL_NUMBER) AND "
-				+ "RC.RSK_PROPOSAL_NUMBER=RP.RSK_PROPOSAL_NUMBER AND RC.RSK_ENDORSEMENT_NO=(SELECT MAX(RSK_ENDORSEMENT_NO)"
-				+ " FROM TTRN_RISK_COMMISSION WHERE RSK_PROPOSAL_NUMBER=RC.RSK_PROPOSAL_NUMBER)"; 
-		
-	    Query query = em.createNativeQuery(nativeQuery);
-	    query.setParameter(1,proposalNo);
-	    query.setParameter(2,productId);
-	    query.setParameter(3,branchCode);
-	    query.setParameter(4,branchCode);
-	    query.setParameter(5,proposalNo);
-	    query.unwrap(NativeQueryImpl.class).setResultTransformer(AliasToEntityMapResultTransformer.INSTANCE);
-	    resultList =  query.getResultList();
-		return resultList;
-		
-	}
-
-	@Override
-	public List<Map<String, Object>> partialSelectGetpaymentlist(ClaimPaymentListReq req) {
+			Expression<String> e0 = cb.concat(pi.get("firstName"), " ");
+			
+			query1.multiselect(rk.get("rskContractNo").alias("RSK_CONTRACT_NO"),
+					rk.get("rskOriginalCurr").alias("RSK_ORIGINAL_CURR"),
+					rk.get("rskEndorsementNo").alias("RSK_ENDORSEMENT_NO"),
+					personal.get("companyName").alias("CEDING_COMPANY"),
+					rk.get("rskCedingid").alias("RSK_CEDINGID"),
+					rk.get("rskProposalNumber").alias("RSK_PROPOSAL_NUMBER"),
+					rp.get("shareSigned").alias("SHARE_SIGNED"),
+					rp.get("sumInsuredOurShareDc").alias("SUM_INSURED_OUR_SHARE_DC"),
+					rp.get("sumInsuredOurShareOc").alias("SUM_INSURED_OUR_SHARE_OC"),
+					rp.get("rskCedantRetention").alias("RSK_CEDANT_RETENTION"),
+					rk.get("rskInceptionDate").alias("INCP_DATE"),
+					rk.get("rskAccountDate").alias("RSK_ACCOUNT_DATE"),
+					rk.get("rskExpiryDate").alias("EXP_DATE"),
+					rk.get("rskTreatyid").alias("RSK_TREATYID"),
+					cb.concat(e0, pi.get("lastName")).alias("BROKER_NAME"),
+					rk.get("rskBrokerid").alias("RSK_BROKERID"),
+					rk.get("rskInsuredName").alias("RSK_INSURED_NAME"),
+					rk.get("rskSpfcid").alias("RSK_SPFCID"),
+					rk.get("rskDeptid").alias("RSK_DEPTID")					); 
+			//amend
+			Subquery<Long> amend = query1.subquery(Long.class); 
+			Root<PersonalInfo> pis = amend.from(PersonalInfo.class);
+			amend.select(cb.max(pis.get("amendId")));
+			Predicate b1 = cb.equal( pis.get("customerId"), personal.get("customerId"));
+			Predicate b2 = cb.equal( pis.get("branchCode"), personal.get("branchCode"));
+			Predicate b3 = cb.equal( pis.get("customerType"), personal.get("customerType"));
+			amend.where(b1,b2,b3);
+			
+			//amend
+			Subquery<Long> amendPi = query1.subquery(Long.class); 
+			Root<PersonalInfo> pi1 = amendPi.from(PersonalInfo.class);
+			amendPi.select(cb.max(pi1.get("amendId")));
+			Predicate c1 = cb.equal( pi1.get("customerId"), pi.get("customerId"));
+			Predicate c2 = cb.equal( pi1.get("branchCode"), pi.get("branchCode"));
+			Predicate c3 = cb.equal( pi1.get("customerType"), pi.get("customerType"));
+			amendPi.where(c1,c2,c3);
+			
+			//end
+			Subquery<Long> end = query1.subquery(Long.class); 
+			Root<TtrnRiskDetails> rks = end.from(TtrnRiskDetails.class);
+			end.select(cb.max(rks.get("rskEndorsementNo")));
+			Predicate d1 = cb.equal( rks.get("rskProposalNumber"), proposalNo);
+			end.where(d1);
+			
+			//endRp
+			Subquery<Long> endRp = query1.subquery(Long.class); 
+			Root<TtrnFacRiskProposal> rps = endRp.from(TtrnFacRiskProposal.class);
+			endRp.select(cb.max(rps.get("rskEndorsementNo")));
+			Predicate e1 = cb.equal( rps.get("rskProposalNumber"),  rk.get("rskProposalNumber"));
+			endRp.where(e1);
+			
+			List<Predicate> predicates = new ArrayList<Predicate>();
+			predicates.add(cb.equal(rk.get("rskProposalNumber"),proposalNo));
+			predicates.add(cb.equal(rk.get("rskProductid"),productId));
+			predicates.add(cb.equal(rk.get("rskCedingid"),personal.get("customerId")));
+			predicates.add(cb.equal(personal.get("branchCode"),branchCode));
+			predicates.add(cb.equal(personal.get("customerType"),"C"));
+			predicates.add(cb.equal(personal.get("amendId"),amend));
+			predicates.add(cb.equal(rk.get("rskBrokerid"),pi.get("customerId")));
+			predicates.add(cb.equal(pi.get("branchCode"),branchCode));
+			predicates.add(cb.equal(pi.get("customerType"),"B"));
+			predicates.add(cb.equal(pi.get("amendId"),amendPi));
+			predicates.add(cb.equal(rp.get("rskProposalNumber"),rk.get("rskProposalNumber")));
+			predicates.add(cb.equal(personal.get("customerId"),rk.get("rskCedingid")));
+			predicates.add(cb.equal(rk.get("rskEndorsementNo"),end));
+			predicates.add(cb.equal(rp.get("rskEndorsementNo"),endRp));
+			
+			query1.where(predicates.toArray(new Predicate[0]));
 	
-		
-		List<Map<String,Object>> resultList = new ArrayList<>();
-		String searchQuery = "";
-		String searchKey = null;
-		
-		if("S".equalsIgnoreCase(req.getSearchType())){
-			if(StringUtils.isNotBlank(req.getCompanyNameSearch())){
-				searchQuery= " AND UPPER(CUSTOMER_NAME) LIKE UPPER (?) ";
-				searchKey = "%"+req.getCompanyNameSearch()+"%";
+			TypedQuery<Tuple> result = em.createQuery(query1);
+			list = result.getResultList();
+			
+			}catch(Exception e) {
+				e.printStackTrace();
 			}
-			if(StringUtils.isNotBlank(req.getBrokerNameSearch())){
-				searchQuery= " AND UPPER(BROKER_NAME) LIKE UPPER (?) ";
-				searchKey = "%"+req.getBrokerNameSearch()+"%";
-			}
-			if(StringUtils.isNotBlank(req.getContractNoSearch())){
-				searchQuery = " AND CONTRACT_NO LIKE ? ";
-				searchKey = "%"+req.getContractNoSearch()+"%";
-			}
-			if(StringUtils.isNotBlank(req.getClaimNoSearch())){
-				searchQuery = " AND CLAIM_NO LIKE ? ";
-				searchKey = "%"+req.getClaimNoSearch()+"%";
-			}
-			if(StringUtils.isNotBlank(req.getPaymentNoSearch())){
-				searchQuery = " AND CLAIM_PAYMENT_NO LIKE ? ";
-				searchKey = "%"+req.getPaymentNoSearch()+"%";
-			}
-			if(StringUtils.isNotBlank(req.getPaymentDateSearch())){
-				searchQuery = " AND INCEPTION_DT LIKE ? ";
-				searchKey = "%"+req.getPaymentDateSearch()+"%";
-			}
-		}
-		
-		String nativeQuery = "select * from (SELECT   DISTINCT PAID_AMOUNT_OC,TCD.CLAIM_NO,TCD.CONTRACT_NO,"
-				+ " PAYMENT_REQUEST_NO, LOSS_ESTIMATE_REVISED_OC,TO_CHAR (TCD.INCEPTION_DATE, 'DD/MM/YYYY')"
-				+ " AS INCEPTION_DT,  CLAIM_NOTE_RECOMM, PAYMENT_REFERENCE, ADVICE_TREASURY, PAID_AMOUNT_DC,"
-				+ " LOSS_ESTIMATE_REVISED_DC, CLAIM_PAYMENT_NO, RESERVE_ID,SETTLEMENT_STATUS,  pm.Product_id,"
-				+ " TPM.TMAS_PRODUCT_NAME, TO_CHAR (PM.INCEPTION_DATE, 'DD/MM/YYYY') INCEPTION_DATE, TO_CHAR"
-				+ " (PM.Expiry_date, 'DD/MM/YYYY') Expiry_date,  (SELECT   COMPANY_NAME FROM   personal_info Pi"
-				+ " WHERE       CUSTOMER_TYPE \\= 'C'  AND pm.CEDING_COMPANY_ID \\= Pi.CUSTOMER_ID AND pi.branch_code"
-				+ " \\= pm.branch_code AND amend_id \\= (SELECT   MAX (Amend_id)  FROM   personal_info p WHERE  "
-				+ "     p.CUSTOMER_TYPE \\= pi.CUSTOMER_TYPE  AND p.customer_id \\= pi.customer_id AND p.branch_code "
-				+ "\\= pm.branch_code))  Customer_name,(SELECT   FIRST_NAME  FROM   personal_info Pi  WHERE   "
-				+ "    CUSTOMER_TYPE \\= 'B'    AND pm.Broker_id \\= Pi.CUSTOMER_ID  AND pi.branch_code \\="
-				+ " pm.branch_code  AND amend_id \\=  (SELECT   MAX (Amend_id)   FROM   personal_info p WHERE "
-				+ "      p.CUSTOMER_TYPE \\= pi.CUSTOMER_TYPE  AND p.customer_id \\= pi.customer_id   AND p.branch_code "
-				+ "\\= pm.branch_code))   Broker_name,  Pm.Proposal_no, Pm.layer_no,PM.DEPT_ID,PM.SECTION_NO,TCP.CURRENCY  FROM  "
-				+ " TTRN_CLAIM_PAYMENT TCD,   POSITION_MASTER PM, TMAS_PRODUCT_MASTER TPM,TTRN_CLAIM_DETAILS TCP WHERE      TCD.Contract_No "
-				+ "\\= Pm.Contract_No   AND NVL (tcd.layer_no, 0) \\= NVL (pm.layer_no, 0)   AND Pm.branch_code \\= ? AND TCD.CLAIM_NO=TCP.CLAIM_NO "
-				+ " AND TPM.BRANCH_CODE \\= Pm.branch_code  AND TPM.Tmas_Product_id \\= pm.Product_id AND Pm.Amend_Id"
-				+ " \\=  (SELECT   MAX (Amend_Id)  FROM   Position_Master P   WHERE   P.Contract_No \\= Pm.Contract_No "
-				+ "AND NVL (P.layer_no, 0) \\= NVL (pm.layer_no, 0)) ORDER BY   CLAIM_NO DESC)where  rownum<\\=100 "; 
-		
-		nativeQuery+=searchQuery;
-		
-	    Query query = em.createNativeQuery(nativeQuery);
-	    query.setParameter(1,req.getBranchCode());
-	    if(Objects.nonNull(searchKey))
-	    	query.setParameter(2,searchKey);
-
-	    query.unwrap(NativeQueryImpl.class).setResultTransformer(AliasToEntityMapResultTransformer.INSTANCE);
-	    resultList =  query.getResultList();
-		return resultList;
+			return list;
 	}
 
 	@Override
-	public List<Map<String, Object>> selectGetpaymentlist(ClaimPaymentListReq req) {
-		List<Map<String,Object>> resultList = new ArrayList<>();
-		String searchQuery = "";
-		String searchKey = null;
+	public List<Tuple> selectXolOrTeatyGetClimeQuery(String proposalNo, String productId,
+			String branchCode) { //// select RTRIM(XMLAGG(XMLELEMENT(E,TMAS_SPFC_NAME, pending
+		List<Tuple> list = new ArrayList<>();
+		try {
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query1 = cb.createQuery(Tuple.class); 
+			
+			Root<TtrnRiskDetails> rk = query1.from(TtrnRiskDetails.class);
+			Root<PersonalInfo> personal = query1.from(PersonalInfo.class);
+			Root<TtrnRiskProposal> rp = query1.from(TtrnRiskProposal.class);
+			Root<PersonalInfo> pi = query1.from(PersonalInfo.class);
+			Root<TtrnRiskCommission> rc = query1.from(TtrnRiskCommission.class);
+		
+			//deptName
+			Subquery<String> deptName = query1.subquery(String.class); 
+			Root<TmasDepartmentMaster> coms = deptName.from(TmasDepartmentMaster.class);
+			deptName.select(coms.get("tmasDepartmentName"));
+			Predicate a1 = cb.equal( coms.get("tmasDepartmentId"), rk.get("rskDeptid"));
+			Predicate a2 = cb.equal( coms.get("tmasProductId"), rk.get("rskProductid"));
+			Predicate a3 = cb.equal( coms.get("branchCode"), personal.get("branchCode"));
+			Predicate a4 = cb.equal( coms.get("tmasStatus"), "Y");
+			deptName.where(a1,a2,a3,a4);
+			
+			Expression<String> e0 = cb.concat(pi.get("firstName"), " ");
+			
+			query1.multiselect(rk.get("rskContractNo").alias("RSK_CONTRACT_NO"),
+					rk.get("rskEndorsementNo").alias("RSK_ENDORSEMENT_NO"),
+					personal.get("companyName").alias("CEDING_COMPANY"),
+					rk.get("rskCedingid").alias("RSK_CEDINGID"),
+					rk.get("rskProposalNumber").alias("RSK_PROPOSAL_NUMBER"),
+					rp.get("rskShareSigned").alias("RSK_SHARE_SIGNED"),
+					rp.get("rskLimitOc").alias("RSK_LIMIT_OC"),
+					rp.get("rskLimitDc").alias("RSK_LIMIT_DC"),
+					rp.get("rskLimitOsOc").alias("RSK_LIMIT_OS_OC"),
+					rp.get("rskLimitOsDc").alias("RSK_LIMIT_OS_DC"),
+					rp.get("rskCedantRetention").alias("RSK_CEDANT_RETENTION"),
+					rk.get("rskInceptionDate").alias("INCP_DATE"),
+					rk.get("rskAccountDate").alias("RSK_ACCOUNT_DATE"),
+					rk.get("rskExpiryDate").alias("EXP_DATE"),
+					rk.get("rskTreatyid").alias("RSK_TREATYID"),
+					rp.get("rskPfCovered").alias("RSK_PF_COVERED"),
+					rk.get("rskInsuredName").alias("RSK_INSURED_NAME"),
+					rk.get("rskRiskCovered").alias("RSK_RISK_COVERED"),
+					cb.concat(e0, pi.get("lastName")).alias("BROKER_NAME"),
+					rk.get("rskBrokerid").alias("RSK_BROKERID"),
+					rk.get("rskProposalType").alias("RSK_PROPOSAL_TYPE"),
+					rk.get("rskBasis").alias("RSK_BASIS"),
+					rc.get("rskCashlossLmtOc").alias("RSK_CASHLOSS_LMT_OC"),
+					rc.get("rskCashlossLmtDc").alias("RSK_CASHLOSS_LMT_DC"),
+					deptName.alias("TMAS_DEPARTMENT_NAME"),
+					rk.get("rskSpfcid").alias("RSK_SPFCID"),
+					rk.get("rskDeptid").alias("RSK_DEPTID"),
+					rk.get("rskUwyear").alias("RSK_UWYEAR"),
+					rc.get("rskReinstatementPremium").alias("RSK_REINSTATEMENT_PREMIUM")
+					); 
+			//amend
+			Subquery<Long> amend = query1.subquery(Long.class); 
+			Root<PersonalInfo> pis = amend.from(PersonalInfo.class);
+			amend.select(cb.max(pis.get("amendId")));
+			Predicate b1 = cb.equal( pis.get("customerId"), personal.get("customerId"));
+			Predicate b2 = cb.equal( pis.get("branchCode"), personal.get("branchCode"));
+			Predicate b3 = cb.equal( pis.get("customerType"), personal.get("customerType"));
+			amend.where(b1,b2,b3);
+			
+			//amend
+			Subquery<Long> amendPi = query1.subquery(Long.class); 
+			Root<PersonalInfo> pi1 = amendPi.from(PersonalInfo.class);
+			amendPi.select(cb.max(pi1.get("amendId")));
+			Predicate c1 = cb.equal( pi1.get("customerId"), pi.get("customerId"));
+			Predicate c2 = cb.equal( pi1.get("branchCode"), pi.get("branchCode"));
+			Predicate c3 = cb.equal( pi1.get("customerType"), pi.get("customerType"));
+			amendPi.where(c1,c2,c3);
+			
+			//end
+			Subquery<Long> end = query1.subquery(Long.class); 
+			Root<TtrnRiskDetails> rks = end.from(TtrnRiskDetails.class);
+			end.select(cb.max(rks.get("rskEndorsementNo")));
+			Predicate d1 = cb.equal( rks.get("rskProposalNumber"), proposalNo);
+			end.where(d1);
+			
+			//endRp
+			Subquery<Long> endRp = query1.subquery(Long.class); 
+			Root<TtrnRiskProposal> rps = endRp.from(TtrnRiskProposal.class);
+			endRp.select(cb.max(rps.get("rskEndorsementNo")));
+			Predicate e1 = cb.equal( rps.get("rskProposalNumber"),  rk.get("rskProposalNumber"));
+			endRp.where(e1);
+			
+			//endRc
+			Subquery<Long> endRc = query1.subquery(Long.class); 
+			Root<TtrnRiskCommission> rcs = endRc.from(TtrnRiskCommission.class);
+			endRc.select(cb.max(rcs.get("rskEndorsementNo")));
+			Predicate f1 = cb.equal( rcs.get("rskProposalNumber"),  rc.get("rskProposalNumber"));
+			endRc.where(f1);
+			
+			List<Predicate> predicates = new ArrayList<Predicate>();
+			predicates.add(cb.equal(rk.get("rskProposalNumber"),proposalNo));
+			predicates.add(cb.equal(rk.get("rskProductid"),productId));
+			predicates.add(cb.equal(rk.get("rskCedingid"),personal.get("customerId")));
+			predicates.add(cb.equal(personal.get("branchCode"),branchCode));
+			predicates.add(cb.equal(personal.get("customerType"),"C"));
+			predicates.add(cb.equal(personal.get("amendId"),amend));
+			predicates.add(cb.equal(rk.get("rskBrokerid"),pi.get("customerId")));
+			predicates.add(cb.equal(pi.get("branchCode"),branchCode));
+			predicates.add(cb.equal(pi.get("customerType"),"B"));
+			predicates.add(cb.equal(pi.get("amendId"),amendPi));
+			predicates.add(cb.equal(rp.get("rskProposalNumber"),rk.get("rskProposalNumber")));
+			predicates.add(cb.equal(personal.get("customerId"),rk.get("rskCedingid")));
+			predicates.add(cb.equal(rk.get("rskEndorsementNo"),end));
+			predicates.add(cb.equal(rp.get("rskEndorsementNo"),endRp));
+			predicates.add(cb.equal(rc.get("rskProposalNumber"),rp.get("rskProposalNumber")));
+			predicates.add(cb.equal(rc.get("rskEndorsementNo"),endRc));
+		
+			query1.where(predicates.toArray(new Predicate[0]));
+	
+			TypedQuery<Tuple> result = em.createQuery(query1);
+			list = result.getResultList();
+			
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+			return list;
+	}
+
+	@Override
+	public List<Tuple> partialSelectGetpaymentlist(ClaimPaymentListReq req) {
+		List<Tuple> list = new ArrayList<>();
+		try {
+		
+		CriteriaBuilder cb = em.getCriteriaBuilder(); 
+		CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+		
+		Root<TtrnClaimPayment> tcd = query.from(TtrnClaimPayment.class);
+		Root<PositionMaster> pm = query.from(PositionMaster.class);
+		Root<TmasProductMaster> tpm = query.from(TmasProductMaster.class);
+		
+		// Customer_name 
+		Subquery<String> companyName = query.subquery(String.class); 
+		Root<PersonalInfo> pi = companyName.from(PersonalInfo.class);
+		companyName.select(pi.get("companyName"));
+		//maxamend
+		Subquery<Long> maxAmend = query.subquery(Long.class); 
+		Root<PersonalInfo> pis = maxAmend.from(PersonalInfo.class);
+		maxAmend.select(cb.max(pis.get("amendId")));
+		Predicate c1 = cb.equal( pi.get("customerId"), pis.get("customerId"));
+		Predicate c2 = cb.equal( pi.get("branchCode"), pm.get("branchCode"));
+		Predicate c3 = cb.equal( pi.get("customerType"), pis.get("customerType"));
+		maxAmend.where(c1,c2,c3);
+		Predicate b1 = cb.equal( pm.get("branchCode"), pi.get("branchCode"));
+		Predicate b2 = cb.equal( pm.get("cedingCompanyId"), pi.get("customerId"));
+		Predicate b3 = cb.equal( pi.get("amendId"), maxAmend);
+		Predicate b4 = cb.equal( pi.get("customerType"), "C");
+		companyName.where(b1,b2,b3,b4);
+		
+		// Broker_name
+		Subquery<String> brokerName = query.subquery(String.class); 
+		Root<PersonalInfo> b = brokerName.from(PersonalInfo.class);
+		brokerName.select(b.get("firstName"));
+		//maxamend
+		Subquery<Long> amendPI = query.subquery(Long.class); 
+		Root<PersonalInfo> bs = amendPI.from(PersonalInfo.class);
+		amendPI.select(cb.max(bs.get("amendId")));
+		Predicate y1 = cb.equal( b.get("customerId"), bs.get("customerId"));
+		Predicate y2 = cb.equal( pm.get("branchCode"), bs.get("branchCode"));
+		Predicate y3 = cb.equal( b.get("customerType"), bs.get("customerType"));
+		amendPI.where(y1,y2,y3);
+		Predicate x1 = cb.equal( b.get("branchCode"), pm.get("branchCode"));
+		Predicate x2 = cb.equal( b.get("customerId"), pm.get("brokerId"));
+		Predicate x3 = cb.equal( b.get("amendId"), amendPI);
+		Predicate x4 = cb.equal( b.get("customerType"), "B");
+		brokerName.where(x1,x2,x3,x4);
+
+		query.multiselect(tcd.get("paidAmountOc").alias("PAID_AMOUNT_OC"),
+				tcd.get("claimNo").alias("CLAIM_NO"),
+				tcd.get("contractNo").alias("CONTRACT_NO"),
+				tcd.get("paymentRequestNo").alias("PAYMENT_REQUEST_NO"),
+				tcd.get("lossEstimateRevisedOc").alias("LOSS_ESTIMATE_REVISED_OC"),
+				tcd.get("inceptionDate").alias("INCEPTION_DT"),
+				tcd.get("claimNoteRecomm").alias("CLAIM_NOTE_RECOMM"),
+				tcd.get("paymentReference").alias("PAYMENT_REFERENCE"),
+				tcd.get("adviceTreasury").alias("ADVICE_TREASURY"),
+				tcd.get("paidAmountDc").alias("PAID_AMOUNT_DC"),
+				tcd.get("lossEstimateRevisedDc").alias("LOSS_ESTIMATE_REVISED_DC"),
+				tcd.get("claimPaymentNo").alias("CLAIM_PAYMENT_NO"),
+				tcd.get("reserveId").alias("RESERVE_ID"),
+				tcd.get("settlementStatus").alias("SETTLEMENT_STATUS"),
+				pm.get("productId").alias("PRODUCT_ID"),
+				tpm.get("tmasProductName").alias("TMAS_PRODUCT_NAME"),
+				pm.get("inceptionDate").alias("INCEPTION_DATE"),
+				pm.get("expiryDate").alias("EXPIRY_DATE"),
+				companyName.alias("CUSTOMER_NAME"),
+				brokerName.alias("BROKER_NAME"),
+				pm.get("proposalNo").alias("PROPOSAL_NO"),
+				pm.get("layerNo").alias("LAYER_NO"),
+				pm.get("deptId").alias("DEPT_ID")
+				).distinct(true); 
+
+		Subquery<Long> amend = query.subquery(Long.class); 
+		Root<PositionMaster> rds = amend.from(PositionMaster.class);
+		amend.select(cb.max(rds.get("amendId")));
+		Predicate a1 = cb.equal( rds.get("contractNo"), pm.get("contractNo"));
+		Predicate a2 = cb.equal(cb.coalesce(rds.get("layerNo"), "0"),cb.coalesce(pm.get("layerNo"), "0"));
+		amend.where(a1,a2);
+
+		List<Order> orderList = new ArrayList<Order>();
+		orderList.add(cb.desc(tcd.get("claimNo")));
+		
+		List<Predicate> predicates = new ArrayList<Predicate>();
+		predicates.add(cb.equal(tcd.get("layerNo"),pm.get("contractNo")));
+		predicates.add(cb.equal(cb.coalesce(tcd.get("layerNo"), "0"),cb.coalesce(pm.get("layerNo"), "0")));
+		predicates.add(cb.equal(pm.get("branchCode"),req.getBranchCode()));
+		predicates.add(cb.equal(tpm.get("branchCode"),pm.get("branchCode")));
+		predicates.add(cb.equal(tpm.get("tmasProductId"),pm.get("productId")));
+		predicates.add(cb.equal(pm.get("amendId"), amend));
 		
 		if("S".equalsIgnoreCase(req.getSearchType())){
 			if(StringUtils.isNotBlank(req.getCompanyNameSearch())){
-				searchQuery= " WHERE UPPER(CUSTOMER_NAME) LIKE UPPER (?) ";
-				searchKey = "%"+req.getCompanyNameSearch()+"%";
+				predicates.add(cb.like(cb.upper(companyName), "%" +req.getCompanyNameSearch().toUpperCase()+"%"));
 			}
 			if(StringUtils.isNotBlank(req.getBrokerNameSearch())){
-				searchQuery= " WHERE UPPER(BROKER_NAME) LIKE UPPER (?) ";
-				searchKey = "%"+req.getBrokerNameSearch()+"%";
+				predicates.add(cb.like(cb.upper(brokerName), "%" +req.getBrokerNameSearch().toUpperCase()+"%"));
 			}
 			if(StringUtils.isNotBlank(req.getContractNoSearch())){
-				searchQuery = " WHERE CONTRACT_NO LIKE ? ";
-				searchKey = "%"+req.getContractNoSearch()+"%";
+				predicates.add(cb.equal(tcd.get("contractNo"), "%" +req.getContractNoSearch()+"%"));
 			}
 			if(StringUtils.isNotBlank(req.getClaimNoSearch())){
-				searchQuery = " WHERE CLAIM_NO LIKE ? ";
-				searchKey = "%"+req.getClaimNoSearch()+"%";
+				predicates.add(cb.equal(tcd.get("claimNo"), "%" +req.getClaimNoSearch()+"%"));
 			}
 			if(StringUtils.isNotBlank(req.getPaymentNoSearch())){
-				searchQuery = " WHERE CLAIM_PAYMENT_NO LIKE ? ";
-				searchKey = "%"+req.getPaymentNoSearch()+"%";
+				predicates.add(cb.equal(tcd.get("claimPaymentNo"), "%" +req.getPaymentNoSearch()+"%"));
 			}
 			if(StringUtils.isNotBlank(req.getPaymentDateSearch())){
-				searchQuery = " WHERE INCEPTION_DT LIKE ? ";
-				searchKey = "%"+req.getPaymentDateSearch()+"%";
+				predicates.add(cb.equal(tcd.get("inceptionDate"), "%" +req.getPaymentDateSearch()+"%"));
 			}
 		}
-		
-		String nativeQuery = "Select * from (SELECT   DISTINCT PAID_AMOUNT_OC,TCD.CLAIM_NO,TCD.CONTRACT_NO,"
-				+ " PAYMENT_REQUEST_NO, LOSS_ESTIMATE_REVISED_OC,TO_CHAR (TCD.INCEPTION_DATE, 'DD/MM/YYYY')"
-				+ " AS INCEPTION_DT,  CLAIM_NOTE_RECOMM, PAYMENT_REFERENCE, ADVICE_TREASURY, PAID_AMOUNT_DC,"
-				+ " LOSS_ESTIMATE_REVISED_DC, CLAIM_PAYMENT_NO, RESERVE_ID,SETTLEMENT_STATUS,  pm.Product_id, "
-				+ "TPM.TMAS_PRODUCT_NAME, TO_CHAR (PM.INCEPTION_DATE, 'DD/MM/YYYY') INCEPTION_DATE, TO_CHAR"
-				+ " (PM.Expiry_date, 'DD/MM/YYYY') Expiry_date,  (SELECT   COMPANY_NAME FROM   personal_info Pi "
-				+ "WHERE       CUSTOMER_TYPE \\= 'C'  AND pm.CEDING_COMPANY_ID \\= Pi.CUSTOMER_ID AND pi.branch_code "
-				+ "\\= pm.branch_code AND amend_id \\= (SELECT   MAX (Amend_id)  FROM   personal_info p WHERE  "
-				+ "     p.CUSTOMER_TYPE \\= pi.CUSTOMER_TYPE  AND p.customer_id \\= pi.customer_id AND p.branch_code"
-				+ " \\= pm.branch_code))  Customer_name,(SELECT   FIRST_NAME  FROM   personal_info Pi  WHERE    "
-				+ "   CUSTOMER_TYPE \\= 'B'    AND pm.Broker_id \\= Pi.CUSTOMER_ID  AND pi.branch_code \\= pm.branch_code"
-				+ "  AND amend_id \\=  (SELECT   MAX (Amend_id)   FROM   personal_info p WHERE       p.CUSTOMER_TYPE"
-				+ " \\= pi.CUSTOMER_TYPE  AND p.customer_id \\= pi.customer_id   AND p.branch_code \\= pm.branch_code))"
-				+ "   Broker_name,  Pm.Proposal_no, Pm.layer_no,PM.DEPT_ID  FROM   TTRN_CLAIM_PAYMENT TCD,  "
-				+ " POSITION_MASTER PM, TMAS_PRODUCT_MASTER TPM WHERE      TCD.Contract_No \\= Pm.Contract_No  "
-				+ " AND NVL (tcd.layer_no, 0) \\= NVL (pm.layer_no, 0)   AND Pm.branch_code \\= ?  AND TPM.BRANCH_CODE"
-				+ " \\= Pm.branch_code  AND TPM.Tmas_Product_id \\= pm.Product_id AND Pm.Amend_Id \\=  (SELECT  "
-				+ " MAX (Amend_Id)  FROM   Position_Master P   WHERE   P.Contract_No \\= Pm.Contract_No AND NVL"
-				+ " (P.layer_no, 0) \\= NVL (pm.layer_no, 0))) "; 
-		
-		nativeQuery+=searchQuery;
-		nativeQuery+=" ORDER BY CLAIM_NO DESC ";
-		
-	    Query query = em.createNativeQuery(nativeQuery);
-	    query.setParameter(1,req.getBranchCode());
-	    if(Objects.nonNull(searchKey))
-	    	query.setParameter(2,searchKey);
+	
+		query.where(predicates.toArray(new Predicate[0]));
 
-	    query.unwrap(NativeQueryImpl.class).setResultTransformer(AliasToEntityMapResultTransformer.INSTANCE);
-	    resultList =  query.getResultList();
-		return resultList;
+		TypedQuery<Tuple> result = em.createQuery(query);
+		//Pagination
+		result.setFirstResult(0 * 100);
+		result.setMaxResults(100);
+		list = result.getResultList();
+		
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+
+	@Override
+	public List<Tuple> selectGetpaymentlist(ClaimPaymentListReq req) {
+		List<Tuple> list = new ArrayList<>();
+		try {
+		
+		CriteriaBuilder cb = em.getCriteriaBuilder(); 
+		CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+		
+		Root<TtrnClaimPayment> tcd = query.from(TtrnClaimPayment.class);
+		Root<PositionMaster> pm = query.from(PositionMaster.class);
+		Root<TmasProductMaster> tpm = query.from(TmasProductMaster.class);
+		
+		// Customer_name 
+		Subquery<String> companyName = query.subquery(String.class); 
+		Root<PersonalInfo> pi = companyName.from(PersonalInfo.class);
+		companyName.select(pi.get("companyName"));
+		//maxamend
+		Subquery<Long> maxAmend = query.subquery(Long.class); 
+		Root<PersonalInfo> pis = maxAmend.from(PersonalInfo.class);
+		maxAmend.select(cb.max(pis.get("amendId")));
+		Predicate c1 = cb.equal( pi.get("customerId"), pis.get("customerId"));
+		Predicate c2 = cb.equal( pi.get("branchCode"), pm.get("branchCode"));
+		Predicate c3 = cb.equal( pi.get("customerType"), pis.get("customerType"));
+		maxAmend.where(c1,c2,c3);
+		Predicate b1 = cb.equal( pm.get("branchCode"), pi.get("branchCode"));
+		Predicate b2 = cb.equal( pm.get("cedingCompanyId"), pi.get("customerId"));
+		Predicate b3 = cb.equal( pi.get("amendId"), maxAmend);
+		Predicate b4 = cb.equal( pi.get("customerType"), "C");
+		companyName.where(b1,b2,b3,b4);
+		
+		// Broker_name
+		Subquery<String> brokerName = query.subquery(String.class); 
+		Root<PersonalInfo> b = brokerName.from(PersonalInfo.class);
+		brokerName.select(b.get("firstName"));
+		//maxamend
+		Subquery<Long> amendPI = query.subquery(Long.class); 
+		Root<PersonalInfo> bs = amendPI.from(PersonalInfo.class);
+		amendPI.select(cb.max(bs.get("amendId")));
+		Predicate y1 = cb.equal( b.get("customerId"), bs.get("customerId"));
+		Predicate y2 = cb.equal( pm.get("branchCode"), bs.get("branchCode"));
+		Predicate y3 = cb.equal( b.get("customerType"), bs.get("customerType"));
+		amendPI.where(y1,y2,y3);
+		Predicate x1 = cb.equal( b.get("branchCode"), pm.get("branchCode"));
+		Predicate x2 = cb.equal( b.get("customerId"), pm.get("brokerId"));
+		Predicate x3 = cb.equal( b.get("amendId"), amendPI);
+		Predicate x4 = cb.equal( b.get("customerType"), "B");
+		brokerName.where(x1,x2,x3,x4);
+
+		query.multiselect(tcd.get("paidAmountOc").alias("PAID_AMOUNT_OC"),
+				tcd.get("claimNo").alias("CLAIM_NO"),
+				tcd.get("contractNo").alias("CONTRACT_NO"),
+				tcd.get("paymentRequestNo").alias("PAYMENT_REQUEST_NO"),
+				tcd.get("lossEstimateRevisedOc").alias("LOSS_ESTIMATE_REVISED_OC"),
+				tcd.get("inceptionDate").alias("INCEPTION_DT"),
+				tcd.get("claimNoteRecomm").alias("CLAIM_NOTE_RECOMM"),
+				tcd.get("paymentReference").alias("PAYMENT_REFERENCE"),
+				tcd.get("adviceTreasury").alias("ADVICE_TREASURY"),
+				tcd.get("paidAmountDc").alias("PAID_AMOUNT_DC"),
+				tcd.get("lossEstimateRevisedDc").alias("LOSS_ESTIMATE_REVISED_DC"),
+				tcd.get("claimPaymentNo").alias("CLAIM_PAYMENT_NO"),
+				tcd.get("reserveId").alias("RESERVE_ID"),
+				tcd.get("settlementStatus").alias("SETTLEMENT_STATUS"),
+				pm.get("productId").alias("PRODUCT_ID"),
+				tpm.get("tmasProductName").alias("TMAS_PRODUCT_NAME"),
+				pm.get("inceptionDate").alias("INCEPTION_DATE"),
+				pm.get("expiryDate").alias("EXPIRY_DATE"),
+				companyName.alias("CUSTOMER_NAME"),
+				brokerName.alias("BROKER_NAME"),
+				pm.get("proposalNo").alias("PROPOSAL_NO"),
+				pm.get("layerNo").alias("LAYER_NO"),
+				pm.get("deptId").alias("DEPT_ID")
+				).distinct(true); 
+
+		Subquery<Long> amend = query.subquery(Long.class); 
+		Root<PositionMaster> rds = amend.from(PositionMaster.class);
+		amend.select(cb.max(rds.get("amendId")));
+		Predicate a1 = cb.equal( rds.get("contractNo"), pm.get("contractNo"));
+		Predicate a2 = cb.equal(cb.coalesce(rds.get("layerNo"), "0"),cb.coalesce(pm.get("layerNo"), "0"));
+		amend.where(a1,a2);
+
+		List<Order> orderList = new ArrayList<Order>();
+		orderList.add(cb.desc(tcd.get("claimNo")));
+		
+		List<Predicate> predicates = new ArrayList<Predicate>();
+		predicates.add(cb.equal(tcd.get("layerNo"),pm.get("contractNo")));
+		predicates.add(cb.equal(cb.coalesce(tcd.get("layerNo"), "0"),cb.coalesce(pm.get("layerNo"), "0")));
+		predicates.add(cb.equal(pm.get("branchCode"),req.getBranchCode()));
+		predicates.add(cb.equal(tpm.get("branchCode"),pm.get("branchCode")));
+		predicates.add(cb.equal(tpm.get("tmasProductId"),pm.get("productId")));
+		predicates.add(cb.equal(pm.get("amendId"), amend));
+		
+		if("S".equalsIgnoreCase(req.getSearchType())){
+			if(StringUtils.isNotBlank(req.getCompanyNameSearch())){
+				predicates.add(cb.like(cb.upper(companyName), "%" +req.getCompanyNameSearch().toUpperCase()+"%"));
+			}
+			if(StringUtils.isNotBlank(req.getBrokerNameSearch())){
+				predicates.add(cb.like(cb.upper(brokerName), "%" +req.getBrokerNameSearch().toUpperCase()+"%"));
+			}
+			if(StringUtils.isNotBlank(req.getContractNoSearch())){
+				predicates.add(cb.equal(tcd.get("contractNo"), "%" +req.getContractNoSearch()+"%"));
+			}
+			if(StringUtils.isNotBlank(req.getClaimNoSearch())){
+				predicates.add(cb.equal(tcd.get("claimNo"), "%" +req.getClaimNoSearch()+"%"));
+			}
+			if(StringUtils.isNotBlank(req.getPaymentNoSearch())){
+				predicates.add(cb.equal(tcd.get("claimPaymentNo"), "%" +req.getPaymentNoSearch()+"%"));
+			}
+			if(StringUtils.isNotBlank(req.getPaymentDateSearch())){
+				predicates.add(cb.equal(tcd.get("inceptionDate"), "%" +req.getPaymentDateSearch()+"%"));
+			}
+		}
+	
+		query.where(predicates.toArray(new Predicate[0]));
+
+		TypedQuery<Tuple> result = em.createQuery(query);
+		list = result.getResultList();
+		
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return list;
 	}
 
 	@Override
@@ -1671,68 +1918,128 @@ public class ClaimCustomRepositoryImpl implements ClaimCustomRepository{
 	}
 
 	@Override
-	public List<Map<String, Object>> partialSelectGetpaymentRilist(ClaimPaymentListReq req) {
+	public List<Tuple> partialSelectGetpaymentRilist(ClaimPaymentListReq req) {
+		List<Tuple> list = new ArrayList<>();
+		try {
+		
+		CriteriaBuilder cb = em.getCriteriaBuilder(); 
+		CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+		
+		Root<TtrnClaimPayment> tcd = query.from(TtrnClaimPayment.class);
+		Root<PositionMaster> pm = query.from(PositionMaster.class);
+		Root<TmasProductMaster> tpm = query.from(TmasProductMaster.class);
+		
+		// Customer_name 
+		Subquery<String> companyName = query.subquery(String.class); 
+		Root<PersonalInfo> pi = companyName.from(PersonalInfo.class);
+		companyName.select(pi.get("companyName"));
+		//maxamend
+		Subquery<Long> maxAmend = query.subquery(Long.class); 
+		Root<PersonalInfo> pis = maxAmend.from(PersonalInfo.class);
+		maxAmend.select(cb.max(pis.get("amendId")));
+		Predicate c1 = cb.equal( pi.get("customerId"), pis.get("customerId"));
+		Predicate c2 = cb.equal( pi.get("branchCode"), pm.get("branchCode"));
+		Predicate c3 = cb.equal( pi.get("customerType"), pis.get("customerType"));
+		maxAmend.where(c1,c2,c3);
+		Predicate b1 = cb.equal( pm.get("branchCode"), pi.get("branchCode"));
+		Predicate b2 = cb.equal( pm.get("cedingCompanyId"), pi.get("customerId"));
+		Predicate b3 = cb.equal( pi.get("amendId"), maxAmend);
+		Predicate b4 = cb.equal( pi.get("customerType"), "C");
+		companyName.where(b1,b2,b3,b4);
+		
+		// Broker_name
+		Subquery<String> brokerName = query.subquery(String.class); 
+		Root<PersonalInfo> b = brokerName.from(PersonalInfo.class);
+		brokerName.select(b.get("firstName"));
+		//maxamend
+		Subquery<Long> amendPI = query.subquery(Long.class); 
+		Root<PersonalInfo> bs = amendPI.from(PersonalInfo.class);
+		amendPI.select(cb.max(bs.get("amendId")));
+		Predicate y1 = cb.equal( b.get("customerId"), bs.get("customerId"));
+		Predicate y2 = cb.equal( pm.get("branchCode"), bs.get("branchCode"));
+		Predicate y3 = cb.equal( b.get("customerType"), bs.get("customerType"));
+		amendPI.where(y1,y2,y3);
+		Predicate x1 = cb.equal( b.get("branchCode"), pm.get("branchCode"));
+		Predicate x2 = cb.equal( b.get("customerId"), pm.get("brokerId"));
+		Predicate x3 = cb.equal( b.get("amendId"), amendPI);
+		Predicate x4 = cb.equal( b.get("customerType"), "B");
+		brokerName.where(x1,x2,x3,x4);
 
-		List<Map<String,Object>> resultList = new ArrayList<>();
-		String searchQuery = "";
-		String searchKey = null;
+		query.multiselect(tcd.get("paidAmountOc").alias("PAID_AMOUNT_OC"),
+				tcd.get("claimNo").alias("CLAIM_NO"),
+				tcd.get("contractNo").alias("CONTRACT_NO"),
+				tcd.get("paymentRequestNo").alias("PAYMENT_REQUEST_NO"),
+				tcd.get("lossEstimateRevisedOc").alias("LOSS_ESTIMATE_REVISED_OC"),
+				tcd.get("inceptionDate").alias("INCEPTION_DT"),
+				tcd.get("claimNoteRecomm").alias("CLAIM_NOTE_RECOMM"),
+				tcd.get("paymentReference").alias("PAYMENT_REFERENCE"),
+				tcd.get("adviceTreasury").alias("ADVICE_TREASURY"),
+				tcd.get("paidAmountDc").alias("PAID_AMOUNT_DC"),
+				tcd.get("lossEstimateRevisedDc").alias("LOSS_ESTIMATE_REVISED_DC"),
+				tcd.get("claimPaymentNo").alias("CLAIM_PAYMENT_NO"),
+				tcd.get("reserveId").alias("RESERVE_ID"),
+				tcd.get("settlementStatus").alias("SETTLEMENT_STATUS"),
+				pm.get("productId").alias("PRODUCT_ID"),
+				tpm.get("tmasProductName").alias("TMAS_PRODUCT_NAME"),
+				pm.get("inceptionDate").alias("INCEPTION_DATE"),
+				pm.get("expiryDate").alias("EXPIRY_DATE"),
+				companyName.alias("CUSTOMER_NAME"),
+				brokerName.alias("BROKER_NAME"),
+				pm.get("proposalNo").alias("PROPOSAL_NO"),
+				pm.get("layerNo").alias("LAYER_NO"),
+				pm.get("deptId").alias("DEPT_ID")
+				).distinct(true); 
+
+		Subquery<Long> amend = query.subquery(Long.class); 
+		Root<PositionMaster> rds = amend.from(PositionMaster.class);
+		amend.select(cb.max(rds.get("amendId")));
+		Predicate a1 = cb.equal( rds.get("contractNo"), pm.get("contractNo"));
+		Predicate a2 = cb.equal(cb.coalesce(rds.get("layerNo"), "0"),cb.coalesce(pm.get("layerNo"), "0"));
+		amend.where(a1,a2);
+
+		List<Order> orderList = new ArrayList<Order>();
+		orderList.add(cb.desc(tcd.get("claimNo")));
+		
+		List<Predicate> predicates = new ArrayList<Predicate>();
+		predicates.add(cb.equal(tcd.get("layerNo"),pm.get("contractNo")));
+		predicates.add(cb.equal(cb.coalesce(tcd.get("layerNo"), "0"),cb.coalesce(pm.get("layerNo"), "0")));
+		predicates.add(cb.equal(pm.get("branchCode"),req.getBranchCode()));
+		predicates.add(cb.equal(tpm.get("branchCode"),pm.get("branchCode")));
+		predicates.add(cb.equal(tpm.get("tmasProductId"),pm.get("productId")));
+		predicates.add(cb.equal(pm.get("amendId"), amend));
 		
 		if("S".equalsIgnoreCase(req.getSearchType())){
 			if(StringUtils.isNotBlank(req.getCompanyNameSearch())){
-				searchQuery= " AND UPPER(CUSTOMER_NAME) LIKE UPPER (?) ";
-				searchKey = "%"+req.getCompanyNameSearch()+"%";
+				predicates.add(cb.like(cb.upper(companyName), "%" +req.getCompanyNameSearch().toUpperCase()+"%"));
 			}
 			if(StringUtils.isNotBlank(req.getBrokerNameSearch())){
-				searchQuery= " AND UPPER(BROKER_NAME) LIKE UPPER (?) ";
-				searchKey = "%"+req.getBrokerNameSearch()+"%";
+				predicates.add(cb.like(cb.upper(brokerName), "%" +req.getBrokerNameSearch().toUpperCase()+"%"));
 			}
 			if(StringUtils.isNotBlank(req.getContractNoSearch())){
-				searchQuery = " AND CONTRACT_NO LIKE ? ";
-				searchKey = "%"+req.getContractNoSearch()+"%";
+				predicates.add(cb.equal(tcd.get("contractNo"), "%" +req.getContractNoSearch()+"%"));
 			}
 			if(StringUtils.isNotBlank(req.getClaimNoSearch())){
-				searchQuery = " AND CLAIM_NO LIKE ? ";
-				searchKey = "%"+req.getClaimNoSearch()+"%";
+				predicates.add(cb.equal(tcd.get("claimNo"), "%" +req.getClaimNoSearch()+"%"));
 			}
 			if(StringUtils.isNotBlank(req.getPaymentNoSearch())){
-				searchQuery = " AND CLAIM_PAYMENT_NO LIKE ? ";
-				searchKey = "%"+req.getPaymentNoSearch()+"%";
+				predicates.add(cb.equal(tcd.get("claimPaymentNo"), "%" +req.getPaymentNoSearch()+"%"));
 			}
 			if(StringUtils.isNotBlank(req.getPaymentDateSearch())){
-				searchQuery = " AND INCEPTION_DT LIKE ? ";
-				searchKey = "%"+req.getPaymentDateSearch()+"%";
+				predicates.add(cb.equal(tcd.get("inceptionDate"), "%" +req.getPaymentDateSearch()+"%"));
 			}
 		}
-		
-		String nativeQuery = "select * from (SELECT   DISTINCT PAID_AMOUNT_OC,TCD.CLAIM_NO,TCD.CONTRACT_NO,"
-				+ " PAYMENT_REQUEST_NO, LOSS_ESTIMATE_REVISED_OC,TO_CHAR (TCD.INCEPTION_DATE, 'DD/MM/YYYY')"
-				+ " AS INCEPTION_DT,  CLAIM_NOTE_RECOMM, PAYMENT_REFERENCE, ADVICE_TREASURY, PAID_AMOUNT_DC,"
-				+ " LOSS_ESTIMATE_REVISED_DC, CLAIM_PAYMENT_NO, RESERVE_ID,SETTLEMENT_STATUS,  pm.Product_id,"
-				+ " TPM.TMAS_PRODUCT_NAME, TO_CHAR (PM.INCEPTION_DATE, 'DD/MM/YYYY') INCEPTION_DATE, TO_CHAR"
-				+ " (PM.Expiry_date, 'DD/MM/YYYY') Expiry_date,  (SELECT   COMPANY_NAME FROM   personal_info Pi"
-				+ " WHERE       CUSTOMER_TYPE \\= 'C'  AND pm.CEDING_COMPANY_ID \\= Pi.CUSTOMER_ID AND pi.branch_code"
-				+ " \\= pm.branch_code AND amend_id \\= (SELECT   MAX (Amend_id)  FROM   personal_info p WHERE  "
-				+ "     p.CUSTOMER_TYPE \\= pi.CUSTOMER_TYPE  AND p.customer_id \\= pi.customer_id AND p.branch_code "
-				+ "\\= pm.branch_code))  Customer_name,(SELECT   FIRST_NAME  FROM   personal_info Pi  WHERE   "
-				+ "    CUSTOMER_TYPE \\= 'B'    AND pm.Broker_id \\= Pi.CUSTOMER_ID  AND pi.branch_code \\="
-				+ " pm.branch_code  AND amend_id \\=  (SELECT   MAX (Amend_id)   FROM   personal_info p WHERE "
-				+ "      p.CUSTOMER_TYPE \\= pi.CUSTOMER_TYPE  AND p.customer_id \\= pi.customer_id   AND p.branch_code "
-				+ "\\= pm.branch_code))   Broker_name,  Pm.Proposal_no, Pm.layer_no,PM.DEPT_ID,PM.SECTION_NO,RI_TRANSACTION_NO,TCP.CURRENCY  FROM  "
-				+ " TTRN_CLAIM_PAYMENT_RI TCD,   POSITION_MASTER PM, TMAS_PRODUCT_MASTER TPM,TTRN_CLAIM_DETAILS TCP WHERE      TCD.Contract_No "
-				+ "\\= Pm.Contract_No   AND NVL (tcd.layer_no, 0) \\= NVL (pm.layer_no, 0)   AND Pm.branch_code \\= ? AND TCD.CLAIM_NO=TCP.CLAIM_NO "
-				+ " AND TPM.BRANCH_CODE \\= Pm.branch_code  AND TPM.Tmas_Product_id \\= pm.Product_id AND Pm.Amend_Id"
-				+ " \\=  (SELECT   MAX (Amend_Id)  FROM   Position_Master P   WHERE   P.Contract_No \\= Pm.Contract_No "
-				+ "AND NVL (P.layer_no, 0) \\= NVL (pm.layer_no, 0)) ORDER BY   CLAIM_NO DESC)where  rownum<\\=100 "; 
-		
-		nativeQuery+=searchQuery;
-		
-	    Query query = em.createNativeQuery(nativeQuery);
-	    query.setParameter(1,req.getBranchCode());
-	    if(Objects.nonNull(searchKey))
-	    	query.setParameter(2,searchKey);
+	
+		query.where(predicates.toArray(new Predicate[0]));
 
-	    query.unwrap(NativeQueryImpl.class).setResultTransformer(AliasToEntityMapResultTransformer.INSTANCE);
-	    resultList =  query.getResultList();
-		return resultList;
+		TypedQuery<Tuple> result = em.createQuery(query);
+		//Pagination
+		result.setFirstResult(0 * 100);
+		result.setMaxResults(100);
+		list = result.getResultList();
+		
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return list;
 	}
 }

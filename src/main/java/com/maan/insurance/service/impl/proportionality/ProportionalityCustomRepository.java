@@ -12,6 +12,7 @@ import com.maan.insurance.model.entity.TtrnBonus;
 import com.maan.insurance.model.entity.TtrnCedentRet;
 import com.maan.insurance.model.entity.TtrnCommissionDetails;
 import com.maan.insurance.model.entity.TtrnCrestazoneDetails;
+import com.maan.insurance.model.entity.TtrnPttySection;
 import com.maan.insurance.model.entity.TtrnRiskCommission;
 import com.maan.insurance.model.entity.TtrnRiskDetails;
 import com.maan.insurance.model.entity.TtrnRiskProposal;
@@ -93,5 +94,37 @@ public interface ProportionalityCustomRepository {
 	String getMaxSectionNoDet(String proposalNo);
 
 	List<Tuple> riskSelectGetSecPageData(String proposalNo, String branchCode, String productId);
+
+	String riskSelectCeaseStatus(String proposalNo);
+
+	TtrnRiskProposal riskUpdatePro24ContSecPage(String[] obj);
+
+	String riskSelectGetRskContractNo(String proposalNo);
+
+	TtrnPttySection insertSectionDetails(String[] args);
+
+	int getCountRetention(String proposalNo, String productId);
+
+	void updateRetenContno(String contNo, String productId, String proposalNo, String departmentId);
+
+	List<Tuple> bonusMainSelect(String proposalNo, String branchCode);
+
+	List<Tuple> bonusMainSelectReference(String referenceNo, String branchCode);
+
+	List<Tuple> bonusMainSelectLpc(String proposalNo, String branchCode);
+
+	List<Tuple> bonusMainSelectReferenceLpc(String referenceNo, String branchCode);
+
+	List<Tuple> selectSlidingScaleMethodInfo(String proposalNo, String branchCode);
+
+	List<Tuple> selectSlidingScaleMethodInfoRef(String referenceNo, String branchCode);
+
+	void insertScMethodInfo(String[] args);
+
+	List<Tuple> getRiskDetailsEditQuery(boolean contractMode, String proposalNo);
+
+	List<Tuple> riskSelectChechProposalStatus(String proposalNo);
+
+	void insertRiDetails(String[] obj);
 
 }
