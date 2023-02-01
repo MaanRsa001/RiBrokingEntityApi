@@ -62,8 +62,6 @@ public class TtrnSoaDue  implements Serializable {
 	    @Column(name="PERIODICITY")
 	    private String     periodicity ;
 	   
-	  
-
 	    @Temporal(TemporalType.TIMESTAMP)
 	    @Column(name="INCEPTION_DATE")
 	    private Date       inceptionDate ;

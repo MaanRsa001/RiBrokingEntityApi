@@ -198,13 +198,14 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 	@Override
 	public GetRemarksDetailsRes GetRemarksDetails(String proposalNo, String layerNo) {
 		GetRemarksDetailsRes resp=new GetRemarksDetailsRes();
+		List<RemarksRes> remarksres=new ArrayList<RemarksRes>();
 		try {
-			List<RemarksRes> remarksres=new ArrayList<RemarksRes>();
-			List<Map<String, Object>> list  = queryImpl.selectList("GET_REMARKS_DETAILS",new String[] {proposalNo,layerNo});
+			//GET_REMARKS_DETAILS
+			List<Tuple> list =	nonProportCustomRepository.getRemarksDetails(proposalNo,layerNo);
 			if(list!=null && list.size()>0){
-				RemarksRes res=new RemarksRes();
 				for (int i = 0; i < list.size(); i++) {
-					Map<String, Object> insMap = (Map<String, Object>)list.get(i);
+					Tuple insMap = list.get(i);
+					RemarksRes res=new RemarksRes();
 					res.setDescription(insMap.get("RSK_DESCRIPTION")==null?"Remarks":insMap.get("RSK_DESCRIPTION").toString());
 					res.setRemark1(insMap.get("RSK_REMARK1")==null?" ":insMap.get("RSK_REMARK1").toString());
 					res.setRemark2(insMap.get("RSK_REMARK2")==null?"":insMap.get("RSK_REMARK2").toString());
@@ -232,7 +233,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		GetCommonValueRes response = new GetCommonValueRes();
 		String result="";
 		try{
-			String query="SUM_COVER_LIMT";
+			String query="SUM_COVER_LIMT"; //WITH T1  AS
 			String args[]=new String[7];
 			args[0] = proposalNo;
 			args[1] = branchCode;
@@ -268,22 +269,18 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 				
 				Root<TtrnRiskCommission> pm = query.from(TtrnRiskCommission.class);
 
-				// Select
 				query.multiselect(pm.get("rskBrokerage").alias("RSK_BROKERAGE"), pm.get("rskTax").alias("RSK_TAX")); 
 
-				// maxEnd
 				Subquery<Long> maxEnd = query.subquery(Long.class); 
 				Root<TtrnRiskCommission> pms = maxEnd.from(TtrnRiskCommission.class);
 				maxEnd.select(cb.max(pms.get("rskEndorsementNo")));
 				Predicate a1 = cb.equal( pms.get("rskProposalNumber"), layerProposalNo);
 				maxEnd.where(a1);
 
-				// Where
 				Predicate n1 = cb.equal(pm.get("rskProposalNumber"), layerProposalNo);
 				Predicate n2 = cb.equal(pm.get("rskEndorsementNo"), maxEnd);
 				query.where(n1,n2);
 
-				// Get Result
 				TypedQuery<Tuple> result = em.createQuery(query);
 				List<Tuple> list = result.getResultList();
 				
@@ -313,9 +310,9 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		req1.setBranchCode(req.getBranchCode());
 		req1.setIncepDate(req.getIncepDate());
 		req1.setProductid(req.getProductId());
+		List<Tuple> insDetailsList = new ArrayList<>();
 		try{
 			String[] args=null;
-			String query="";
 			int noofInsurar=0;
 			if(StringUtils.isNotBlank(req.getNoInsurer())){
 				 noofInsurar = Integer.parseInt(req.getNoInsurer());
@@ -326,14 +323,15 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 				args[0]=req.getAmendId();
 				args[1]=req.getProposalNo();
 				args[2]=Integer.toString(noofInsurar);
-				query="fac.select.viewInsDetails";
+				//fac.select.viewInsDetails
+				insDetailsList = nonProportCustomRepository.facSelectViewInsDetails(args);
 			}else{
-				query="fac.select.insDetails";
 				args=new String[2];
 				args[0]=req.getProposalNo();
 				args[1]=Integer.toString(noofInsurar);
+				//fac.select.insDetails
+				insDetailsList = nonProportCustomRepository.facSelectInsDetails(args);
 			}
-			List<Map<String, Object>> insDetailsList=queryImpl.selectList(query,args);
 			
 			List<RetroListRes> retroListRes = new ArrayList<RetroListRes>();
 		//	List<List<Map<String,Object>>> retroFinalList=new ArrayList<List<Map<String,Object>>>();
@@ -341,7 +339,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 				
 				for(int j=0;j<insDetailsList.size();j++){
 					RetroListRes retroRes = new RetroListRes();
-					Map<String, Object> insDetailsMap=(Map<String, Object>)insDetailsList.get(j);
+					Tuple insDetailsMap=insDetailsList.get(j);
 					if("R".equalsIgnoreCase((String)insDetailsMap.get("TYPE"))){
 						res.setRetentionPercentage(insDetailsMap.get("RETRO_PER")==null?"":insDetailsMap.get("RETRO_PER").toString());
 					}else{
@@ -378,7 +376,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 						res.setUwYear(insDetailsMap.get("UW_YEAR")==null?"":insDetailsMap.get("UW_YEAR").toString());
 					}
 					retroListRes.add(retroRes);
-				}
+				} //--------------------------------------doubt below code need to update
 //				res.setPercentRetro(retroPercentage);
 //				res.setRetroCeding(cedingCompany);
 //				res.setRetroYear(UWYear);
@@ -450,28 +448,24 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 	public GetCommonValueRes getRetroContractDetails(GetRetroContractDetailsReq req) {
 		GetCommonValueRes response = new GetCommonValueRes();
 		String  Cedingco="";
-		String query="";
 		try{
-			List<Map<String, Object>> list =null;
-			
-			query = "FAC_SELECT_RETROCONTDET_23";
-			
-			list = queryImpl.selectList(query, new String[] {req.getProductId(),req.getUwYear(),req.getIncepDate(),req.getBranchCode(),req.getUwYear(),req.getIncepDate()});
+			//FAC_SELECT_RETROCONTDET_23
+			List<Tuple> list = nonProportCustomRepository.facSelectRetrocontdet23(req.getProductId(),req.getUwYear(),req.getIncepDate(),req.getBranchCode());
 			
 		//	beanObj.setRetroContractList(list);
 		
 			if(list!=null && list.size()>0){
 				
-				Map<String, Object> resMap;
+				Tuple resMap;
 				for(int i=0;i<list.size();i++) 
 				{
-					resMap = (Map<String, Object>)list.get(i); 
+					resMap = list.get(i); 
 					if(i==(list.size()-1))
 					{
-						Cedingco+=resMap.get("CONTDET1").toString()+"~"+resMap.get("CONTDET2").toString();
+						Cedingco+=resMap.get("CONTDET1").toString()+"~"+resMap.get("CONTDET1").toString();
 					}else
 					{
-						Cedingco+=resMap.get("CONTDET1").toString()+"~"+resMap.get("CONTDET2").toString()+"~";	
+						Cedingco+=resMap.get("CONTDET1").toString()+"~"+resMap.get("CONTDET1").toString()+"~";	
 					}
 				}
 			}
@@ -492,10 +486,11 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		boolean saveFlag = false;
 		String result="";
 		try{
-			String selectQry = "risk.select.getRskProIdByProNo";
-			List<Map<String, Object>> list = queryImpl.selectList(selectQry,new String[]{proposalNo});
-			if(!CollectionUtils.isEmpty(list)) {
-				result=list.get(0).get("RSK_PRODUCTID")==null?"":list.get(0).get("RSK_PRODUCTID").toString();
+			//risk.select.getRskProIdByProNo
+			List<Tuple> list = nonProportCustomRepository.riskSelectGetRskProIdByProNo(proposalNo);
+		
+			if (!CollectionUtils.isEmpty(list)) {
+				result = list.get(0).get("RSK_PRODUCTID")== null ? "": list.get(0).get("RSK_PRODUCTID").toString();
 			}
 			if (result.equals(productId)) {
 				saveFlag = true;

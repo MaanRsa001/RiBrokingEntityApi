@@ -37,8 +37,7 @@ public class GetClassLimitDetailsRes1 {
 	
 	@JsonProperty("HcoverLimitOC")
 	private String hcoverLimitOC; 
-	@JsonProperty("NetMaxRetentPer")
-	private String netMaxRetentPer; 
+
 	
 	@JsonProperty("CoverdepartIdRe")
 	private String coverdepartIdRe;

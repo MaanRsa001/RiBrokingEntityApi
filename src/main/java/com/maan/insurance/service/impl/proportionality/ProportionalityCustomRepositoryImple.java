@@ -859,7 +859,7 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 
 	@Override
 	public TtrnBonus bonusMainInsertPtty(String[] input) throws ParseException {
-		TtrnBonus ttrnBonus = null;
+		TtrnBonus ttrnBonus = new TtrnBonus();
 		//MOVE_TO_CRESTA_MAIN_TABLE
 		try {
 		if(input != null) {

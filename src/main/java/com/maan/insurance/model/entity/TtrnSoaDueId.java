@@ -34,7 +34,10 @@ public class TtrnSoaDueId  implements Serializable {
 
     //--- ENTITY KEY ATTRIBUTES 
     private String     branchCode ;
+
     private BigDecimal contractNo ;
+
+
     private BigDecimal proposalNo ;
 	}
 

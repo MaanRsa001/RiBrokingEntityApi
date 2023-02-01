@@ -56,8 +56,6 @@ import com.maan.insurance.jpa.entity.treasury.BankMaster;
 import com.maan.insurance.jpa.entity.treasury.TtrnAllocatedTransaction;
 import com.maan.insurance.jpa.entity.xolpremium.TtrnMndInstallments;
 import com.maan.insurance.jpa.mapper.TtrnPaymentReceiptDetailsMapper;
-import com.maan.insurance.jpa.repository.propPremium.TtrnDepositReleaseRepository;
-import com.maan.insurance.jpa.repository.treasury.TreasuryCustomRepository;
 import com.maan.insurance.model.entity.CompanyMaster;
 import com.maan.insurance.model.entity.ConstantDetail;
 import com.maan.insurance.model.entity.CountryMaster;
@@ -98,17 +96,14 @@ import com.maan.insurance.model.repository.ConstantDetailRepository;
 import com.maan.insurance.model.repository.PositionMasterRepository;
 import com.maan.insurance.model.repository.StatusMasterRepository;
 import com.maan.insurance.model.repository.SubStatusMasterRepository;
-import com.maan.insurance.model.repository.TerritoryMasterRepository;
 import com.maan.insurance.model.repository.TmasCrestaMasterRepository;
 import com.maan.insurance.model.repository.TmasDepartmentMasterRepository;
 import com.maan.insurance.model.repository.TmasOpenPeriodRepository;
-import com.maan.insurance.model.repository.TmasPfcMasterRepository;
 import com.maan.insurance.model.repository.TmasPolicyBranchRepository;
 import com.maan.insurance.model.repository.TmasSpfcMasterRepository;
 import com.maan.insurance.model.repository.TtrnClaimDetailsRepository;
 import com.maan.insurance.model.repository.TtrnInsurerDetailsRepository;
 import com.maan.insurance.model.repository.TtrnMndInstallmentsRepository;
-import com.maan.insurance.model.repository.TtrnPttySectionRepository;
 import com.maan.insurance.model.repository.TtrnRetroCessionaryRepository;
 import com.maan.insurance.model.repository.TtrnRetroClaimDetailsRepository;
 import com.maan.insurance.model.repository.TtrnRiPlacementRepository;
@@ -136,7 +131,6 @@ import com.maan.insurance.model.req.DropDown.GetTreatyTypeDropDownReq;
 import com.maan.insurance.model.req.DropDown.GetYearToListValueReq;
 import com.maan.insurance.model.req.DropDown.updateBqEditModeReq;
 import com.maan.insurance.model.req.DropDown.updateSubEditModeReq;
-import com.maan.insurance.model.req.placement.GetPlacementInfoListReq;
 import com.maan.insurance.model.req.proportionality.ContractReq;
 import com.maan.insurance.model.req.proportionality.GetRetroContractDetailsListReq;
 import com.maan.insurance.model.res.DropDown.CommonResDropDown;
@@ -171,11 +165,10 @@ import com.maan.insurance.validation.Formatters;
 @Service
 public class DropDownServiceImple implements DropDownService{
 	private Logger log = LogManager.getLogger(DropDownServiceImple.class);
-	private List<Map<String, Object>> department;
+
 	@Autowired
 	private QueryImplemention queryImpl;
-	@Autowired
-	private TreasuryCustomRepository treasuryCustomRepository;
+
 	@Autowired
 	private TtrnPaymentReceiptDetailsMapper ttrnPaymentReceiptDetailsMapper;
 	@Autowired
@@ -184,20 +177,14 @@ public class DropDownServiceImple implements DropDownService{
 	private TtrnClaimDetailsRepository claimRepo;
 	@Autowired
 	private TtrnRetroClaimDetailsRepository retroClaimRepo;
-	@Autowired
-	private  TtrnPttySectionRepository pttyRepo;
-	@Autowired
-	private  TtrnDepositReleaseRepository repo;
+	
 	@Autowired
 	private  BankMasterRepository bankRepo;
 	@Autowired
 	private  ConstantDetailRepository constRepo;
 	@Autowired
 	private  TmasPolicyBranchRepository polRepo;
-	@Autowired
-	private  TmasPfcMasterRepository pfcRepo;
-	@Autowired
-	private  TerritoryMasterRepository tmRepo;
+
 	@Autowired
 	private  UnderwritterCapacityMasterRepository uwcRepo;
 	@Autowired

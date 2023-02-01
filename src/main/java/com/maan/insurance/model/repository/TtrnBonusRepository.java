@@ -2,15 +2,18 @@ package com.maan.insurance.model.repository;
 
 import java.math.BigDecimal;
 
+import javax.transaction.Transactional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+
 
 import com.maan.insurance.model.entity.TtrnBonus;
 import com.maan.insurance.model.entity.TtrnCrestazoneDetails;
 
 public interface TtrnBonusRepository extends JpaRepository<TtrnBonus,BigDecimal> , JpaSpecificationExecutor<TtrnBonus> {
 
-
+	@Transactional
 	void deleteByProposalNoAndBranchAndTypeAndLayerNo(BigDecimal bigDecimal, String branchCode, String type,
 			String layerNo);
 

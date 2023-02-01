@@ -173,6 +173,7 @@ import com.maan.insurance.service.proportionality.ProportionalityService;
 import com.maan.insurance.validation.Formatters;
 
 @Service
+@Transactional
 public class ProportionalityServiceImpl implements ProportionalityService {
 	private Logger logger = LogManager.getLogger(ProportionalityServiceImpl.class);
 
@@ -2164,10 +2165,14 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 			e.printStackTrace();
 		}
 	}
-	@Transactional
+	
 	private void deleteMaintable(BonusSaveReq bean,String type) {
 		String arg[]=null;
 		try{
+			CriteriaBuilder cb = em.getCriteriaBuilder();
+			CriteriaDelete<TtrnBonus> delete = cb.createCriteriaDelete(TtrnBonus.class);
+			Root<TtrnBonus> rp = delete.from(TtrnBonus.class);
+			
 			if("".equalsIgnoreCase(bean.getEndorsmentno())){
 				//BONUS_MAIN_DELETE
 				 arg = new String[4];
@@ -2180,7 +2185,15 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 		        	   arg[2]="LPC";
 		           }
 				  arg[3]=StringUtils.isEmpty(bean.getLayerNo()) ? "0" : bean.getLayerNo();
-				  ttrnBonusRepository.deleteByProposalNoAndBranchAndTypeAndLayerNo(new BigDecimal( arg[0]), arg[1], arg[2],arg[3]);
+				//  ttrnBonusRepository.deleteByProposalNoAndBranchAndTypeAndLayerNo(new BigDecimal( arg[0]), arg[1], arg[2],arg[3]);
+				  	
+				  	Predicate n1 = cb.equal(rp.get("proposalNo"), arg[0]);
+					Predicate n3 = cb.equal(rp.get("branch"), arg[1]);
+					Predicate n4 = cb.equal(rp.get("type"), arg[2]);
+					Predicate n5 = cb.equal(rp.get("layerNo"), arg[3]);
+					delete.where(n1,n3,n4,n5);
+					em.createQuery(delete).executeUpdate();
+					
 			}else if(StringUtils.isBlank(bean.getProposalNo())) {
 				//BONUS_MAIN_DELETE3
 				 arg = new String[4];
@@ -2193,7 +2206,15 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 		        	   arg[2]="LPC";
 		           }
 				  arg[3]=StringUtils.isEmpty(bean.getLayerNo()) ? "0" : bean.getLayerNo();
-				  ttrnBonusRepository.deleteByReferenceNoAndBranchAndTypeAndLayerNo(new BigDecimal(arg[0]), arg[1], arg[2],arg[3]);
+				 // ttrnBonusRepository.deleteByReferenceNoAndBranchAndTypeAndLayerNo(new BigDecimal(arg[0]), arg[1], arg[2],arg[3]);
+				  
+				  	Predicate n1 = cb.equal(rp.get("referenceNo"), arg[0]);
+					Predicate n3 = cb.equal(rp.get("branch"), arg[1]);
+					Predicate n4 = cb.equal(rp.get("type"), arg[2]);
+					Predicate n5 = cb.equal(rp.get("layerNo"), arg[3]);
+					delete.where(n1,n3,n4,n5);
+					em.createQuery(delete).executeUpdate();
+					
 			}	else{
 			 //BONUS_MAIN_DELETE2
 			 arg = new String[5];
@@ -2207,7 +2228,17 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 	        	   arg[3]="LPC";
 	           }
 			  arg[4]=StringUtils.isEmpty(bean.getLayerNo()) ? "0" : bean.getLayerNo();
-			  ttrnBonusRepository.deleteByProposalNoAndEndorsementNoAndBranchAndTypeAndLayerNo(new BigDecimal(arg[0]), new BigDecimal(arg[1]), arg[2],arg[3], arg[4]);
+			//  ttrnBonusRepository.deleteByProposalNoAndEndorsementNoAndBranchAndTypeAndLayerNo(new BigDecimal(arg[0]), new BigDecimal(arg[1]), arg[2],arg[3], arg[4]);
+				
+				//Where
+				Predicate n1 = cb.equal(rp.get("proposalNo"), arg[0]);
+				Predicate n2 = cb.equal(rp.get("endorsementNo"), arg[1]);
+				Predicate n3 = cb.equal(rp.get("branch"), arg[2]);
+				Predicate n4 = cb.equal(rp.get("type"), arg[3]);
+				Predicate n5 = cb.equal(rp.get("layerNo"), arg[4]);
+				delete.where(n1,n2,n3,n4,n5);
+				em.createQuery(delete).executeUpdate();
+
 			}
 		}
 		catch(Exception e){
@@ -4601,7 +4632,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 	}
 	
 	private void MoveBonus(ScaleCommissionInsertReq req) throws ParseException {
-	//	List<ScaleList> req2 = new ArrayList<ScaleList>();
+		//	List<ScaleList> req2 = new ArrayList<ScaleList>();
 		if(StringUtils.isBlank(req.getAmendId())){
 			req.setAmendId("0");
 		}
@@ -4684,14 +4715,14 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 		          
 		TtrnBonus insert = proportionalityCustomRepository.bonusMainInsertPtty(args);
         if(insert!=null) {
-     	   ttrnBonusRepository.saveAndFlush(insert);
+     	   ttrnBonusRepository.save(insert);
      	   }
         if("MB".equals(req.getScalementhod())) {
 			   break;
 		   }
 			}
 		} if("scale".equalsIgnoreCase(req.getPageFor())){
-			//  InsertSlidingScaleMentodInfo(req);
+			  insertSlidingScaleMentodInfo(req);
 		  }
 				}
 	
@@ -4711,12 +4742,11 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 		}
 		return response;
 	}
+	
 	@Override
 	public saveRiskDeatilsSecondFormRes saveRiskDeatilsSecondForm(saveRiskDeatilsSecondFormReq req) {
 		saveRiskDeatilsSecondFormRes response = new saveRiskDeatilsSecondFormRes();
 		saveRiskDeatilsSecondFormRes1 res = new saveRiskDeatilsSecondFormRes1();
-		String query = "";
-		List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
 		List<Tuple> list2 = new ArrayList<>();
 		try {
 			String[] args=null;
@@ -5584,13 +5614,13 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 	return response;
 	}
 	@Override
-	public CommonResponse insertSlidingScaleMentodInfo(InsertSlidingScaleMentodInfoReq bean) {
+	public CommonResponse insertSlidingScaleMentodInfo(ScaleCommissionInsertReq bean) {
 		CommonResponse response = new CommonResponse();
 		try {
 			 String args[]=new String[23];
 			   args[0] =bean.getProposalNo();
 	           args[1] = bean.getContractNo();
-	           args[2] = bean.getProductId();
+	           args[2] = bean.getProductid();
 	           args[3] = "SSC1";  
 	           args[4] = bean.getProvisionCom();
 	           args[5] = bean.getScalementhod();

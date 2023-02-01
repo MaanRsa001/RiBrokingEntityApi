@@ -2560,68 +2560,68 @@ return list;
 		return list;
 	}
 
-	public List<ErrorCheck> insertSlidingScaleMentodInfoVali(InsertSlidingScaleMentodInfoReq req) {
+	public List<ErrorCheck> insertSlidingScaleMentodInfoVali(ScaleCommissionInsertReq req) {
 		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
-		if (StringUtils.isBlank(req.getProductId())) {
-			list.add(new ErrorCheck("Please Enter ProductId", "ProductId", "1"));
-		}
-		if (StringUtils.isBlank(req.getProposalNo())) {
-			list.add(new ErrorCheck("Please Enter ProposalNo", "ProposalNo", "2"));
-		}
-		if (StringUtils.isBlank(req.getBranchCode())) {
-			list.add(new ErrorCheck("Please Enter BranchCode", "BranchCode", "3"));
-		}
-		if (StringUtils.isBlank(req.getAmendId())) {
-			list.add(new ErrorCheck("Please Enter AmendId", "AmendId", "4"));
-		}
-		if (StringUtils.isBlank(req.getContractNo())) {
-			list.add(new ErrorCheck("Please Enter ContractNo", "ContractNo", "5"));
-		}
-		if (StringUtils.isBlank(req.getDepartmentId())) {
-			list.add(new ErrorCheck("Please Enter DepartmentId", "DepartmentId", "6"));
-		}
-		if (StringUtils.isBlank(req.getLayerNo())) {
-			list.add(new ErrorCheck("Please Enter LayerNo", "LayerNo", "7"));
-		}
-		if (StringUtils.isBlank(req.getLoginId())) {
-			list.add(new ErrorCheck("Please Enter LoginId", "LoginId", "8"));
-		}
-		if (StringUtils.isBlank(req.getProvisionCom())) {
-			list.add(new ErrorCheck("Please Enter ProvisionCom", "ProvisionCom", "9"));
-		}
-		if (StringUtils.isBlank(req.getReferenceNo())) {
-			list.add(new ErrorCheck("Please Enter ReferenceNo", "ReferenceNo", "10"));
-		}
-		if (StringUtils.isBlank(req.getScalebanding())) {
-			list.add(new ErrorCheck("Please Enter Scalebanding", "Scalebanding", "11"));
-		}
-		
-		if (StringUtils.isBlank(req.getScalecombine())) {
-			list.add(new ErrorCheck("Please Enter Scalecombine", "Scalecombine", "12"));
-		}
-		if (StringUtils.isBlank(req.getScaledeltacommission())) {
-			list.add(new ErrorCheck("Please Enter Scaledeltacommission", "Scaledeltacommission", "13"));
-		}
-		if (StringUtils.isBlank(req.getScaledeltalossratio())) {
-			list.add(new ErrorCheck("Please Enter Scaledeltalossratio", "Scaledeltalossratio", "14"));
-		}
-		if (StringUtils.isBlank(req.getScaledigit())) {
-			list.add(new ErrorCheck("Please Enter Scaledigit", "Scaledigit", "15"));
-		}
-		if (StringUtils.isBlank(req.getScalelossratioFrom())) {
-			list.add(new ErrorCheck("Please Enter ScalelossratioFrom", "ScalelossratioFrom", "16"));
-		}
-		if (StringUtils.isBlank(req.getScalelossratioTo())) {
-			list.add(new ErrorCheck("Please Enter ScalelossratioTo", "ScalelossratioTo", "17"));
-		}
-		if (StringUtils.isBlank(req.getScalemaxRatio())) {
-			list.add(new ErrorCheck("Please Enter ScalemaxRatio", "ScalemaxRatio", "18"));
-		}
-		if (StringUtils.isBlank(req.getScalementhod())) {
-			list.add(new ErrorCheck("Please Enter Scalementhod", "Scalementhod", "19"));
-		}if (StringUtils.isBlank(req.getScaleminRatio())) {
-			list.add(new ErrorCheck("Please Enter ScaleminRatio", "ScaleminRatio", "20"));
-		}
+//		if (StringUtils.isBlank(req.getProductId())) {
+//			list.add(new ErrorCheck("Please Enter ProductId", "ProductId", "1"));
+//		}
+//		if (StringUtils.isBlank(req.getProposalNo())) {
+//			list.add(new ErrorCheck("Please Enter ProposalNo", "ProposalNo", "2"));
+//		}
+//		if (StringUtils.isBlank(req.getBranchCode())) {
+//			list.add(new ErrorCheck("Please Enter BranchCode", "BranchCode", "3"));
+//		}
+//		if (StringUtils.isBlank(req.getAmendId())) {
+//			list.add(new ErrorCheck("Please Enter AmendId", "AmendId", "4"));
+//		}
+//		if (StringUtils.isBlank(req.getContractNo())) {
+//			list.add(new ErrorCheck("Please Enter ContractNo", "ContractNo", "5"));
+//		}
+//		if (StringUtils.isBlank(req.getDepartmentId())) {
+//			list.add(new ErrorCheck("Please Enter DepartmentId", "DepartmentId", "6"));
+//		}
+//		if (StringUtils.isBlank(req.getLayerNo())) {
+//			list.add(new ErrorCheck("Please Enter LayerNo", "LayerNo", "7"));
+//		}
+//		if (StringUtils.isBlank(req.getLoginId())) {
+//			list.add(new ErrorCheck("Please Enter LoginId", "LoginId", "8"));
+//		}
+//		if (StringUtils.isBlank(req.getProvisionCom())) {
+//			list.add(new ErrorCheck("Please Enter ProvisionCom", "ProvisionCom", "9"));
+//		}
+//		if (StringUtils.isBlank(req.getReferenceNo())) {
+//			list.add(new ErrorCheck("Please Enter ReferenceNo", "ReferenceNo", "10"));
+//		}
+//		if (StringUtils.isBlank(req.getScalebanding())) {
+//			list.add(new ErrorCheck("Please Enter Scalebanding", "Scalebanding", "11"));
+//		}
+//		
+//		if (StringUtils.isBlank(req.getScalecombine())) {
+//			list.add(new ErrorCheck("Please Enter Scalecombine", "Scalecombine", "12"));
+//		}
+//		if (StringUtils.isBlank(req.getScaledeltacommission())) {
+//			list.add(new ErrorCheck("Please Enter Scaledeltacommission", "Scaledeltacommission", "13"));
+//		}
+//		if (StringUtils.isBlank(req.getScaledeltalossratio())) {
+//			list.add(new ErrorCheck("Please Enter Scaledeltalossratio", "Scaledeltalossratio", "14"));
+//		}
+//		if (StringUtils.isBlank(req.getScaledigit())) {
+//			list.add(new ErrorCheck("Please Enter Scaledigit", "Scaledigit", "15"));
+//		}
+//		if (StringUtils.isBlank(req.getScalelossratioFrom())) {
+//			list.add(new ErrorCheck("Please Enter ScalelossratioFrom", "ScalelossratioFrom", "16"));
+//		}
+//		if (StringUtils.isBlank(req.getScalelossratioTo())) {
+//			list.add(new ErrorCheck("Please Enter ScalelossratioTo", "ScalelossratioTo", "17"));
+//		}
+//		if (StringUtils.isBlank(req.getScalemaxRatio())) {
+//			list.add(new ErrorCheck("Please Enter ScalemaxRatio", "ScalemaxRatio", "18"));
+//		}
+//		if (StringUtils.isBlank(req.getScalementhod())) {
+//			list.add(new ErrorCheck("Please Enter Scalementhod", "Scalementhod", "19"));
+//		}if (StringUtils.isBlank(req.getScaleminRatio())) {
+//			list.add(new ErrorCheck("Please Enter ScaleminRatio", "ScaleminRatio", "20"));
+//		}
 		
 		return list;
 	}

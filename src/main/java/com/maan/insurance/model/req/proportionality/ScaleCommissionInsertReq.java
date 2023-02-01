@@ -77,4 +77,28 @@ public class ScaleCommissionInsertReq {
 	
 	@JsonProperty("FpcfixedDate")	
 	private String fpcfixedDate;
+	
+
+	@JsonProperty("ProductId")
+	private String productId;
+	@JsonProperty("ProvisionCom")
+	private String provisionCom;
+	@JsonProperty("ScaleminRatio")
+	private String scaleminRatio;
+	@JsonProperty("ScalemaxRatio")
+	private String scalemaxRatio;
+	@JsonProperty("Scalecombine")
+	private String scalecombine;
+	@JsonProperty("Scalebanding")
+	private String scalebanding;
+	@JsonProperty("Scaledigit")
+	private String scaledigit;
+	@JsonProperty("ScalelossratioFrom")
+	private String scalelossratioFrom;
+	@JsonProperty("ScalelossratioTo")
+	private String scalelossratioTo;
+	@JsonProperty("Scaledeltalossratio")
+	private String scaledeltalossratio;
+	@JsonProperty("Scaledeltacommission")
+	private String scaledeltacommission;
 }

@@ -1,6 +1,9 @@
 package com.maan.insurance.service.impl.nonproportionality;
 
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -10,6 +13,7 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
@@ -17,16 +21,20 @@ import javax.persistence.criteria.Subquery;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Repository;
 
+import com.maan.insurance.jpa.entity.propPremium.TtrnInsurerDetails;
 import com.maan.insurance.model.entity.CurrencyMaster;
 import com.maan.insurance.model.entity.PersonalInfo;
+import com.maan.insurance.model.entity.PositionMaster;
 import com.maan.insurance.model.entity.TmasBranchMaster;
 import com.maan.insurance.model.entity.TmasDepartmentMaster;
 import com.maan.insurance.model.entity.TtrnRiskCommission;
 import com.maan.insurance.model.entity.TtrnRiskDetails;
 import com.maan.insurance.model.entity.TtrnRiskProposal;
+import com.maan.insurance.model.entity.TtrnRiskRemarks;
 
 @Repository
 public class NonProportionalityCustomRepositoryImple implements NonProportionalityCustomRepository {
+	SimpleDateFormat sdf=new SimpleDateFormat("dd/MM/yyyy");
 	@PersistenceContext
 	private EntityManager em;
 	
@@ -196,6 +204,186 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 				e.printStackTrace();
 			}
 			return list;
+	}
+
+	@Override
+	public List<Tuple> getRemarksDetails(String proposalNo, String layerNo) {
+		List<Tuple> list = new ArrayList<>();
+		try {
+		//GET_REMARKS_DETAILS
+		CriteriaBuilder cb = em.getCriteriaBuilder(); 
+		CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+		Root<TtrnRiskRemarks> rd = query.from(TtrnRiskRemarks.class);
+
+		query.multiselect(rd.get("rskSNo").alias("RSK_SNO"),rd.get("rskDescription").alias("RSK_DESCRIPTION"),
+				rd.get("rskRemark1").alias("RSK_REMARK1"),rd.get("rskRemark2").alias("RSK_REMARK2")); 
+
+		Subquery<Long> amend = query.subquery(Long.class); 
+		Root<TtrnRiskRemarks> rds = amend.from(TtrnRiskRemarks.class);
+		amend.select(cb.max(rds.get("amendId")));
+		Predicate a1 = cb.equal( rds.get("proposalNo"), rd.get("proposalNo"));
+		amend.where(a1);
+
+		List<Order> orderList = new ArrayList<Order>();
+		orderList.add(cb.asc(rd.get("rskSNo")));
+		
+		Predicate n1 = cb.equal(rd.get("proposalNo"), proposalNo);
+		Predicate n2 = cb.equal(rd.get("layerNo"), layerNo);
+		Predicate n4 = cb.equal(rd.get("amendId"), amend);
+		query.where(n1,n2,n4).orderBy(orderList);
+
+		TypedQuery<Tuple> result = em.createQuery(query);
+		list = result.getResultList();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+
+	@Override
+	public List<Tuple> facSelectViewInsDetails(String[] args) {
+		List<Tuple> list = new ArrayList<>();
+		try {
+			//fac.select.viewInsDetails
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query1 = cb.createQuery(Tuple.class); 
+			Root<TtrnInsurerDetails> rd = query1.from(TtrnInsurerDetails.class);
+			query1.multiselect(rd.get("retroPercentage").alias("RETRO_PER"),rd.get("type").alias("TYPE"),
+					rd.get("uwYear").alias("UW_YEAR"),rd.get("retroType").alias("RETRO_TYPE"),
+					cb.selectCase().when(cb.equal(rd.get("contractNo"),"0"), "").otherwise(rd.get("contractNo")).alias("CONTRACTNO")); 
+			
+			List<Order> orderList = new ArrayList<Order>();
+			orderList.add(cb.asc(rd.get("insurerNo")));
+			
+			Predicate n1 = cb.equal(rd.get("endorsementNo"),args[0]);
+			Predicate n2 = cb.equal(rd.get("proposalNo"), args[1]); 
+			Predicate n3 = cb.between(rd.get("insurerNo"), BigDecimal.ZERO, new BigDecimal(args[2]));
+			query1.where(n1,n2,n3).orderBy(orderList);
+	
+			TypedQuery<Tuple> result = em.createQuery(query1);
+			list = result.getResultList();
+			
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+			return list;
+	}
+
+	@Override
+	public List<Tuple> facSelectInsDetails(String[] args) {
+		List<Tuple> list = new ArrayList<>();
+		try {
+			//fac.select.viewInsDetails
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query1 = cb.createQuery(Tuple.class); 
+			Root<TtrnInsurerDetails> rd = query1.from(TtrnInsurerDetails.class);
+			query1.multiselect(rd.get("retroPercentage").alias("RETRO_PER"),rd.get("type").alias("TYPE"),
+					rd.get("uwYear").alias("UW_YEAR"),rd.get("retroType").alias("RETRO_TYPE"),
+					cb.selectCase().when(cb.equal(rd.get("contractNo"),"0"), "").otherwise(rd.get("contractNo")).alias("CONTRACTNO")); 
+			//end
+			Subquery<Long> end = query1.subquery(Long.class); 
+			Root<TtrnInsurerDetails> coms = end.from(TtrnInsurerDetails.class);
+			end.select(cb.max(coms.get("endorsementNo")));
+			Predicate b1 = cb.equal( coms.get("proposalNo"), rd.get("proposalNo"));
+			Predicate b2 = cb.equal( coms.get("insurerNo"), rd.get("insurerNo"));
+			end.where(b1,b2);
+			
+			List<Order> orderList = new ArrayList<Order>();
+			orderList.add(cb.asc(rd.get("insurerNo")));
+			
+			Predicate n1 = cb.equal(rd.get("endorsementNo"), end);
+			Predicate n2 = cb.equal(rd.get("proposalNo"), args[0]); 
+			Predicate n3 = cb.between(rd.get("insurerNo"), BigDecimal.ZERO, new BigDecimal(args[1]));
+			query1.where(n1,n2,n3).orderBy(orderList);
+	
+			TypedQuery<Tuple> result = em.createQuery(query1);
+			list = result.getResultList();
+			
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+			return list;
+	}
+
+	@Override
+	public List<Tuple> facSelectRetrocontdet23(String productId, String uwYear, String incepDate, String branchCode) {
+		List<Tuple> list = new ArrayList<>();
+		try {
+			//FAC_SELECT_RETROCONTDET_23
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			Root<PositionMaster> pm = query.from(PositionMaster.class);
+			
+			 Expression<String> e0 = cb.concat(pm.get("contractNo"), "-");	
+			 
+			  query.multiselect(
+					 cb.selectCase().when(cb.equal(pm.get("productId"),"4"), pm.get("contractNo"))
+					.otherwise(cb.selectCase().when(cb.equal(pm.get("productId"),"5"), cb.concat(e0,pm.get("layerNo"))).otherwise(null)).alias("CONTDET1")); 
+			
+			  //amend
+				Subquery<Long> amend = query.subquery(Long.class); 
+				Root<PositionMaster> p = amend.from(PositionMaster.class);
+				amend.select(cb.max(p.get("amendId")));
+				Predicate a1 = cb.equal(pm.get("productId"), p.get("productId"));
+				Predicate a2 = cb.equal(pm.get("contractNo"), p.get("contractNo"));
+				Predicate a3 = cb.notEqual(cb.coalesce(pm.get("retroType"),"N"),"SR");
+				Predicate a4 = cb.equal(pm.get("branchCode"), p.get("branchCode"));
+				Predicate a5 = cb.equal(pm.get("uwYear"),uwYear);
+				Date incep = sdf.parse(incepDate);
+				Predicate a6 = cb.greaterThan(p.get("expiryDate") ,incep);
+				Predicate a7 = cb.equal(pm.get("rskDummyContract"),"N");
+				amend.where(a1,a2,a3,a4,a5,a6,a7);
+				
+				List<Order> orderList = new ArrayList<Order>();
+				orderList.add(cb.asc(pm.get("contractNo")));
+				
+				Predicate n1 = cb.equal(pm.get("productId"), productId);
+				Predicate n2 = cb.equal(pm.get("contractStatus"), "A");
+				Predicate n3 = cb.isNotNull(pm.get("contractNo"));
+				Predicate n4 = cb.notEqual(pm.get("contractNo"),"0");
+				Predicate n5 = cb.notEqual(cb.coalesce(pm.get("retroType"),"N"),"SR");
+				Predicate n9 = cb.equal(pm.get("uwYear"),uwYear);
+
+				Predicate n6 = cb.greaterThan(p.get("expiryDate"),incep);
+				Predicate n7 = cb.equal(pm.get("branchCode"), branchCode);
+				Predicate n10 = cb.equal(pm.get("rskDummyContract"),"N");
+				Predicate n8 = cb.equal(pm.get("amendId"),amend);
+				query.where(n1,n2,n3,n4,n5,n6,n7,n8,n9,n10).orderBy(orderList);
+				
+				TypedQuery<Tuple> res1 = em.createQuery(query);
+				list = res1.getResultList();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+
+	@Override
+	public List<Tuple> riskSelectGetRskProIdByProNo(String proposalNo) {
+		List<Tuple> list = new ArrayList<>();
+		try {
+			//risk.select.getRskProIdByProNo
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query1 = cb.createQuery(Tuple.class); 
+			Root<TtrnRiskDetails> rd = query1.from(TtrnRiskDetails.class);
+			query1.multiselect(rd.get("rskProductid").alias("RSK_PRODUCTID")); 
+			//amendId
+			Subquery<Long> end = query1.subquery(Long.class); 
+			Root<TtrnRiskCommission> p = end.from(TtrnRiskCommission.class);
+			end.select(cb.max(p.get("rskEndorsementNo")));
+			Predicate d1 = cb.equal(p.get("rskProposalNumber"), rd.get("rskProposalNumber"));
+			end.where(d1);
+			
+			Predicate n1 = cb.equal(rd.get("rskProposalNumber"),proposalNo);
+			Predicate n2 = cb.equal(rd.get("rskEndorsementNo"), end); 
+			query1.where(n1,n2);
+
+			TypedQuery<Tuple> res = em.createQuery(query1);
+			list = res.getResultList();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return list;	
 	}
 
 }

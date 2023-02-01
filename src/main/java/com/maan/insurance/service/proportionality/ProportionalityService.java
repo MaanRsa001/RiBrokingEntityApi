@@ -139,7 +139,7 @@ public interface ProportionalityService {
 
 	GetSlidingScaleMethodInfoRes getSlidingScaleMethodInfo(String proposalNo, String branchCode, String referenceNo);
 
-	CommonResponse insertSlidingScaleMentodInfo(InsertSlidingScaleMentodInfoReq req);
+	CommonResponse insertSlidingScaleMentodInfo(ScaleCommissionInsertReq req);
 
 	GetcalculateSCRes getcalculateSC(GetcalculateSCReq req);
 
