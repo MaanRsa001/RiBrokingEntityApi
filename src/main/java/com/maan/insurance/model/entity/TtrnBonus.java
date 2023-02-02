@@ -7,6 +7,7 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -30,16 +31,26 @@ import lombok.ToString;
 @DynamicInsert
 @DynamicUpdate
 @Builder
+@IdClass(TtrnBonusId.class)
 @Table(name="TTRN_BONUS")
+
 public class TtrnBonus implements Serializable{
 	private static final long serialVersionUID = 1L;
 	 
     //--- ENTITY PRIMARY KEY 
     @Id
-    @Column(name="PROPOSAL_NO", nullable=false)
-    private BigDecimal proposalNo ;
+    @Column(name="SNO", nullable=false)
+    private BigDecimal sno ;
+    
+    @Id
+    @Column(name="BRANCH", nullable=false)
+    private String     branch;
     
     //--- ENTITY DATA FIELDS 
+    
+    @Column(name="PROPOSAL_NO")
+    private BigDecimal proposalNo ;
+    
     @Column(name="CONTRACT_NO")
     private BigDecimal contractNo ;
     
@@ -69,8 +80,7 @@ public class TtrnBonus implements Serializable{
     @Column(name="BRACH")
     private String     brach ;
     
-    @Column(name="BRANCH")
-    private String     branch;
+
     
     @Column(name="LCB_ID")
     private String     lcbId ;

@@ -3214,7 +3214,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 				resMap = list.get(0);
 			if(resMap!=null){
 				res.setProposalNo(resMap.get("RSK_PROPOSAL_NUMBER")==null?"":resMap.get("RSK_PROPOSAL_NUMBER").toString());
-				res.setSubProfitcenter(resMap.get("TMAS_SPFC_NAME")==null?"":resMap.get("TMAS_SPFC_NAME").toString()); 
+				// pending		res.setSubProfitcenter(resMap.get("TMAS_SPFC_NAME")==null?"":resMap.get("TMAS_SPFC_NAME").toString()); 
 				res.setCedingCo(resMap.get("COMPANY_NAME")==null?"":resMap.get("COMPANY_NAME").toString());
 				res.setBroker(resMap.get("BROKER")==null?"":resMap.get("BROKER").toString());
 				res.setMonth(resMap.get("MONTH")==null?"":resMap.get("MONTH").toString());
@@ -4202,7 +4202,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 				}
 			}
 			//GET_POSITION_MASTER_CON_MAP
-			PositionMaster result = positionMasterRepository.findByProposalNoAndAmendId(new BigDecimal(req.getProposalNo()),new BigDecimal(req.getProposalNo()));
+			PositionMaster result = positionMasterRepository.findByProposalNoAndAmendId(new BigDecimal(req.getProposalNo()),new BigDecimal(req.getAmendId()));
 			if(result!=null) {
 				res.setContractListVal(result.getDataMapContNo()==null?"":result.getDataMapContNo().toString());
 			}
@@ -4655,7 +4655,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 	        }
 		
 		//BONUS_MAIN_INSERT_PTTY
-		String [] args = new String [25];
+		String [] args = new String [26];
 		for(int i=0;i<req.getScaleList().size();i++) {
 			ScaleList req3 = req.getScaleList().get(i);			
 			if("MB".equals(req.getScalementhod()) ||StringUtils.isNotBlank(req3.getScaleFrom()) && StringUtils.isNotBlank(req3.getScaleTo()) && StringUtils.isNotBlank(req3.getScaleLowClaimBonus())) {
@@ -4712,6 +4712,12 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
            }
            args[23] =req.getFpcType();
            args[24] =req.getFpcfixedDate();
+           String sno = "";
+           TtrnBonus list = ttrnBonusRepository.findTop1ByBranchOrderBySnoDesc(req.getBranchCode());
+           if(list!=null) {
+        	   sno =   list.getSno()==null?"0": String.valueOf(list.getSno().intValue()+1);
+           }
+           args[25] =sno;
 		          
 		TtrnBonus insert = proportionalityCustomRepository.bonusMainInsertPtty(args);
         if(insert!=null) {
@@ -4721,7 +4727,8 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 			   break;
 		   }
 			}
-		} if("scale".equalsIgnoreCase(req.getPageFor())){
+		} 
+		if("scale".equalsIgnoreCase(req.getPageFor())){
 			  insertSlidingScaleMentodInfo(req);
 		  }
 				}
@@ -5617,7 +5624,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 	public CommonResponse insertSlidingScaleMentodInfo(ScaleCommissionInsertReq bean) {
 		CommonResponse response = new CommonResponse();
 		try {
-			 String args[]=new String[23];
+			 String args[]=new String[24];
 			   args[0] =bean.getProposalNo();
 	           args[1] = bean.getContractNo();
 	           args[2] = bean.getProductid();
@@ -5649,8 +5656,15 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 	        	   args[21]="";
 	        	   args[22]="";
 	           }
+	           String sno = "";
+	           TtrnBonus list = ttrnBonusRepository.findTop1ByBranchOrderBySnoDesc(bean.getBranchCode());
+	           if(list!=null) {
+	        	   sno =   list.getSno()==null?"0": String.valueOf(list.getSno().intValue()+1);
+	           }
+	           args[23]= sno ;
+	        
 	           //INSERT_SC_METHOD_INFO
-	          proportionalityCustomRepository.insertScMethodInfo(args);
+	           proportionalityCustomRepository.insertScMethodInfo(args);
 	           response.setMessage("Success");
 	   		response.setIsError(false);
 	   	} catch (Exception e) {

@@ -860,7 +860,7 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 	@Override
 	public TtrnBonus bonusMainInsertPtty(String[] input) throws ParseException {
 		TtrnBonus ttrnBonus = new TtrnBonus();
-		//MOVE_TO_CRESTA_MAIN_TABLE
+		//BONUS_MAIN_INSERT_PTTY
 		try {
 		if(input != null) {
 			ttrnBonus = new TtrnBonus();
@@ -890,6 +890,7 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 			ttrnBonus.setScaleMaxPartPercent(fm.formatBigDecimal(input[22]));
 			ttrnBonus.setFpcType(input[23]);
 			ttrnBonus.setFpcFixedDate(sdf.parse(input[24]));
+			ttrnBonus.setSno(fm.formatBigDecimal(input[25]));	
 			}
 		}catch(Exception e) {
 			e.printStackTrace();
@@ -1375,13 +1376,13 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 			List<Tuple> list = res.getResultList();
 
 			for(Tuple data :  list ) {
-			values.put("UWYear" , data.get("uwYear"));
-			values.put("expiryDate" , dbf.format(data.get("expiryDate")));
+			values.put("UW_YEAR" , data.get("uwYear"));
+			values.put("EXPIRY_DATE" , dbf.format(data.get("expiryDate")));
 			LocalDate d1 = LocalDate.parse(dbf.format( sdf.parse( icepDate)), DateTimeFormatter.ISO_LOCAL_DATE);
 			LocalDate d2 = LocalDate.parse(  dbf.format(data.get("expiryDate")), DateTimeFormatter.ISO_LOCAL_DATE);
 			Duration diff = Duration.between(d2.atStartOfDay(), d1.atStartOfDay());
 			long diffDays = diff.toDays();	
-			values.put("Diff" , diffDays);
+			values.put("DIFF" , diffDays);
 			response.add(values);
 			}
 		}
@@ -2478,6 +2479,7 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 			ttrnBonus.setLcbTo(args[20]);
 			ttrnBonus.setDeltaLossRatio(fm.formatBigDecimal(args[21]));
 			ttrnBonus.setLcbPercentage(args[22]);
+			ttrnBonus.setSno(fm.formatBigDecimal(args[23]));
 			ttrnBonusRepository.saveAndFlush(ttrnBonus);
 			}
 	}catch(Exception e) {

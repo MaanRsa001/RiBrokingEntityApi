@@ -35,6 +35,7 @@ public class BonusSaveReq {
 	private String referenceNo;
 	@JsonProperty("PageFor")
 	private String pageFor;
-	
+	@JsonProperty("Sno")
+	private String sno;
 
 }

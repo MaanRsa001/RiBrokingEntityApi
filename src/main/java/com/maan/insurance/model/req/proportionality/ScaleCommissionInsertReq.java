@@ -101,4 +101,6 @@ public class ScaleCommissionInsertReq {
 	private String scaledeltalossratio;
 	@JsonProperty("Scaledeltacommission")
 	private String scaledeltacommission;
+	@JsonProperty("Sno")
+	private String sno;
 }
