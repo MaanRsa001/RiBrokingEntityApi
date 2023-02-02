@@ -11,6 +11,9 @@ import lombok.Data;
 @Data
 public class GetPlacementNoRes {
 	
+	@JsonProperty("Result")
+	private GetPlacementNoRes1 commonResponse;
+	
 	@JsonProperty("Message")
 	private String message;
 

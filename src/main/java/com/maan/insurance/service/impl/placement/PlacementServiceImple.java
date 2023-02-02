@@ -705,7 +705,10 @@ public class PlacementServiceImple implements PlacementService {
 		List<SavePlacingRes> resList = new ArrayList<SavePlacingRes>();
 		List<GetBouquetExistingListRes1> list = null;
 		try {
-			getPlacementNo(bean);
+			GetPlacementNoRes1 res1 = 	getPlacementNo(bean).getCommonResponse();
+			bean.setPlacementNo(res1.getPlacementNo());
+			bean.setStatusNo(res1.getStatusNo());
+			
 			if("C".equalsIgnoreCase(bean.getPlacementMode())) {
 				if(StringUtils.isNotBlank(bean.getBouquetNo())) {
 				list =	dropDownImple.getBouquetExistingList(bean.getBranchCode(),bean.getBouquetNo(),bean.getBouquetModeYN()).getCommonResponse();
@@ -735,6 +738,7 @@ public class PlacementServiceImple implements PlacementService {
 	@Override
 	public GetPlacementNoRes getPlacementNo(SavePlacingReq bean) {
 		GetPlacementNoRes response = new GetPlacementNoRes();
+		GetPlacementNoRes1 res = new GetPlacementNoRes1();
 		String placementNo="",statusNo;
 		try {
 			if("C".equalsIgnoreCase(bean.getPlacementMode())) {
@@ -747,8 +751,9 @@ public class PlacementServiceImple implements PlacementService {
 					cq.select(root.get("placementNo")).distinct(true)
 					.where(cb.equal(root.get("bouquetNo"), bean.getBouquetNo()));
 					
-					BigDecimal placeno = em.createQuery(cq).getSingleResult();
-					placementNo = String.valueOf(placeno);
+					List<BigDecimal> placeno = em.createQuery(cq).getResultList();
+					if(placeno.size()>0)
+					placementNo = placeno.get(0)==null?"":String.valueOf(placeno.get(0));
 					
 				}else {
 					//GET_PLACEMENT_NO_BASELAYER
@@ -759,8 +764,9 @@ public class PlacementServiceImple implements PlacementService {
 					cq.select(root.get("placementNo")).distinct(true)
 					.where(cb.equal(root.get("baseProposalNo"), bean.getBaseProposalNo()));
 					
-					BigDecimal placeno = em.createQuery(cq).getSingleResult();
-					placementNo = String.valueOf(placeno);
+					List<BigDecimal> placeno = em.createQuery(cq).getResultList();
+					if(placeno.size()>0)
+					placementNo = placeno.get(0)==null?"":String.valueOf(placeno.get(0));
 				}
 			}else {
 				//GET_PLACEMENT_NO_PROPOSAL
@@ -771,22 +777,23 @@ public class PlacementServiceImple implements PlacementService {
 				cq.select(root.get("placementNo")).distinct(true)
 				.where(cb.equal(root.get("proposalNo"), bean.getEproposalNo()));
 				
-				BigDecimal placeno = em.createQuery(cq).getSingleResult();
-				placementNo = String.valueOf(placeno);
-				
+				List<BigDecimal> placeno = em.createQuery(cq).getResultList();
+				if(placeno.size()>0)
+				placementNo = placeno.get(0)==null?"":String.valueOf(placeno.get(0));
 			}
 			
 			if(StringUtils.isBlank(placementNo)) {
 			 	placementNo= fm.getSequence("PlacementNo","0","0", bean.getBranchCode(),"","");
 			}
 			statusNo= fm.getSequence("StatusNo","0","0", bean.getBranchCode(),"","");
-			bean.setStatusNo(statusNo);
-			bean.setPlacementNo(placementNo);
-			bean.setStatusNo(statusNo);
+		
+			res.setStatusNo(statusNo);
+			res.setPlacementNo(placementNo);
+		
+			response.setCommonResponse(res);	
 			response.setMessage("Success");
 			response.setIsError(false);
 		}catch(Exception e){
-				log.error(e);
 				e.printStackTrace();
 				response.setMessage("Failed");
 				response.setIsError(true);
@@ -826,25 +833,25 @@ public class PlacementServiceImple implements PlacementService {
 				}
 				entity.setPlacementNo(new BigDecimal(bean.getPlacementNo()));
 				entity.setSno(new BigDecimal(req.getReinsSNo()));
-				entity.setBouquetNo(StringUtils.isBlank(bean.getBouquetNo())? null :new BigDecimal(bean.getBouquetNo()));
-				entity.setBaseProposalNo(new BigDecimal(bean.getBaseProposalNo()));
-				entity.setProposalNo(new BigDecimal(bean.getEproposalNo()));
-				entity.setContractNo(StringUtils.isBlank(bean.getContractNo())? null :new BigDecimal(bean.getContractNo()));
-				entity.setLayerNo(StringUtils.isBlank(bean.getLayerNo())? null :new BigDecimal(bean.getLayerNo()));
-				entity.setSectionNo(StringUtils.isBlank(bean.getSectionNo())? null :new BigDecimal(bean.getSectionNo()));
-				entity.setAmendId(StringUtils.isBlank(bean.getAmendId())? null :new BigDecimal(bean.getAmendId()));
-				entity.setReinsurerId(req.getReinsureName());
-				entity.setBrokerId(req.getPlacingBroker());
-				entity.setShareOffered(new BigDecimal(req.getShareOffer()));
-				entity.setBranchCode(bean.getBranchCode());
+				entity.setBouquetNo(StringUtils.isBlank(bean.getBouquetNo())? BigDecimal.ZERO :new BigDecimal(bean.getBouquetNo()));
+				entity.setBaseProposalNo(bean.getBaseProposalNo()==null?BigDecimal.ZERO :new BigDecimal(bean.getBaseProposalNo()));
+				entity.setProposalNo(bean.getEproposalNo()==null?BigDecimal.ZERO :new BigDecimal(bean.getEproposalNo()));
+				entity.setContractNo(StringUtils.isBlank(bean.getContractNo())? BigDecimal.ZERO :new BigDecimal(bean.getContractNo()));
+				entity.setLayerNo(StringUtils.isBlank(bean.getLayerNo())? BigDecimal.ZERO :new BigDecimal(bean.getLayerNo()));
+				entity.setSectionNo(StringUtils.isBlank(bean.getSectionNo())? BigDecimal.ZERO :new BigDecimal(bean.getSectionNo()));
+				entity.setAmendId(StringUtils.isBlank(bean.getAmendId())? BigDecimal.ZERO :new BigDecimal(bean.getAmendId()));
+				entity.setReinsurerId(req.getReinsureName()==null?"":req.getReinsureName());
+				entity.setBrokerId(req.getPlacingBroker()==null?"":req.getPlacingBroker());
+				entity.setShareOffered(req.getShareOffer()==null?BigDecimal.ZERO :new BigDecimal(req.getShareOffer()));
+				entity.setBranchCode(bean.getBranchCode()==null?"":bean.getBranchCode());
 				entity.setSysDate(new Date());
 				entity.setCedingCompanyId(StringUtils.isBlank(bean.getCedingCompany())?"":bean.getCedingCompany());
-				entity.setPlacementMode(bean.getPlacementMode());
-				entity.setStatus(currentStatus);
-				entity.setPlacementAmendId(StringUtils.isBlank(bean.getPlacementamendId())? null :new BigDecimal(bean.getPlacementamendId()));
-				entity.setStatusNo(new BigDecimal(bean.getStatusNo()));
+				entity.setPlacementMode(bean.getPlacementMode()==null?"":bean.getPlacementMode());
+				entity.setStatus(currentStatus==null?"":currentStatus);
+				entity.setPlacementAmendId(StringUtils.isBlank(bean.getPlacementamendId())? BigDecimal.ZERO  :new BigDecimal(bean.getPlacementamendId()));
+				entity.setStatusNo(bean.getStatusNo()==null?BigDecimal.ZERO :new BigDecimal(bean.getStatusNo()));
 				entity.setApproveStatus("Y");
-				entity.setUserId(bean.getUserId());
+				entity.setUserId(bean.getUserId()==null?"":bean.getUserId());
 				ripRepo.saveAndFlush(entity);		
 				resList.add(res);
 				}
@@ -852,7 +859,6 @@ public class PlacementServiceImple implements PlacementService {
 			response.setMessage("Success");
 			response.setIsError(false);
 		}catch(Exception e){
-				log.error(e);
 				e.printStackTrace();
 				response.setMessage("Failed");
 				response.setIsError(true);
