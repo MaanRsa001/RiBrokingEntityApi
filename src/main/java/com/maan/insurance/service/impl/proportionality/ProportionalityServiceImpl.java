@@ -2910,7 +2910,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 				res.setPremiumResType(resMap.get("RSK_PREMIUM_RES_TYPE")==null?"":resMap.get("RSK_PREMIUM_RES_TYPE").toString());
 				res.setPortfolioType(resMap.get("RSK_PORTFOLIO_TYPE")==null?"":resMap.get("RSK_PORTFOLIO_TYPE").toString());
 				res.setPcfpcType(resMap.get("FPC_TYPE")==null?"":resMap.get("FPC_TYPE").toString());
-				res.setPcfixedDate(resMap.get("FPC_FIXED_DATE")==null?"":resMap.get("FPC_FIXED_DATE").toString()); //Ri
+				res.setPcfixedDate(resMap.get("FPC_FIXED_DATE")==null?"":DateFormat(resMap.get("FPC_FIXED_DATE")).toString()); //Ri
 				
 				if (resMap.get("RSK_OTHER_COST") != null) {
 					res.setOthercost(resMap.get("RSK_OTHER_COST").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_OTHER_COST").toString());

@@ -2455,8 +2455,8 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 		//INSERT_SECTION_DETAILS
 		try {
 		if(args != null) {
-			ttrnBonus.setProposalNo(fm.formatBigDecimal(args[0]));	
-			ttrnBonus.setContractNo(fm.formatBigDecimal(args[1]));
+			ttrnBonus.setProposalNo(StringUtils.isBlank(args[0])? null : fm.formatBigDecimal(args[0]));	
+			ttrnBonus.setContractNo(StringUtils.isBlank(args[1])? null : fm.formatBigDecimal(args[1]));
 			ttrnBonus.setProductId(args[2]);
 			ttrnBonus.setLcbType(args[3]);
 			ttrnBonus.setProvisionalCommisiion(fm.formatBigDecimal(args[4]));
@@ -2477,7 +2477,7 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 			ttrnBonus.setReferenceNo(fm.formatBigDecimal(args[18]));
 			ttrnBonus.setLcbFrom(args[19]);
 			ttrnBonus.setLcbTo(args[20]);
-			ttrnBonus.setDeltaLossRatio(fm.formatBigDecimal(args[21]));
+			ttrnBonus.setDeltaLossRatio(StringUtils.isBlank(args[21])? null : fm.formatBigDecimal(args[21]));
 			ttrnBonus.setLcbPercentage(args[22]);
 			ttrnBonus.setSno(fm.formatBigDecimal(args[23]));
 			ttrnBonusRepository.saveAndFlush(ttrnBonus);

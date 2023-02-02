@@ -1524,9 +1524,9 @@ return list;
 		if (StringUtils.isBlank(req.getProposalNo())) {
 			list.add(new ErrorCheck("Please Enter ProposalNo", "ProposalNo", "4"));
 		}
-		if (StringUtils.isBlank(req.getSharSign())) {
-			list.add(new ErrorCheck("Please Enter SharSign", "SharSign", "2"));
-		}
+//		if (StringUtils.isBlank(req.getSharSign())) {
+//			list.add(new ErrorCheck("Please Enter SharSign", "SharSign", "2"));
+//		}
 		if (StringUtils.isBlank(req.getSubProfitCenter())) {
 			list.add(new ErrorCheck("Please Enter SubProfitCenter", "SubProfitCenter", "2"));
 		}

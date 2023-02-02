@@ -299,7 +299,7 @@ public class DropDownController {
 		return dropDownservice.getTypeList(type);
 	}
 
-	@GetMapping("/getReinstatementOptionList")
+	@PostMapping("/getReinstatementOptionList")
 	public GetCommonDropDownRes getReinstatementOptionList() throws CommonValidationException {
 
 		return dropDownservice.getReinstatementOptionList();

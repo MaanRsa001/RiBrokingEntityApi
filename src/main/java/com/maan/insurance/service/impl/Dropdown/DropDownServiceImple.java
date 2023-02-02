@@ -155,8 +155,6 @@ import com.maan.insurance.model.res.DropDown.GetOpenPeriodRes;
 import com.maan.insurance.model.res.DropDown.GetOpenPeriodRes1;
 import com.maan.insurance.model.res.DropDown.GetPlacementInfoListRes;
 import com.maan.insurance.model.res.DropDown.GetPlacementInfoListRes1;
-import com.maan.insurance.model.res.DropDown.GetYearToListValueRes;
-import com.maan.insurance.model.res.DropDown.GetYearToListValueRes1;
 import com.maan.insurance.model.res.retro.CommonSaveRes;
 import com.maan.insurance.service.Dropdown.DropDownService;
 import com.maan.insurance.service.impl.QueryImplemention;
@@ -226,6 +224,11 @@ public class DropDownServiceImple implements DropDownService{
 	@PersistenceContext
 	private EntityManager em;
 
+	public String formatdate(Object input) {
+		return new SimpleDateFormat("dd/MM/yyyy").format(input).toString();
+	}
+	
+	
 
 	@Override
 	public GetCommonValueRes EditModeStatus(String proposalNo) {
@@ -4799,11 +4802,66 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 		List<GetBouquetListRes1> resList = new ArrayList<GetBouquetListRes1>();
 		try{
 			//GET_BOUQUET_LIST
-			List<PositionMaster> list = pmRepo.findDistinctByBranchCodeAndBouquetNoNotNull(branchCode);
+			
+			CriteriaBuilder cb = em.getCriteriaBuilder();
+			CriteriaQuery<Tuple> cq = cb.createQuery(Tuple.class);
+			Root<PositionMaster> pmRoot = cq.from(PositionMaster.class);
+			Root<PersonalInfo> piRoot = cq.from(PersonalInfo.class);
+			Root<PersonalInfo> pibRoot = cq.from(PersonalInfo.class);
+			
+			Expression<String> codesc = cb.concat(pmRoot.get("bouquetNo"),cb.concat(cb.literal("-"),cb.concat(piRoot.get("companyName"),cb.concat(cb.literal("-"),pmRoot.get("uwYear")))));			
+			Subquery<Integer> pmprop = cq.subquery(Integer.class);
+			Root<PositionMaster> subpmRoot = pmprop.from(PositionMaster.class);
+			
+			
+			pmprop.select(cb.max(subpmRoot.get("proposalNo")))
+					.where(cb.equal(subpmRoot.get("bouquetNo"), pmRoot.get("bouquetNo")),
+							cb.equal(pmRoot.get("branchCode"), subpmRoot.get("branchCode")));
+			
+			Subquery<Integer> pmamd = cq.subquery(Integer.class);
+			Root<PositionMaster> subamdRoot = pmamd.from(PositionMaster.class);
+			
+			pmamd.select(cb.max(subamdRoot.get("amendId")))
+			.where(cb.equal(subamdRoot.get("proposalNo"),pmRoot.get("proposalNo")),
+					cb.equal(pmRoot.get("branchCode"), subamdRoot.get("branchCode")));			
+			
+			Subquery<Integer> piamd = cq.subquery(Integer.class);
+			Root<PersonalInfo> subpiRoot = piamd.from(PersonalInfo.class);
+			
+			piamd.select(cb.max(subpiRoot.get("amendId")))
+			.where(cb.equal(piRoot.get("customerId"), subpiRoot.get("customerId")),
+					cb.equal(piRoot.get("branchCode"), subpiRoot.get("branchCode")));
+			
+			Subquery<Integer> pibamd = cq.subquery(Integer.class);
+			Root<PersonalInfo> subpibRoot = pibamd.from(PersonalInfo.class);
+			
+			pibamd.select(cb.max(subpibRoot.get("amendId")))
+			.where(cb.equal(pibRoot.get("customerId"), subpibRoot.get("customerId")),
+					cb.equal(pibRoot.get("branchCode"), subpibRoot.get("branchCode")));
+			
+			
+			cq.multiselect(pmRoot.get("bouquetNo").alias("CODE"),codesc.alias("CODEDESC")) //
+			.where(cb.equal(pmRoot.get("branchCode"),branchCode),
+					cb.isNotNull(pmRoot.get("bouquetNo")),
+					pmRoot.get("proposalNo").in(pmprop),
+					pmRoot.get("amendId").in(pmamd),
+					cb.equal(pmRoot.get("branchCode"), piRoot.get("branchCode")),
+					piRoot.get("amendId").in(piamd),
+					cb.equal(piRoot.get("customerId"),pmRoot.get("cedingCompanyId")),
+					cb.equal(pmRoot.get("branchCode"), pibRoot.get("branchCode")),
+					pibRoot.get("amendId").in(pibamd),
+					cb.equal(pibRoot.get("customerId"), pmRoot.get("brokerId")));
+			
+			cq.orderBy(cb.desc(pmRoot.get("bouquetNo")));
+			
+			List<Tuple> list = em.createQuery(cq).getResultList();
+			
+			
 			if(list.size()>0) {
-				for(PositionMaster data: list) {
+				for(Tuple data: list) {
 					GetBouquetListRes1 res = new GetBouquetListRes1();
-					res.setBouquetNo(data.getBouquetNo()==null?"":data.getBouquetNo().toString());
+					res.setCode(data.get("CODE")==null?"":data.get("CODE").toString());
+					res.setCodeDescription(data.get("CODEDESC")==null?"":data.get("CODEDESC").toString());
 					resList.add(res);
 					}
 			}
@@ -5410,8 +5468,8 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 				bean.setBrokerName(data.get("BROKER_NAME")==null?"":data.get("BROKER_NAME").toString());
 				bean.setUwYear(data.get("UW_YEAR")==null?"":data.get("UW_YEAR").toString());
 				bean.setUwYearTo(data.get("UW_YEAR_TO")==null?"":data.get("UW_YEAR_TO").toString());
-				bean.setIncepDate(data.get("INCEPTION_DATE")==null?"":data.get("INCEPTION_DATE").toString());
-				bean.setExpDate(data.get("EXPIRY_DATE")==null?"":data.get("EXPIRY_DATE").toString());
+				bean.setIncepDate(data.get("INCEPTION_DATE")==null?"":formatdate(data.get("INCEPTION_DATE")).toString());
+				bean.setExpDate(data.get("EXPIRY_DATE")==null?"":formatdate(data.get("EXPIRY_DATE")).toString());
 				response.setCommonResponse(bean);
 			}
 			response.setMessage("Success");

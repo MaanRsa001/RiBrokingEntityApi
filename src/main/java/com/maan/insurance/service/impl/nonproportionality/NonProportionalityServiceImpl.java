@@ -3085,7 +3085,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
         }
 		
 	    String query = "INSERT_REINSTATEMENT_MAIN";
-	    String args[] = new String[15];
+	    String args[] = new String[14];
 			for(int i=0;i<req.getReinstatementNo().size();i++){
 			ReinstatementNoList req1 = req.getReinstatementNo().get(i);
 			args[0] = req1.getReinstatementNo();
@@ -3093,16 +3093,16 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			args[2] = req1.getReinstatementAmount();
 			args[3] = StringUtils.isEmpty(req1.getReinstatementMinAmount())?"":req1.getReinstatementMinAmount();
 			args[4] = StringUtils.isEmpty(req1.getReinstatementMinTime())?"":req1.getReinstatementMinTime();
-			args[5] = req.getProposalNo();
+			args[5] = StringUtils.isBlank(req.getProposalNo())?"":req.getProposalNo();
 			args[6] = req.getBranchCode();
 			args[7] = req.getAmendId();
-			args[8] = req.getDepartmentId();
+			args[8] = StringUtils.isBlank(req.getDepartmentId())? "":req.getDepartmentId();
 			args[9] = "";
 			args[10] = req.getProductId();
 			args[11] = StringUtils.isEmpty(req.getLayerNo()) ? "0"	: req.getLayerNo();
 			args[12] = req.getReinstatementOption();
 			args[13] = "A";
-			args[14]=StringUtils.isBlank(req.getReferenceNo())?"":req.getReferenceNo();
+			//args[14]=StringUtils.isBlank(req.getReferenceNo())?"":req.getReferenceNo();
 
 			 queryImpl.updateQuery(query, args);
 			}
@@ -3732,6 +3732,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 							res.setEgnpi(insMap.get("RSK_EGNPI_AS_OFF")==null?"0.00":fm.formatter(insMap.get("RSK_EGNPI_AS_OFF").toString()));
 							res.setGnpi(insMap.get("RSK_GNPI_AS_OFF")==null?"0.00":fm.formatter(insMap.get("RSK_GNPI_AS_OFF").toString()));	
 							res.setNetMaxRetentPer(insMap.get("RSK_NET_MAX_RETENT_PERCENT")==null?"0.00":fm.formatter(insMap.get("RSK_GNPI_AS_OFF").toString()));
+							res.setDeductableLimitAmount(insMap.get("RSK_DEDUCTABLE_LIMT")==null?"0.00":fm.formatter(insMap.get("RSK_DEDUCTABLE_LIMT").toString()));
 							res.setTotalLoopCount(String.valueOf(i+1));
 					}else{
 					res.setCoverdepartId(insMap.get("RSK_COVER_CLASS")==null?"":insMap.get("RSK_COVER_CLASS").toString());	
