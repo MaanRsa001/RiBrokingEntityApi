@@ -263,7 +263,7 @@ public class PortFolioServiceImple implements PortFolioService{
                 GetPendingListRes1 tempBean = new GetPendingListRes1();
                 tempBean.setProposalNo(tempMap.get("PROPOSAL_NO") == null ? "" : tempMap.get("PROPOSAL_NO").toString());
                 tempBean.setOfferNo(tempMap.get("OFFER_NO") == null ? "" : tempMap.get("OFFER_NO").toString());
-                tempBean.setBouquetNo(tempMap.get("Bouquet_No") == null ? "" : tempMap.get("Bouquet_No").toString());
+                tempBean.setBouquetNo(tempMap.get("BOUQUET_NO") == null ? "" : tempMap.get("BOUQUET_NO").toString());
                 tempBean.setAmendId(tempMap.get("AMEND_ID") == null ? "" : tempMap.get("AMEND_ID").toString());
                 tempBean.setCedingCompanyName(tempMap.get("COMPANY_NAME") == null ? "" : tempMap.get("COMPANY_NAME").toString());
                 tempBean.setDepartmentName(tempMap.get("TMAS_DEPARTMENT_NAME") == null ? "" : tempMap.get("TMAS_DEPARTMENT_NAME").toString());
@@ -1299,15 +1299,24 @@ public class PortFolioServiceImple implements PortFolioService{
 	      		Root<PersonalInfo> c1 = query.from(PersonalInfo.class);
 	      		Root<PositionMaster> a = query.from(PositionMaster.class);
 	      		Root<TtrnRiskDetails> e = query.from(TtrnRiskDetails.class);
-	      		Root<TmasDepartmentMaster> b = query.from(TmasDepartmentMaster.class);
+	      		//Root<TmasDepartmentMaster> b = query.from(TmasDepartmentMaster.class);
 	      	//	Root<UnderwritterMaster> d = query.from(UnderwritterMaster.class);
 	      		
+	      		Subquery<String> deptName = query.subquery(String.class); 
+				Root<TmasDepartmentMaster> coms = deptName.from(TmasDepartmentMaster.class);
+				deptName.select(coms.get("tmasDepartmentName"));
+				Predicate dp1 = cb.equal( coms.get("tmasDepartmentId"), e.get("rskDeptid"));
+				Predicate dp2 = cb.equal( coms.get("tmasProductId"), e.get("rskProductid"));
+				Predicate dp3 = cb.equal( coms.get("branchCode"), a.get("branchCode"));
+				Predicate dp4 = cb.equal( coms.get("tmasStatus"), "Y");
+				deptName.where(dp1,dp2,dp3,dp4);
+				
 	      		Expression<String> e0 = cb.concat(c1.get("firstName"), " ");
 	      		
 	      		query.multiselect(a.get("offerNo").alias("OFFER_NO"),
 	      				a.get("proposalNo").alias("PROPOSAL_NO"),
-	      				b.get("tmasDepartmentId").alias("TMAS_DEPARTMENT_ID"),
-	      				b.get("tmasDepartmentName").alias("TMAS_DEPARTMENT_NAME"),
+	      				//b.get("tmasDepartmentId").alias("TMAS_DEPARTMENT_ID"),
+	      				deptName.alias("TMAS_DEPARTMENT_NAME"),
 	      				a.get("cedingCompanyId").alias("CEDING_COMPANY_ID"),
 	      				cb.concat(e0,c1.get("lastName")).alias("BROKER_NAME"),
 	      				c.get("companyName").alias("COMPANY_NAME"),
@@ -1370,10 +1379,10 @@ public class PortFolioServiceImple implements PortFolioService{
 	      		prop.where(f3,f1,f2);
 	      		
 	      		List<Predicate> predicateList = new ArrayList<Predicate>();
-	      		predicateList.add(cb.equal(e.get("rskDeptid"), b.get("tmasDepartmentId")));
-	      		predicateList.add(cb.equal(b.get("tmasProductId"), beanObj.getProductId()));
-	      		predicateList.add(cb.equal(b.get("branchCode"), beanObj.getBranchCode()));
-	      		predicateList.add(cb.equal(b.get("tmasStatus"), "Y"));
+	      		//predicateList.add(cb.equal(e.get("rskDeptid"), b.get("tmasDepartmentId")));
+	      		//predicateList.add(cb.equal(b.get("tmasProductId"), beanObj.getProductId()));
+	      		//predicateList.add(cb.equal(b.get("branchCode"), beanObj.getBranchCode()));
+	      		//predicateList.add(cb.equal(b.get("tmasStatus"), "Y"));
 //	      		predicateList.add(cb.equal(d.get("uwrCode"), e.get("rskUnderwritter")));
 //	      		predicateList.add(cb.equal(d.get("branchCode"),  beanObj.getBranchCode()));
 	      		predicateList.add(cb.equal(a.get("productId"), beanObj.getProductId()));      		
@@ -1408,7 +1417,7 @@ public class PortFolioServiceImple implements PortFolioService{
 	                    predicateList.add(cb.like(cb.upper(c1.get("firstName")), beanObj.getBrokerNameSearch().toUpperCase()));	 
 	            	}
 	        		if(StringUtils.isNotBlank(beanObj.getDepartmentNameSearch())){
-	            		 predicateList.add(cb.like(cb.upper(b.get("tmasDepartmentName")), beanObj.getDepartmentNameSearch().toUpperCase()));	 
+	            		 predicateList.add(cb.like(deptName, beanObj.getDepartmentNameSearch().toUpperCase()));	 
 	            	}
 	        		if(StringUtils.isNotBlank(beanObj.getBouquetNoSearch())){
 	            		 predicateList.add(cb.like(cb.upper(a.get("bouquetNo")), beanObj.getBouquetNoSearch().toUpperCase()));	 
@@ -1491,7 +1500,7 @@ public class PortFolioServiceImple implements PortFolioService{
 	                tempBean.setCedingCompanyName(tempMap.get("COMPANY_NAME") == null ? "" : tempMap.get("COMPANY_NAME").toString());
 	                tempBean.setDepartmentName(tempMap.get("TMAS_DEPARTMENT_NAME") == null ? "" : tempMap.get("TMAS_DEPARTMENT_NAME").toString());
 	     //pending  tempBean.setSubClass(tempMap.get("TMAS_SPFC_NAME") == null ? "" : tempMap.get("TMAS_SPFC_NAME").toString());
-	                tempBean.setDepartmentId(tempMap.get("TMAS_DEPARTMENT_ID") == null ? "" : tempMap.get("TMAS_DEPARTMENT_ID").toString());
+	               // tempBean.setDepartmentId(tempMap.get("TMAS_DEPARTMENT_ID") == null ? "" : tempMap.get("TMAS_DEPARTMENT_ID").toString());
 	                tempBean.setInceptionDate(tempMap.get("INCEPTION_DATE") == null ? "" : Dateformat(tempMap.get("INCEPTION_DATE")).toString());
 	                tempBean.setExpiryDate(tempMap.get("EXPIRY_DATE") == null ? "" : Dateformat(tempMap.get("EXPIRY_DATE")).toString());
 	                tempBean.setInsuredName(tempMap.get("RSK_INSURED_NAME") == null ? "" : tempMap.get("RSK_INSURED_NAME").toString());

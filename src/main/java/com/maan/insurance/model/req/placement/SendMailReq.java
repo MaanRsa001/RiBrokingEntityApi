@@ -33,4 +33,12 @@ public class SendMailReq {
 	private String brokerId; 
 	@JsonProperty("CorresId")
 	private String corresId; 
+	@JsonProperty("UserId")
+	private String userId; 
+	@JsonProperty("PlacementMode")
+	private String placementMode;  
+	@JsonProperty("BaseProposalNo")
+	private String baseProposalNo;
+	@JsonProperty("BouquetNo")
+	private String bouquetNo;
 }

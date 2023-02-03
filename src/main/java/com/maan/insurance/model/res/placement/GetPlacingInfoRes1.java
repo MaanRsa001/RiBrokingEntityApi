@@ -1,17 +1,14 @@
 package com.maan.insurance.model.res.placement;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.maan.insurance.model.req.placement.ReinsListReq;
-import com.maan.insurance.model.req.placement.SavePlacingReq;
-
 import lombok.Data;
 
 @Data
 public class GetPlacingInfoRes1 {
 	@JsonProperty("Sno")
 	private String sno;
+	@JsonProperty("ProposalNo")
+	private String proposalNo;
 	@JsonProperty("BouquetNo")
 	private String bouquetNo;
 	@JsonProperty("ReinsurerId")
@@ -26,4 +23,6 @@ public class GetPlacingInfoRes1 {
 	private String shareOffered;
 	@JsonProperty("OfferStatus")
 	private String offerStatus;
+	@JsonProperty("MailStatus")
+	private String mailStatus;
 }

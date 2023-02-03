@@ -480,7 +480,7 @@ public class DropDownValidation {
 //			list.add(new ErrorCheck("Please Enter BouquetNo", "BouquetNo", "2"));
 //		}
 		if (StringUtils.isBlank(req.getBaseProposalNo())) {
-			list.add(new ErrorCheck("Please Enter BaseProposalNo", "BaseProposalNo", "3"));
+			//list.add(new ErrorCheck("Please Enter BaseProposalNo", "BaseProposalNo", "3"));
 		}
 		if (StringUtils.isBlank(req.getPlacementMode())) {
 			list.add(new ErrorCheck("Please Enter PlacementMode", "PlacementMode", "4"));

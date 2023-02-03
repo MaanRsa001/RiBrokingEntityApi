@@ -80,13 +80,10 @@ import com.maan.insurance.model.req.placement.GetPlacementViewReq;
 import com.maan.insurance.model.req.placement.GetPlacingInfoReq;
 import com.maan.insurance.model.req.placement.GetReinsurerInfoReq;
 import com.maan.insurance.model.req.placement.InsertDocdetailsReq;
-import com.maan.insurance.model.req.placement.InsertMailDetailsReq;
 import com.maan.insurance.model.req.placement.PlacementSummaryReq;
 import com.maan.insurance.model.req.placement.ReinsListReq;
 import com.maan.insurance.model.req.placement.SavePlacingReq;
 import com.maan.insurance.model.req.placement.SendMailReq;
-import com.maan.insurance.model.req.placement.UpdateMailDetailsReq;
-import com.maan.insurance.model.req.placement.UpdateMailDetailsReq1;
 import com.maan.insurance.model.req.placement.UpdatePlacementListReq;
 import com.maan.insurance.model.req.placement.UpdatePlacementReq;
 import com.maan.insurance.model.req.placement.UploadDocumentReq;
@@ -485,7 +482,7 @@ public class PlacementServiceImple implements PlacementService {
 				bean.setSectionNo(map.get("SECTION_NO")==null?"":map.get("SECTION_NO").toString());
 				bean.setOfferNo(map.get("OFFER_NO")==null?"":map.get("OFFER_NO").toString());
 				bean.setAmendId(map.get("AMEND_ID")==null?"":map.get("AMEND_ID").toString());
-				if(StringUtils.isBlank(req.getEProposalNo()))
+				if(StringUtils.isNotBlank(req.getProposalNo()))
 				bean.setEproposalNo(req.getProposalNo());
 				response.setCommonResponse(bean);
 			}
@@ -597,7 +594,7 @@ public class PlacementServiceImple implements PlacementService {
 					res.setProposalNos(map.get("PROPOSAL_NO")==null?"":map.get("PROPOSAL_NO").toString());
 					res.setReinsSNo(map.get("SNO")==null?"":map.get("SNO").toString());
 					res.setReinsureName(map.get("REINSURER_ID")==null?"":map.get("REINSURER_ID").toString());
-					res.setShareOffer(map.get("SHARE_OFFERED")==null?"":dropDownImple.formattereight(map.get("SHARE_OFFERED").toString()));;
+					res.setShareOffer(map.get("SHARE_OFFERED")==null?"":fm.formattereight(map.get("SHARE_OFFERED").toString()));;
 		
 					if(mailcount>0) {
 						res.setDeleteStatus("N");
@@ -665,7 +662,7 @@ public class PlacementServiceImple implements PlacementService {
 					res.setSno(map.get("SNO")==null?"":map.get("SNO").toString()); 
 					res.setBouquetNo(map.get("BOUQUET_NO")==null?"":map.get("BOUQUET_NO").toString()); 
 					res.setBaseProposalNo(map.get("BASE_PROPOSAL_NO")==null?"":map.get("BASE_PROPOSAL_NO").toString()); 
-					res.setProposalNo(map.get("ROPOSAL_NO")==null?"":map.get("PROPOSAL_NO").toString()); 
+					res.setProposalNo(map.get("PROPOSAL_NO")==null?"":map.get("PROPOSAL_NO").toString()); 
 					res.setCedingCompanyId(map.get("CEDING_COMPANY_ID")==null?"":map.get("CEDING_COMPANY_ID").toString()); 
 					res.setReinsurerId(map.get("REINSURER_ID")==null?"":map.get("REINSURER_ID").toString()); 
 					res.setBrokerId(map.get("BROKER_ID")==null?"":map.get("BROKER_ID").toString()); 
@@ -975,13 +972,15 @@ public class PlacementServiceImple implements PlacementService {
 					Map<String,Object>map=list.get(i);
 					GetPlacingInfoRes1 res = new GetPlacingInfoRes1();
 					  res.setSno(map.get("SNO")==null?"":map.get("SNO").toString());  
+					  res.setProposalNo(map.get("PROPOSAL_NO")==null?"":map.get("PROPOSAL_NO").toString());  
 					  res.setBouquetNo(map.get("BOUQUET_NO")==null?"":map.get("BOUQUET_NO").toString());  
 					  res.setReinsurerId(map.get("REINSURER_ID")==null?"":map.get("REINSURER_ID").toString());  
 					  res.setBrokerId(map.get("BROKER_ID")==null?"":map.get("BROKER_ID").toString());  
 					  res.setReinsurerName(map.get("REINSURER_NAME")==null?"":map.get("REINSURER_NAME").toString());  
 					  res.setBrokerName(map.get("BROKER_NAME")==null?"":map.get("BROKER_NAME").toString());  
 					  res.setShareOffered(map.get("SHARE_OFFERED")==null?"":map.get("SHARE_OFFERED").toString());  
-					  res.setOfferStatus(map.get("OFFER_STATUS")==null?"":map.get("OFFER_STATUS").toString()); 
+					  res.setOfferStatus(map.get("OFFER_STATUS")==null?"":map.get("OFFER_STATUS").toString());
+					  res.setMailStatus(map.get("MAIL_STATUS")==null?"":map.get("MAIL_STATUS").toString()); 
 					  resList.add(res);
 					  }
 				}
@@ -1024,21 +1023,21 @@ public class PlacementServiceImple implements PlacementService {
 					res.setCedingCompanyName(map.get("CEDING_COMPANY_NAME")==null?"":map.get("CEDING_COMPANY_NAME").toString());
 					res.setBrokerId(map.get("BROKER_ID")==null?"":map.get("BROKER_ID").toString());
 					res.setProposalNo(map.get("PROPOSAL_NO")==null?"":map.get("PROPOSAL_NO").toString());
-					res.setShareOffered(map.get("SHARE_OFFERED")==null?"":dropDownImple.formattereight(map.get("SHARE_OFFERED").toString()));
-					res.setWrittenLine(map.get("SHARE_WRITTEN")==null?"":dropDownImple.formattereight(map.get("SHARE_WRITTEN").toString()));
+					res.setShareOffered(map.get("SHARE_OFFERED")==null?"":fm.formattereight(map.get("SHARE_OFFERED").toString()));
+					res.setWrittenLine(map.get("SHARE_WRITTEN")==null?"":fm.formattereight(map.get("SHARE_WRITTEN").toString()));
 					res.setBrokerage(map.get("BROKERAGE_PER")==null?"":map.get("BROKERAGE_PER").toString());
-					res.setWrittenvaliditydate(map.get("WRITTEN_LINE_VALIDITY")==null?"":map.get("WRITTEN_LINE_VALIDITY").toString());
+					res.setWrittenvaliditydate(map.get("WRITTEN_LINE_VALIDITY")==null?"":formatdate(map.get("WRITTEN_LINE_VALIDITY")));
 					res.setWrittenvalidityRemarks(map.get("WRITTEN_LINE_REMARKS")==null?"":map.get("WRITTEN_LINE_REMARKS").toString());
-					res.setProposedWL(map.get("SHARE_PROPOSAL_WRITTEN")==null?"":dropDownImple.formattereight(map.get("SHARE_PROPOSAL_WRITTEN").toString()));
-					res.setSignedLine(map.get("SHARE_SIGNED")==null?"":dropDownImple.formattereight(map.get("SHARE_SIGNED").toString()));
-					res.setProposedSL(map.get("SHARE_PROPOSED_SIGNED")==null?"":dropDownImple.formattereight(map.get("SHARE_PROPOSED_SIGNED").toString()));
-					res.setReoffer(map.get("SHARE_OFFERED")==null?"":dropDownImple.formattereight(map.get("SHARE_OFFERED").toString()));
+					res.setProposedWL(map.get("SHARE_PROPOSAL_WRITTEN")==null?"":fm.formattereight(map.get("SHARE_PROPOSAL_WRITTEN").toString()));
+					res.setSignedLine(map.get("SHARE_SIGNED")==null?"":fm.formattereight(map.get("SHARE_SIGNED").toString()));
+					res.setProposedSL(map.get("SHARE_PROPOSED_SIGNED")==null?"":fm.formattereight(map.get("SHARE_PROPOSED_SIGNED").toString()));
+					res.setReoffer(map.get("SHARE_OFFERED")==null?"":fm.formattereight(map.get("SHARE_OFFERED").toString()));
 					// doubt not in table TQR_BROKERAGE_AMT
 					//	res.setTqrBrokerageAmt(map.get("TQR_BROKERAGE_AMT")==null?"":dropDownImple.formattereight(map.get("TQR_BROKERAGE_AMT").toString()));
-					res.setSignedLineValidity(map.get("SHARE_LINE_VALIDITY")==null?"":map.get("SHARE_LINE_VALIDITY").toString());
+					res.setSignedLineValidity(map.get("SHARE_LINE_VALIDITY")==null?"":formatdate(map.get("SHARE_LINE_VALIDITY")));
 					res.setSignedLineRemarks(map.get("SHARE_LINE_REMARKS")==null?"":map.get("SHARE_LINE_REMARKS").toString());
 					res.setEmailStatus(map.get("MAIL_STATUS")==null?"":map.get("MAIL_STATUS").toString());
-					res.setPsignedLine(map.get("SHARE_SIGNED")==null?"":dropDownImple.formattereight(map.get("SHARE_SIGNED").toString()));
+					res.setPsignedLine(map.get("SHARE_SIGNED")==null?"":fm.formattereight(map.get("SHARE_SIGNED").toString()));
 					resList.add(res);
 					}
 				res1.setPlacingDetails(resList);
@@ -1106,13 +1105,23 @@ public class PlacementServiceImple implements PlacementService {
 			Root<TtrnRiPlacement> pm = query.from(TtrnRiPlacement.class);
 			
 			//cedingCompanyName
+			
+			
 			Subquery<String> cedingCompanyName = query.subquery(String.class); 
 			Root<PersonalInfo> personal = cedingCompanyName.from(PersonalInfo.class);
+			
+			Subquery<Long> cmaxAmend = query.subquery(Long.class); 
+			Root<PersonalInfo> cpis = cmaxAmend.from(PersonalInfo.class);
+			cmaxAmend.select(cb.max(cpis.get("amendId")));
+			Predicate ca1 = cb.equal( cpis.get("customerId"), personal.get("customerId"));
+			cmaxAmend.where(ca1);
+			
 			cedingCompanyName.select(personal.get("companyName"));
 			Predicate b1 = cb.equal( pm.get("cedingCompanyId"), personal.get("customerId"));
 			Predicate b2 = cb.equal( pm.get("branchCode"), personal.get("branchCode"));
 			Predicate b3 = cb.equal( personal.get("customerType"), "C");
-			cedingCompanyName.where(b1,b2,b3);
+			Predicate b4 = cb.equal( personal.get("amendId"), cmaxAmend);
+			cedingCompanyName.where(b1,b2,b3,b4);
 			
 			//reinsurerName
 			Subquery<String> reinsurerName = query.subquery(String.class); 
@@ -1377,7 +1386,7 @@ public class PlacementServiceImple implements PlacementService {
 				entity.setSysDate(new Date());
 				ripRepo.saveAndFlush(entity);
 			}
-	//		updateStatus(bean,""); status =""
+			updateStatus(bean);
 			response.setMessage("Success");
 			response.setIsError(false);
 		}catch(Exception e){
@@ -1426,13 +1435,13 @@ public class PlacementServiceImple implements PlacementService {
 				entity.setCedentCorrespondence(bean.getCedentCorrespondent());
 				entity.setReinsurerCorrespondence(bean.getReinsurerCorrespondent());
 				entity.setTqrCorrespondence(bean.getTqrCorrespondent());
-				entity.setUpdateDate(sdf.parse(bean.getUpdateDate()));
+				entity.setUpdateDate(StringUtils.isBlank(bean.getUpdateDate())?new Date():sdf.parse(bean.getUpdateDate()));
 				entity.setStatus("Y");
 				entity.setBranchCode(bean.getBranchCode());
 				entity.setSysDate(new Date());
 				entity.setCorrespondentId(new BigDecimal(bean.getCorresId()));
 				entity.setStatusNo(new BigDecimal(bean.getStatusNo()));
-				entity.setUserId(new BigDecimal(bean.getUserId()));
+				entity.setUserId(bean.getUserId());
 				entity.setApproverStatus("Y");				
 				placeStatusRepo.saveAndFlush(entity);		
 			}
@@ -1688,6 +1697,7 @@ public class PlacementServiceImple implements PlacementService {
 	}
 
 	@Override
+	@Transactional
 	public SendMailRes sendMail(SendMailReq bean) {
 		SendMailRes response = new SendMailRes();
 		String status=null;
@@ -1710,13 +1720,29 @@ public class PlacementServiceImple implements PlacementService {
 				if(ccAddress!=null && !"".equals(ccAddress)){
 					ccAddresses = (ccAddress.indexOf(",")!=-1)?ccAddress.split(","):new String[]{ccAddress};
 				}
-		//	insertMailDetails(bean);
+			InsertMailDetailsRes res=insertMailDetails(bean);
+			UpdatePlacementReq req=new UpdatePlacementReq();
+			req.setBranchCode(bean.getBranchCode());
+			List<UpdatePlacementListReq> placementListReq=new ArrayList<UpdatePlacementListReq>();
+			List<InsertMailDetailsRes1> resp=res.getCommonResponse();
+			for(int i=0;i<resp.size();i++) {
+				UpdatePlacementListReq ureq=new UpdatePlacementListReq();
+				ureq.setSno(resp.get(i).getSno());
+				ureq.setProposalNo(resp.get(i).getEproposalNo());
+				ureq.setBouquetNo(resp.get(i).getBouquetNo());
+				ureq.setReinsurerId(resp.get(i).getReinsurerId());
+				ureq.setBrokerId(resp.get(i).getBrokerId());
+				ureq.setBaseproposalNo(resp.get(i).getBaseProposalNo());
+				placementListReq.add(ureq);
+			}
+			req.setPlacementListReq(placementListReq);
 			Multipart multipart=GetMailAttachment(bean);
 			 status=sendResponseMail(hostName, user, pwd, mailform, subject, multipart, toAddresses, ccAddresses, shortAddress,port);
 			if("Success".equals(status) && "P".equals(bean.getMailType())) {
-			//	updateStatus(bean,"P"); status = "P"
+				req.setStatus("P");
+				updateStatus(req); 
 			}
-	//		updateMailDetails(bean,status);
+			updateMailDetails(req,status,bean.getMailType());
 			} 
 			response.setResponse(String.valueOf(status));
 			response.setMessage("Success");
@@ -1849,8 +1875,8 @@ public class PlacementServiceImple implements PlacementService {
 				return new PasswordAuthentication(username, password);
 			}
 	}
-	@Override
-	public InsertMailDetailsRes insertMailDetails(InsertMailDetailsReq bean) {
+	//@Override
+	public InsertMailDetailsRes insertMailDetails(SendMailReq bean) {
 		InsertMailDetailsRes response = new InsertMailDetailsRes();
 		List<InsertMailDetailsRes1> resList = new ArrayList<InsertMailDetailsRes1>();
 		List<Tuple>list=null;
@@ -1918,105 +1944,16 @@ public class PlacementServiceImple implements PlacementService {
 	}
    
 	@Transactional
-	@Override
-	public CommonResponse updateMailDetails(UpdateMailDetailsReq bean) {
+	public CommonResponse updateMailDetails(UpdatePlacementReq bean, String status, String mailType) {
 		CommonResponse response = new CommonResponse();
 		try {
-		for(int i=0;i<bean.getUpdateMailDetailsReqList().size();i++) {
-			UpdateMailDetailsReq1 req = bean.getUpdateMailDetailsReqList().get(i);
-			//UPDATE_MAIL_NOTIFICATION
-			MailNotificationDetail entity = mailnotiRepo.findByProposalNoAndReinsurerIdAndBrokerIdAndBranchCode(
-					new BigDecimal(req.getProposalNo()),req.getReinsurerId(),req.getBrokerId(),bean.getBranchCode());
-			entity.setMailStatus(bean.getStatus());
-			entity.setUpdateDate(new Date());;
-			entity.setStatusNo(bean.getStatusNo());
-			mailnotiRepo.saveAndFlush(entity);
+		for(int i=0;i<bean.getPlacementListReq().size();i++) {
+			UpdatePlacementListReq resp =bean.getPlacementListReq().get(i);
 			
-			//UPDATE_PLACEMENT_STATUS
-			CriteriaBuilder cb = this.em.getCriteriaBuilder();
-			// create update
-			CriteriaUpdate<TtrnRiPlacement> update = cb.createCriteriaUpdate(TtrnRiPlacement.class);
-			// set the root class
-			Root<TtrnRiPlacement> m = update.from(TtrnRiPlacement.class);
-			// set update and where clause
-			update.set("status", bean.getMailType());
-			update.set("statusNo",new BigDecimal(bean.getStatusNo()));
-			
-			// MAXAmend ID
-			Subquery<Long> amend = update.subquery(Long.class); 
-			Root<TtrnRiPlacement> pms = amend.from(TtrnRiPlacement.class);
-			amend.select(cb.max(pms.get("placementAmendId")));
-			Predicate a1 = cb.equal( m.get("branchCode"), pms.get("branchCode"));
-			Predicate a2 = cb.equal( m.get("proposalNo"), pms.get("proposalNo"));
-			Predicate a3 = cb.equal( m.get("reinsurerId"), pms.get("reinsurerId"));
-			Predicate a4 = cb.equal( m.get("brokerId"), pms.get("brokerId"));
-			amend.where(a1,a2,a3,a4);
-			
-			Predicate n1 = cb.equal(m.get("proposalNo"), req.getProposalNo());
-			Predicate n2 = cb.equal(m.get("reinsurerId"), req.getReinsurerId());
-			Predicate n3 = cb.equal(m.get("brokerId"),req.getBrokerId());
-			Predicate n4 = cb.equal(m.get("branchCode"), bean.getBranchCode());
-			Predicate n5 = cb.equal(m.get("placementAmendId"), amend);
-			update.where(n1,n2,n3,n4,n5);
-			// perform update
-			em.createQuery(update).executeUpdate();
-
-			//UPDATE_ATTACHMENT_MAIL	
-			CriteriaUpdate<NotificationAttachmentDetail> update1 = cb.createCriteriaUpdate(NotificationAttachmentDetail.class);
-			Root<NotificationAttachmentDetail> pm = update1.from(NotificationAttachmentDetail.class);
-			
-			// MAXAmend ID
-			Subquery<Long> mailRecordNo = update1.subquery(Long.class); 
-			Root<MailNotificationDetail> mr = mailRecordNo.from(MailNotificationDetail.class);
-			mailRecordNo.select(cb.max(mr.get("mailRecordNo")));
-			Predicate b2 = cb.equal( pm.get("proposalNo"), mr.get("proposalNo"));
-			Predicate b3 = cb.equal( pm.get("reinsurerId"), mr.get("reinsurerId"));
-			Predicate b4 = cb.equal( pm.get("brokerId"), mr.get("brokerId"));
-			mailRecordNo.where(b2,b3,b4);
-			
-			update1.set("mailRecordNo",mailRecordNo==null?null:mailRecordNo);
-			update1.set("statusNo", new BigDecimal( bean.getStatusNo()));
-			
-			Predicate m1 = cb.equal(pm.get("proposalNo"), req.getProposalNo());
-			Predicate m2 = cb.equal(pm.get("reinsurerId"), req.getReinsurerId());
-			Predicate m3 = cb.equal(pm.get("brokerId"),req.getBrokerId());
-			Predicate m4 = cb.equal(pm.get("branchCode"), bean.getBranchCode());
-			update1.where(m1,m2,m3,m4);
-			em.createQuery(update1).executeUpdate();
-			
-			//UPDATE_PLACEMENT_STATUS_MAIL
-			CriteriaUpdate<TtrnRiPlacementStatus> update2 = cb.createCriteriaUpdate(TtrnRiPlacementStatus.class);
-			Root<TtrnRiPlacementStatus> ri = update2.from(TtrnRiPlacementStatus.class);
-			
-			// mailRecordNo
-			Subquery<Long> mailRecordNo1 = update2.subquery(Long.class); 
-			Root<MailNotificationDetail> mr1 = mailRecordNo1.from(MailNotificationDetail.class);
-			mailRecordNo1.select(cb.max(mr1.get("mailRecordNo")));
-			Predicate c2 = cb.equal( ri.get("proposalNo"), mr1.get("proposalNo"));
-			Predicate c3 = cb.equal( ri.get("reinsurerId"), mr1.get("reinsurerId"));
-			Predicate c4 = cb.equal( ri.get("brokerId"), mr1.get("brokerId"));
-			mailRecordNo1.where(c2,c3,c4);
-			
-			update2.set("emailRecordid", mailRecordNo1==null?null:mailRecordNo1);
-			
-			//statusNo
-			Subquery<Long> statusNo = update2.subquery(Long.class); 
-			Root<TtrnRiPlacementStatus> ris = statusNo.from(TtrnRiPlacementStatus.class);
-			statusNo.select(cb.max(ris.get("statusNo")));
-			Predicate e1 = cb.equal( ri.get("branchCode"), ris.get("branchCode"));
-			Predicate e2 = cb.equal( ri.get("proposalNo"), ris.get("proposalNo"));
-			Predicate e3 = cb.equal( ri.get("reinsurerId"), ris.get("reinsurerId"));
-			Predicate e4 = cb.equal( ri.get("brokerId"), ris.get("brokerId"));
-			statusNo.where(e1,e2,e3,e4);
-			
-			Predicate d1 = cb.equal(ri.get("proposalNo"), req.getProposalNo());
-			Predicate d2 = cb.equal(ri.get("reinsurerId"), req.getReinsurerId());
-			Predicate d3 = cb.equal(ri.get("brokerId"),req.getBrokerId());
-			Predicate d4 = cb.equal(ri.get("branchCode"), bean.getBranchCode());
-			Predicate d5 = cb.equal(ri.get("statusNo"), statusNo);
-			update2.where(d1,d2,d3,d4,d5);
-			em.createQuery(update2).executeUpdate();
-			
+			updateNotificationStatus(resp,bean,status);
+			updatePlacement(resp,bean,mailType);
+			updateAttachementStatus(resp,bean);
+			updatePlacementStatus(resp,bean);
 		}
 		response.setMessage("Success");
 		response.setIsError(false);
@@ -2027,6 +1964,133 @@ public class PlacementServiceImple implements PlacementService {
 			response.setIsError(true);
 		}
 	return response;
+	}
+	@Transactional
+	private void updatePlacementStatus(UpdatePlacementListReq resp, UpdatePlacementReq bean) {
+		CriteriaBuilder cb = this.em.getCriteriaBuilder();
+		//UPDATE_PLACEMENT_STATUS_MAIL
+		CriteriaUpdate<TtrnRiPlacementStatus> update2 = cb.createCriteriaUpdate(TtrnRiPlacementStatus.class);
+		Root<TtrnRiPlacementStatus> ri = update2.from(TtrnRiPlacementStatus.class);
+		
+		// mailRecordNo
+		Subquery<Long> mailRecordNo1 = update2.subquery(Long.class); 
+		Root<MailNotificationDetail> mr1 = mailRecordNo1.from(MailNotificationDetail.class);
+		mailRecordNo1.select(cb.max(mr1.get("mailRecordNo")));
+		Predicate c2 = cb.equal( ri.get("proposalNo"), mr1.get("proposalNo"));
+		Predicate c3 = cb.equal( ri.get("reinsurerId"), mr1.get("reinsurerId"));
+		Predicate c4 = cb.equal( ri.get("brokerId"), mr1.get("brokerId"));
+		mailRecordNo1.where(c2,c3,c4);
+		
+		update2.set("emailRecordid", mailRecordNo1==null?null:mailRecordNo1);
+		
+		//statusNo
+		Subquery<Long> statusNo = update2.subquery(Long.class); 
+		Root<TtrnRiPlacementStatus> ris = statusNo.from(TtrnRiPlacementStatus.class);
+		statusNo.select(cb.max(ris.get("statusNo")));
+		Predicate e1 = cb.equal( ri.get("branchCode"), ris.get("branchCode"));
+		Predicate e2 = cb.equal( ri.get("proposalNo"), ris.get("proposalNo"));
+		Predicate e3 = cb.equal( ri.get("reinsurerId"), ris.get("reinsurerId"));
+		Predicate e4 = cb.equal( ri.get("brokerId"), ris.get("brokerId"));
+		statusNo.where(e1,e2,e3,e4);
+		
+		Predicate d1 = cb.equal(ri.get("proposalNo"), resp.getProposalNo());
+		Predicate d2 = cb.equal(ri.get("reinsurerId"), resp.getReinsurerId());
+		Predicate d3 = cb.equal(ri.get("brokerId"),resp.getBrokerId());
+		Predicate d4 = cb.equal(ri.get("branchCode"), bean.getBranchCode());
+		Predicate d5 = cb.equal(ri.get("statusNo"), statusNo);
+		update2.where(d1,d2,d3,d4,d5);
+		em.createQuery(update2).executeUpdate();
+	}
+
+	@Transactional
+	private void updateAttachementStatus(UpdatePlacementListReq resp, UpdatePlacementReq bean) {
+		CriteriaBuilder cb = this.em.getCriteriaBuilder();
+		//UPDATE_ATTACHMENT_MAIL	
+		CriteriaUpdate<NotificationAttachmentDetail> update1 = cb.createCriteriaUpdate(NotificationAttachmentDetail.class);
+		Root<NotificationAttachmentDetail> pm = update1.from(NotificationAttachmentDetail.class);
+		
+		// MAXAmend ID
+		Subquery<Long> mailRecordNo = update1.subquery(Long.class); 
+		Root<MailNotificationDetail> mr = mailRecordNo.from(MailNotificationDetail.class);
+		mailRecordNo.select(cb.max(mr.get("mailRecordNo")));
+		Predicate b2 = cb.equal( pm.get("proposalNo"), mr.get("proposalNo"));
+		Predicate b3 = cb.equal( pm.get("reinsurerId"), mr.get("reinsurerId"));
+		Predicate b4 = cb.equal( pm.get("brokerId"), mr.get("brokerId"));
+		mailRecordNo.where(b2,b3,b4);
+		
+		update1.set("mailRecordNo",mailRecordNo==null?null:mailRecordNo);
+		update1.set("statusNo", new BigDecimal( bean.getStatusNo()));
+		
+		Predicate m1 = cb.equal(pm.get("proposalNo"), resp.getProposalNo());
+		Predicate m2 = cb.equal(pm.get("reinsurerId"), resp.getReinsurerId());
+		Predicate m3 = cb.equal(pm.get("brokerId"),resp.getBrokerId());
+		Predicate m4 = cb.equal(pm.get("branchCode"), bean.getBranchCode());
+		update1.where(m1,m2,m3,m4);
+		em.createQuery(update1).executeUpdate();
+	}
+
+	@Transactional
+	private void updatePlacement(UpdatePlacementListReq resp, UpdatePlacementReq bean, String mailType) {
+		CriteriaBuilder cb = this.em.getCriteriaBuilder();
+		CriteriaUpdate<TtrnRiPlacement> update = cb.createCriteriaUpdate(TtrnRiPlacement.class);
+		// set the root class
+		Root<TtrnRiPlacement> m = update.from(TtrnRiPlacement.class);
+		// set update and where clause
+		update.set("status", mailType);
+		update.set("statusNo",new BigDecimal(bean.getStatusNo()));
+		
+		// MAXAmend ID
+		Subquery<Long> amend = update.subquery(Long.class); 
+		Root<TtrnRiPlacement> pms = amend.from(TtrnRiPlacement.class);
+		amend.select(cb.max(pms.get("placementAmendId")));
+		Predicate a1 = cb.equal( m.get("branchCode"), pms.get("branchCode"));
+		Predicate a2 = cb.equal( m.get("proposalNo"), pms.get("proposalNo"));
+		Predicate a3 = cb.equal( m.get("reinsurerId"), pms.get("reinsurerId"));
+		Predicate a4 = cb.equal( m.get("brokerId"), pms.get("brokerId"));
+		amend.where(a1,a2,a3,a4);
+		
+		Predicate n1 = cb.equal(m.get("proposalNo"), resp.getProposalNo());
+		Predicate n2 = cb.equal(m.get("reinsurerId"), resp.getReinsurerId());
+		Predicate n3 = cb.equal(m.get("brokerId"),resp.getBrokerId());
+		Predicate n4 = cb.equal(m.get("branchCode"), bean.getBranchCode());
+		Predicate n5 = cb.equal(m.get("placementAmendId"), amend);
+		update.where(n1,n2,n3,n4,n5);
+		// perform update
+		em.createQuery(update).executeUpdate();
+	}
+
+	@Transactional
+	private void updateNotificationStatus(UpdatePlacementListReq resp, UpdatePlacementReq bean, String status) {
+		//UPDATE_PLACEMENT_STATUS
+		CriteriaBuilder cb = this.em.getCriteriaBuilder();
+		// create update
+		CriteriaUpdate<MailNotificationDetail> notify = cb.createCriteriaUpdate(MailNotificationDetail.class);
+		// set the root class
+		Root<MailNotificationDetail> mailnotify = notify.from(MailNotificationDetail.class);
+		// set update and where clause
+		notify.set("mailStatus", status);
+		notify.set("updateDate",new Date());
+		notify.set("statusNo",new BigDecimal(bean.getStatusNo()));
+		
+		// MAXAmend ID
+		Subquery<Long> mnamend = notify.subquery(Long.class); 
+		Root<MailNotificationDetail> mns = mnamend.from(MailNotificationDetail.class);
+		mnamend.select(cb.max(mns.get("mailRecordNo")));
+		Predicate mn1 = cb.equal( mailnotify.get("branchCode"), mns.get("branchCode"));
+		Predicate mn2 = cb.equal( mailnotify.get("proposalNo"), mns.get("proposalNo"));
+		Predicate mn3 = cb.equal( mailnotify.get("reinsurerId"), mns.get("reinsurerId"));
+		Predicate mn4 = cb.equal( mailnotify.get("brokerId"), mns.get("brokerId"));
+		mnamend.where(mn1,mn2,mn3,mn4);
+		
+		Predicate pn1 = cb.equal(mailnotify.get("proposalNo"), resp.getProposalNo());
+		Predicate pn2 = cb.equal(mailnotify.get("reinsurerId"), resp.getReinsurerId());
+		Predicate pn3 = cb.equal(mailnotify.get("brokerId"),resp.getBrokerId());
+		Predicate pn4 = cb.equal(mailnotify.get("branchCode"), bean.getBranchCode());
+		Predicate pn5 = cb.equal(mailnotify.get("mailRecordNo"), mnamend);
+		notify.where(pn1,pn2,pn3,pn4,pn5);
+		// perform update
+		em.createQuery(notify).executeUpdate();
+		
 	}
 
 	@Transactional
@@ -2421,11 +2485,7 @@ public class PlacementServiceImple implements PlacementService {
 	private List<Tuple> MailproposalInfo(GetMailTemplateReq bean) {
 		List<Tuple> list=null;
 		try {
-//			CASE WHEN RD.RSK_SPFCID='ALL' THEN 'ALL' ELSE (select RTRIM(XMLAGG(XMLELEMENT(E,TMAS_SPFC_NAME,',')).
-//					EXTRACT('//text()'),',')  from TMAS_SPFC_MASTER SPFC where SPFC.TMAS_SPFC_ID in(select * from table(SPLIT_TEXT_FN(replace(RD.RSK_SPFCID,' ', '')))) 
-//					AND  SPFC.TMAS_PRODUCT_ID = RD.RSK_PRODUCTID AND SPFC.BRANCH_CODE = RD.BRANCH_CODE) END SUB_CLASS
-			
-			
+
 			CriteriaBuilder cb = em.getCriteriaBuilder(); 
 			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
 		
@@ -2484,7 +2544,7 @@ public class PlacementServiceImple implements PlacementService {
 					pm.get("baseLayer").alias("BASE_LAYER"),pm.get("layerNo").alias("LAYER_NO"),businessType.alias("BUSINESS_TYPE"),
 					pm.get("proposalNo").alias("PROPOSAL_NO"),treatyType.alias("TREATY_TYPE"),rd.get("rskTreatyid").alias("RSK_TREATYID"),
 					pm.get("bouquetNo").alias("BOUQUET_NO"),pm.get("bouquetModeYn").alias("BOUQUET_MODE_YN"),
-					deptName.alias("CLASS"),//subclass pending
+					deptName.alias("CLASS"),rd.get("rskSpfcid").alias("SUB_CLASS"),
 					cb.selectCase().when(cb.equal(pm.get("productId") ,"2") ,pm.get("sectionNo"))
 					.otherwise(pm.get("layerNo")).alias("SECTION_NO"), 	pm.get("offerNo").alias("OFFER_NO"),
 					pm.get("productId").alias("PRODUCT_ID"), trp.get("shareOffered").alias("SHARE_OFFERED"),
@@ -2559,6 +2619,7 @@ public class PlacementServiceImple implements PlacementService {
 	}
 	return list;
 }
+	
 			
 //	private List<Map<String,Object>> MailproposalInfo(GetMailTemplateReq bean) {
 //		List<Map<String,Object>> list=null;
@@ -2778,18 +2839,23 @@ public class PlacementServiceImple implements PlacementService {
 		
 		for(int i=0;i<agentWiseReport.size();i++) {
 			Tuple map=agentWiseReport.get(i);
-				messageContent+="<tr>"+
+			String subclass=map.get("SUB_CLASS")==null?"":map.get("SUB_CLASS").toString();
+			String productId=map.get("PRODUCT_ID")==null?"":map.get("PRODUCT_ID").toString();
+			if(!"ALL".equals(subclass)) {
+				subclass=dropDownImple.getSubClass(subclass, bean.getBranchCode(), productId);
+			}
+			messageContent+="<tr>"+
 			"<td style=\"border: 1px solid #000000;\">"+(map.get("BOUQUET_NO")==null?"":map.get("BOUQUET_NO").toString())+"</td>" + 
 			"<td style=\"border: 1px solid #000000;\">"+(map.get("OFFER_NO")==null?"":map.get("OFFER_NO").toString())+"</td>" + 
 			"<td style=\"border: 1px solid #000000;\">"+(map.get("BUSINESS_TYPE")==null?"":map.get("BUSINESS_TYPE").toString())+"</td>" + 
 			"<td style=\"border: 1px solid #000000;\">"+(map.get("CLASS")==null?"":map.get("CLASS").toString())+"</td>" + 
-			"<td style=\"border: 1px solid #000000;\">"+(map.get("SUB_CLASS")==null?"":map.get("SUB_CLASS").toString())+"</td>" + 
+			"<td style=\"border: 1px solid #000000;\">"+subclass+"</td>" + 
 			"<td style=\"border: 1px solid #000000;\">"+(map.get("TREATY_TYPE")==null?"":map.get("TREATY_TYPE").toString())+"</td>" + 
 			"<td style=\"border: 1px solid #000000;\">"+(map.get("RSK_TREATYID")==null?"":map.get("RSK_TREATYID").toString())+"</td>" +
 			"<td style=\"border: 1px solid #000000;\">"+(map.get("SECTION_NO")==null?"":map.get("SECTION_NO").toString())+"</td>" +
-			"<td style=\"border: 1px solid #000000;\">"+(map.get("INS_DATE")==null?"":map.get("INS_DATE").toString())+"</td>" + 
-			"<td style=\"border: 1px solid #000000;\">"+(map.get("EXP_DATE")==null?"":map.get("EXP_DATE").toString())+"</td>" + 
-			"<td style=\"border: 1px solid #000000;text-align: right;\">"+(map.get("SHARE_OFFERED")==null?"":dropDownImple.formattereight(map.get("SHARE_OFFERED").toString()))+"</td>" + 
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("INS_DATE")==null?"":formatdate(map.get("INS_DATE")))+"</td>" + 
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("EXP_DATE")==null?"":formatdate(map.get("EXP_DATE")))+"</td>" + 
+			"<td style=\"border: 1px solid #000000;text-align: right;\">"+(map.get("SHARE_OFFERED")==null?"":fm.formattereight(map.get("SHARE_OFFERED").toString()))+"</td>" + 
 			"</tr>";
 		}
 		messageContent+=	"</table>" +
@@ -2834,8 +2900,8 @@ public class PlacementServiceImple implements PlacementService {
 			"<td style=\"border: 1px solid #000000;\">"+(map.get("SECTION_NO")==null?"":map.get("SECTION_NO").toString())+"</td>" +
 			"<td style=\"border: 1px solid #000000;\">"+(map.get("INS_DATE")==null?"":map.get("INS_DATE").toString())+"</td>" + 
 			"<td style=\"border: 1px solid #000000;\">"+(map.get("EXP_DATE")==null?"":map.get("EXP_DATE").toString())+"</td>" + 
-			"<td style=\"border: 1px solid #000000;text-align: right;\">"+(map.get("SHARE_OFFERED")==null?"":dropDownImple.formattereight(map.get("SHARE_OFFERED").toString()))+"</td>" +
-			"<td style=\"border: 1px solid #000000;text-align: right;\">"+(map.get("SHARE_PROPOSAL_WRITTEN")==null?"":dropDownImple.formattereight(map.get("SHARE_PROPOSAL_WRITTEN").toString()))+"</td>" +
+			"<td style=\"border: 1px solid #000000;text-align: right;\">"+(map.get("SHARE_OFFERED")==null?"":fm.formattereight(map.get("SHARE_OFFERED").toString()))+"</td>" +
+			"<td style=\"border: 1px solid #000000;text-align: right;\">"+(map.get("SHARE_PROPOSAL_WRITTEN")==null?"":fm.formattereight(map.get("SHARE_PROPOSAL_WRITTEN").toString()))+"</td>" +
 			"</tr>";
 		}
 		messageContent+=	"</table>" +
@@ -2882,9 +2948,9 @@ public class PlacementServiceImple implements PlacementService {
 			"<td style=\"border: 1px solid #000000;\">"+(map.get("SECTION_NO")==null?"":map.get("SECTION_NO").toString())+"</td>" +
 			"<td style=\"border: 1px solid #000000;\">"+(map.get("INS_DATE")==null?"":map.get("INS_DATE").toString())+"</td>" + 
 			"<td style=\"border: 1px solid #000000;\">"+(map.get("EXP_DATE")==null?"":map.get("EXP_DATE").toString())+"</td>" + 
-			"<td style=\"border: 1px solid #000000;text-align: right;\">"+(map.get("SHARE_OFFERED")==null?"":dropDownImple.formattereight(map.get("SHARE_OFFERED").toString()))+"</td>" +
-			"<td style=\"border: 1px solid #000000;text-align: right;\">"+(map.get("SHARE_PROPOSAL_WRITTEN")==null?"":dropDownImple.formattereight(map.get("SHARE_PROPOSAL_WRITTEN").toString()))+"</td>" +
-			"<td style=\"border: 1px solid #000000;text-align: right;\">"+(map.get("SHARE_PROPOSED_SIGNED")==null?"":dropDownImple.formattereight(map.get("SHARE_PROPOSED_SIGNED").toString()))+"</td>" +
+			"<td style=\"border: 1px solid #000000;text-align: right;\">"+(map.get("SHARE_OFFERED")==null?"":fm.formattereight(map.get("SHARE_OFFERED").toString()))+"</td>" +
+			"<td style=\"border: 1px solid #000000;text-align: right;\">"+(map.get("SHARE_PROPOSAL_WRITTEN")==null?"":fm.formattereight(map.get("SHARE_PROPOSAL_WRITTEN").toString()))+"</td>" +
+			"<td style=\"border: 1px solid #000000;text-align: right;\">"+(map.get("SHARE_PROPOSED_SIGNED")==null?"":fm.formattereight(map.get("SHARE_PROPOSED_SIGNED").toString()))+"</td>" +
 			"</tr>";
 		} 
 		messageContent+=	"</table>" +

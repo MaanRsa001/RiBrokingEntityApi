@@ -5941,4 +5941,17 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 				}
 			return response;
 		}
+		public String getSubClass(String id,String branchCode,String productId) {
+			String result="";
+			List<String> spfcId = new ArrayList<>(Arrays.asList(id.split(",")));
+			List<TmasSpfcMaster>list = spfcRepo.findDistinctByBranchCodeAndTmasProductIdAndTmasStatusAndTmasSpfcIdInOrderByTmasSpfcNameAsc(
+							branchCode,new BigDecimal(productId),"Y",spfcId);
+			if(!CollectionUtils.isEmpty(list)) {
+				for(int i=0;i<list.size();i++) {
+					result=result+","+list.get(i).getTmasSpfcName();
+				}
+				result = result.replaceFirst(",", "");
+			}
+			return result;
+		}
 }

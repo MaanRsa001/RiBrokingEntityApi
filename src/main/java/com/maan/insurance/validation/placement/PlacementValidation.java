@@ -238,25 +238,25 @@ public List<ErrorCheck> getPlacingInfoVali(GetPlacingInfoReq req) {
 		list.add(new ErrorCheck("Please Enter EproposalNo", "EproposalNo", "2"));
 	}
 	if (StringUtils.isBlank(req.getProposalNo())) {
-		list.add(new ErrorCheck("Please Enter ProposalNo", "ProposalNo", "3"));
+		//list.add(new ErrorCheck("Please Enter ProposalNo", "ProposalNo", "3"));
 	}
 	if (StringUtils.isBlank(req.getBaseProposalNo())) {
-		list.add(new ErrorCheck("Please Enter BaseProposalNo", "BaseProposalNo", "4"));
+		//list.add(new ErrorCheck("Please Enter BaseProposalNo", "BaseProposalNo", "4"));
 	}
 	if (StringUtils.isBlank(req.getBouquetNo())) {
-		list.add(new ErrorCheck("Please Enter BouquetNo", "BouquetNo", "5"));
+		//list.add(new ErrorCheck("Please Enter BouquetNo", "BouquetNo", "5"));
 	}
 	if (StringUtils.isBlank(req.getSearchBrokerId())) {
-		list.add(new ErrorCheck("Please Enter SearchBrokerId", "SearchBrokerId", "6"));
+		//list.add(new ErrorCheck("Please Enter SearchBrokerId", "SearchBrokerId", "6"));
 	}
 	if (StringUtils.isBlank(req.getSearchReinsurerId())) {
-		list.add(new ErrorCheck("Please Enter SearchReinsurerId", "SearchReinsurerId", "7"));
+		//list.add(new ErrorCheck("Please Enter SearchReinsurerId", "SearchReinsurerId", "7"));
 	}
 	if (StringUtils.isBlank(req.getSearchStatus())) {
-		list.add(new ErrorCheck("Please Enter SearchStatus", "SearchStatus", "8"));
+		//list.add(new ErrorCheck("Please Enter SearchStatus", "SearchStatus", "8"));
 	}
 	if (StringUtils.isBlank(req.getSearchType())) {
-		list.add(new ErrorCheck("Please Enter SearchType", "SearchType", "9"));
+		//list.add(new ErrorCheck("Please Enter SearchType", "SearchType", "9"));
 	}
 	return list;
 }

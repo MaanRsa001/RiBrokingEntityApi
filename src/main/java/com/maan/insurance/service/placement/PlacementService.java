@@ -80,9 +80,9 @@ public interface PlacementService {
 
 	CommonResponse updateStatus(UpdatePlacementReq req);
 
-	InsertMailDetailsRes insertMailDetails(InsertMailDetailsReq req);
+	//InsertMailDetailsRes insertMailDetails(InsertMailDetailsReq req);
 
-	CommonResponse updateMailDetails(UpdateMailDetailsReq req);
+	//CommonResponse updateMailDetails(UpdateMailDetailsReq req);
 
 	CommonSaveRes deleteFile(DeleteFileReq req);
 

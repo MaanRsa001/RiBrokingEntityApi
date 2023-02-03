@@ -40,4 +40,7 @@ public interface TmasSpfcMasterRepository  extends JpaRepository<TmasSpfcMaster,
 	List<TmasSpfcMaster> findDistinctByBranchCodeAndTmasProductIdAndTmasStatusAndTmasDepartmentIdOrderByTmasSpfcNameAsc(
 			String branchCode, BigDecimal bigDecimal, String string, BigDecimal bigDecimal2);
 
+	List<TmasSpfcMaster> findDistinctByBranchCodeAndTmasProductIdAndTmasStatusAndTmasSpfcIdInOrderByTmasSpfcNameAsc(
+			String branchCode, BigDecimal bigDecimal, String string, List<String> spfcId);
+
 }

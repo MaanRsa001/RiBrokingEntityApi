@@ -201,7 +201,7 @@ Gson gson = new Gson();
 	}
 		return serv.updateStatus(req);
 	}  
-	@PostMapping("/insertMailDetails")
+	/*@PostMapping("/insertMailDetails")
 	public InsertMailDetailsRes insertMailDetails(@RequestBody InsertMailDetailsReq req) throws CommonValidationException {
 		List<ErrorCheck> error= val.insertMailDetailsVali(req);
 		if(error!=null && error.size()>0) {
@@ -216,7 +216,7 @@ Gson gson = new Gson();
 			 throw new CommonValidationException("error",error);
 	}
 		return serv.updateMailDetails(req);  
-	}   
+	}  */ 
 	@PostMapping("/deleteFile")
 	public CommonSaveRes deleteFile(@RequestBody DeleteFileReq req) throws CommonValidationException {
 		List<ErrorCheck> error= val.deleteFileVali(req);

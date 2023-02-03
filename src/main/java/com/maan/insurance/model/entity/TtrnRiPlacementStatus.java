@@ -107,7 +107,7 @@ public class TtrnRiPlacementStatus implements Serializable {
 
 	  
 	    @Column(name="USER_ID")
-	    private BigDecimal     userId ;
+	    private String     userId ;
 
 	  
 

@@ -48,10 +48,12 @@ import com.maan.insurance.model.entity.TtrnCrestazoneDetails;
 import com.maan.insurance.model.entity.TtrnPttySection;
 import com.maan.insurance.model.entity.TtrnRi;
 import com.maan.insurance.model.entity.TtrnRiPlacement;
+import com.maan.insurance.model.entity.TtrnRip;
 import com.maan.insurance.model.entity.TtrnRiskCommission;
 import com.maan.insurance.model.entity.TtrnRiskDetails;
 import com.maan.insurance.model.entity.TtrnRiskProposal;
 import com.maan.insurance.model.entity.TtrnRiskRemarks;
+import com.maan.insurance.model.entity.TtrnRskClassLimits;
 import com.maan.insurance.model.repository.ConstantDetailRepository;
 import com.maan.insurance.model.repository.MailNotificationDetailRepository;
 import com.maan.insurance.model.repository.PositionMasterRepository;
@@ -5904,6 +5906,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 	   	return response;
 	}
 	@Override
+	@Transactional
 	public ConvertPolicyRes convertPolicy(ConvertPolicyReq beanObj) {
 		ConvertPolicyRes response = new ConvertPolicyRes();
 		ConvertPolicyRes1 res = new ConvertPolicyRes1();
@@ -6028,6 +6031,11 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 								}
 								args[3] = beanObj.getProposalNo();
 								//risk.update.homeContNo
+								
+								
+								if("3".equalsIgnoreCase(beanObj.getProductId()) || "5".equalsIgnoreCase(beanObj.getProductId())){
+									UpdateContractLimit(beanObj.getContNo(),beanObj.getProposalNo());
+								}
 								PositionMaster list3 = positionMasterRepository.findByProposalNo(new BigDecimal(args[3]));
 								if( list3!=null) {
 									list3.setContractNo(new BigDecimal(args[0]));
@@ -6071,7 +6079,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 				res.setProductId(beanObj.getProductId());
 				
 				updateRetentionContractNo(beanObj.getContNo(),beanObj.getProductId(),beanObj.getProposalNo(),beanObj.getDepartmentId());						
-						
+				updateContractNumber(beanObj.getProposalNo(),beanObj.getContNo(),beanObj.getBranchCode(),beanObj.getLayerNo(),beanObj.getAmendId());		
 				updateShareSign(beanObj.getProposalNo());
 				dropDowmImpl.updatepositionMasterEndtStatus(beanObj.getProposalNo(),beanObj.getEndorsementDate(),beanObj.getCeaseStatus());
 				if(StringUtils.isNotBlank(res.getContNo())){
@@ -6091,6 +6099,25 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 	   	return response;
 	}
 
+private void UpdateContractLimit(String contNo, String proposalNo) {
+try{
+			
+			CriteriaBuilder cb = this.em.getCriteriaBuilder();
+			CriteriaUpdate<TtrnRskClassLimits> update = cb.createCriteriaUpdate(TtrnRskClassLimits.class);
+			Root<TtrnRskClassLimits> m = update.from(TtrnRskClassLimits.class);
+			
+			update.set("contractNo", contNo);
+			
+			Predicate n1 = cb.equal(m.get("proposalNo"),proposalNo);
+		
+			update.where(n1);
+			em.createQuery(update).executeUpdate();
+			
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}
+	}
 	public String[] updateContractRiskDetailsSecondForm(ConvertPolicyReq req, String productId, String endNo) {
 		String[] args=null;
 		args = new String[18];
@@ -6325,6 +6352,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 			e.printStackTrace();
 		}
 	}
+	@Transactional
 	private void updateShareSign(String proposalNo) {
 		try {
 			//UPDATE_SHARE_SHIGN
@@ -6348,7 +6376,30 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 			e.printStackTrace();
 		}
 	}
-
+	@Transactional
+	private void updateContractNumber(String proposalNo,String contNo,String branchCode,String layerNo,String amendId) {
+		try{
+			
+			CriteriaBuilder cb = this.em.getCriteriaBuilder();
+			CriteriaUpdate<TtrnRip> update = cb.createCriteriaUpdate(TtrnRip.class);
+			Root<TtrnRip> m = update.from(TtrnRip.class);
+			
+			update.set("contractNo", contNo)
+			.set("layerNo", StringUtils.isBlank(layerNo)?"0":layerNo)
+			;
+			
+			Predicate n1 = cb.equal(m.get("proposalNo"),proposalNo);
+			Predicate n2 = cb.equal(m.get("branchCode"),branchCode);
+			Predicate n3 = cb.equal(m.get("amendId"),amendId);
+			update.where(n1,n2,n3 );
+			em.createQuery(update).executeUpdate();
+			
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}
+		
+	}
 }
 
 
