@@ -25,7 +25,6 @@ import com.maan.insurance.model.req.proportionality.GetSectionDuplicationCheckRe
 import com.maan.insurance.model.req.proportionality.GetcalculateSCReq;
 import com.maan.insurance.model.req.proportionality.GetprofitCommissionEnableReq;
 import com.maan.insurance.model.req.proportionality.InsertCrestaDetailsReq;
-import com.maan.insurance.model.req.proportionality.InsertSlidingScaleMentodInfoReq;
 import com.maan.insurance.model.req.proportionality.ProfitCommissionListReq;
 import com.maan.insurance.model.req.proportionality.ProfitCommissionSaveReq;
 import com.maan.insurance.model.req.proportionality.RemarksSaveReq;
@@ -69,6 +68,7 @@ import com.maan.insurance.model.res.proportionality.ShowSecondpageEditItemsRes;
 import com.maan.insurance.model.res.proportionality.UpdateOfferNoReq;
 import com.maan.insurance.model.res.proportionality.ViewRiskDetailsRes;
 import com.maan.insurance.model.res.proportionality.checkAvialabilityRes;
+import com.maan.insurance.model.res.proportionality.getSlidingScaleMethodInfo;
 import com.maan.insurance.model.res.proportionality.getprofitCommissionDeleteRes;
 import com.maan.insurance.model.res.proportionality.getprofitCommissionEditRes;
 import com.maan.insurance.model.res.proportionality.saveRiskDeatilsSecondFormRes;
@@ -268,7 +268,7 @@ public class ProportionalityController {
 				}
 				return propService.getRetentionDetails(req);
 			}
-			@GetMapping("/getScaleCommissionList")
+			@PostMapping("/getScaleCommissionList")
 			public GetScaleCommissionListRes getScaleCommissionList(@RequestBody getScaleCommissionListReq req) throws CommonValidationException {
 							return propService.getScaleCommissionList(req);
 				}
@@ -343,9 +343,9 @@ public class ProportionalityController {
 				}
 				return propService.updateOfferNo(req);
 			}
-			@GetMapping("/getSlidingScaleMethodInfo/{proposalNo}/{branchCode}/{referenceNo}")
-			public GetSlidingScaleMethodInfoRes getSlidingScaleMethodInfo(@PathVariable ("proposalNo") String proposalNo,@PathVariable ("branchCode") String branchCode,@PathVariable ("referenceNo") String referenceNo) throws CommonValidationException {
-							return propService.getSlidingScaleMethodInfo(proposalNo,branchCode,referenceNo);
+			@PostMapping("/getSlidingScaleMethodInfo")
+			public GetSlidingScaleMethodInfoRes getSlidingScaleMethodInfo(@RequestBody getSlidingScaleMethodInfo req) throws CommonValidationException {
+							return propService.getSlidingScaleMethodInfo(req);
 				} 
 			@PostMapping("/insertSlidingScaleMentodInfo")
 				public CommonResponse insertSlidingScaleMentodInfo(@RequestBody ScaleCommissionInsertReq req) throws CommonValidationException {

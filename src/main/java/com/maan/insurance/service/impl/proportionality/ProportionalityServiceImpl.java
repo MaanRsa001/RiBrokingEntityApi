@@ -89,7 +89,6 @@ import com.maan.insurance.model.req.proportionality.GetcalculateSCReq;
 import com.maan.insurance.model.req.proportionality.GetprofitCommissionEnableReq;
 import com.maan.insurance.model.req.proportionality.InsertCrestaDetailsReq;
 import com.maan.insurance.model.req.proportionality.InsertSectionValueReq;
-import com.maan.insurance.model.req.proportionality.InsertSlidingScaleMentodInfoReq;
 import com.maan.insurance.model.req.proportionality.ProfitCommissionListReq;
 import com.maan.insurance.model.req.proportionality.ProfitCommissionSaveReq;
 import com.maan.insurance.model.req.proportionality.RemarksReq;
@@ -161,6 +160,7 @@ import com.maan.insurance.model.res.proportionality.UpdateOfferNoReq;
 import com.maan.insurance.model.res.proportionality.ViewRiskDetailsRes;
 import com.maan.insurance.model.res.proportionality.ViewRiskDetailsRes1;
 import com.maan.insurance.model.res.proportionality.checkAvialabilityRes;
+import com.maan.insurance.model.res.proportionality.getSlidingScaleMethodInfo;
 import com.maan.insurance.model.res.proportionality.getprofitCommissionDeleteRes;
 import com.maan.insurance.model.res.proportionality.getprofitCommissionEditRes;
 import com.maan.insurance.model.res.proportionality.getprofitCommissionEditRes1;
@@ -3756,7 +3756,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 		               res.setScSubProfitMonth(tempMap.get("SPC_DURATION_TYPE")==null?"":tempMap.get("SPC_DURATION_TYPE").toString());
 		               res.setScSubSeqCalculation(tempMap.get("SUB_SEC_CAL")==null?"":tempMap.get("SUB_SEC_CAL").toString());
 		               res.setFpcType(tempMap.get("FPC_TYPE")==null?"":tempMap.get("FPC_TYPE").toString());
-		               res.setFpcfixedDate(tempMap.get("FPC_FIXED_DATE")==null?"":tempMap.get("FPC_FIXED_DATE").toString());
+		               res.setFpcfixedDate(tempMap.get("FPC_FIXED_DATE")==null?"":DateFormat(tempMap.get("FPC_FIXED_DATE")).toString());
 		               resList.add(res);    
 		               }
 		//		GetSlidingScaleMethodInfo(bean);
@@ -4714,13 +4714,21 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
            }
            args[23] =req.getFpcType();
            args[24] =req.getFpcfixedDate();
-           String sno = "";
-           TtrnBonus list = ttrnBonusRepository.findTop1ByBranchOrderBySnoDesc(req.getBranchCode());
-           if(list!=null) {
-        	   sno =   list.getSno()==null?"0": String.valueOf(list.getSno().intValue()+1);
-           }
-           args[25] =sno;
-		          
+           
+           CriteriaBuilder cb = em.getCriteriaBuilder();
+           CriteriaQuery<BigDecimal> cq = cb.createQuery(BigDecimal.class);
+           Root<TtrnBonus> root = cq.from(TtrnBonus.class);
+           
+           cq.select(cb.coalesce(cb.max(root.get("sno")), 0).as(BigDecimal.class).alias("SNO"));        
+           
+           BigDecimal sno = em.createQuery(cq).getSingleResult();        
+           
+           //TtrnBonus list = ttrnBonusRepository.findTop1ByBranchOrderBySnoDesc(req.getBranchCode());
+//           if(list!=null) {
+//        	   sno =   list.getSno()==null?"0": String.valueOf(list.getSno().intValue()+1);
+//           }
+           args[25] =String.valueOf(sno);
+           
 		TtrnBonus insert = proportionalityCustomRepository.bonusMainInsertPtty(args);
         if(insert!=null) {
      	   ttrnBonusRepository.save(insert);
@@ -4740,7 +4748,8 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 		ScaleCommissionInsertRes response = new ScaleCommissionInsertRes();		
 		try {
 			MoveBonus(req);
-				response.setMessage("Success");
+			response.setResponse(req.getReferenceNo());
+			response.setMessage("Success");
 				response.setIsError(false);
 			
 		} 
@@ -5577,24 +5586,24 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 	}
 	
 	@Override
-	public GetSlidingScaleMethodInfoRes getSlidingScaleMethodInfo(String proposalNo, String branchCode,String referenceNo) {
+	public GetSlidingScaleMethodInfoRes getSlidingScaleMethodInfo(getSlidingScaleMethodInfo req) {
 		GetSlidingScaleMethodInfoRes response = new GetSlidingScaleMethodInfoRes();
 		List<GetSlidingScaleMethodInfoRes1> resList = new ArrayList<GetSlidingScaleMethodInfoRes1>();
 		String args[]=null;
 		List<Tuple> result = new ArrayList<>();
 	try {
 		args = new String[4];
-		args[0] = proposalNo;
-		args[1] = branchCode;
+		args[0] = req.getProposalNo();
+		args[1] = req.getBranchCode();
 		args[2] ="SSC";
 		args[3] ="SSC1";
 		
 			//SELECT_SLIDING_SCALE_METHOD_INFO
-			result = proportionalityCustomRepository.selectSlidingScaleMethodInfo(proposalNo,branchCode);
+			result = proportionalityCustomRepository.selectSlidingScaleMethodInfo(req.getProposalNo(),req.getBranchCode());
 		
 			if(CollectionUtils.isEmpty(result)) {
 				//SELECT_SLIDING_SCALE_METHOD_INFO_REF
-				result = proportionalityCustomRepository.selectSlidingScaleMethodInfoRef(referenceNo,branchCode);
+				result = proportionalityCustomRepository.selectSlidingScaleMethodInfoRef(req.getReferenceNo(),req.getBranchCode());
 			}
 		for(int i=0;i<result.size();i++){
 		      Tuple tempMap = result.get(i);

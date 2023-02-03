@@ -9,6 +9,9 @@ import lombok.Data;
 @Data
 public class ScaleCommissionInsertRes {
 
+	@JsonProperty("Result")
+	private String response;
+	
 	@JsonProperty("Message")
 	private String message;
 

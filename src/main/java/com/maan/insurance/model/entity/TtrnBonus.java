@@ -76,11 +76,6 @@ public class TtrnBonus implements Serializable{
 
     @Column(name="USERID")
     private String     userId ;
-
-    @Column(name="BRACH")
-    private String     brach ;
-    
-
     
     @Column(name="LCB_ID")
     private String     lcbId ;

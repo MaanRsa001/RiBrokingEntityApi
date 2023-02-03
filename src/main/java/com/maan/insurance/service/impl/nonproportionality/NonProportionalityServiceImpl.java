@@ -3076,7 +3076,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
         	String referenceNo="";
         	String query="GET_REFERENCE_NO_SEQ"; 
         	
-        	List<Map<String, Object>> list  = queryImpl.selectSingle(query,new String[]{});
+        	List<Map<String, Object>> list  = queryImpl.selectList(query,new String[]{});
         	if (!CollectionUtils.isEmpty(list)) {
         		referenceNo = list.get(0).get("REFERENCENO") == null ? ""
         				: list.get(0).get("REFERENCENO").toString();
@@ -3085,7 +3085,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
         }
 		
 	    String query = "INSERT_REINSTATEMENT_MAIN";
-	    String args[] = new String[14];
+	    String args[] = new String[15];
 			for(int i=0;i<req.getReinstatementNo().size();i++){
 			ReinstatementNoList req1 = req.getReinstatementNo().get(i);
 			args[0] = req1.getReinstatementNo();
@@ -3102,7 +3102,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			args[11] = StringUtils.isEmpty(req.getLayerNo()) ? "0"	: req.getLayerNo();
 			args[12] = req.getReinstatementOption();
 			args[13] = "A";
-			//args[14]=StringUtils.isBlank(req.getReferenceNo())?"":req.getReferenceNo();
+			args[14]=StringUtils.isBlank(req.getReferenceNo())?"":req.getReferenceNo();
 
 			 queryImpl.updateQuery(query, args);
 			}

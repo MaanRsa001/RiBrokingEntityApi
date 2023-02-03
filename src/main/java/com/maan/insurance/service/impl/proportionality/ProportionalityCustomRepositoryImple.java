@@ -2376,7 +2376,7 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 			Predicate n2 = cb.equal(pm.get("branch"), branchCode);
 			Predicate n3 = cb.equal(pm.get("type"), "SSC");
 			Predicate n4 = cb.equal(pm.get("endorsementNo"), end);
-			Predicate n5 = cb.equal(pm.get("lcbType"), "SSC2");
+			Predicate n5 = cb.equal(pm.get("lcbType"), "SSC1");
 			query.where(n1,n2,n3,n4,n5).orderBy(orderList);
 			
 			TypedQuery<Tuple> res1 = em.createQuery(query);
@@ -2393,9 +2393,9 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 		try{
 			//SELECT_SLIDING_SCALE_METHOD_INFO_REF
 		 	CriteriaBuilder cb = em.getCriteriaBuilder(); 
-			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
-			Root<TtrnBonus> pm = query.from(TtrnBonus.class);
-			query.multiselect(
+			CriteriaQuery<Tuple> cq = cb.createQuery(Tuple.class); 
+			Root<TtrnBonus> pm = cq.from(TtrnBonus.class);
+			cq.multiselect(
 					pm.get("proposalNo").alias("PROPOSAL_NO"),
 					pm.get("contractNo").alias("CONTRACT_NO"),
 					pm.get("productId").alias("PRODUCT_ID"),
@@ -2421,28 +2421,25 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 					pm.get("deltaLossRatio").alias("DELTA_LOSS_RATIO"),
 					pm.get("lcbPercentage").alias("LCB_PERCENTAGE"));
 				
-			//end
-			Subquery<Long> end = query.subquery(Long.class);
-			Root<TtrnBonus> rds = end.from(TtrnBonus.class);
-			end.select(cb.max(rds.get("endorsementNo")));
-			Predicate a1 = cb.equal(rds.get("referenceNo"), pm.get("referenceNo"));
-			Predicate a2 = cb.equal(rds.get("branch"), pm.get("branch"));
-			Predicate a3 = cb.equal(rds.get("type"), pm.get("type"));
-			Predicate a4 = cb.equal(rds.get("lcbType"), pm.get("lcbType"));
-			end.where(a1,a2,a3,a4);
+			Subquery<Integer> end = cq.subquery(Integer.class);
+			Root<TtrnBonus> tbRoot = end.from(TtrnBonus.class);
 			
-			List<Order> orderList = new ArrayList<Order>();
-			orderList.add(cb.asc(pm.get("lcbId")));
-	
-			Predicate n1 = cb.equal(pm.get("referenceNo"), referenceNo);
-			Predicate n2 = cb.equal(pm.get("branch"), branchCode);
-			Predicate n3 = cb.equal(pm.get("type"), "SSC");
-			Predicate n4 = cb.equal(pm.get("endorsementNo"), end);
-			Predicate n5 = cb.equal(pm.get("lcbType"), "SSC2");
-			query.where(n1,n2,n3,n4,n5).orderBy(orderList);
+			end.select(cb.max(tbRoot.get("endorsementNo")))
+			.where(cb.equal(pm.get("referenceNo"), tbRoot.get("referenceNo")),
+					cb.equal(pm.get("branch"), tbRoot.get("branch")),
+					cb.equal(pm.get("type"), tbRoot.get("type")),
+					cb.equal(pm.get("lcbType"), tbRoot.get("lcbType")));
 			
-			TypedQuery<Tuple> res1 = em.createQuery(query);
-			list = res1.getResultList();
+			cq.where(cb.equal(pm.get("referenceNo"), referenceNo),
+					cb.equal(pm.get("branch"), branchCode),
+					cb.equal(pm.get("type"), "SSC"),
+					cb.equal(pm.get("lcbType"), "SSC1"),
+					cb.equal(pm.get("endorsementNo"), end));
+			
+			cq.orderBy(cb.asc(pm.get("lcbId")));
+			
+			list = em.createQuery(cq).getResultList();
+
 			}catch(Exception e) {
 				e.printStackTrace();
 				}
