@@ -3702,7 +3702,6 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		GetClassLimitDetailsRes response = new GetClassLimitDetailsRes();
 		GetClassLimitDetailsResponse com = new GetClassLimitDetailsResponse();
 		List<GetClassLimitDetailsRes1> resList = new ArrayList<GetClassLimitDetailsRes1>();
-		List<GetClassLimitDetailsRes2> res2List = new ArrayList<GetClassLimitDetailsRes2>();
 		try {
 			List<Map<String,Object>>result=new ArrayList<Map<String,Object>>();
 			List<Map<String,Object>>list=new ArrayList<Map<String,Object>>();
@@ -3719,102 +3718,65 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 						res.setCoverdepartId(insMap.get("RSK_COVER_CLASS")==null?"":insMap.get("RSK_COVER_CLASS").toString());
 						res.setCoverdepartIdRe(insMap.get("RSK_COVER_CLASS")==null?"":insMap.get("RSK_COVER_CLASS").toString());
 						 if(StringUtils.isNotBlank(req.getReinstatementOption()) && "U".equalsIgnoreCase(req.getReinstatementOption())){
-								 res.setHcoverLimitOC(insMap.get("RSK_COVER_LIMT")==null?"0.00":fm.formatter(insMap.get("RSK_COVER_LIMT").toString()));
-								 res.setHcoverLimitOCRe(insMap.get("RSK_COVER_LIMT")==null?"0.00":fm.formatter(insMap.get("RSK_COVER_LIMT").toString()));
+							 res.setHcoverLimitOC(insMap.get("RSK_COVER_LIMT")==null?"0.00":fm.formatter(insMap.get("RSK_COVER_LIMT").toString()));
+							 res.setHcoverLimitOCRe(insMap.get("RSK_COVER_LIMT")==null?"0.00":fm.formatter(insMap.get("RSK_COVER_LIMT").toString()));
 						 }else{
 							 res.setCoverLimitAmount(insMap.get("RSK_COVER_LIMT")==null?"0.00":fm.formatter(insMap.get("RSK_COVER_LIMT").toString()));
 							 res.setHcoverLimitOC(insMap.get("RSK_COVER_LIMT")==null?"0.00":fm.formatter(insMap.get("RSK_COVER_LIMT").toString()));
-							 
 							 res.setCoverLimitAmountRe(insMap.get("RSK_COVER_LIMT")==null?"0.00":fm.formatter(insMap.get("RSK_COVER_LIMT").toString()));
 							 res.setHcoverLimitOCRe(insMap.get("RSK_COVER_LIMT")==null?"0.00":fm.formatter(insMap.get("RSK_COVER_LIMT").toString()));
 						 }
-						 res.setDeductableLimitPercent(insMap.get("RSK_DEDUCTABLE_PERCENTAGE")==null?"0.00":insMap.get("RSK_DEDUCTABLE_PERCENTAGE").toString());
+						 	res.setDeductableLimitPercent(insMap.get("RSK_DEDUCTABLE_PERCENTAGE")==null?"0.00":insMap.get("RSK_DEDUCTABLE_PERCENTAGE").toString());
 							res.setEgnpi(insMap.get("RSK_EGNPI_AS_OFF")==null?"0.00":fm.formatter(insMap.get("RSK_EGNPI_AS_OFF").toString()));
 							res.setGnpi(insMap.get("RSK_GNPI_AS_OFF")==null?"0.00":fm.formatter(insMap.get("RSK_GNPI_AS_OFF").toString()));	
 							res.setNetMaxRetentPer(insMap.get("RSK_NET_MAX_RETENT_PERCENT")==null?"0.00":fm.formatter(insMap.get("RSK_GNPI_AS_OFF").toString()));
 							res.setDeductableLimitAmount(insMap.get("RSK_DEDUCTABLE_LIMT")==null?"0.00":fm.formatter(insMap.get("RSK_DEDUCTABLE_LIMT").toString()));
 							res.setTotalLoopCount(String.valueOf(i+1));
 					}else{
-					res.setCoverdepartId(insMap.get("RSK_COVER_CLASS")==null?"":insMap.get("RSK_COVER_CLASS").toString());	
-					res.setCoverLimitAmount(insMap.get("RSK_COVER_LIMT")==null?"0.00":fm.formatter(insMap.get("RSK_COVER_LIMT").toString()));
-					res.setCoverLimitPercent(insMap.get("RSK_COVER_LIMT_PERCENTAGE")==null?"0.00":insMap.get("RSK_COVER_LIMT_PERCENTAGE").toString());
-					res.setDeductableLimitAmount(insMap.get("RSK_DEDUCTABLE_LIMT")==null?"0.00":fm.formatter(insMap.get("RSK_DEDUCTABLE_LIMT").toString()));
-					res.setDeductableLimitPercent(insMap.get("RSK_DEDUCTABLE_PERCENTAGE")==null?"0.00":insMap.get("RSK_DEDUCTABLE_PERCENTAGE").toString());
-					res.setEgnpi(insMap.get("RSK_EGNPI_AS_OFF")==null?"0.00":fm.formatter(insMap.get("RSK_EGNPI_AS_OFF").toString()));
-					res.setGnpi(insMap.get("RSK_GNPI_AS_OFF")==null?"0.00":fm.formatter(insMap.get("RSK_GNPI_AS_OFF").toString()));	
-					res.setNetMaxRetentPer(insMap.get("RSK_NET_MAX_RETENT_PERCENT")==null?"0.00":fm.formatter(insMap.get("RSK_GNPI_AS_OFF").toString()));		
-					res.setGnpi(insMap.get("RSK_GNPI_AS_OFF")==null?"0.00":fm.formatter(insMap.get("RSK_GNPI_AS_OFF").toString()));
-					res.setNetMaxRetentPer(insMap.get("RSK_NET_MAX_RETENT_PERCENT")==null?"":insMap.get("RSK_NET_MAX_RETENT_PERCENT").toString());
-					res.setTotalLoopCount(String.valueOf(i+1));
+						res.setCoverdepartId(insMap.get("RSK_COVER_CLASS")==null?"":insMap.get("RSK_COVER_CLASS").toString());	
+						res.setCoverLimitAmount(insMap.get("RSK_COVER_LIMT")==null?"0.00":fm.formatter(insMap.get("RSK_COVER_LIMT").toString()));
+						res.setCoverLimitPercent(insMap.get("RSK_COVER_LIMT_PERCENTAGE")==null?"0.00":insMap.get("RSK_COVER_LIMT_PERCENTAGE").toString());
+						res.setDeductableLimitAmount(insMap.get("RSK_DEDUCTABLE_LIMT")==null?"0.00":fm.formatter(insMap.get("RSK_DEDUCTABLE_LIMT").toString()));
+						res.setDeductableLimitPercent(insMap.get("RSK_DEDUCTABLE_PERCENTAGE")==null?"0.00":insMap.get("RSK_DEDUCTABLE_PERCENTAGE").toString());
+						res.setEgnpi(insMap.get("RSK_EGNPI_AS_OFF")==null?"0.00":fm.formatter(insMap.get("RSK_EGNPI_AS_OFF").toString()));
+						res.setGnpi(insMap.get("RSK_GNPI_AS_OFF")==null?"0.00":fm.formatter(insMap.get("RSK_GNPI_AS_OFF").toString()));	
+						res.setNetMaxRetentPer(insMap.get("RSK_NET_MAX_RETENT_PERCENT")==null?"0.00":fm.formatter(insMap.get("RSK_GNPI_AS_OFF").toString()));		
+						res.setGnpi(insMap.get("RSK_GNPI_AS_OFF")==null?"0.00":fm.formatter(insMap.get("RSK_GNPI_AS_OFF").toString()));
+						res.setNetMaxRetentPer(insMap.get("RSK_NET_MAX_RETENT_PERCENT")==null?"":insMap.get("RSK_NET_MAX_RETENT_PERCENT").toString());
+						res.setTotalLoopCount(String.valueOf(i+1));
 					}
+					
+					if("copy".equals(req.getFlag())) {
+						String sql="GET_MAX_LAYER_NO";
+						String proposalno=StringUtils.isBlank(req.getBaseLayer())?req.getProposalNo():req.getBaseLayer();
+						String layermax="";
+						
+						list = queryImpl.selectList(sql, new String[] {proposalno});	
+						if(!CollectionUtils.isEmpty(list)) {
+							layermax=list.get(0).get("LAYER_NO")==null?"":list.get(0).get("LAYER_NO").toString();
+						}
+						if(Integer.parseInt(req.getLayerNo())>=Integer.parseInt(layermax)) {
+								
+								String coverAmount=insMap.get("RSK_COVER_LIMT")==null?"0.00":insMap.get("RSK_COVER_LIMT").toString();
+								String coverAmount1=insMap.get("RSK_DEDUCTABLE_LIMT")==null?"0.00":insMap.get("RSK_DEDUCTABLE_LIMT").toString();
+								String deducttotal=String.valueOf(Double.parseDouble(coverAmount1)+Double.parseDouble(coverAmount));
+								res.setDeductableLimitAmount(deducttotal);
+								res.setCoverLimitAmount("");
+						}else {
+							res.setDeductableLimitAmount("");
+							res.setCoverLimitAmount("");
+							
+						}
+						
+					}
+					
 					resList.add(res);
 					}
-			} //doubt
-//				if(!req.getBusinessType().equalsIgnoreCase("5") && !req.getBusinessType().equalsIgnoreCase("Stop Loss")){
-//					beanObj.setCoverdepartId(coverdepartId);
-//					 if(StringUtils.isNotBlank(req.getReinstatementOption()) && "U".equalsIgnoreCase(req.getReinstatementOption())){
-//						 beanObj.setHcoverLimitOC(coverLimitAmount);
-//					 }else{
-//						 beanObj.setCoverLimitOC(coverLimitAmount);
-//						 beanObj.setHcoverLimitOC(coverLimitAmount);
-//					 }
-//					beanObj.setDeductableLimitOC(deductableLimitAmount);
-//					beanObj.setEgnpiAsPerOff(egnpi);
-//					beanObj.setGnpiAsPO(gnpi);
-//					beanObj.setLoopcount(Integer.toString(result.size()));
-//				}else{
-//					beanObj.setCoverdepartIdS(coverdepartId);
-//					beanObj.setCoverLimitAmount(coverLimitAmount);
-//					beanObj.setDeductableLimitAmount(deductableLimitAmount);
-//					beanObj.setCoverLimitPercent(coverLimitPercent);
-//					beanObj.setDeductableLimitPercent(deductableLimitPercent);
-//					beanObj.setEgnpiAsPerOffSlide(egnpi);
-//					beanObj.setGnpiAsPOSlide(gnpi);
-//					
-//					beanObj.setCount(Integer.toString(result.size()));
-//				}
-//				
-//				beanObj.setCoverList(result);
-//				
-//				
-//			}else{
-//				Map<String,Object> doubleMap = new HashMap<String,Object>();
-//				 doubleMap.put("one",new Double(1.0));
-//				 result.add(doubleMap);	 doubleMap.put("one",new Double(1.
-//				 beanObj.setCoverList(result);
-//			}
-			//RI
-			if("copy".equals(req.getFlag())) {
-				String sql="GET_MAX_LAYER_NO";
-				String proposalno=StringUtils.isBlank(req.getBaseLayer())?req.getProposalNo():req.getBaseLayer();
-				String layermax="";
-				
-				list = queryImpl.selectList(sql, new String[] {proposalno});	
-				if(!CollectionUtils.isEmpty(list)) {
-					layermax=list.get(0).get("LAYER_NO")==null?"":list.get(0).get("LAYER_NO").toString();
-				}
-				
-				if(Integer.parseInt(req.getLayerNo())>=Integer.parseInt(layermax)) {
-					for(int j=0;j<result.size();j++) {
-						Map<String, Object> insMap = (Map<String, Object>)result.get(j);
-						GetClassLimitDetailsRes2 res2 = new GetClassLimitDetailsRes2();
-				//		coverLimitAmount.add("");
-						String coverAmount=insMap.get("RSK_COVER_LIMT")==null?"0.00":insMap.get("RSK_COVER_LIMT").toString();
-						String coverAmount1=insMap.get("RSK_DEDUCTABLE_LIMT")==null?"0.00":insMap.get("RSK_DEDUCTABLE_LIMT").toString();
-						String deducttotal=String.valueOf(Double.parseDouble(coverAmount1)+Double.parseDouble(coverAmount));
-						res2.setDeductableLimitAmount(fm.formatter(deducttotal));	
-						res2List.add(res2);
-						}
-				}else {
-//					for(int j=0;j<result.size();j++) {
-//						coverLimitAmount.add("");
-//						deductableLimitAmount.add("");
-//					}
-				}
-				
+			}else {
+				resList.add(new GetClassLimitDetailsRes1());
 			}
+			
 			com.setClassLimitDetails(resList);
-			com.setDeducttotal(res2List);		
 			response.setCommonResponse(com);	
 			response.setMessage("Success");
 			response.setIsError(false);

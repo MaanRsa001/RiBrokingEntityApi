@@ -22,9 +22,6 @@ public class GetClassLimitDetailsReq {
 	@JsonProperty("ReinstatementOption")
 	private String reinstatementOption;
 	
-	@JsonProperty("ProductId")
-	private String productId;
-	
 	@JsonProperty("Flag")
 	private String flag;
 	
