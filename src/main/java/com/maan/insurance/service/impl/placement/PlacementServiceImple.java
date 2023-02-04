@@ -2243,7 +2243,7 @@ public class PlacementServiceImple implements PlacementService {
 					res.setNewStatus(map.get("NEW_STATUS")==null?"":map.get("NEW_STATUS").toString());
 					res.setReinsurerName(map.get("REINSURER_NAME")==null?"":map.get("REINSURER_NAME").toString());
 					res.setStatus(map.get("STATUS")==null?"":map.get("STATUS").toString());
-					res.setUpdateDate(map.get("UPDATE_DATE")==null?"":map.get("UPDATE_DATE").toString());
+					res.setUpdateDate(map.get("UPDATE_DATE")==null?"":formatdate(map.get("UPDATE_DATE")).toString());
 					resList.add(res);
 				}
 			}

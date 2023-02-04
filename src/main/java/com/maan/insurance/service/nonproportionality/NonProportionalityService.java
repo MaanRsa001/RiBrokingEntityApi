@@ -24,6 +24,7 @@ import com.maan.insurance.model.req.nonproportionality.ShowSecondPageDataReq;
 import com.maan.insurance.model.req.nonproportionality.ShowSecondpageEditItemsReq;
 import com.maan.insurance.model.req.nonproportionality.UpdateProportionalTreatyReq;
 import com.maan.insurance.model.req.nonproportionality.ViewRiskDetailsReq;
+import com.maan.insurance.model.req.nonproportionality.getReInstatementDetailsListReq;
 import com.maan.insurance.model.req.nonproportionality.insertClassLimitReq;
 import com.maan.insurance.model.req.nonproportionality.insertProportionalTreatyReq;
 import com.maan.insurance.model.req.proportionality.GetClassLimitDetailsReq;
@@ -89,11 +90,11 @@ public interface NonProportionalityService {
 	insertProportionalTreatyRes insertProportionalTreaty(insertProportionalTreatyReq req);
 
 
-	CommonResponse moveReinstatementMain(MoveReinstatementMainReq req);
+	CommonSaveRes moveReinstatementMain(MoveReinstatementMainReq req);
 
 	CommonResponse deleteMainTable(String proposalNo, String amendId, String branchCode, String referenceNo);
 
-	GetReInstatementDetailsListRes getReInstatementDetailsList(String proposalNo, String branchCode, String referenceNo);
+	GetReInstatementDetailsListRes getReInstatementDetailsList(getReInstatementDetailsListReq req);
 
 	GetLowClaimBonusListRes getLowClaimBonusList(String proposalNo, String branchCode, String acqBonus, String referenceNo);
 

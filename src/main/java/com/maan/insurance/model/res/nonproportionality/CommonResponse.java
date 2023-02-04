@@ -7,7 +7,7 @@ import com.maan.insurance.error.ErrorCheck;
 
 import lombok.Data;
 @Data
-public class CommonResponse {
+public class CommonResponse {	
 	@JsonProperty("Message")
 	private String message;
 

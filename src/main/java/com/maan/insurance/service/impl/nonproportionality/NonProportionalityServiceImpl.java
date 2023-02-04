@@ -53,6 +53,7 @@ import com.maan.insurance.model.req.nonproportionality.ShowSecondPageDataReq;
 import com.maan.insurance.model.req.nonproportionality.ShowSecondpageEditItemsReq;
 import com.maan.insurance.model.req.nonproportionality.UpdateProportionalTreatyReq;
 import com.maan.insurance.model.req.nonproportionality.ViewRiskDetailsReq;
+import com.maan.insurance.model.req.nonproportionality.getReInstatementDetailsListReq;
 import com.maan.insurance.model.req.nonproportionality.insertClassLimitReq;
 import com.maan.insurance.model.req.nonproportionality.insertProportionalTreatyReq;
 import com.maan.insurance.model.req.proportionality.GetClassLimitDetailsReq;
@@ -104,7 +105,6 @@ import com.maan.insurance.model.res.nonproportionality.UpdateProportionalTreatyR
 import com.maan.insurance.model.res.nonproportionality.ViewRiskDetailsRes;
 import com.maan.insurance.model.res.nonproportionality.ViewRiskDetailsRes1;
 import com.maan.insurance.model.res.nonproportionality.insertProportionalTreatyRes;
-import com.maan.insurance.model.res.xolPremium.GetClassLimitDetailsRes2;
 import com.maan.insurance.model.res.xolPremium.GetClassLimitDetailsResponse;
 import com.maan.insurance.service.impl.QueryImplemention;
 import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
@@ -2976,7 +2976,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 	}
 
 	@Override
-	public GetReInstatementDetailsListRes getReInstatementDetailsList(String proposalNo, String branchCode, String referenceNo) {
+	public GetReInstatementDetailsListRes getReInstatementDetailsList(getReInstatementDetailsListReq req) {
 		GetReInstatementDetailsListRes response = new GetReInstatementDetailsListRes();
 		List<Map<String, Object>> result = new ArrayList<Map<String,Object>>();
 		List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
@@ -2986,13 +2986,13 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
          String args[]=null;
 		try{
 				args = new String[2];
-				args[0] = proposalNo;
-				args[1] = branchCode;
-					query = "REINSTATEMENT_MAIN_SELECT_A";
+				args[0] = req.getProposalNo();
+				args[1] = req.getBranchCode();
+				query = "REINSTATEMENT_MAIN_SELECT_A";
 					result = queryImpl.selectList(query,args);
 					if(CollectionUtils.isEmpty(result)) { //Ri
 						query = "REINSTATEMENT_MAIN_SELECT_A_REFERENCE";
-						result = queryImpl.selectList(query,new String[] {referenceNo});
+						result = queryImpl.selectList(query,new String[] {req.getReferenceNo(),req.getBranchCode()});
 					}
 					List<ReInStatementRes> reInstResList=new ArrayList<ReInStatementRes>();
 				for(int i=0;i<result.size();i++){
@@ -3051,7 +3051,6 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 //	            	  res.setBusinessType("1");
 //	            	//  getClassLimitDetails(req);
 //	              }
-	               resList.add(res);
 	               response.setCommonResponse(resList);
 	               response.setMessage("Success");
 	   			response.setIsError(false);
@@ -3065,8 +3064,8 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 
 
 	@Override
-	public CommonResponse moveReinstatementMain(MoveReinstatementMainReq req) {
-		CommonResponse response = new CommonResponse();
+	public CommonSaveRes moveReinstatementMain(MoveReinstatementMainReq req) {
+		CommonSaveRes response = new CommonSaveRes();
 		try{
 		if(StringUtils.isBlank(req.getAmendId())){
 			req.setAmendId("0");
@@ -3123,7 +3122,8 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 //				args[10]=StringUtils.isBlank(bean.getReferenceNo())?"":bean.getReferenceNo();
 //				 queryImpl.updateQuery(query, args1);		
 //			}
-			    response.setMessage("Success");
+				response.setResponse(req.getReferenceNo());
+				response.setMessage("Success");
 	   			response.setIsError(false);
 	   			}catch(Exception e){
 	   				e.printStackTrace();

@@ -2,8 +2,6 @@ package com.maan.insurance.controller.nonproportionality;
 
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.gson.Gson;
 import com.maan.insurance.error.CommonValidationException;
 import com.maan.insurance.error.ErrorCheck;
+import com.maan.insurance.model.req.nonproportionality.CrestaSaveReq;
+import com.maan.insurance.model.req.nonproportionality.GetLayerInfoReq;
 import com.maan.insurance.model.req.nonproportionality.GetRetroContractDetailsListReq;
 import com.maan.insurance.model.req.nonproportionality.GetRetroContractDetailsReq;
 import com.maan.insurance.model.req.nonproportionality.InsertBonusDetailsReq;
@@ -25,8 +25,8 @@ import com.maan.insurance.model.req.nonproportionality.InstalMentPremiumReq;
 import com.maan.insurance.model.req.nonproportionality.LowClaimBonusInserReq;
 import com.maan.insurance.model.req.nonproportionality.MoveReinstatementMainReq;
 import com.maan.insurance.model.req.nonproportionality.ReInstatementMainInsertReq;
+import com.maan.insurance.model.req.nonproportionality.RemarksSaveReq;
 import com.maan.insurance.model.req.nonproportionality.RiskDetailsEditModeReq;
-import com.maan.insurance.model.req.nonproportionality.SaveRiskDeatilsSecondFormReq;
 import com.maan.insurance.model.req.nonproportionality.SaveSecondPageReq;
 import com.maan.insurance.model.req.nonproportionality.ShowRetroCess1Req;
 import com.maan.insurance.model.req.nonproportionality.ShowRetroContractsReq;
@@ -35,14 +35,14 @@ import com.maan.insurance.model.req.nonproportionality.ShowSecondPageDataReq;
 import com.maan.insurance.model.req.nonproportionality.ShowSecondpageEditItemsReq;
 import com.maan.insurance.model.req.nonproportionality.UpdateProportionalTreatyReq;
 import com.maan.insurance.model.req.nonproportionality.ViewRiskDetailsReq;
+import com.maan.insurance.model.req.nonproportionality.getReInstatementDetailsListReq;
 import com.maan.insurance.model.req.nonproportionality.insertClassLimitReq;
 import com.maan.insurance.model.req.nonproportionality.insertProportionalTreatyReq;
-import com.maan.insurance.model.req.nonproportionality.CrestaSaveReq;
-import com.maan.insurance.model.req.nonproportionality.GetLayerInfoReq;
 import com.maan.insurance.model.req.proportionality.GetClassLimitDetailsReq;
-import com.maan.insurance.model.req.nonproportionality.RemarksSaveReq;
 import com.maan.insurance.model.res.nonproportionality.CheckAvialabilityRes;
 import com.maan.insurance.model.res.nonproportionality.CommonResponse;
+import com.maan.insurance.model.res.nonproportionality.CommonSaveRes;
+import com.maan.insurance.model.res.nonproportionality.GetClassLimitDetailsRes;
 import com.maan.insurance.model.res.nonproportionality.GetCommonValueRes;
 import com.maan.insurance.model.res.nonproportionality.GetInclusionExListRes;
 import com.maan.insurance.model.res.nonproportionality.GetLayerInfoRes;
@@ -62,8 +62,6 @@ import com.maan.insurance.model.res.nonproportionality.ShowSecondpageEditItemsRe
 import com.maan.insurance.model.res.nonproportionality.UpdateProportionalTreatyRes;
 import com.maan.insurance.model.res.nonproportionality.ViewRiskDetailsRes;
 import com.maan.insurance.model.res.nonproportionality.insertProportionalTreatyRes;
-import com.maan.insurance.model.res.nonproportionality.CommonSaveRes;
-import com.maan.insurance.model.res.nonproportionality.GetClassLimitDetailsRes;
 import com.maan.insurance.service.nonproportionality.NonProportionalityService;
 import com.maan.insurance.validation.nonproportionality.NonProportionalityValidation;
 
@@ -201,12 +199,12 @@ public class NonProportionalityController {
 //		}
 //		return nonPropService.getReInstatementDetailsList(req);
 //	}
-	@GetMapping("/getReInstatementDetailsList/{proposalNo}/{branchCode}/{referenceNo}")
-	public GetReInstatementDetailsListRes getReInstatementDetailsList(@PathVariable ("proposalNo") String proposalNo,@PathVariable ("branchCode") String branchCode,@PathVariable ("referenceNo") String referenceNo) throws CommonValidationException {
-					return nonPropService.getReInstatementDetailsList(proposalNo,branchCode,referenceNo);
+	@PostMapping("/getReInstatementDetailsList")
+	public GetReInstatementDetailsListRes getReInstatementDetailsList(@RequestBody getReInstatementDetailsListReq req) throws CommonValidationException {
+					return nonPropService.getReInstatementDetailsList(req);
 		}
 	@PostMapping("/moveReinstatementMain")
-	public CommonResponse moveReinstatementMain(@RequestBody MoveReinstatementMainReq req) throws CommonValidationException {
+	public CommonSaveRes moveReinstatementMain(@RequestBody MoveReinstatementMainReq req) throws CommonValidationException {
 		List<ErrorCheck> error=nonPropValidation.moveReinstatementMainVali(req);
 		if(error!=null && error.size()>0) {
 			throw new CommonValidationException("error",error);
