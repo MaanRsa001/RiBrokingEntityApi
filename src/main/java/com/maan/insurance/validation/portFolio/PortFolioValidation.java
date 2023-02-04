@@ -107,14 +107,14 @@ public class PortFolioValidation {
 			list.add(new ErrorCheck("Please Enter ProductId", "ProductId", "4"));
 		}
 		if (StringUtils.isBlank(req.getAttachedUW())) {
-			list.add(new ErrorCheck("Please Enter DueDate", "DueDate", "3"));
+			//list.add(new ErrorCheck("Please Enter DueDate", "DueDate", "3"));
 		}
 		
 		if (StringUtils.isBlank(req.getFlag())) {
 			list.add(new ErrorCheck("Please Enter Flag", "Flag", "5"));
 		}
 		if (StringUtils.isBlank(req.getDeptId())) {
-			list.add(new ErrorCheck("Please Enter DeptId", "DeptId", "6"));
+		//	list.add(new ErrorCheck("Please Enter DeptId", "DeptId", "6"));
 		}
 
 		if (StringUtils.isBlank(req.getSearchType())) {

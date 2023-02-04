@@ -1,5 +1,7 @@
 package com.maan.insurance.model.req.placement;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.maan.insurance.model.res.placement.EditPlacingDetailsRes1;
 
@@ -16,9 +18,13 @@ public class AttachFileReq {
 	@JsonProperty("ReinsurerId")
 	private String reinsurerId; 
 	@JsonProperty("BrokerId")
-	private String brokerId;  
+	private String brokerId; 
+	@JsonProperty("UserId")
+	private String userId; 
 	@JsonProperty("PlacementMode")
 	private String placementMode;  
 	@JsonProperty("BaseProposalNo")
 	private String baseProposalNo;
+	@JsonProperty("InsertDocdetailsReq")
+	private List<InsertDocdetailsReq> insertDocdetailsReq; 
 }

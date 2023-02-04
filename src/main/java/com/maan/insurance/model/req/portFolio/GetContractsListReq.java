@@ -20,8 +20,6 @@ public class GetContractsListReq {
 	private String flag;
 	@JsonProperty("DeptId")
 	private String deptId;
-	@JsonProperty("DepartmentId")
-	private List<BigDecimal> departmentId;
 	@JsonProperty("SearchType")
 	private String searchType;
 	@JsonProperty("ProposalNoSearch")

@@ -1,10 +1,13 @@
 package com.maan.insurance.service.impl.placement;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -12,6 +15,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
 import javax.mail.Authenticator;
 import javax.mail.BodyPart;
 import javax.mail.Message;
@@ -27,17 +33,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.Tuple;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.CriteriaUpdate;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Subquery;
-
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -48,20 +43,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import com.maan.insurance.model.entity.ConstantDetail;
 import com.maan.insurance.model.entity.MailNotificationDetail;
 import com.maan.insurance.model.entity.MailTemplateMaster;
 import com.maan.insurance.model.entity.NotificationAttachmentDetail;
-import com.maan.insurance.model.entity.PersonalInfo;
-import com.maan.insurance.model.entity.PersonalInfoContact;
-import com.maan.insurance.model.entity.PositionMaster;
-import com.maan.insurance.model.entity.StatusMaster;
-import com.maan.insurance.model.entity.TmasDepartmentMaster;
-import com.maan.insurance.model.entity.TmasDocTypeMaster;
-import com.maan.insurance.model.entity.TmasProductMaster;
 import com.maan.insurance.model.entity.TtrnRiPlacement;
 import com.maan.insurance.model.entity.TtrnRiPlacementStatus;
-import com.maan.insurance.model.entity.TtrnRiskDetails;
 import com.maan.insurance.model.repository.MailNotificationDetailRepository;
 import com.maan.insurance.model.repository.MailTemplateMasterRepository;
 import com.maan.insurance.model.repository.NotificationAttachmentDetailRepository;
@@ -141,7 +127,7 @@ import com.maan.insurance.validation.Formatters;
 public class PlacementServiceImple implements PlacementService {
 	private Logger log = LogManager.getLogger(PlacementServiceImple.class);
 	
-	
+	String commonPath = (PlacementServiceImple.class).getProtectionDomain().getCodeSource().getLocation().getPath().replaceAll("%20", " ");
 	@Autowired
 	private QueryImplemention queryImpl;
 
@@ -163,6 +149,9 @@ public class PlacementServiceImple implements PlacementService {
 	private MailNotificationDetailRepository  mailnotiRepo;
 	@Autowired
 	private MailTemplateMasterRepository mailTemplateMasterRepository;
+	
+	@Autowired
+	private PlacementCustomRepository placementCustomRepository;
 	
 	@PersistenceContext
 	private EntityManager em;
@@ -193,34 +182,8 @@ public class PlacementServiceImple implements PlacementService {
 	public GetCommonDropDownRes getMailToList(GetMailToListReq bean) { 
 		GetCommonDropDownRes response = new GetCommonDropDownRes();
 		List<CommonResDropDown> resList = new ArrayList<CommonResDropDown>();
-		String cedeingId="";
 		try{
-			if(("A".equals(bean.getCurrentStatus())  && "PWL".equals(bean.getNewStatus())) || StringUtils.isBlank(bean.getReinsurerId())) {
-				cedeingId="63".equals(bean.getBrokerId())?bean.getCedingId():bean.getBrokerId();
-				
-			}else {
-				cedeingId="63".equals(bean.getBrokerId())?bean.getReinsurerId():bean.getBrokerId();
-			}
-			CriteriaBuilder cb = em.getCriteriaBuilder(); 
-			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
-			
-			Root<PersonalInfoContact> pm = query.from(PersonalInfoContact.class);
-
-			query.multiselect(pm.get("email").alias("CODE")); 
-
-			Subquery<Long> amend = query.subquery(Long.class); 
-			Root<PersonalInfoContact> pms = amend.from(PersonalInfoContact.class);
-			amend.select(cb.max(pms.get("amendId")));
-			Predicate a1 = cb.equal( pm.get("customerId"), pms.get("customerId"));
-			amend.where(a1);
-
-			// Where
-			Predicate n1 = cb.equal(pm.get("customerId"), cedeingId);
-			Predicate n2 = cb.equal(pm.get("amendId"), amend);
-			query.where(n1,n2);
-			
-			TypedQuery<Tuple> result = em.createQuery(query);
-			List<Tuple> list = result.getResultList();
+			List<Tuple> list=placementCustomRepository.getMailToList(bean);
 			if(list.size()>0) {
       			for(Tuple data: list) {
       				CommonResDropDown res = new CommonResDropDown();
@@ -246,51 +209,7 @@ public class PlacementServiceImple implements PlacementService {
 		GetCommonDropDownRes response = new GetCommonDropDownRes();
 		List<CommonResDropDown> resList = new ArrayList<CommonResDropDown>();
 		try {
-			CriteriaBuilder cb = em.getCriteriaBuilder(); 
-			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
-			
-			Root<TtrnRiPlacement> pm = query.from(TtrnRiPlacement.class);
-						
-			//reinsurerName
-			Subquery<String> reInsurerName = query.subquery(String.class); 
-			Root<PersonalInfo> pi = reInsurerName.from(PersonalInfo.class);
-		
-			Expression<String> firstName1 = cb.concat(pi.get("firstName"), " ");
-			reInsurerName.select(cb.concat(firstName1, pi.get("lastName")));
-			
-			//maxAmend
-			Subquery<Long> maxAmend = query.subquery(Long.class); 
-			Root<PersonalInfo> pis = maxAmend.from(PersonalInfo.class);
-			maxAmend.select(cb.max(pis.get("amendId")));
-			Predicate b1 = cb.equal( pis.get("customerId"), pi.get("customerId"));
-			maxAmend.where(b1);
-			
-			Predicate a1 = cb.equal( pi.get("customerType"), "R");
-			Predicate a2 = cb.equal( pi.get("customerId"), pm.get("reinsurerId"));
-			Predicate a3 = cb.equal( pi.get("branchCode"), pm.get("branchCode"));
-			Predicate a4 = cb.equal( pi.get("amendId"), maxAmend);
-			reInsurerName.where(a1,a2,a3,a4);
-			
-			query.multiselect(pm.get("reinsurerId").alias("REINSURER_ID"),reInsurerName.alias("REINSURER_NAME")).distinct(true); 
-			
-			
-			Predicate n1 = cb.equal(pm.get("branchCode"), bean.getBranchCode());
-			if(StringUtils.isNotBlank(bean.getBouquetNo())) {
-				//GET_EX_REINSURER_BOUQUET_LIST
-				Predicate n2 = cb.equal(pm.get("bouquetNo"), bean.getBouquetNo());
-				query.where(n1,n2);
-			}else if(StringUtils.isNotBlank(bean.getBaseProposalNo())) {
-				//GET_EX_REINSURER_BASE_LIST
-				Predicate n2 = cb.equal(pm.get("baseProposalNo"), bean.getBaseProposalNo());
-				query.where(n1,n2);
-			}else {
-				//GET_EX_REINSURER_PRO_LIST
-				Predicate n2 = cb.equal(pm.get("proposalNo"), StringUtils.isBlank(bean.getEproposalNo())?bean.getProposalNo():bean.getEproposalNo());
-				query.where(n1,n2);
-			}
-			TypedQuery<Tuple> result = em.createQuery(query);
-			List<Tuple> list = result.getResultList();
-			
+			List<Tuple> list=placementCustomRepository.getExistingReinsurerList(bean);
 			if(list.size()>0) {
 				for(Tuple data: list) {
       				CommonResDropDown res = new CommonResDropDown();
@@ -316,50 +235,7 @@ public class PlacementServiceImple implements PlacementService {
 		GetCommonDropDownRes response = new GetCommonDropDownRes();
 		List<CommonResDropDown> resList = new ArrayList<CommonResDropDown>();
 		try {
-			CriteriaBuilder cb = em.getCriteriaBuilder(); 
-			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
-			
-			Root<TtrnRiPlacement> pm = query.from(TtrnRiPlacement.class);
-						
-			//brokerName
-			Subquery<String> brokerName = query.subquery(String.class); 
-			Root<PersonalInfo> pi = brokerName.from(PersonalInfo.class);
-		
-			Expression<String> firstName1 = cb.concat(pi.get("firstName"), " ");
-			brokerName.select(cb.concat(firstName1, pi.get("lastName")));
-			
-			//maxAmend
-			Subquery<Long> maxAmend = query.subquery(Long.class); 
-			Root<PersonalInfo> pis = maxAmend.from(PersonalInfo.class);
-			maxAmend.select(cb.max(pis.get("amendId")));
-			Predicate b1 = cb.equal( pis.get("customerId"), pi.get("customerId"));
-			maxAmend.where(b1);
-			
-			Predicate a1 = cb.equal( pi.get("customerType"), "B");
-			Predicate a2 = cb.equal( pi.get("customerId"), pm.get("brokerId"));
-			Predicate a3 = cb.equal( pi.get("branchCode"), pm.get("branchCode"));
-			Predicate a4 = cb.equal( pi.get("amendId"), maxAmend);
-			brokerName.where(a1,a2,a3,a4);
-			
-			query.multiselect(pm.get("brokerId").alias("BROKER_ID"),brokerName.alias("BROKER_NAME")).distinct(true); 
-			
-			Predicate n1 = cb.equal(pm.get("branchCode"), bean.getBranchCode());
-			if(StringUtils.isNotBlank(bean.getBouquetNo())) {
-				//GET_EX_BROKER_BOUQUET_LIST
-				Predicate n2 = cb.equal(pm.get("bouquetNo"), bean.getBouquetNo());
-				query.where(n1,n2);
-			}else if(StringUtils.isNotBlank(bean.getBaseProposalNo())) {
-				//GET_EX_BROKER_BASE_LIST
-				Predicate n2 = cb.equal(pm.get("baseProposalNo"), bean.getBaseProposalNo());
-				query.where(n1,n2);
-			}else {
-				//GET_EX_BROKER_PRO_LIST
-				Predicate n2 = cb.equal(pm.get("proposalNo"), StringUtils.isBlank(bean.getEproposalNo())?bean.getProposalNo():bean.getEproposalNo());
-				query.where(n1,n2);
-			}
-			TypedQuery<Tuple> result = em.createQuery(query);
-			List<Tuple> list = result.getResultList();
-			
+			List<Tuple> list=placementCustomRepository.getExistingBrokerList(bean);
 			if(list.size()>0) {
 				for(Tuple data: list) {
       				CommonResDropDown res = new CommonResDropDown();
@@ -385,53 +261,7 @@ public class PlacementServiceImple implements PlacementService {
 		GetExistingAttachListRes response = new GetExistingAttachListRes();
 		List<GetExistingAttachListRes1> resList = new ArrayList<GetExistingAttachListRes1>();
 		try {
-				//GET_EX_DOC_PRO_LIST
-				CriteriaBuilder cb = em.getCriteriaBuilder(); 
-				CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
-				Root<NotificationAttachmentDetail> pm = query.from(NotificationAttachmentDetail.class);
-							
-				//DOC_TYPE
-				Subquery<String> docName = query.subquery(String.class); 
-				Root<TmasDocTypeMaster> pi = docName.from(TmasDocTypeMaster.class);
-			
-				docName.select( pi.get("docName"));
-				
-				//maxAmend
-				Subquery<Long> maxAmend = query.subquery(Long.class); 
-				Root<TmasDocTypeMaster> pis = maxAmend.from(TmasDocTypeMaster.class);
-				maxAmend.select(cb.max(pis.get("amendId")));
-				Predicate b1 = cb.equal( pis.get("docType"), pi.get("docType"));
-				Predicate b2 = cb.equal( pis.get("branchCode"), pi.get("branchCode"));
-				Predicate b3 = cb.equal( pis.get("moduleType"), pi.get("moduleType"));
-				Predicate b4 = cb.equal( pis.get("productId"), pi.get("productId"));
-				maxAmend.where(b1,b2,b3,b4);
-				
-				Predicate a1 = cb.equal( pi.get("productId"), "12");
-				Predicate a2 = cb.equal( pi.get("moduleType"), "PL");
-				Predicate a3 = cb.equal( pi.get("branchCode"), pm.get("branchCode"));
-				Predicate a4 = cb.equal( pi.get("status"), "Y");
-				Predicate a5 = cb.equal( pi.get("amendId"), maxAmend);
-				Predicate a6 = cb.equal( pi.get("docType"), pm.get("docType"));
-				docName.where(a1,a2,a3,a4,a5,a6);
-				
-				query.multiselect(pm.get("docId").alias("DOC_ID"),docName.alias("DOC_TYPE"),
-						pm.get("docDescription").alias("DOC_DESCRIPTION"),pm.get("orgFileName").alias("ORG_FILE_NAME")
-						,pm.get("ourFileName").alias("OUR_FILE_NAME")).distinct(true); 
-				
-				Predicate n1 = cb.equal(pm.get("branchCode"), bean.getBranchCode());
-				
-				Expression<String> e0 = pm.get("docType");
-				Predicate n2 = e0.in("MA","MA2").not();
-
-				Predicate n3 = cb.equal(pm.get("proposalNo"), StringUtils.isBlank(bean.getEproposalNo())?bean.getProposalNo():bean.getEproposalNo());
-				Predicate n4 = cb.equal(pm.get("reinsurerId"), bean.getReinsurerId());
-				Predicate n5 = cb.equal(pm.get("brokerId"), bean.getBrokerId());
-				Predicate n6 = cb.equal(pm.get("correspondentId"), bean.getCorresId());
-				query.where(n1,n2,n3,n4,n5,n6);
-				
-				TypedQuery<Tuple> result = em.createQuery(query);
-				List<Tuple> list = result.getResultList();
-		
+			List<Tuple> list=placementCustomRepository.getExistingAttachList(bean);
 				if(list.size()>0) {
 					for(Tuple data: list) {
 						GetExistingAttachListRes1 res = new GetExistingAttachListRes1();
@@ -463,7 +293,7 @@ public class PlacementServiceImple implements PlacementService {
 		try {
 			String proposal=StringUtils.isBlank(req.getEProposalNo())?req.getProposalNo():req.getEProposalNo();
 			
-			List<Tuple> list = getExistingProposal(proposal, req.getBranchCode());
+			List<Tuple> list = placementCustomRepository.getExistingProposal(proposal, req.getBranchCode());
 			if(list.size()>0) {
 				Tuple map=list.get(0);
 				bean.setCedingCompanyName(map.get("COMPANY_NAME")==null?"":map.get("COMPANY_NAME").toString());
@@ -497,72 +327,7 @@ public class PlacementServiceImple implements PlacementService {
 		return response;
 	}
 
-	private List<Tuple> getExistingProposal(String proposal, String branchCode) {
-		List<Tuple> list = new ArrayList<>();
-		try {
-			//GET_EXISTING_PROPOSAL
-			CriteriaBuilder cb = em.getCriteriaBuilder(); 
-			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
-			
-			Root<PositionMaster> pm = query.from(PositionMaster.class);
-			Root<TtrnRiskDetails> rd = query.from(TtrnRiskDetails.class); //'New' POLICY_STATUS,''EXISTING_SHARE
-			
-			// MAXAmend ID
-			Subquery<String> companyName = query.subquery(String.class); 
-			Root<PersonalInfo> pms = companyName.from(PersonalInfo.class);
-			companyName.select(pms.get("companyName"));
-			Predicate a1 = cb.equal( rd.get("rskCedingid"), pms.get("customerId"));
-			Predicate a2 = cb.equal( pms.get("customerType"), "C");
-			Predicate a3 = cb.equal( pm.get("branchCode"), pms.get("branchCode"));
-			companyName.where(a1,a2,a3);
-			
-			//baseLayer
-			Subquery<String> baseLayer = query.subquery(String.class); 
-			Root<PositionMaster> bs = baseLayer.from(PositionMaster.class);
-			baseLayer.select(bs.get("baseLayer")).distinct(true)
-			.where(cb.equal(bs.get("baseLayer"),cb.coalesce(pm.get("baseLayer"),pm.get("proposalNo"))));
-			
-			//treatyType
-			Subquery<String> treatyType = query.subquery(String.class); 
-			Root<ConstantDetail> cd = treatyType.from(ConstantDetail.class);
-			treatyType.select(cd.get("detailName"));
-			Predicate c1 =  cb.equal(cb.selectCase().when(cb.equal(pm.get("productId") ,"2") ,new BigDecimal(43) ).otherwise(new BigDecimal(29)) ,
-					  cd.get("categoryId"));
-			Predicate c2 = cb.equal(cb.selectCase().when(cb.equal(pm.get("productId") ,"2") ,rd.get("treatytype") ).otherwise(rd.get("rskBusinessType")) ,
-					  cd.get("type"));	
-			treatyType.where(c1,c2);
 	
-			query.multiselect(rd.get("rskInceptionDate").alias("INS_DATE"),rd.get("rskExpiryDate").alias("EXP_DATE"),
-					companyName.alias("COMPANY_NAME"),pm.get("uwYear").alias("UW_YEAR"),
-					pm.get("uwYearTo").alias("UW_YEAR_TO"),pm.get("contractNo").alias("CONTRACT_NO"),
-					baseLayer.alias("BASE_LAYER"),pm.get("layerNo").alias("LAYER_NO"),pm.get("sectionNo").alias("SECTION_NO"),
-					pm.get("proposalNo").alias("PROPOSAL_NO"),
-					rd.get("rskTreatyid").alias("RSK_TREATYID"),treatyType.alias("TREATY_TYPE"),
-					pm.get("bouquetNo").alias("BOUQUET_NO"),pm.get("bouquetModeYn").alias("BOUQUET_MODE_YN"),
-					pm.get("offerNo").alias("OFFER_NO"),rd.get("rskCedingid").alias("RSK_CEDINGID"),
-					rd.get("rskBrokerid").alias("RSK_BROKERID"),pm.get("amendId").alias("AMEND_ID")); 
-	
-			//Order By
-			List<Order> orderList = new ArrayList<Order>();
-			orderList.add(cb.asc(pm.get("offerNo")));
-			orderList.add(cb.asc(pm.get("proposalNo")));
-	
-			// Where
-			Predicate n1 = cb.equal(pm.get("branchCode"), branchCode);
-			Predicate n2 = cb.equal(pm.get("proposalNo"), rd.get("rskProposalNumber"));
-			Predicate n3 = cb.equal(pm.get("proposalNo"), proposal);
-			Predicate n4 = cb.equal(pm.get("contractStatus"), "P");  //P
-			query.where(n1,n2,n3,n4).orderBy(orderList);
-			
-			// Get Result
-			TypedQuery<Tuple> res = em.createQuery(query);
-			list = res.getResultList();
-		}catch(Exception e){
-			e.printStackTrace();
-			
-		}
-	return list;
-	}
 
 	@Override
 	public GetReinsurerInfoRes getReinsurerInfo(GetReinsurerInfoReq bean) {
@@ -702,7 +467,7 @@ public class PlacementServiceImple implements PlacementService {
 		List<SavePlacingRes> resList = new ArrayList<SavePlacingRes>();
 		List<GetBouquetExistingListRes1> list = null;
 		try {
-			GetPlacementNoRes1 res1 = 	getPlacementNo(bean).getCommonResponse();
+			GetPlacementNoRes1 res1 = 	placementCustomRepository.getPlacementNo(bean).getCommonResponse();
 			bean.setPlacementNo(res1.getPlacementNo());
 			bean.setStatusNo(res1.getStatusNo());
 			
@@ -732,71 +497,8 @@ public class PlacementServiceImple implements PlacementService {
 			}
 		return response;
 	}
-	@Override
-	public GetPlacementNoRes getPlacementNo(SavePlacingReq bean) {
-		GetPlacementNoRes response = new GetPlacementNoRes();
-		GetPlacementNoRes1 res = new GetPlacementNoRes1();
-		String placementNo="",statusNo;
-		try {
-			if("C".equalsIgnoreCase(bean.getPlacementMode())) {
-				if(StringUtils.isNotBlank(bean.getBouquetNo())) {
-					//GET_PLACEMENT_NO_BOUQUET
-					CriteriaBuilder cb = em.getCriteriaBuilder();
-					CriteriaQuery<BigDecimal> cq = cb.createQuery(BigDecimal.class);
-					Root<TtrnRiPlacement> root = cq.from(TtrnRiPlacement.class);
-					
-					cq.select(root.get("placementNo")).distinct(true)
-					.where(cb.equal(root.get("bouquetNo"), bean.getBouquetNo()));
-					
-					List<BigDecimal> placeno = em.createQuery(cq).getResultList();
-					if(placeno.size()>0)
-					placementNo = placeno.get(0)==null?"":String.valueOf(placeno.get(0));
-					
-				}else {
-					//GET_PLACEMENT_NO_BASELAYER
-					CriteriaBuilder cb = em.getCriteriaBuilder();
-					CriteriaQuery<BigDecimal> cq = cb.createQuery(BigDecimal.class);
-					Root<TtrnRiPlacement> root = cq.from(TtrnRiPlacement.class);
-					
-					cq.select(root.get("placementNo")).distinct(true)
-					.where(cb.equal(root.get("baseProposalNo"), bean.getBaseProposalNo()));
-					
-					List<BigDecimal> placeno = em.createQuery(cq).getResultList();
-					if(placeno.size()>0)
-					placementNo = placeno.get(0)==null?"":String.valueOf(placeno.get(0));
-				}
-			}else {
-				//GET_PLACEMENT_NO_PROPOSAL
-				CriteriaBuilder cb = em.getCriteriaBuilder();
-				CriteriaQuery<BigDecimal> cq = cb.createQuery(BigDecimal.class);
-				Root<TtrnRiPlacement> root = cq.from(TtrnRiPlacement.class);
-				
-				cq.select(root.get("placementNo")).distinct(true)
-				.where(cb.equal(root.get("proposalNo"), bean.getEproposalNo()));
-				
-				List<BigDecimal> placeno = em.createQuery(cq).getResultList();
-				if(placeno.size()>0)
-				placementNo = placeno.get(0)==null?"":String.valueOf(placeno.get(0));
-			}
-			
-			if(StringUtils.isBlank(placementNo)) {
-			 	placementNo= fm.getSequence("PlacementNo","0","0", bean.getBranchCode(),"","");
-			}
-			statusNo= fm.getSequence("StatusNo","0","0", bean.getBranchCode(),"","");
-		
-			res.setStatusNo(statusNo);
-			res.setPlacementNo(placementNo);
-		
-			response.setCommonResponse(res);	
-			response.setMessage("Success");
-			response.setIsError(false);
-		}catch(Exception e){
-				e.printStackTrace();
-				response.setMessage("Failed");
-				response.setIsError(true);
-			}
-		return response;
-	}
+
+	
 	@Override
 	public InsertPlacingRes insertPlacing(SavePlacingReq bean) {
 		InsertPlacingRes response = new InsertPlacingRes();
@@ -818,13 +520,13 @@ public class PlacementServiceImple implements PlacementService {
 				res.setReinsurerId(req.getReinsureName());
 				res.setBrokerId(req.getPlacingBroker());
 				bean.setEproposalNo(bean.getProposalNo());
-				plamendId=getMaxAmendId(bean.getBranchCode(),bean.getEproposalNo(),res.getReinsurerId(),res.getBrokerId());
+				plamendId=placementCustomRepository.getMaxAmendId(bean.getBranchCode(),bean.getEproposalNo(),res.getReinsurerId(),res.getBrokerId());
 				if(StringUtils.isBlank(plamendId) || "null".equalsIgnoreCase(plamendId)) {
 					bean.setPlacementamendId("0");
 				}else {
 				bean.setPlacementamendId(plamendId);
 				}
-				result=getPlacementDetails(bean.getEproposalNo(),bean.getReinsurerId(),bean.getBrokerId(),bean.getBranchCode());
+				result=placementCustomRepository.getPlacementDetails(bean.getEproposalNo(),bean.getReinsurerId(),bean.getBrokerId(),bean.getBranchCode());
 				if(result!=null) {
 					currentStatus=result.get("STATUS")==null?"O":result.get("STATUS").toString();
 				}
@@ -862,75 +564,8 @@ public class PlacementServiceImple implements PlacementService {
 			}
 		return response;
 	}
-	private String getMaxAmendId(String branchCode, String eproposalNo, String reinsurerId, String brokerId) {
-		String plamendId="0";
-		try {
-			//GET_PLACEMENT_MAX_AMENDID
-			CriteriaBuilder cb = em.getCriteriaBuilder();
-			CriteriaQuery<BigDecimal> cq = cb.createQuery(BigDecimal.class);
-			Root<TtrnRiPlacement> root = cq.from(TtrnRiPlacement.class);
-			
-			cq.select(cb.sum(cb.max(root.get("placementAmendId")),1).as(BigDecimal.class))
-			.where(cb.equal(root.get("branchCode"), branchCode),
-					cb.equal(root.get("proposalNo"), eproposalNo),
-					cb.equal(root.get("reinsurerId"), reinsurerId),
-					cb.equal(root.get("brokerId"), brokerId));
-			
-			BigDecimal plamno = em.createQuery(cq).getSingleResult();
-			plamendId = String.valueOf(plamno);
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return plamendId;
-	}
-	private Tuple getPlacementDetails(String proposalNo, String reinsuerId, String brokerId,String branchCode) {
-		Tuple map=null;
-		try {
-			//GET_PLACEMENT_DETAIL
-			CriteriaBuilder cb = em.getCriteriaBuilder(); 
-			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
-			
-			Root<TtrnRiPlacement> pm = query.from(TtrnRiPlacement.class);
-
-			query.multiselect(pm.get("placementNo").alias("PLACEMENT_NO"),pm.get("sno").alias("SNO"),
-					pm.get("bouquetNo").alias("BOUQUET_NO"),pm.get("proposalNo").alias("PROPOSAL_NO"),pm.get("baseProposalNo").alias("BASE_PROPOSAL_NO"),
-					pm.get("contractNo").alias("CONTRACT_NO"),pm.get("layerNo").alias("LAYER_NO"),
-					pm.get("sectionNo").alias("SECTION_NO"),pm.get("amendId").alias("AMEND_ID"),
-					pm.get("cedingCompanyId").alias("CEDING_COMPANY_ID"),pm.get("reinsurerId").alias("REINSURER_ID"),
-					pm.get("brokerId").alias("BROKER_ID"),pm.get("shareOffered").alias("SHARE_OFFERED"),
-					pm.get("placementMode").alias("PLACEMENT_MODE"),pm.get("status").alias("STATUS")); 
-
-			// MAXAmend ID
-			Subquery<Long> amend = query.subquery(Long.class); 
-			Root<TtrnRiPlacement> pms = amend.from(TtrnRiPlacement.class);
-			amend.select(cb.max(pms.get("placementAmendId")));
-			Predicate a1 = cb.equal( pm.get("branchCode"), pms.get("branchCode"));
-			Predicate a2 = cb.equal( pm.get("proposalNo"), pms.get("proposalNo"));
-			Predicate a3 = cb.equal( pm.get("reinsurerId"), pms.get("reinsurerId"));
-			Predicate a4 = cb.equal( pm.get("brokerId"), pms.get("brokerId"));
-			amend.where(a1,a2,a3,a4);
-
-			Predicate n1 = cb.equal(pm.get("branchCode"), branchCode);
-			Predicate n2 = cb.equal(pm.get("proposalNo"), proposalNo);
-			Predicate n3 = cb.equal(pm.get("reinsurerId"), reinsuerId);
-			Predicate n4 = cb.equal(pm.get("brokerId"), brokerId);
-			Predicate n5 = cb.equal(pm.get("placementAmendId"), amend);
-			query.where(n1,n2,n3,n4,n5);
-			
-			TypedQuery<Tuple> res = em.createQuery(query);
-			List<Tuple> list = res.getResultList();
-
-			if(!CollectionUtils.isEmpty(list)) {
-					map=list.get(0);
-			}
-		}
-		catch (Exception e) {
-				e.printStackTrace();
-		}	
-		return map;
-	}
-
+	
+	
 	@Override
 	public GetPlacingInfoRes getPlacingInfo(GetPlacingInfoReq bean) {
 		GetPlacingInfoRes response = new GetPlacingInfoRes();
@@ -940,12 +575,12 @@ public class PlacementServiceImple implements PlacementService {
 		List<GetPlacingInfoRes1> resList = new ArrayList<GetPlacingInfoRes1>();
 		try {
 			String[] obj=new String[2];
-			if(StringUtils.isNotBlank(bean.getBouquetNo())) {
+			if(StringUtils.isNotBlank(bean.getBouquetNo()) && !"0".equals(bean.getBouquetNo())) {
 				query="GET_PLACING_BOUQUET_LIST";
 				  qutext = prop.getProperty(query);
 				obj[0]=bean.getBranchCode();
 				obj[1]=bean.getBouquetNo();
-			}else if(StringUtils.isNotBlank(bean.getBaseProposalNo())) {
+			}else if(StringUtils.isNotBlank(bean.getBaseProposalNo()) && !"0".equals(bean.getBaseProposalNo())) {
 				query="GET_PLACING_BASELAYER_LIST";
 				  qutext = prop.getProperty(query);
 				obj[0]=bean.getBranchCode();
@@ -1005,9 +640,9 @@ public class PlacementServiceImple implements PlacementService {
 		List<Tuple> result=null;
 		try {
 			if(StringUtils.isBlank(bean.getSearchType())) {
-				result=GetPlacementEdit(bean.getBranchCode(),bean.getBrokerId(),bean.getEproposalNo(),bean.getReinsurerId());
+				result=placementCustomRepository.GetPlacementEdit(bean.getBranchCode(),bean.getBrokerId(),bean.getEproposalNo(),bean.getReinsurerId());
 			}else {
-				result=GetPlacementSearchEdit(bean);
+				result=placementCustomRepository.GetPlacementSearchEdit(bean);
 			}
 			if(!CollectionUtils.isEmpty(result)) {
 				for(int i=0;i<result.size();i++) {
@@ -1043,43 +678,17 @@ public class PlacementServiceImple implements PlacementService {
 				res1.setPlacingDetails(resList);
 				}
 			if(StringUtils.isBlank(bean.getSearchType())) {
-				//GET_PLACEMENT_STATUS_EDIT
-				CriteriaBuilder cb = em.getCriteriaBuilder(); 
-				CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
-				
-				Root<TtrnRiPlacementStatus> pm = query.from(TtrnRiPlacementStatus.class);
-
-				query.multiselect(pm.get("newStatus").alias("NEW_STATUS"),pm.get("currentStatus").alias("CURRENT_STATUS")); 
-
-				//status
-				Subquery<Long> status = query.subquery(Long.class); 
-				Root<TtrnRiPlacementStatus> pms = status.from(TtrnRiPlacementStatus.class);
-				status.select(cb.max(pms.get("statusNo")));
-				Predicate a1 = cb.equal( pm.get("proposalNo"), pms.get("proposalNo"));
-				Predicate a2 = cb.equal( pm.get("branchCode"), pms.get("branchCode"));
-				Predicate a3 = cb.equal( pm.get("reinsurerId"), pms.get("reinsurerId"));
-				Predicate a4 = cb.equal( pm.get("brokerId"), pms.get("brokerId"));
-				status.where(a1,a2,a3,a4);
-
-				Predicate n1 = cb.equal(pm.get("proposalNo"), bean.getEproposalNo());
-				Predicate n2 = cb.equal(pm.get("branchCode"), bean.getBranchCode());
-				Predicate n3 = cb.equal(pm.get("reinsurerId"), bean.getReinsurerId());
-				Predicate n4 = cb.equal(pm.get("brokerId"), bean.getBrokerId());
-				Predicate n5 = cb.equal(pm.get("statusNo"), status);
-				query.where(n1,n2,n3,n4,n5);
-				
-				TypedQuery<Tuple> res = em.createQuery(query);
-				List<Tuple> list = res.getResultList();
+				List<Tuple>list=placementCustomRepository.getStatusInfo(bean);
 			 
-			if(!CollectionUtils.isEmpty(list)) {
-				Tuple map=list.get(0);
-				res1.setCurrentStatus(map.get("NEW_STATUS")==null?"":map.get("NEW_STATUS").toString());
-				
-			}else {
-				if(StringUtils.isBlank(bean.getNewStatus())) {
-					res1.setCurrentStatus(StringUtils.isBlank(bean.getSearchStatus())?"O":bean.getSearchStatus());
+				if(!CollectionUtils.isEmpty(list)) {
+					Tuple map=list.get(0);
+					res1.setCurrentStatus(map.get("NEW_STATUS")==null?"":map.get("NEW_STATUS").toString());
+					
+				}else {
+					if(StringUtils.isBlank(bean.getNewStatus())) {
+						res1.setCurrentStatus(StringUtils.isBlank(bean.getSearchStatus())?"O":bean.getSearchStatus());
+					}
 				}
-			}
 			}else {
 				res1.setCurrentStatus(StringUtils.isBlank(bean.getSearchStatus())?"O":bean.getSearchStatus());
 			}
@@ -1095,237 +704,8 @@ public class PlacementServiceImple implements PlacementService {
 		return response;
 	}
 	
-	private List<Tuple> GetPlacementEdit(String branchCode, String brokerId, String eproposalNo, String reinsurerId) {
-		List<Tuple> list =null;
-		try {
-			//GET_PLACEMENT_EDIT
-			CriteriaBuilder cb = em.getCriteriaBuilder(); 
-			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
-			
-			Root<TtrnRiPlacement> pm = query.from(TtrnRiPlacement.class);
-			
-			//cedingCompanyName
-			
-			
-			Subquery<String> cedingCompanyName = query.subquery(String.class); 
-			Root<PersonalInfo> personal = cedingCompanyName.from(PersonalInfo.class);
-			
-			Subquery<Long> cmaxAmend = query.subquery(Long.class); 
-			Root<PersonalInfo> cpis = cmaxAmend.from(PersonalInfo.class);
-			cmaxAmend.select(cb.max(cpis.get("amendId")));
-			Predicate ca1 = cb.equal( cpis.get("customerId"), personal.get("customerId"));
-			cmaxAmend.where(ca1);
-			
-			cedingCompanyName.select(personal.get("companyName"));
-			Predicate b1 = cb.equal( pm.get("cedingCompanyId"), personal.get("customerId"));
-			Predicate b2 = cb.equal( pm.get("branchCode"), personal.get("branchCode"));
-			Predicate b3 = cb.equal( personal.get("customerType"), "C");
-			Predicate b4 = cb.equal( personal.get("amendId"), cmaxAmend);
-			cedingCompanyName.where(b1,b2,b3,b4);
-			
-			//reinsurerName
-			Subquery<String> reinsurerName = query.subquery(String.class); 
-			Root<PersonalInfo> pi = reinsurerName.from(PersonalInfo.class);
-		
-			Expression<String> firstName1 = cb.concat(pi.get("firstName"), " ");
-			reinsurerName.select(cb.concat(firstName1, pi.get("lastName")));
-			//maxAmend
-			Subquery<Long> maxAmend = query.subquery(Long.class); 
-			Root<PersonalInfo> pis = maxAmend.from(PersonalInfo.class);
-			maxAmend.select(cb.max(pis.get("amendId")));
-			Predicate c1 = cb.equal( pis.get("customerId"), pi.get("customerId"));
-			maxAmend.where(c1);
-			
-			Predicate d1 = cb.equal( pi.get("customerType"), "R");
-			Predicate d2 = cb.equal( pi.get("customerId"), pm.get("reinsurerId"));
-			Predicate d3 = cb.equal( pi.get("branchCode"), pm.get("branchCode"));
-			Predicate d4 = cb.equal( pi.get("amendId"), maxAmend);
-			reinsurerName.where(d1,d2,d3,d4);
-			
-			//brokerName
-			Subquery<String> brokerName = query.subquery(String.class); 
-			Root<PersonalInfo> pi1 = brokerName.from(PersonalInfo.class);
-		
-			Expression<String> firstName = cb.concat(pi1.get("firstName"), " ");
-			brokerName.select(cb.concat(firstName, pi1.get("lastName")));
-			//maxAmend
-			Subquery<Long> bAmend = query.subquery(Long.class); 
-			Root<PersonalInfo> pis1 = bAmend.from(PersonalInfo.class);
-			bAmend.select(cb.max(pis1.get("amendId")));
-			Predicate f1 = cb.equal( pis1.get("customerId"), pi1.get("customerId"));
-			bAmend.where(f1);
-			
-			Predicate e1 = cb.equal( pi1.get("customerType"), "B");
-			Predicate e2 = cb.equal( pi1.get("customerId"), pm.get("brokerId"));
-			Predicate e3 = cb.equal( pi1.get("branchCode"), pm.get("branchCode"));
-			Predicate e4 = cb.equal( pi1.get("amendId"), bAmend);
-			brokerName.where(e1,e2,e3,e4);
-			
-			//mailStatus
-			Subquery<String> mailStatus = query.subquery(String.class); 
-			Root<MailNotificationDetail> mail = mailStatus.from(MailNotificationDetail.class);
-			mailStatus.select(mail.get("mailStatus"));
-			Predicate g1 = cb.equal( pm.get("proposalNo"), mail.get("proposalNo"));
-			Predicate g2 = cb.equal( pm.get("reinsurerId"), mail.get("reinsurerId"));
-			Predicate g3 = cb.equal(pm.get("brokerId"), mail.get("brokerId"));
-			Predicate g4 = cb.equal(pm.get("status"), mail.get("mailType"));
-			mailStatus.where(g1,g2,g3,g4);
-
-			query.multiselect(pm.get("baseProposalNo").alias("BASE_PROPOSAL_NO"),pm.get("sno").alias("SNO"),
-					pm.get("bouquetNo").alias("BOUQUET_NO"),pm.get("proposalNo").alias("PROPOSAL_NO"),
-					pm.get("cedingCompanyId").alias("CEDING_COMPANY_ID"),cedingCompanyName.alias("CEDING_COMPANY_NAME"),
-					pm.get("reinsurerId").alias("REINSURER_ID"),pm.get("brokerId").alias("BROKER_ID"),
-					reinsurerName.alias("REINSURER_NAME"),brokerName.alias("BROKER_NAME"),
-					pm.get("shareOffered").alias("SHARE_OFFERED"),pm.get("shareWritten").alias("SHARE_WRITTEN"),
-					pm.get("shareProposalWritten").alias("SHARE_PROPOSAL_WRITTEN"),pm.get("shareSigned").alias("SHARE_SIGNED"),
-					pm.get("brokerage").alias("BROKERAGE_PER"),pm.get("status").alias("STATUS"),
-					pm.get("writtenLineValidity").alias("WRITTEN_LINE_VALIDITY"),pm.get("writtenLineRemarks").alias("WRITTEN_LINE_REMARKS"),
-					pm.get("shareLineValidity").alias("SHARE_LINE_VALIDITY"),pm.get("shareLineRemarks").alias("SHARE_LINE_REMARKS"),
-					pm.get("shareProposedSigned").alias("SHARE_PROPOSED_SIGNED"),mailStatus.alias("MAIL_STATUS"),
-					pm.get("placementAmendId").alias("PLACEMENT_AMEND_ID"),
-					pm.get("contractNo").alias("CONTRACT_NO"),pm.get("layerNo").alias("LAYER_NO"),
-					pm.get("sectionNo").alias("SECTION_NO")); 
-
-			// MAXAmend ID
-			Subquery<Long> amend = query.subquery(Long.class); 
-			Root<TtrnRiPlacement> pms = amend.from(TtrnRiPlacement.class);
-			amend.select(cb.max(pms.get("placementAmendId")));
-			Predicate a1 = cb.equal( pm.get("branchCode"), pms.get("branchCode"));
-			Predicate a2 = cb.equal( pm.get("proposalNo"), pms.get("proposalNo"));
-			Predicate a3 = cb.equal( pm.get("reinsurerId"), pms.get("reinsurerId"));
-			Predicate a4 = cb.equal( pm.get("brokerId"), pms.get("brokerId"));
-			amend.where(a1,a2,a3,a4);
-
-			Predicate n1 = cb.equal(pm.get("branchCode"), branchCode);
-			Predicate n2 = cb.equal(pm.get("proposalNo"), eproposalNo);
-			Predicate n3 = cb.equal(pm.get("reinsurerId"), reinsurerId);
-			Predicate n4 = cb.equal(pm.get("brokerId"), brokerId);
-			Predicate n5 = cb.equal(pm.get("placementAmendId"), amend);
-			query.where(n1,n2,n3,n4,n5);
-			
-			TypedQuery<Tuple> res = em.createQuery(query);
-			 list = res.getResultList();
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return list;
-	}
-	private List<Tuple> GetPlacementSearchEdit(EditPlacingDetailsReq bean) {
-		List<Tuple> list=null;
-		try {
-			CriteriaBuilder cb = em.getCriteriaBuilder(); 
-			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
-			
-			Root<TtrnRiPlacement> pm = query.from(TtrnRiPlacement.class);
-			
-			//cedingCompanyName
-			Subquery<String> cedingCompanyName = query.subquery(String.class); 
-			Root<PersonalInfo> personal = cedingCompanyName.from(PersonalInfo.class);
-			cedingCompanyName.select(personal.get("companyName"));
-			Predicate b1 = cb.equal( pm.get("cedingCompanyId"), personal.get("customerId"));
-			Predicate b2 = cb.equal( pm.get("branchCode"), personal.get("branchCode"));
-			Predicate b3 = cb.equal( personal.get("customerType"), "C");
-			cedingCompanyName.where(b1,b2,b3);
-			
-			//reinsurerName
-			Subquery<String> reinsurerName = query.subquery(String.class); 
-			Root<PersonalInfo> pi = reinsurerName.from(PersonalInfo.class);
-		
-			Expression<String> firstName1 = cb.concat(pi.get("firstName"), " ");
-			reinsurerName.select(cb.concat(firstName1, pi.get("lastName")));
-			//maxAmend
-			Subquery<Long> maxAmend = query.subquery(Long.class); 
-			Root<PersonalInfo> pis = maxAmend.from(PersonalInfo.class);
-			maxAmend.select(cb.max(pis.get("amendId")));
-			Predicate c1 = cb.equal( pis.get("customerId"), pi.get("customerId"));
-			maxAmend.where(c1);
-			
-			Predicate d1 = cb.equal( pi.get("customerType"), "R");
-			Predicate d2 = cb.equal( pi.get("customerId"), pm.get("reinsurerId"));
-			Predicate d3 = cb.equal( pi.get("branchCode"), pm.get("branchCode"));
-			Predicate d4 = cb.equal( pi.get("amendId"), maxAmend);
-			reinsurerName.where(d1,d2,d3,d4);
-			
-			//brokerName
-			Subquery<String> brokerName = query.subquery(String.class); 
-			Root<PersonalInfo> pi1 = brokerName.from(PersonalInfo.class);
-		
-			Expression<String> firstName = cb.concat(pi1.get("firstName"), " ");
-			brokerName.select(cb.concat(firstName, pi1.get("lastName")));
-			//maxAmend
-			Subquery<Long> bAmend = query.subquery(Long.class); 
-			Root<PersonalInfo> pis1 = bAmend.from(PersonalInfo.class);
-			bAmend.select(cb.max(pis1.get("amendId")));
-			Predicate f1 = cb.equal( pis1.get("customerId"), pi1.get("customerId"));
-			bAmend.where(f1);
-			
-			Predicate e1 = cb.equal( pi1.get("customerType"), "B");
-			Predicate e2 = cb.equal( pi1.get("customerId"), pm.get("brokerId"));
-			Predicate e3 = cb.equal( pi1.get("branchCode"), pm.get("branchCode"));
-			Predicate e4 = cb.equal( pi1.get("amendId"), bAmend);
-			brokerName.where(e1,e2,e3,e4);
-			
-			//mailStatus
-			Subquery<String> mailStatus = query.subquery(String.class); 
-			Root<MailNotificationDetail> mail = mailStatus.from(MailNotificationDetail.class);
-			mailStatus.select(mail.get("mailStatus"));
-			Predicate g1 = cb.equal( pm.get("proposalNo"), mail.get("proposalNo"));
-			Predicate g2 = cb.equal( pm.get("reinsurerId"), mail.get("reinsurerId"));
-			Predicate g3 = cb.equal(pm.get("brokerId"), mail.get("brokerId"));
-			Predicate g4 = cb.equal(pm.get("status"), mail.get("mailType"));
-			mailStatus.where(g1,g2,g3,g4);
-
-			query.multiselect(pm.get("baseProposalNo").alias("BASE_PROPOSAL_NO"),pm.get("sno").alias("SNO"),
-					pm.get("bouquetNo").alias("BOUQUET_NO"),pm.get("proposalNo").alias("PROPOSAL_NO"),
-					pm.get("cedingCompanyId").alias("CEDING_COMPANY_ID"),cedingCompanyName.alias("CEDING_COMPANY_NAME"),
-					pm.get("reinsurerId").alias("REINSURER_ID"),pm.get("brokerId").alias("BROKER_ID"),
-					reinsurerName.alias("REINSURER_NAME"),brokerName.alias("BROKER_NAME"),
-					pm.get("shareOffered").alias("SHARE_OFFERED"),pm.get("shareWritten").alias("SHARE_WRITTEN"),
-					pm.get("shareProposalWritten").alias("SHARE_PROPOSAL_WRITTEN"),pm.get("shareSigned").alias("SHARE_SIGNED"),
-					pm.get("brokerage").alias("BROKERAGE_PER"),pm.get("status").alias("STATUS"),
-					pm.get("writtenLineValidity").alias("WRITTEN_LINE_VALIDITY"),pm.get("writtenLineRemarks").alias("WRITTEN_LINE_REMARKS"),
-					pm.get("shareLineValidity").alias("SHARE_LINE_VALIDITY"),pm.get("shareLineRemarks").alias("SHARE_LINE_REMARKS"),
-					pm.get("shareProposedSigned").alias("SHARE_PROPOSED_SIGNED"),mailStatus.alias("MAIL_STATUS")); 
-					
-			// MAXAmend ID
-			Subquery<Long> amend = query.subquery(Long.class); 
-			Root<TtrnRiPlacement> pms = amend.from(TtrnRiPlacement.class);
-			amend.select(cb.max(pms.get("placementAmendId")));
-			Predicate a1 = cb.equal( pm.get("branchCode"), pms.get("branchCode"));
-			Predicate a2 = cb.equal( pm.get("proposalNo"), pms.get("proposalNo"));
-			Predicate a3 = cb.equal( pm.get("reinsurerId"), pms.get("reinsurerId"));
-			Predicate a4 = cb.equal( pm.get("brokerId"), pms.get("brokerId"));
-			amend.where(a1,a2,a3,a4);
-
-			Predicate n1 = cb.equal(pm.get("branchCode"), bean.getBranchCode());
-			Predicate n3 = cb.equal(pm.get("reinsurerId"), bean.getSearchReinsurerId());
-			Predicate n4 = cb.equal(pm.get("brokerId"), bean.getSearchBrokerId());
-			Predicate n5 = cb.equal(pm.get("placementAmendId"), amend);
-			Predicate n6 = cb.equal(pm.get("status"), bean.getSearchStatus());
-			if(StringUtils.isNotBlank(bean.getBouquetNo())) {
-				//GET_PLACEMENT_SEARCHBQ_EDIT
-				Predicate n2 = cb.equal(pm.get("bouquetNo"), bean.getBouquetNo());
-				query.where(n1,n2,n3,n4,n5,n6);
-				
-			}else if(StringUtils.isNotBlank(bean.getBaseProposalNo())) {
-				//GET_PLACEMENT_SEARCHBP_EDIT
-				Predicate n2 = cb.equal(pm.get("baseProposalNo"), bean.getBaseProposalNo());
-				query.where(n1,n2,n3,n4,n5,n6);
-			}else {
-				//GET_PLACEMENT_SEARCH_EDIT
-				Predicate n2 = cb.equal(pm.get("proposalNo"), bean.getEproposalNo());
-				query.where(n1,n2,n3,n4,n5,n6);
-			}
-			TypedQuery<Tuple> res = em.createQuery(query);
-			list = res.getResultList();
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return list;
-	}
-
+	
+	
 	@Override
 	public CommonResponse updatePlacement(UpdatePlacementReq bean) {
 		CommonResponse response = new CommonResponse();
@@ -1344,10 +724,10 @@ public class PlacementServiceImple implements PlacementService {
 				bean.setReinsurerId(req.getReinsurerId());
 				bean.setBrokerId(req.getBrokerId());
 				bean.setEproposalNo(req.getProposalNo());
-				plamendId=getMaxAmendId(bean.getBranchCode(),bean.getEproposalNo(),bean.getReinsurerId(),bean.getBrokerId());
+				plamendId=placementCustomRepository.getMaxAmendId(bean.getBranchCode(),bean.getEproposalNo(),bean.getReinsurerId(),bean.getBrokerId());
 				bean.setPlacementamendId(StringUtils.isBlank(plamendId)?"0":plamendId);
 				
-				result=getPlacementDetails(bean.getEproposalNo(),bean.getReinsurerId(),bean.getBrokerId(),bean.getBranchCode());
+				result=placementCustomRepository.getPlacementDetails(bean.getEproposalNo(),bean.getReinsurerId(),bean.getBrokerId(),bean.getBranchCode());
 				entity.setPlacementNo(result.get("PLACEMENT_NO")==null?BigDecimal.ZERO:new BigDecimal(result.get("PLACEMENT_NO").toString()));
 				entity.setSno(result.get("SNO")==null?BigDecimal.ZERO:new BigDecimal(result.get("SNO").toString()));
 				entity.setBouquetNo(result.get("BOUQUET_NO")==null?BigDecimal.ZERO:new BigDecimal(result.get("BOUQUET_NO").toString()));
@@ -1387,7 +767,7 @@ public class PlacementServiceImple implements PlacementService {
 				ripRepo.saveAndFlush(entity);
 			}
 			updateStatus(bean);
-			response.setMessage("Success");
+			response.setMessage(bean.getCorresId());
 			response.setIsError(false);
 		}catch(Exception e){
 				log.error(e);
@@ -1403,11 +783,13 @@ public class PlacementServiceImple implements PlacementService {
 		String corresId="",statusNo="";
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 		try {
+			if(StringUtils.isBlank(bean.getCorresId())) {
 			List<Map<String,Object>> list  = queryImpl.selectSingle("SELECT  CORRESPONDENT_SEQ.NEXTVAL seqval FROM DUAL", new String[] {});
 			if (!CollectionUtils.isEmpty(list)) {
 				corresId = list.get(0).get("SEQVAL") == null ? "" : list.get(0).get("SEQVAL").toString();
 			}
 			bean.setCorresId(corresId);
+			}
 			if(StringUtils.isBlank(bean.getStatusNo())) {
 				statusNo= fm.getSequence("StatusNo","0","0", bean.getBranchCode(),"","");
 				bean.setStatusNo(statusNo);
@@ -1471,7 +853,7 @@ public class PlacementServiceImple implements PlacementService {
 			res.setReinsurerId(req.getReinsurerId());
 			res.setProposalNo(req.getProposalNo());
 			resList.add(res);
-			insertDocdetails(bean);
+			insertDocdetails(bean,res);
 		}
 		response.setCommonResponse(resList);
 		response.setMessage("Success");
@@ -1484,11 +866,11 @@ public class PlacementServiceImple implements PlacementService {
 		}
 	return response;
 	}
-	public InsertDocdetailsRes insertDocdetails(UploadDocumentReq bean) {
+	public InsertDocdetailsRes insertDocdetails(UploadDocumentReq bean, UploadDocumentRes1 resp) {
 		InsertDocdetailsRes res = new InsertDocdetailsRes();
 		 try {
-			 if(bean.getUpload()!=null) {
-				 String filePath=bean.getFilePath();
+			 if(bean.getInsertDocdetailsReq()!=null) {
+				 String filePath=commonPath+"documents/"+"PL/";
 				
 				File tmpFile = new File(filePath);
 				if(!tmpFile.exists()){
@@ -1511,26 +893,26 @@ public class PlacementServiceImple implements PlacementService {
 				fileName = fileName + ext;
 				final File copyFile = new File(filePath+fileName);
 				
-				FileUtils.copyFile((File) req.getUpload(), copyFile);
-				res.setFileName(fileName);
+				encodeBase64ToFile( req.getUpload(),copyFile);
+				//res.setFileName(fileName);
 				
 				//INSET_NOTIFY_ATTACHEMENT
 				NotificationAttachmentDetail entity = new NotificationAttachmentDetail();	
 				entity.setDocId(StringUtils.isBlank(docId)?new BigDecimal("1"):new BigDecimal(docId));
 				entity.setDocType(req.getDocTypeId());
-				entity.setSno(new BigDecimal(bean.getSno()));
-				entity.setBouquetNo(new BigDecimal(bean.getBouquetNo()));
-				entity.setBaseProposalNo(new BigDecimal(bean.getBaseproposalNo()));
-				entity.setProposalNo(new BigDecimal(bean.getProposalNo()));
-				entity.setReinsurerId(bean.getReinsurerId());
-				entity.setBrokerId(bean.getBrokerId());
+				entity.setSno(new BigDecimal(resp.getSno()));
+				entity.setBouquetNo(fm.formatBigDecimal(resp.getBouquetNo()));
+				entity.setBaseProposalNo(fm.formatBigDecimal(resp.getBaseproposalNo()));
+				entity.setProposalNo(fm.formatBigDecimal(resp.getProposalNo()));
+				entity.setReinsurerId(resp.getReinsurerId());
+				entity.setBrokerId(resp.getBrokerId());
 				entity.setOrgFileName(req.getUploadFileName());
-				entity.setOurFileName(res.getFileName());
-				entity.setFileLocation(bean.getFilePath());
+				entity.setOurFileName(fileName);
+				entity.setFileLocation(filePath);
 				entity.setBranchCode(bean.getBranchCode());
 				entity.setUserId(bean.getUserId());
 				entity.setEntryDate(new Date());
-				entity.setCorrespondentId(StringUtils.isBlank(bean.getCorresId())?BigDecimal.ZERO:new BigDecimal(bean.getCorresId()));
+				entity.setCorrespondentId(fm.formatBigDecimal(bean.getCorrespondentId()));
 				entity.setDocDescription(req.getDocDesc());
 				notiRepo.saveAndFlush(entity);
 				}
@@ -1547,20 +929,24 @@ public class PlacementServiceImple implements PlacementService {
 	public AttachFileRes attachFile(AttachFileReq bean) {
 		AttachFileRes response = new AttachFileRes();
 		List<AttachFileRes1> resList = new ArrayList<AttachFileRes1>(); 
-		List<Tuple> list=null;
+		List<Tuple> list=null;String corresId="";
 		try {
-			
+			List<Map<String,Object>> list1  = queryImpl.selectSingle("SELECT  CORRESPONDENT_SEQ.NEXTVAL seqval FROM DUAL", new String[] {});
+			if (!CollectionUtils.isEmpty(list1)) {
+				corresId = list1.get(0).get("SEQVAL") == null ? "" : list1.get(0).get("SEQVAL").toString();
+			}
 			if("C".equals(bean.getPlacementMode())) {
-				list=GetPlacementBouquet(bean.getBranchCode(),bean.getBrokerId(),bean.getBouquetNo(),bean.getReinsurerId(),bean.getBaseProposalNo());
+				list=placementCustomRepository.GetPlacementBouquet(bean.getBranchCode(),bean.getBrokerId(),bean.getBouquetNo(),bean.getReinsurerId(),bean.getBaseProposalNo());
 			}
 			else {
-				list=GetPlacementEdit(bean.getBranchCode(),bean.getBrokerId(),bean.getEproposalNo(),bean.getReinsurerId())	;					
+				list=placementCustomRepository.GetPlacementEdit(bean.getBranchCode(),bean.getBrokerId(),bean.getEproposalNo(),bean.getReinsurerId())	;					
 			}
 			
 			if(!CollectionUtils.isEmpty(list)) {
 				for(int  i=0;i<list.size();i++) {
 					Tuple  map=list.get(i);
 					AttachFileRes1 res = new AttachFileRes1();
+					res.setCorrespondentId(corresId);
 					res.setSno(map.get("SNO")==null?"":map.get("SNO").toString());
 					res.setBouquetNo(map.get("BOUQUET_NO")==null?"":map.get("BOUQUET_NO").toString());
 					res.setBaseProposalNo(map.get("BASE_PROPOSAL_NO")==null?"":map.get("BASE_PROPOSAL_NO").toString());
@@ -1568,7 +954,7 @@ public class PlacementServiceImple implements PlacementService {
 					res.setReinsurerId(map.get("REINSURER_ID")==null?"":map.get("REINSURER_ID").toString());
 					res.setEproposalNo(map.get("PROPOSAL_NO")==null?"":map.get("PROPOSAL_NO").toString());
 					resList.add(res);
-					//	insertDocdetails(bean);
+					insertDocdetails(bean,res,corresId);
 					}
 			}
 			response.setCommonResponse(resList);
@@ -1582,119 +968,64 @@ public class PlacementServiceImple implements PlacementService {
 			}
 		return response;
 	}
-	private List<Tuple> GetPlacementBouquet(String branchCode, String brokerId, String bouquetNo, String reinsurerId,String baseProposalNo ) {
-		List<Tuple> list=null;
-		try {
-			CriteriaBuilder cb = em.getCriteriaBuilder(); 
-			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
-			
-			Root<TtrnRiPlacement> pm = query.from(TtrnRiPlacement.class);
-			
-			//cedingCompanyName
-			Subquery<String> cedingCompanyName = query.subquery(String.class); 
-			Root<PersonalInfo> personal = cedingCompanyName.from(PersonalInfo.class);
-			cedingCompanyName.select(personal.get("companyName"));
-			Predicate b1 = cb.equal( pm.get("cedingCompanyId"), personal.get("customerId"));
-			Predicate b2 = cb.equal( pm.get("branchCode"), personal.get("branchCode"));
-			Predicate b3 = cb.equal( personal.get("customerType"), "C");
-			cedingCompanyName.where(b1,b2,b3);
-			
-			//reinsurerName
-			Subquery<String> reinsurerName = query.subquery(String.class); 
-			Root<PersonalInfo> pi = reinsurerName.from(PersonalInfo.class);
-		
-			Expression<String> firstName1 = cb.concat(pi.get("firstName"), " ");
-			reinsurerName.select(cb.concat(firstName1, pi.get("lastName")));
-			//maxAmend
-			Subquery<Long> maxAmend = query.subquery(Long.class); 
-			Root<PersonalInfo> pis = maxAmend.from(PersonalInfo.class);
-			maxAmend.select(cb.max(pis.get("amendId")));
-			Predicate c1 = cb.equal( pis.get("customerId"), pi.get("customerId"));
-			maxAmend.where(c1);
-			
-			Predicate d1 = cb.equal( pi.get("customerType"), "R");
-			Predicate d2 = cb.equal( pi.get("customerId"), pm.get("reinsurerId"));
-			Predicate d3 = cb.equal( pi.get("branchCode"), pm.get("branchCode"));
-			Predicate d4 = cb.equal( pi.get("amendId"), maxAmend);
-			reinsurerName.where(d1,d2,d3,d4);
-			
-			//brokerName
-			Subquery<String> brokerName = query.subquery(String.class); 
-			Root<PersonalInfo> pi1 = brokerName.from(PersonalInfo.class);
-		
-			Expression<String> firstName = cb.concat(pi1.get("firstName"), " ");
-			brokerName.select(cb.concat(firstName, pi1.get("lastName")));
-			//maxAmend
-			Subquery<Long> bAmend = query.subquery(Long.class); 
-			Root<PersonalInfo> pis1 = bAmend.from(PersonalInfo.class);
-			bAmend.select(cb.max(pis1.get("amendId")));
-			Predicate f1 = cb.equal( pis1.get("customerId"), pi1.get("customerId"));
-			bAmend.where(f1);
-			
-			Predicate e1 = cb.equal( pi1.get("customerType"), "B");
-			Predicate e2 = cb.equal( pi1.get("customerId"), pm.get("brokerId"));
-			Predicate e3 = cb.equal( pi1.get("branchCode"), pm.get("branchCode"));
-			Predicate e4 = cb.equal( pi1.get("amendId"), bAmend);
-			brokerName.where(e1,e2,e3,e4);
-			
-			//mailStatus
-			Subquery<String> mailStatus = query.subquery(String.class); 
-			Root<MailNotificationDetail> mail = mailStatus.from(MailNotificationDetail.class);
-			mailStatus.select(mail.get("mailStatus"));
-			Predicate g1 = cb.equal( pm.get("proposalNo"), mail.get("proposalNo"));
-			Predicate g2 = cb.equal( pm.get("reinsurerId"), mail.get("reinsurerId"));
-			Predicate g3 = cb.equal(pm.get("brokerId"), mail.get("brokerId"));
-			Predicate g4 = cb.equal(pm.get("status"), mail.get("mailType"));
-			mailStatus.where(g1,g2,g3,g4);
-
-			query.multiselect(pm.get("baseProposalNo").alias("BASE_PROPOSAL_NO"),pm.get("sno").alias("SNO"),
-					pm.get("bouquetNo").alias("BOUQUET_NO"),pm.get("proposalNo").alias("PROPOSAL_NO"),
-					pm.get("cedingCompanyId").alias("CEDING_COMPANY_ID"),cedingCompanyName.alias("CEDING_COMPANY_NAME"),
-					pm.get("reinsurerId").alias("REINSURER_ID"),pm.get("brokerId").alias("BROKER_ID"),
-					reinsurerName.alias("REINSURER_NAME"),brokerName.alias("BROKER_NAME"),
-					pm.get("shareOffered").alias("SHARE_OFFERED"),pm.get("shareWritten").alias("SHARE_WRITTEN"),
-					pm.get("shareProposalWritten").alias("SHARE_PROPOSAL_WRITTEN"),pm.get("shareSigned").alias("SHARE_SIGNED"),
-					pm.get("brokerage").alias("BROKERAGE_PER"),pm.get("status").alias("STATUS"),
-					pm.get("writtenLineValidity").alias("WRITTEN_LINE_VALIDITY"),pm.get("writtenLineRemarks").alias("WRITTEN_LINE_REMARKS"),
-					pm.get("shareLineValidity").alias("SHARE_LINE_VALIDITY"),pm.get("shareLineRemarks").alias("SHARE_LINE_REMARKS"),
-					pm.get("shareProposedSigned").alias("SHARE_PROPOSED_SIGNED"),mailStatus.alias("MAIL_STATUS"),
-					pm.get("contractNo").alias("CONTRACT_NO"),pm.get("layerNo").alias("LAYER_NO"),
-					pm.get("sectionNo").alias("SECTION_NO")); 
-					
-
-			// MAXAmend ID
-			Subquery<Long> amend = query.subquery(Long.class); 
-			Root<TtrnRiPlacement> pms = amend.from(TtrnRiPlacement.class);
-			amend.select(cb.max(pms.get("placementAmendId")));
-			Predicate a1 = cb.equal( pm.get("branchCode"), pms.get("branchCode"));
-			Predicate a2 = cb.equal( pm.get("proposalNo"), pms.get("proposalNo"));
-			Predicate a3 = cb.equal( pm.get("reinsurerId"), pms.get("reinsurerId"));
-			Predicate a4 = cb.equal( pm.get("brokerId"), pms.get("brokerId"));
-			amend.where(a1,a2,a3,a4);
-
-			Predicate n1 = cb.equal(pm.get("branchCode"), branchCode);
-			Predicate n3 = cb.equal(pm.get("reinsurerId"), reinsurerId);
-			Predicate n4 = cb.equal(pm.get("brokerId"), brokerId);
-			Predicate n5 = cb.equal(pm.get("placementAmendId"), amend);
-
-			if(StringUtils.isNotBlank(bouquetNo)) {
-				//GET_PLACEMENT_BOUQUET
-				Predicate n2 = cb.equal(pm.get("bouquetNo"), bouquetNo);
-				query.where(n1,n2,n3,n4,n5);
-			}else {
-				//GET_PLACEMENT_BASELAYER
-				Predicate n2 = cb.equal(pm.get("baseProposalNo"), baseProposalNo);
-				query.where(n1,n2,n3,n4,n5);
-			}
-			
-			TypedQuery<Tuple> res = em.createQuery(query);
-			list = res.getResultList();
+	private void insertDocdetails(AttachFileReq bean, AttachFileRes1 res, String corresId) {
+		 try {
+			 if(bean.getInsertDocdetailsReq()!=null) {
+				 String filePath=commonPath+"documents/"+"PL/";
+				
+				File tmpFile = new File(filePath);
+				if(!tmpFile.exists()){
+					tmpFile.mkdir();
+				}
+				//GET_DOC_SEQUENCE
+				NotificationAttachmentDetail list = notiRepo.findTop1ByOrderByDocIdDesc();
+				String docId="";
+				if(list!=null) {
+					docId =	list.getDocId()==null?"0":String.valueOf(list.getDocId().intValue()+1);
+				}
+				for(int i=0;i<bean.getInsertDocdetailsReq().size();i++) {
+					InsertDocdetailsReq req =  bean.getInsertDocdetailsReq().get(i);
+					final String orgFileName=req.getUploadFileName();
+				Calendar cal = Calendar.getInstance();
+				String time = cal.get(Calendar.DATE)+"-"+(cal.get(Calendar.MONTH)+1)+"-"
+				+cal.get(Calendar.YEAR)+"_"+cal.get(Calendar.HOUR)+cal.get(Calendar.MINUTE)+cal.get(Calendar.SECOND);
+				String ext = orgFileName.substring(orgFileName.lastIndexOf("."));
+				String fileName = orgFileName.substring(0, orgFileName.lastIndexOf("."))+"_"+time;
+				fileName = fileName + ext;
+				final File copyFile = new File(filePath+fileName);
+				
+				encodeBase64ToFile( req.getUpload(),copyFile);
+				//res.setFileName(fileName);
+				
+				//INSET_NOTIFY_ATTACHEMENT
+				NotificationAttachmentDetail entity = new NotificationAttachmentDetail();	
+				entity.setDocId(StringUtils.isBlank(docId)?new BigDecimal("1"):new BigDecimal(docId));
+				entity.setDocType(req.getDocTypeId());
+				entity.setSno(new BigDecimal(res.getSno()));
+				entity.setBouquetNo(fm.formatBigDecimal(bean.getBouquetNo()));
+				entity.setBaseProposalNo(fm.formatBigDecimal(res.getBaseProposalNo()));
+				entity.setProposalNo(fm.formatBigDecimal(res.getEproposalNo()));
+				entity.setReinsurerId(res.getReinsurerId());
+				entity.setBrokerId(res.getBrokerId());
+				entity.setOrgFileName(req.getUploadFileName());
+				entity.setOurFileName(fileName);
+				entity.setFileLocation(filePath);
+				entity.setBranchCode(bean.getBranchCode());
+				entity.setUserId(bean.getUserId());
+				entity.setEntryDate(new Date());
+				entity.setCorrespondentId(fm.formatBigDecimal(corresId));
+				entity.setDocDescription(req.getDocDesc());
+				notiRepo.saveAndFlush(entity);
+				}
+			 }
 			
 		} catch (Exception e) {
 			e.printStackTrace();
+			
 		}
-		return list;
 	}
+
+	
 
 	@Override
 	@Transactional
@@ -1712,7 +1043,7 @@ public class PlacementServiceImple implements PlacementService {
 			String subject = bean.getMailSubject();
 			String toAddress = bean.getMailTo();
 			String ccAddress = bean.getMailCC();
-			String mailBody= bean.getMailBody()+"<br/>"+bean.getMailRemarks()+""+bean.getMailRegards();
+			String mailBody= bean.getMailBody()+"<br/>"+(StringUtils.isBlank(bean.getMailRemarks())?"":bean.getMailRemarks())+""+bean.getMailRegards();
 			bean.setMailBody(mailBody);
 			if(toAddress!=null && !"".equals(toAddress)){
 				String[] toAddresses = (toAddress.indexOf(",")!=-1)?toAddress.split(","):new String[]{toAddress};
@@ -1723,6 +1054,7 @@ public class PlacementServiceImple implements PlacementService {
 			InsertMailDetailsRes res=insertMailDetails(bean);
 			UpdatePlacementReq req=new UpdatePlacementReq();
 			req.setBranchCode(bean.getBranchCode());
+			req.setCorresId(bean.getCorresId());
 			List<UpdatePlacementListReq> placementListReq=new ArrayList<UpdatePlacementListReq>();
 			List<InsertMailDetailsRes1> resp=res.getCommonResponse();
 			for(int i=0;i<resp.size();i++) {
@@ -1776,34 +1108,50 @@ public class PlacementServiceImple implements PlacementService {
 			BodyPart messageBodyPart1 = new MimeBodyPart();
 			messageBodyPart1.setContent(bean.getMailBody(),"text/html;charset=UTF-8");
 			multipart.addBodyPart(messageBodyPart1);
-			GetExistingAttachListReq req = new GetExistingAttachListReq();
-			req.setBranchCode(bean.getBranchCode());
-			req.setBrokerId(bean.getBrokerId());
-			req.setCorresId(bean.getCorresId());
-			req.setEproposalNo(bean.getEproposalNo());
-			req.setProposalNo(bean.getProposalNo());
-			req.setReinsurerId(bean.getReinsurerId());
 			
-			List<GetExistingAttachListRes1>  list=getExistingAttachList(req).getCommonResponse();
+			List<GetExistingAttachListRes1>  list=getMailAttachList(bean);
 			if(!CollectionUtils.isEmpty(list)) {
 				for(int i=0;i<list.size();i++) {
 					GetExistingAttachListRes1 map=list.get(i);
 					BodyPart messageBodyPart = new MimeBodyPart();
-//					String filePath=ServletActionContext.getServletContext().getRealPath("/")+"documents/";
-//					String fileName=map.getOrgFileName()==null?"":map.getOrgFileName().toString();
-//					String orgfileName=map.getOurFileName()==null?"":map.getOurFileName().toString();
-//					if(fileName!=null ){
-//						DataSource source = new FileDataSource(filePath+orgfileName);
-//						messageBodyPart.setDataHandler(new DataHandler(source));
-//						messageBodyPart.setFileName(fileName);
-//						multipart.addBodyPart(messageBodyPart);
-//					 }
+					String filePath=commonPath+"documents/"+"PL/";
+					String fileName=map.getOrgFileName()==null?"":map.getOrgFileName().toString();
+					String orgfileName=map.getOurFileName()==null?"":map.getOurFileName().toString();
+					if(fileName!=null ){
+						DataSource source = new FileDataSource(filePath+orgfileName);
+						messageBodyPart.setDataHandler(new DataHandler(source));
+						messageBodyPart.setFileName(fileName);
+						multipart.addBodyPart(messageBodyPart);
+					 }
 				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return multipart;
+	}
+
+	private List<GetExistingAttachListRes1> getMailAttachList(SendMailReq bean) {
+		List<GetExistingAttachListRes1> resList = new ArrayList<GetExistingAttachListRes1>();
+		List<Tuple> list=null;
+		try {
+			list=placementCustomRepository.getMailAttachList(bean);
+				if(list.size()>0) {
+					for(Tuple data: list) {
+						GetExistingAttachListRes1 res = new GetExistingAttachListRes1();
+						res.setDocDescription(data.get("DOC_DESCRIPTION")==null?"":data.get("DOC_DESCRIPTION").toString());
+						res.setDocId(data.get("DOC_ID")==null?"":data.get("DOC_ID").toString());
+						res.setOrgFileName(data.get("ORG_FILE_NAME")==null?"":data.get("ORG_FILE_NAME").toString());
+						res.setOurFileName(data.get("OUR_FILE_NAME")==null?"":data.get("OUR_FILE_NAME").toString());						
+	      				resList.add(res);
+	      			}
+	      		}
+				
+			}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+			}
+		return resList;
 	}
 
 	public String sendResponseMail(final String SMTP_HOST_NAME, final String user,  final String pwd, final String SMTP_MAIL_FROM, final String subject,
@@ -1883,10 +1231,10 @@ public class PlacementServiceImple implements PlacementService {
 		try {
 			//INSERT_MAIL_NOTIFICATION
 			if("C".equals(bean.getPlacementMode())) {
-				list=GetPlacementBouquet(bean.getBranchCode(),bean.getBrokerId(),bean.getBouquetNo(),bean.getReinsurerId(),bean.getBaseProposalNo());
+				list=placementCustomRepository.GetPlacementBouquet(bean.getBranchCode(),bean.getBrokerId(),bean.getBouquetNo(),bean.getReinsurerId(),bean.getBaseProposalNo());
 			}
 			else {
-				list=GetPlacementEdit(bean.getBranchCode(),bean.getBrokerId(),bean.getEproposalNo(),bean.getReinsurerId());
+				list=placementCustomRepository.GetPlacementEdit(bean.getBranchCode(),bean.getBrokerId(),bean.getEproposalNo(),bean.getReinsurerId());
 			}
 			
 			if(!CollectionUtils.isEmpty(list)) {
@@ -1950,10 +1298,10 @@ public class PlacementServiceImple implements PlacementService {
 		for(int i=0;i<bean.getPlacementListReq().size();i++) {
 			UpdatePlacementListReq resp =bean.getPlacementListReq().get(i);
 			
-			updateNotificationStatus(resp,bean,status);
-			updatePlacement(resp,bean,mailType);
-			updateAttachementStatus(resp,bean);
-			updatePlacementStatus(resp,bean);
+			placementCustomRepository.updateNotificationStatus(resp,bean,status);
+			placementCustomRepository.updatePlacement(resp,bean,mailType);
+			placementCustomRepository.updateAttachementStatus(resp,bean);
+			placementCustomRepository.updatePlacementStatus(resp,bean);
 		}
 		response.setMessage("Success");
 		response.setIsError(false);
@@ -1965,133 +1313,7 @@ public class PlacementServiceImple implements PlacementService {
 		}
 	return response;
 	}
-	@Transactional
-	private void updatePlacementStatus(UpdatePlacementListReq resp, UpdatePlacementReq bean) {
-		CriteriaBuilder cb = this.em.getCriteriaBuilder();
-		//UPDATE_PLACEMENT_STATUS_MAIL
-		CriteriaUpdate<TtrnRiPlacementStatus> update2 = cb.createCriteriaUpdate(TtrnRiPlacementStatus.class);
-		Root<TtrnRiPlacementStatus> ri = update2.from(TtrnRiPlacementStatus.class);
-		
-		// mailRecordNo
-		Subquery<Long> mailRecordNo1 = update2.subquery(Long.class); 
-		Root<MailNotificationDetail> mr1 = mailRecordNo1.from(MailNotificationDetail.class);
-		mailRecordNo1.select(cb.max(mr1.get("mailRecordNo")));
-		Predicate c2 = cb.equal( ri.get("proposalNo"), mr1.get("proposalNo"));
-		Predicate c3 = cb.equal( ri.get("reinsurerId"), mr1.get("reinsurerId"));
-		Predicate c4 = cb.equal( ri.get("brokerId"), mr1.get("brokerId"));
-		mailRecordNo1.where(c2,c3,c4);
-		
-		update2.set("emailRecordid", mailRecordNo1==null?null:mailRecordNo1);
-		
-		//statusNo
-		Subquery<Long> statusNo = update2.subquery(Long.class); 
-		Root<TtrnRiPlacementStatus> ris = statusNo.from(TtrnRiPlacementStatus.class);
-		statusNo.select(cb.max(ris.get("statusNo")));
-		Predicate e1 = cb.equal( ri.get("branchCode"), ris.get("branchCode"));
-		Predicate e2 = cb.equal( ri.get("proposalNo"), ris.get("proposalNo"));
-		Predicate e3 = cb.equal( ri.get("reinsurerId"), ris.get("reinsurerId"));
-		Predicate e4 = cb.equal( ri.get("brokerId"), ris.get("brokerId"));
-		statusNo.where(e1,e2,e3,e4);
-		
-		Predicate d1 = cb.equal(ri.get("proposalNo"), resp.getProposalNo());
-		Predicate d2 = cb.equal(ri.get("reinsurerId"), resp.getReinsurerId());
-		Predicate d3 = cb.equal(ri.get("brokerId"),resp.getBrokerId());
-		Predicate d4 = cb.equal(ri.get("branchCode"), bean.getBranchCode());
-		Predicate d5 = cb.equal(ri.get("statusNo"), statusNo);
-		update2.where(d1,d2,d3,d4,d5);
-		em.createQuery(update2).executeUpdate();
-	}
-
-	@Transactional
-	private void updateAttachementStatus(UpdatePlacementListReq resp, UpdatePlacementReq bean) {
-		CriteriaBuilder cb = this.em.getCriteriaBuilder();
-		//UPDATE_ATTACHMENT_MAIL	
-		CriteriaUpdate<NotificationAttachmentDetail> update1 = cb.createCriteriaUpdate(NotificationAttachmentDetail.class);
-		Root<NotificationAttachmentDetail> pm = update1.from(NotificationAttachmentDetail.class);
-		
-		// MAXAmend ID
-		Subquery<Long> mailRecordNo = update1.subquery(Long.class); 
-		Root<MailNotificationDetail> mr = mailRecordNo.from(MailNotificationDetail.class);
-		mailRecordNo.select(cb.max(mr.get("mailRecordNo")));
-		Predicate b2 = cb.equal( pm.get("proposalNo"), mr.get("proposalNo"));
-		Predicate b3 = cb.equal( pm.get("reinsurerId"), mr.get("reinsurerId"));
-		Predicate b4 = cb.equal( pm.get("brokerId"), mr.get("brokerId"));
-		mailRecordNo.where(b2,b3,b4);
-		
-		update1.set("mailRecordNo",mailRecordNo==null?null:mailRecordNo);
-		update1.set("statusNo", new BigDecimal( bean.getStatusNo()));
-		
-		Predicate m1 = cb.equal(pm.get("proposalNo"), resp.getProposalNo());
-		Predicate m2 = cb.equal(pm.get("reinsurerId"), resp.getReinsurerId());
-		Predicate m3 = cb.equal(pm.get("brokerId"),resp.getBrokerId());
-		Predicate m4 = cb.equal(pm.get("branchCode"), bean.getBranchCode());
-		update1.where(m1,m2,m3,m4);
-		em.createQuery(update1).executeUpdate();
-	}
-
-	@Transactional
-	private void updatePlacement(UpdatePlacementListReq resp, UpdatePlacementReq bean, String mailType) {
-		CriteriaBuilder cb = this.em.getCriteriaBuilder();
-		CriteriaUpdate<TtrnRiPlacement> update = cb.createCriteriaUpdate(TtrnRiPlacement.class);
-		// set the root class
-		Root<TtrnRiPlacement> m = update.from(TtrnRiPlacement.class);
-		// set update and where clause
-		update.set("status", mailType);
-		update.set("statusNo",new BigDecimal(bean.getStatusNo()));
-		
-		// MAXAmend ID
-		Subquery<Long> amend = update.subquery(Long.class); 
-		Root<TtrnRiPlacement> pms = amend.from(TtrnRiPlacement.class);
-		amend.select(cb.max(pms.get("placementAmendId")));
-		Predicate a1 = cb.equal( m.get("branchCode"), pms.get("branchCode"));
-		Predicate a2 = cb.equal( m.get("proposalNo"), pms.get("proposalNo"));
-		Predicate a3 = cb.equal( m.get("reinsurerId"), pms.get("reinsurerId"));
-		Predicate a4 = cb.equal( m.get("brokerId"), pms.get("brokerId"));
-		amend.where(a1,a2,a3,a4);
-		
-		Predicate n1 = cb.equal(m.get("proposalNo"), resp.getProposalNo());
-		Predicate n2 = cb.equal(m.get("reinsurerId"), resp.getReinsurerId());
-		Predicate n3 = cb.equal(m.get("brokerId"),resp.getBrokerId());
-		Predicate n4 = cb.equal(m.get("branchCode"), bean.getBranchCode());
-		Predicate n5 = cb.equal(m.get("placementAmendId"), amend);
-		update.where(n1,n2,n3,n4,n5);
-		// perform update
-		em.createQuery(update).executeUpdate();
-	}
-
-	@Transactional
-	private void updateNotificationStatus(UpdatePlacementListReq resp, UpdatePlacementReq bean, String status) {
-		//UPDATE_PLACEMENT_STATUS
-		CriteriaBuilder cb = this.em.getCriteriaBuilder();
-		// create update
-		CriteriaUpdate<MailNotificationDetail> notify = cb.createCriteriaUpdate(MailNotificationDetail.class);
-		// set the root class
-		Root<MailNotificationDetail> mailnotify = notify.from(MailNotificationDetail.class);
-		// set update and where clause
-		notify.set("mailStatus", status);
-		notify.set("updateDate",new Date());
-		notify.set("statusNo",new BigDecimal(bean.getStatusNo()));
-		
-		// MAXAmend ID
-		Subquery<Long> mnamend = notify.subquery(Long.class); 
-		Root<MailNotificationDetail> mns = mnamend.from(MailNotificationDetail.class);
-		mnamend.select(cb.max(mns.get("mailRecordNo")));
-		Predicate mn1 = cb.equal( mailnotify.get("branchCode"), mns.get("branchCode"));
-		Predicate mn2 = cb.equal( mailnotify.get("proposalNo"), mns.get("proposalNo"));
-		Predicate mn3 = cb.equal( mailnotify.get("reinsurerId"), mns.get("reinsurerId"));
-		Predicate mn4 = cb.equal( mailnotify.get("brokerId"), mns.get("brokerId"));
-		mnamend.where(mn1,mn2,mn3,mn4);
-		
-		Predicate pn1 = cb.equal(mailnotify.get("proposalNo"), resp.getProposalNo());
-		Predicate pn2 = cb.equal(mailnotify.get("reinsurerId"), resp.getReinsurerId());
-		Predicate pn3 = cb.equal(mailnotify.get("brokerId"),resp.getBrokerId());
-		Predicate pn4 = cb.equal(mailnotify.get("branchCode"), bean.getBranchCode());
-		Predicate pn5 = cb.equal(mailnotify.get("mailRecordNo"), mnamend);
-		notify.where(pn1,pn2,pn3,pn4,pn5);
-		// perform update
-		em.createQuery(notify).executeUpdate();
-		
-	}
+	
 
 	@Transactional
 	@Override
@@ -2139,94 +1361,8 @@ public class PlacementServiceImple implements PlacementService {
 		GetPlacementViewListRes response = new GetPlacementViewListRes();
 		List<GetPlacementViewListRes1> resList = new ArrayList<GetPlacementViewListRes1>();
 		try {
-			//GET_PLACEMENT_VIEW
-			CriteriaBuilder cb = em.getCriteriaBuilder(); 
-			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			List<Tuple> list=placementCustomRepository.getPlacementViewList(bean);
 			
-			Root<TtrnRiPlacementStatus> pm = query.from(TtrnRiPlacementStatus.class);
-			
-			//reinsurerName
-			Subquery<String> reinsurerName = query.subquery(String.class); 
-			Root<PersonalInfo> pi = reinsurerName.from(PersonalInfo.class);
-		
-			Expression<String> firstName1 = cb.concat(pi.get("firstName"), " ");
-			reinsurerName.select(cb.concat(firstName1, pi.get("lastName")));
-			//maxAmend
-			Subquery<Long> maxAmend = query.subquery(Long.class); 
-			Root<PersonalInfo> pis = maxAmend.from(PersonalInfo.class);
-			maxAmend.select(cb.max(pis.get("amendId")));
-			Predicate c1 = cb.equal( pis.get("customerId"), pi.get("customerId"));
-			maxAmend.where(c1);
-			
-			Predicate d1 = cb.equal( pi.get("customerType"), "R");
-			Predicate d2 = cb.equal( pi.get("customerId"), pm.get("reinsurerId"));
-			Predicate d3 = cb.equal( pi.get("branchCode"), pm.get("branchCode"));
-			Predicate d4 = cb.equal( pi.get("amendId"), maxAmend);
-			reinsurerName.where(d1,d2,d3,d4);
-			
-			//brokerName
-			Subquery<String> brokerName = query.subquery(String.class); 
-			Root<PersonalInfo> pi1 = brokerName.from(PersonalInfo.class);
-		
-			Expression<String> firstName = cb.concat(pi1.get("firstName"), " ");
-			brokerName.select(cb.concat(firstName, pi1.get("lastName")));
-			//maxAmend
-			Subquery<Long> bAmend = query.subquery(Long.class); 
-			Root<PersonalInfo> pis1 = bAmend.from(PersonalInfo.class);
-			bAmend.select(cb.max(pis1.get("amendId")));
-			Predicate f1 = cb.equal( pis1.get("customerId"), pi1.get("customerId"));
-			bAmend.where(f1);
-			
-			Predicate e1 = cb.equal( pi1.get("customerType"), "B");
-			Predicate e2 = cb.equal( pi1.get("customerId"), pm.get("brokerId"));
-			Predicate e3 = cb.equal( pi1.get("branchCode"), pm.get("branchCode"));
-			Predicate e4 = cb.equal( pi1.get("amendId"), bAmend);
-			brokerName.where(e1,e2,e3,e4);
-			
-			//currentStatus
-			Subquery<String> currentStatus = query.subquery(String.class); 
-			Root<StatusMaster> mail = currentStatus.from(StatusMaster.class);
-			currentStatus.select(mail.get("statusName"));
-			Predicate g1 = cb.equal( pm.get("currentStatus"), mail.get("statusCode"));
-			Predicate g2 = cb.equal( pm.get("branchCode"), mail.get("branchCode"));
-			currentStatus.where(g1,g2);
-			
-			//newStatus
-			Subquery<String> newStatus = query.subquery(String.class); 
-			Root<StatusMaster> mail1 = newStatus.from(StatusMaster.class);
-			newStatus.select(mail1.get("statusName"));
-			Predicate h1 = cb.equal( pm.get("newStatus"), mail1.get("statusCode"));
-			Predicate h2 = cb.equal( pm.get("branchCode"), mail1.get("branchCode"));
-			newStatus.where(h1,h2);
-			
-			//emailBy
-			Subquery<String> emailBy = query.subquery(String.class); 
-			Root<ConstantDetail> email = emailBy.from(ConstantDetail.class);
-			emailBy.select(email.get("detailName"));
-			Predicate j1 = cb.equal( email.get("categoryId"), "55");
-			Predicate j2 = cb.equal( email.get("type"), pm.get("emailBy"));
-			emailBy.where(j1,j2);
-
-			query.multiselect(pm.get("baseProposalNo").alias("BASE_PROPOSAL_NO"),pm.get("sno").alias("SNO"),
-					pm.get("bouquetNo").alias("BOUQUET_NO"),pm.get("proposalNo").alias("PROPOSAL_NO"),
-					pm.get("reinsurerId").alias("REINSURER_ID"),pm.get("brokerId").alias("BROKER_ID"),
-					reinsurerName.alias("REINSURER_NAME"),brokerName.alias("BROKER_NAME"), currentStatus.alias("CURRENT_STATUS"),
-					newStatus.alias("NEW_STATUS"),pm.get("updateDate").alias("UPDATE_DATE"),
-					emailBy.alias("EMAIL_BY"),pm.get("newStatus").alias("STATUS"),
-					pm.get("correspondentId").alias("CORRESPONDENT_ID")); 
-
-			
-			List<Order> orderList = new ArrayList<Order>();
-			orderList.add(cb.desc(pm.get("amendId")));
-
-			Predicate n1 = cb.equal(pm.get("branchCode"), bean.getBranchCode());
-			Predicate n2 = cb.equal(pm.get("proposalNo"), bean.getEproposalNo());
-			Predicate n3 = cb.equal(pm.get("reinsurerId"), bean.getReinsurerId());
-			Predicate n4 = cb.equal(pm.get("brokerId"), bean.getBrokerId());
-			query.where(n1,n2,n3,n4).orderBy(orderList);
-			
-			TypedQuery<Tuple> result = em.createQuery(query);
-			List<Tuple> list = result.getResultList();
 			if(list.size()>0) {
 				for(Tuple map: list) {
 					GetPlacementViewListRes1 res = new GetPlacementViewListRes1();
@@ -2264,26 +1400,7 @@ public class PlacementServiceImple implements PlacementService {
 		GetPlacementViewRes response = new GetPlacementViewRes();
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 		try {
-			//GET_PLACEMENT_STATUS_VIEW
-			CriteriaBuilder cb = em.getCriteriaBuilder(); 
-			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
-			Root<TtrnRiPlacementStatus> pm = query.from(TtrnRiPlacementStatus.class);
-			query.multiselect(pm.get("amendId").alias("AMEND_ID"),pm.get("emailBy").alias("EMAIL_BY"),
-					pm.get("currentStatus").alias("CURRENT_STATUS"),pm.get("proposalNo").alias("PROPOSAL_NO"),
-					pm.get("reinsurerId").alias("REINSURER_ID"),pm.get("brokerId").alias("BROKER_ID"),
-					pm.get("cedentCorrespondence").alias("CEDENT_CORRESPONDENCE"),pm.get("updateDate").alias("UPDATE_DATE"),
-					pm.get("newStatus").alias("NEW_STATUS"),pm.get("tqrCorrespondence").alias("TQR_CORRESPONDENCE"),
-					pm.get("reinsurerCorrespondence").alias("REINSURER_CORRESPONDENCE")); 
-		
-			Predicate n1 = cb.equal(pm.get("branchCode"), bean.getBranchCode());
-			Predicate n2 = cb.equal(pm.get("proposalNo"), bean.getEproposalNo());
-			Predicate n3 = cb.equal(pm.get("reinsurerId"), bean.getReinsurerId());
-			Predicate n4 = cb.equal(pm.get("brokerId"), bean.getBrokerId());
-			Predicate n5 = cb.equal(pm.get("newStatus"), bean.getNewStatus());
-			query.where(n1,n2,n3,n4,n5);
-			
-			TypedQuery<Tuple> result = em.createQuery(query);
-			List<Tuple> list = result.getResultList();
+			List<Tuple> list=placementCustomRepository.getPlacementView(bean);
 			
 			if(!CollectionUtils.isEmpty(list)) {
 				Tuple map=list.get(0);
@@ -2371,18 +1488,18 @@ public class PlacementServiceImple implements PlacementService {
 	                 tempBean.setOfferNo(tempMap.get("OFFER_NO") == null ? "" : tempMap.get("OFFER_NO").toString()); 
 	                 tempBean.setBaseProposal(tempMap.get("BASE_PROPOSAL") == null ? "" : tempMap.get("BASE_PROPOSAL").toString()); 
 	                 tempBean.setProposalNo(tempMap.get("PROPOSAL_NO") == null ? "" : tempMap.get("PROPOSAL_NO").toString()); 
-	                 tempBean.setRskTreatyid(tempMap.get("RSK_TREATYID") == null ? "" : tempMap.get("TREATY_NAME").toString()); 
+	                 tempBean.setRskTreatyid(tempMap.get("TREATY_NAME") == null ? "" : tempMap.get("TREATY_NAME").toString()); 
 	                 tempBean.setLayerSection(tempMap.get("LAYER_SECTION") == null ? "" : tempMap.get("LAYER_SECTION").toString()); 
 	                 tempBean.setSno(tempMap.get("SNO") == null ? "" : tempMap.get("SNO").toString()); 
 	                 tempBean.setReinsurerName(tempMap.get("REINSURER_NAME") == null ? "" : tempMap.get("REINSURER_NAME").toString()); 
 	                 tempBean.setBrokerName(tempMap.get("BROKER_NAME") == null ? "" : tempMap.get("BROKER_NAME").toString()); 
 	                 tempBean.setCurrency(tempMap.get("CURRENCY") == null ? "" : tempMap.get("CURRENCY").toString()); 
-	                 tempBean.setEpi100Oc(tempMap.get("EPI_100_OC") == null ? "" : tempMap.get("EPI_100_OC").toString()); 
-	                 tempBean.setEpi100Dc(tempMap.get("EPI_100_DC") == null ? "" : tempMap.get("EPI_100_DC").toString()); 
+	                 tempBean.setEpi100Oc(tempMap.get("EPI_100_OC") == null ? "" : fm.formatter(tempMap.get("EPI_100_OC").toString())); 
+	                 tempBean.setEpi100Dc(tempMap.get("EPI_100_DC") == null ? "" : fm.formatter(tempMap.get("EPI_100_DC").toString())); 
 	                 tempBean.setPlacingStatus(tempMap.get("PLACING_STATUS") == null ? "" : tempMap.get("PLACING_STATUS").toString()); 
-	                 tempBean.setShareSigned(tempMap.get("SHARE_SIGNED") == null ? "" : tempMap.get("SHARE_SIGNED").toString()); 
-	                tempBean.setBrokerage(tempMap.get("BROKERAGE") == null ? "" : tempMap.get("BROKERAGE").toString()); 
-	                tempBean.setBrokerageAmt(tempMap.get("BROKERAGE_AMT") == null ? "" : tempMap.get("BROKERAGE_AMT").toString());
+	                 tempBean.setShareSigned(tempMap.get("SHARE_SIGNED") == null ? "" : fm.formattereight(tempMap.get("SHARE_SIGNED").toString())); 
+	                tempBean.setBrokerage(tempMap.get("BROKERAGE") == null ? "" : fm.formattereight(tempMap.get("BROKERAGE").toString())); 
+	                tempBean.setBrokerageAmt(tempMap.get("BROKERAGE_AMT") == null ? "" :  fm.formatter(tempMap.get("BROKERAGE_AMT").toString()));
 	                resList.add(tempBean);
 	             }
 	             }
@@ -2402,7 +1519,7 @@ public class PlacementServiceImple implements PlacementService {
 		GetMailTemplateRes response = new GetMailTemplateRes();
 		GetMailTemplateRes1 bean =new GetMailTemplateRes1();
 		try {
-			MailproposalInfo(req);
+			//MailproposalInfo(req);
 			//GET_MAIL_TEMPLATE
 			List<MailTemplateMaster> list = mailTemplateMasterRepository.findByMailType(req.getMailType());
 		
@@ -2419,7 +1536,7 @@ public class PlacementServiceImple implements PlacementService {
 			
 			//proposalInfo
 			String proposal=StringUtils.isBlank(req.getEproposalNo())?req.getProposalNo():req.getEproposalNo();
-			List<Tuple> list1 = getExistingProposal(proposal, req.getBranchCode());
+			List<Tuple> list1 = placementCustomRepository.getExistingProposal(proposal, req.getBranchCode());
 		
 			if(!CollectionUtils.isEmpty(list1)) {
 				Tuple map=list1.get(0);
@@ -2470,7 +1587,7 @@ public class PlacementServiceImple implements PlacementService {
 			return response;
 	}
 	private String BodyTableFrame(GetMailTemplateReq bean) {
-		List<Tuple> list=MailproposalInfo(bean);
+		List<Tuple> list=placementCustomRepository.MailproposalInfo(bean);
 		String msg="";
 		if(StringUtils.isBlank(bean.getNewStatus())) {
 			msg=getOfferMsg(list,bean);
@@ -2481,340 +1598,6 @@ public class PlacementServiceImple implements PlacementService {
 		}
 		return msg;
 	}
-	
-	private List<Tuple> MailproposalInfo(GetMailTemplateReq bean) {
-		List<Tuple> list=null;
-		try {
-
-			CriteriaBuilder cb = em.getCriteriaBuilder(); 
-			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
-		
-			Root<PositionMaster> pm = query.from(PositionMaster.class);
-			Root<TtrnRiskDetails> rd = query.from(TtrnRiskDetails.class); //'New' POLICY_STATUS,''EXISTING_SHARE
-			Root<TtrnRiPlacement> trp = query.from(TtrnRiPlacement.class);
-			// companyName
-			Subquery<String> companyName = query.subquery(String.class); 
-			Root<PersonalInfo> pms = companyName.from(PersonalInfo.class);
-			companyName.select(pms.get("companyName"));
-			Predicate a1 = cb.equal( rd.get("rskCedingid"), pms.get("customerId"));
-			Predicate a2 = cb.equal( pms.get("customerType"), "C");
-			Predicate a3 = cb.equal( pm.get("branchCode"), pms.get("branchCode"));
-			companyName.where(a1,a2,a3);
-			
-			//BUSINESS_TYPE
-			Subquery<String> businessType = query.subquery(String.class); 
-			Root<TmasProductMaster> pd = businessType.from(TmasProductMaster.class);
-			businessType.select(pd.get("tmasProductName"));
-			Predicate b1 = cb.equal(pd.get("tmasProductId"),  pm.get("productId"));
-			Predicate b2 = cb.equal(pd.get("branchCode"),  pm.get("branchCode"));
-			businessType.where(b1,b2);
-			
-			//treatyType
-			Subquery<String> treatyType = query.subquery(String.class); 
-			Root<ConstantDetail> cd = treatyType.from(ConstantDetail.class);
-			treatyType.select(cd.get("detailName"));
-			Predicate c1 =  cb.equal(cb.selectCase().when(cb.equal(pm.get("productId") ,"2") ,new BigDecimal(43) ).otherwise(new BigDecimal(29)) ,
-					  cd.get("categoryId"));
-			Predicate c2 = cb.equal(cb.selectCase().when(cb.equal(pm.get("productId") ,"2") ,rd.get("treatytype") ).otherwise(rd.get("rskBusinessType")) ,
-					  cd.get("type"));	
-			treatyType.where(c1,c2);
-			
-			//CLASS
-			Subquery<String> deptName = query.subquery(String.class); 
-			Root<TmasDepartmentMaster> dm = deptName.from(TmasDepartmentMaster.class);
-			deptName.select(dm.get("tmasDepartmentName"));
-			Predicate d1 = cb.equal(dm.get("tmasDepartmentId"),  rd.get("rskDeptid"));
-			Predicate d2 = cb.equal(dm.get("branchCode"),  rd.get("branchCode"));
-			Predicate d3 = cb.equal(dm.get("tmasProductId"),  rd.get("rskProductid"));
-			Predicate d4 = cb.equal(dm.get("tmasStatus"), "Y");
-			deptName.where(d1,d2,d3,d4);
-			
-			//status
-			Subquery<Long> status = query.subquery(Long.class); 
-			Root<TtrnRiPlacement> TRP1 = status.from(TtrnRiPlacement.class);
-			status.select(cb.max(TRP1.get("statusNo")));
-			Predicate e1 = cb.equal( TRP1.get("proposalNo"), trp.get("proposalNo"));
-			Predicate e2 = cb.equal( TRP1.get("sno"), trp.get("sno"));
-			Predicate e3 = cb.equal( TRP1.get("branchCode"), trp.get("branchCode"));
-			status.where(e1,e2,e3);
-	
-			query.multiselect(rd.get("rskInceptionDate").alias("INS_DATE"),rd.get("rskExpiryDate").alias("EXP_DATE"),
-					companyName.alias("COMPANY_NAME"),pm.get("uwYear").alias("UW_YEAR"),
-					pm.get("uwYearTo").alias("UW_YEAR_TO"),pm.get("contractNo").alias("CONTRACT_NO"),
-					pm.get("baseLayer").alias("BASE_LAYER"),pm.get("layerNo").alias("LAYER_NO"),businessType.alias("BUSINESS_TYPE"),
-					pm.get("proposalNo").alias("PROPOSAL_NO"),treatyType.alias("TREATY_TYPE"),rd.get("rskTreatyid").alias("RSK_TREATYID"),
-					pm.get("bouquetNo").alias("BOUQUET_NO"),pm.get("bouquetModeYn").alias("BOUQUET_MODE_YN"),
-					deptName.alias("CLASS"),rd.get("rskSpfcid").alias("SUB_CLASS"),
-					cb.selectCase().when(cb.equal(pm.get("productId") ,"2") ,pm.get("sectionNo"))
-					.otherwise(pm.get("layerNo")).alias("SECTION_NO"), 	pm.get("offerNo").alias("OFFER_NO"),
-					pm.get("productId").alias("PRODUCT_ID"), trp.get("shareOffered").alias("SHARE_OFFERED"),
-					trp.get("shareProposalWritten").alias("SHARE_PROPOSAL_WRITTEN"),
-					trp.get("shareProposedSigned").alias("SHARE_PROPOSED_SIGNED")).distinct(true); 
-	
-			//Order By
-			List<Order> orderList = new ArrayList<Order>();
-			orderList.add(cb.asc(pm.get("productId")));
-			orderList.add(cb.asc(pm.get("proposalNo")));
-			orderList.add(cb.asc(pm.get("bouquetNo")));
-	
-			
-			if(StringUtils.isBlank(bean.getSearchType())) {
-				// Where
-				Predicate n1 = cb.equal(pm.get("branchCode"), bean.getBranchCode());
-				Predicate n2 = cb.equal(pm.get("proposalNo"), rd.get("rskProposalNumber"));
-			
-				Predicate n4 = cb.equal(trp.get("reinsurerId"), bean.getReinsurerId()); 
-				Predicate n5 = cb.equal(trp.get("brokerId"), bean.getBrokerId()); 
-				Predicate n6 = cb.equal(pm.get("contractStatus"), "P");
-				Predicate n7 = cb.equal(trp.get("proposalNo"), pm.get("proposalNo")); 
-				
-				Expression<String> e0 = trp.get("statusNo");
-	      		Predicate n8 = e0.in(status);
-				
-				if("C".equals(bean.getPlacementMode())) {
-					if(StringUtils.isNotBlank(bean.getBouquetNo())) {
-						//GET_MAILTEPLATE_BOUQUET
-						Predicate n3 = cb.equal(pm.get("bouquetNo"), bean.getBouquetNo());
-						query.where(n1,n2,n3,n4,n5,n6,n7,n8).orderBy(orderList);
-					}else {
-						//GET_MAILTEPLATE_BASELAYER
-						Predicate n3 = cb.equal(cb.coalesce(pm.get("baseLayer"), pm.get("proposalNo")), bean.getBaseProposalNo());
-						query.where(n1,n2,n3,n4,n5,n6,n7,n8).orderBy(orderList);
-					}
-				}else {
-					//GET_MAILTEPLATE_PROPOSAL
-					Predicate n3 = cb.equal(pm.get("proposalNo"), bean.getProposalNo());
-					query.where(n1,n2,n3,n4,n5,n6,n7,n8).orderBy(orderList);
-				}
-			}else {
-				// Where
-				Predicate n1 = cb.equal(pm.get("branchCode"), bean.getBranchCode());
-				Predicate n2 = cb.equal(pm.get("proposalNo"), rd.get("rskProposalNumber"));
-				Predicate n4 = cb.equal(trp.get("reinsurerId"), bean.getSearchReinsurerId()); 
-				Predicate n5 = cb.equal(trp.get("brokerId"), bean.getSearchBrokerId()); 
-				Predicate n6 = cb.equal(pm.get("contractStatus"), "P");
-				Predicate n7 = cb.equal(trp.get("proposalNo"), pm.get("proposalNo")); 
-				Expression<String> e0 = trp.get("statusNo");
-	      		Predicate n8 = e0.in(status);
-				Predicate n9 = cb.equal(trp.get("status"), bean.getNewStatus()); 
-				
-				if(StringUtils.isNotBlank(bean.getBouquetNo())) {
-					//GET_MAILTEPLATE_BOUQUET_SEARCH
-					Predicate n3 = cb.equal(pm.get("bouquetNo"), bean.getBouquetNo());
-					query.where(n1,n2,n3,n4,n5,n6,n7,n8,n9).orderBy(orderList);
-				}else if(StringUtils.isNotBlank(bean.getBaseProposalNo())) {
-					//GET_MAILTEPLATE_BASELAYER_SEARCH
-					Predicate n3 = cb.equal(cb.coalesce(pm.get("baseLayer"), pm.get("proposalNo")), bean.getBaseProposalNo());
-					query.where(n1,n2,n3,n4,n5,n6,n7,n8,n9).orderBy(orderList);
-				}else {
-					//GET_MAILTEPLATE_PROPOSAL_SEARCH
-					Predicate n3 = cb.equal(pm.get("proposalNo"), bean.getProposalNo());
-					query.where(n1,n2,n3,n4,n5,n6,n7,n8,n9).orderBy(orderList);
-				}
-			}
-			TypedQuery<Tuple> res = em.createQuery(query);
-			list = res.getResultList();
-	} catch (Exception e) {
-		e.printStackTrace();
-	}
-	return list;
-}
-	
-			
-//	private List<Map<String,Object>> MailproposalInfo(GetMailTemplateReq bean) {
-//		List<Map<String,Object>> list=null;
-//		try {
-//			Object[] obj=new Object[4];
-//			if(StringUtils.isBlank(bean.getSearchType())) {
-//				if("C".equals(bean.getPlacementMode())) {
-//					if(StringUtils.isNotBlank(bean.getBouquetNo())) {
-//						//GET_MAILTEPLATE_BOUQUET
-//						String nativequery = "SELECT DISTINCT TO_CHAR (RD.RSK_INCEPTION_DATE, 'DD/MM/YYYY') INS_DATE, TO_CHAR (RD.RSK_EXPIRY_DATE, 'DD/MM/YYYY')\r\n"
-//								+ "EXP_DATE,(SELECT COMPANY_NAME FROM PERSONAL_INFO PERSONAL WHERE RD.RSK_CEDINGID = PERSONAL.CUSTOMER_ID AND PERSONAL.CUSTOMER_TYPE='C' \r\n"
-//								+ "AND PERSONAL.BRANCH_CODE = PM.BRANCH_CODE)COMPANY_NAME,PM.UW_YEAR,PM.UW_YEAR_TO,PM.CONTRACT_NO,PM.BASE_LAYER,PM.LAYER_NO,\r\n"
-//								+ "(SELECT TMAS_PRODUCT_NAME FROM TMAS_PRODUCT_MASTER PD WHERE PD.TMAS_PRODUCT_ID=PM.PRODUCT_ID AND PD.BRANCH_CODE=PM.BRANCH_CODE)BUSINESS_TYPE,\r\n"
-//								+ "PM.PROPOSAL_NO,(SELECT DETAIL_NAME FROM  CONSTANT_DETAIL WHERE CATEGORY_ID=DECODE(PM.PRODUCT_ID,'2','43','29') AND \r\n"
-//								+ "TYPE=DECODE(PM.PRODUCT_ID,'2',RD.TREATYTYPE,RD.RSK_BUSINESS_TYPE))TREATY_TYPE,RD.RSK_TREATYID,'New' POLICY_STATUS,''EXISTING_SHARE,\r\n"
-//								+ "PM.BOUQUET_NO,Bouquet_Mode_YN,( select TMAS_DEPARTMENT_NAME From tmas_department_master where TMAS_DEPARTMENT_ID=RD.RSK_DEPTId \r\n"
-//								+ "and branch_code=RD.branch_code and TMAS_PRODUCT_ID=RD.RSK_PRODUCTID  AND TMAS_STATUS='Y')  CLASS,CASE WHEN RD.RSK_SPFCID='ALL'\r\n"
-//								+ "THEN 'ALL' ELSE (select RTRIM(XMLAGG(XMLELEMENT(E,TMAS_SPFC_NAME,',')).EXTRACT('//text()'),',')  from TMAS_SPFC_MASTER SPFC where \r\n"
-//								+ "SPFC.TMAS_SPFC_ID in(select * from table(SPLIT_TEXT_FN(replace(RD.RSK_SPFCID,' ', '')))) AND  SPFC.TMAS_PRODUCT_ID = RD.RSK_PRODUCTID \r\n"
-//								+ "AND SPFC.BRANCH_CODE = RD.BRANCH_CODE) END SUB_CLASS,DECODE(PM.PRODUCT_ID,'2',PM.SECTION_NO,PM.LAYER_NO) SECTION_NO,PM.OFFER_NO,\r\n"
-//								+ "PM.PRODUCT_ID,SHARE_OFFERED,SHARE_PROPOSAL_WRITTEN,SHARE_PROPOSED_SIGNED FROM POSITION_MASTER PM,TTRN_RISK_DETAILS RD,TTRN_RI_PLACEMENT TRP \r\n"
-//								+ "WHERE  PM.BRANCH_CODE=? AND PM.PROPOSAL_NO=RD.RSK_PROPOSAL_NUMBER AND PM.BOUQUET_NO=? AND TRP.REINSURER_ID=? AND TRP.BROKER_ID=? \r\n"
-//								+ "AND PM.contract_status='P' AND PM.PROPOSAL_NO = TRP.PROPOSAL_NO  AND TRP.STATUS_NO IN (SELECT   MAX (STATUS_NO) FROM  \r\n"
-//								+ "TTRN_RI_PLACEMENT TRP1  WHERE TRP.PROPOSAL_NO = TRP1.PROPOSAL_NO AND TRP.SNO = TRP1.SNO  AND TRP.BRANCH_CODE = TRP1.BRANCH_CODE) \r\n"
-//								+ "ORDER BY PRODUCT_ID,BOUQUET_NO,PROPOSAL_NO";
-//						
-//						Query query = em.createNativeQuery(nativequery);
-//						query.setParameter(1,bean.getBranchCode());
-//					    query.setParameter(2,bean.getBouquetNo());
-//					    query.setParameter(3,bean.getReinsurerId());
-//					    query.setParameter(4,bean.getBrokerId());
-//						
-//					    query.unwrap(NativeQueryImpl.class).setResultTransformer(AliasToEntityMapResultTransformer.INSTANCE);
-//					    list = query.getResultList();
-//	
-//						
-//					}else {
-//						//query = GET_MAILTEPLATE_BASELAYER
-//						
-//						String nativequery = "SELECT DISTINCT TO_CHAR (RD.RSK_INCEPTION_DATE, 'DD/MM/YYYY') INS_DATE, TO_CHAR (RD.RSK_EXPIRY_DATE, 'DD/MM/YYYY')\r\n"
-//								+ "EXP_DATE,(SELECT COMPANY_NAME FROM PERSONAL_INFO PERSONAL WHERE RD.RSK_CEDINGID = PERSONAL.CUSTOMER_ID AND PERSONAL.CUSTOMER_TYPE='C'\r\n"
-//								+ "AND PERSONAL.BRANCH_CODE = PM.BRANCH_CODE)COMPANY_NAME,PM.UW_YEAR,PM.UW_YEAR_TO,PM.CONTRACT_NO,PM.BASE_LAYER,PM.LAYER_NO,\r\n"
-//								+ "(SELECT TMAS_PRODUCT_NAME FROM TMAS_PRODUCT_MASTER PD WHERE PD.TMAS_PRODUCT_ID=PM.PRODUCT_ID AND PD.BRANCH_CODE=PM.BRANCH_CODE)\r\n"
-//								+ "BUSINESS_TYPE,PM.PROPOSAL_NO,(SELECT DETAIL_NAME FROM  CONSTANT_DETAIL WHERE CATEGORY_ID=DECODE(PM.PRODUCT_ID,'2','43','29') AND\r\n"
-//								+ "TYPE=DECODE(PM.PRODUCT_ID,'2',RD.TREATYTYPE,RD.RSK_BUSINESS_TYPE))TREATY_TYPE,RD.RSK_TREATYID,'New' POLICY_STATUS,''EXISTING_SHARE,\r\n"
-//								+ "PM.BOUQUET_NO,Bouquet_Mode_YN,( select TMAS_DEPARTMENT_NAME From tmas_department_master where TMAS_DEPARTMENT_ID=RD.RSK_DEPTId and \r\n"
-//								+ "branch_code=RD.branch_code and TMAS_PRODUCT_ID=RD.RSK_PRODUCTID  AND TMAS_STATUS='Y')  CLASS,CASE WHEN RD.RSK_SPFCID='ALL' THEN 'ALL' \r\n"
-//								+ "ELSE (select RTRIM(XMLAGG(XMLELEMENT(E,TMAS_SPFC_NAME,',')).EXTRACT('//text()'),',')  from TMAS_SPFC_MASTER SPFC where SPFC.TMAS_SPFC_ID\r\n"
-//								+ "in(select * from table(SPLIT_TEXT_FN(replace(RD.RSK_SPFCID,' ', '')))) AND  SPFC.TMAS_PRODUCT_ID = RD.RSK_PRODUCTID AND \r\n"
-//								+ "SPFC.BRANCH_CODE = RD.BRANCH_CODE) END SUB_CLASS,DECODE(PM.PRODUCT_ID,'2',PM.SECTION_NO,PM.LAYER_NO) SECTION_NO,PM.OFFER_NO,\r\n"
-//								+ "PM.PRODUCT_ID,SHARE_OFFERED,SHARE_PROPOSAL_WRITTEN,SHARE_PROPOSED_SIGNED FROM POSITION_MASTER PM,TTRN_RISK_DETAILS RD,TTRN_RI_PLACEMENT TRP\r\n"
-//								+ "WHERE  PM.BRANCH_CODE=? AND PM.PROPOSAL_NO=RD.RSK_PROPOSAL_NUMBER AND NVL(PM.BASE_LAYER,PM.PROPOSAL_NO)=? AND TRP.REINSURER_ID=? \r\n"
-//								+ "AND TRP.BROKER_ID=? AND PM.contract_status='P' AND PM.PROPOSAL_NO = TRP.PROPOSAL_NO  AND TRP.STATUS_NO IN (SELECT   MAX (STATUS_NO) FROM \r\n"
-//								+ "TTRN_RI_PLACEMENT TRP1  WHERE TRP.PROPOSAL_NO = TRP1.PROPOSAL_NO AND TRP.SNO = TRP1.SNO  AND TRP.BRANCH_CODE = TRP1.BRANCH_CODE)\r\n"
-//								+ "ORDER BY PRODUCT_ID,BOUQUET_NO,PROPOSAL_NO";
-//						
-//						Query query = em.createNativeQuery(nativequery);
-//						query.setParameter(1, bean.getBranchCode());
-//						query.setParameter(2, bean.getBaseProposalNo());
-//						query.setParameter(3, bean.getReinsurerId());
-//						query.setParameter(4, bean.getBrokerId());
-//						
-//					query.unwrap(NativeQueryImpl.class).setResultTransformer(AliasToEntityMapResultTransformer.INSTANCE);
-//					list = query.getResultList();
-//					}
-//				}else {
-//					//query = GET_MAILTEPLATE_PROPOSAL
-//					
-//					String nativequery = "SELECT DISTINCT TO_CHAR (RD.RSK_INCEPTION_DATE, 'DD/MM/YYYY') INS_DATE, TO_CHAR (RD.RSK_EXPIRY_DATE, 'DD/MM/YYYY') EXP_DATE,\r\n"
-//							+ "(SELECT COMPANY_NAME FROM PERSONAL_INFO PERSONAL WHERE RD.RSK_CEDINGID = PERSONAL.CUSTOMER_ID AND PERSONAL.CUSTOMER_TYPE='C'\r\n"
-//							+ "AND PERSONAL.BRANCH_CODE = PM.BRANCH_CODE)COMPANY_NAME,PM.UW_YEAR,PM.UW_YEAR_TO,PM.CONTRACT_NO,PM.BASE_LAYER,PM.LAYER_NO,\r\n"
-//							+ "(SELECT TMAS_PRODUCT_NAME FROM TMAS_PRODUCT_MASTER PD WHERE PD.TMAS_PRODUCT_ID=PM.PRODUCT_ID AND PD.BRANCH_CODE=PM.BRANCH_CODE)\r\n"
-//							+ "BUSINESS_TYPE,PM.PROPOSAL_NO,(SELECT DETAIL_NAME FROM  CONSTANT_DETAIL WHERE CATEGORY_ID=DECODE(PM.PRODUCT_ID,'2','43','29') AND\r\n"
-//							+ "TYPE=DECODE(PM.PRODUCT_ID,'2',RD.TREATYTYPE,RD.RSK_BUSINESS_TYPE))TREATY_TYPE,RD.RSK_TREATYID,'New' POLICY_STATUS,''EXISTING_SHARE,\r\n"
-//							+ "PM.BOUQUET_NO,Bouquet_Mode_YN,( select TMAS_DEPARTMENT_NAME From tmas_department_master where TMAS_DEPARTMENT_ID=RD.RSK_DEPTId and \r\n"
-//							+ "branch_code=RD.branch_code and TMAS_PRODUCT_ID=RD.RSK_PRODUCTID  AND TMAS_STATUS='Y')  CLASS,CASE WHEN RD.RSK_SPFCID='ALL' THEN 'ALL' ELSE \r\n"
-//							+ "(select RTRIM(XMLAGG(XMLELEMENT(E,TMAS_SPFC_NAME,',')).EXTRACT('//text()'),',')  from TMAS_SPFC_MASTER SPFC where SPFC.TMAS_SPFC_ID\r\n"
-//							+ "in(select * from table(SPLIT_TEXT_FN(replace(RD.RSK_SPFCID,' ', '')))) AND  SPFC.TMAS_PRODUCT_ID = RD.RSK_PRODUCTID AND \r\n"
-//							+ "SPFC.BRANCH_CODE = RD.BRANCH_CODE) END SUB_CLASS,DECODE(PM.PRODUCT_ID,'2',PM.SECTION_NO,PM.LAYER_NO) SECTION_NO,PM.OFFER_NO,PM.PRODUCT_ID,\r\n"
-//							+ "SHARE_OFFERED,SHARE_PROPOSAL_WRITTEN,SHARE_PROPOSED_SIGNED FROM POSITION_MASTER PM,TTRN_RISK_DETAILS RD,TTRN_RI_PLACEMENT TRP WHERE  \r\n"
-//							+ "PM.BRANCH_CODE=? AND PM.PROPOSAL_NO=RD.RSK_PROPOSAL_NUMBER AND PM.PROPOSAL_NO=? AND TRP.REINSURER_ID=? AND TRP.BROKER_ID=? AND \r\n"
-//							+ "PM.contract_status='P' AND PM.PROPOSAL_NO = TRP.PROPOSAL_NO  AND TRP.STATUS_NO IN (SELECT   MAX (STATUS_NO) FROM   TTRN_RI_PLACEMENT TRP1 \r\n"
-//							+ "WHERE TRP.PROPOSAL_NO = TRP1.PROPOSAL_NO AND TRP.SNO = TRP1.SNO  AND TRP.BRANCH_CODE = TRP1.BRANCH_CODE) ORDER BY\r\n"
-//							+ "PRODUCT_ID,BOUQUET_NO,PROPOSAL_NO";
-//					
-//					Query query = em.createNativeQuery(nativequery);
-//					query.setParameter(1, bean.getBranchCode());
-//					query.setParameter(2, bean.getProposalNo());
-//					query.setParameter(3, bean.getReinsurerId());
-//					query.setParameter(4, bean.getBrokerId());
-//					
-//				query.unwrap(NativeQueryImpl.class).setResultTransformer(AliasToEntityMapResultTransformer.INSTANCE);
-//				list = query.getResultList();
-//				}
-//			}else {
-//				obj=new Object[5];
-//				obj[0]=bean.getBranchCode();
-//				obj[2]=bean.getSearchReinsurerId();
-//				obj[3]=bean.getSearchBrokerId();
-//				obj[4]=bean.getNewStatus();
-//				
-//				if(StringUtils.isNotBlank(bean.getBouquetNo())) {
-//					//query=getQuery("GET_MAILTEPLATE_BOUQUET_SEARCH");
-//					String nativequery = "SELECT DISTINCT TO_CHAR (RD.RSK_INCEPTION_DATE, 'DD/MM/YYYY') INS_DATE, TO_CHAR (RD.RSK_EXPIRY_DATE, 'DD/MM/YYYY') \r\n"
-//							+ "EXP_DATE,(SELECT COMPANY_NAME FROM PERSONAL_INFO PERSONAL WHERE RD.RSK_CEDINGID = PERSONAL.CUSTOMER_ID AND \r\n"
-//							+ "PERSONAL.CUSTOMER_TYPE='C' AND PERSONAL.BRANCH_CODE = PM.BRANCH_CODE)COMPANY_NAME,PM.UW_YEAR,PM.UW_YEAR_TO,PM.CONTRACT_NO,\r\n"
-//							+ "PM.BASE_LAYER,PM.LAYER_NO,(SELECT TMAS_PRODUCT_NAME FROM TMAS_PRODUCT_MASTER PD WHERE PD.TMAS_PRODUCT_ID=PM.PRODUCT_ID AND \r\n"
-//							+ "PD.BRANCH_CODE=PM.BRANCH_CODE)BUSINESS_TYPE,PM.PROPOSAL_NO,(SELECT DETAIL_NAME FROM  CONSTANT_DETAIL WHERE CATEGORY_ID=DECODE\r\n"
-//							+ "(PM.PRODUCT_ID,'2','43','29') AND TYPE=DECODE(PM.PRODUCT_ID,'2',RD.TREATYTYPE,RD.RSK_BUSINESS_TYPE))TREATY_TYPE,RD.RSK_TREATYID,'New' \r\n"
-//							+ "POLICY_STATUS,''EXISTING_SHARE,PM.BOUQUET_NO,Bouquet_Mode_YN,( select TMAS_DEPARTMENT_NAME From tmas_department_master where\r\n"
-//							+ "TMAS_DEPARTMENT_ID=RD.RSK_DEPTId and branch_code=RD.branch_code and TMAS_PRODUCT_ID=RD.RSK_PRODUCTID  AND TMAS_STATUS='Y') \r\n"
-//							+ "CLASS,CASE WHEN RD.RSK_SPFCID='ALL' THEN 'ALL' ELSE (select RTRIM(XMLAGG(XMLELEMENT(E,TMAS_SPFC_NAME,',')).EXTRACT('//text()'),',') \r\n"
-//							+ "from TMAS_SPFC_MASTER SPFC where SPFC.TMAS_SPFC_ID in(select * from table(SPLIT_TEXT_FN(replace(RD.RSK_SPFCID,' ', '')))) AND \r\n"
-//							+ "SPFC.TMAS_PRODUCT_ID = RD.RSK_PRODUCTID AND SPFC.BRANCH_CODE = RD.BRANCH_CODE) END SUB_CLASS,DECODE(PM.PRODUCT_ID,'2',PM.SECTION_NO,\r\n"
-//							+ "PM.LAYER_NO) SECTION_NO,PM.OFFER_NO,PM.PRODUCT_ID,SHARE_OFFERED,SHARE_PROPOSAL_WRITTEN,SHARE_PROPOSED_SIGNED FROM POSITION_MASTER PM,\r\n"
-//							+ "TTRN_RISK_DETAILS RD,TTRN_RI_PLACEMENT TRP WHERE  PM.BRANCH_CODE=? AND PM.PROPOSAL_NO=RD.RSK_PROPOSAL_NUMBER AND PM.BOUQUET_NO=? AND\r\n"
-//							+ "TRP.REINSURER_ID=? AND TRP.BROKER_ID=? AND TRP.STATUS=? AND PM.contract_status='P' AND PM.PROPOSAL_NO = TRP.PROPOSAL_NO  AND \r\n"
-//							+ "TRP.STATUS_NO IN (SELECT   MAX (STATUS_NO) FROM   TTRN_RI_PLACEMENT TRP1  WHERE TRP.PROPOSAL_NO = TRP1.PROPOSAL_NO AND TRP.SNO = TRP1.SNO \r\n"
-//							+ "AND TRP.BRANCH_CODE = TRP1.BRANCH_CODE) ORDER BY PRODUCT_ID,BOUQUET_NO,PROPOSAL_NO";
-//					
-//					Query query = em.createNativeQuery(nativequery);
-//					query.setParameter(1, bean.getBranchCode());
-//					query.setParameter(2, bean.getBouquetNo());
-//					query.setParameter(3, bean.getSearchReinsurerId());
-//					query.setParameter(4, bean.getSearchBrokerId());
-//					query.setParameter(4, bean.getNewStatus());
-//					
-//				query.unwrap(NativeQueryImpl.class).setResultTransformer(AliasToEntityMapResultTransformer.INSTANCE);
-//				list = query.getResultList();
-//					
-//				}else if(StringUtils.isNotBlank(bean.getBaseProposalNo())) {
-//					//query=getQuery("GET_MAILTEPLATE_BASELAYER_SEARCH");
-//					String nativequery = "SELECT DISTINCT TO_CHAR (RD.RSK_INCEPTION_DATE, 'DD/MM/YYYY') INS_DATE, TO_CHAR (RD.RSK_EXPIRY_DATE, 'DD/MM/YYYY') EXP_DATE,\r\n"
-//							+ "(SELECT COMPANY_NAME FROM PERSONAL_INFO PERSONAL WHERE RD.RSK_CEDINGID = PERSONAL.CUSTOMER_ID AND PERSONAL.CUSTOMER_TYPE='C' \r\n"
-//							+ "AND PERSONAL.BRANCH_CODE = PM.BRANCH_CODE)COMPANY_NAME,PM.UW_YEAR,PM.UW_YEAR_TO,PM.CONTRACT_NO,PM.BASE_LAYER,PM.LAYER_NO,\r\n"
-//							+ "(SELECT TMAS_PRODUCT_NAME FROM TMAS_PRODUCT_MASTER PD WHERE PD.TMAS_PRODUCT_ID=PM.PRODUCT_ID AND PD.BRANCH_CODE=PM.BRANCH_CODE)\r\n"
-//							+ "BUSINESS_TYPE,PM.PROPOSAL_NO,(SELECT DETAIL_NAME FROM  CONSTANT_DETAIL WHERE CATEGORY_ID=DECODE(PM.PRODUCT_ID,'2','43','29') AND \r\n"
-//							+ "TYPE=DECODE(PM.PRODUCT_ID,'2',RD.TREATYTYPE,RD.RSK_BUSINESS_TYPE))TREATY_TYPE,RD.RSK_TREATYID,'New' POLICY_STATUS,''EXISTING_SHARE,\r\n"
-//							+ "PM.BOUQUET_NO,Bouquet_Mode_YN,( select TMAS_DEPARTMENT_NAME From tmas_department_master where TMAS_DEPARTMENT_ID=RD.RSK_DEPTId and \r\n"
-//							+ "branch_code=RD.branch_code and TMAS_PRODUCT_ID=RD.RSK_PRODUCTID  AND TMAS_STATUS='Y')  CLASS,CASE WHEN RD.RSK_SPFCID='ALL' THEN 'ALL'\r\n"
-//							+ "ELSE (select RTRIM(XMLAGG(XMLELEMENT(E,TMAS_SPFC_NAME,',')).EXTRACT('//text()'),',')  from TMAS_SPFC_MASTER SPFC where SPFC.TMAS_SPFC_ID \r\n"
-//							+ "in(select * from table(SPLIT_TEXT_FN(replace(RD.RSK_SPFCID,' ', '')))) AND  SPFC.TMAS_PRODUCT_ID = RD.RSK_PRODUCTID AND \r\n"
-//							+ "SPFC.BRANCH_CODE = RD.BRANCH_CODE) END SUB_CLASS,DECODE(PM.PRODUCT_ID,'2',PM.SECTION_NO,PM.LAYER_NO) SECTION_NO,PM.OFFER_NO,PM.PRODUCT_ID,\r\n"
-//							+ "SHARE_OFFERED,SHARE_PROPOSAL_WRITTEN,SHARE_PROPOSED_SIGNED FROM POSITION_MASTER PM,TTRN_RISK_DETAILS RD,TTRN_RI_PLACEMENT TRP WHERE\r\n"
-//							+ "PM.BRANCH_CODE=? AND PM.PROPOSAL_NO=RD.RSK_PROPOSAL_NUMBER AND NVL(PM.BASE_LAYER,PM.PROPOSAL_NO)=? AND TRP.REINSURER_ID=? AND \r\n"
-//							+ "TRP.BROKER_ID=? AND TRP.STATUS=? AND PM.contract_status='P' AND PM.PROPOSAL_NO = TRP.PROPOSAL_NO  AND TRP.STATUS_NO IN \r\n"
-//							+ "(SELECT   MAX (STATUS_NO) FROM   TTRN_RI_PLACEMENT TRP1  WHERE TRP.PROPOSAL_NO = TRP1.PROPOSAL_NO AND TRP.SNO = TRP1.SNO\r\n"
-//							+ "AND TRP.BRANCH_CODE = TRP1.BRANCH_CODE) ORDER BY PRODUCT_ID,BOUQUET_NO,PROPOSAL_NO";
-//					
-//					Query query = em.createNativeQuery(nativequery);
-//					query.setParameter(1, bean.getBranchCode());
-//					query.setParameter(2, bean.getBaseProposalNo());
-//					query.setParameter(3, bean.getSearchReinsurerId());
-//					query.setParameter(4, bean.getSearchBrokerId());
-//					query.setParameter(4, bean.getNewStatus());
-//					
-//				query.unwrap(NativeQueryImpl.class).setResultTransformer(AliasToEntityMapResultTransformer.INSTANCE);
-//				list = query.getResultList();
-//					
-//				}else {
-//					//query=getQuery("GET_MAILTEPLATE_PROPOSAL_SEARCH");
-//					String nativequery = "SELECT DISTINCT TO_CHAR (RD.RSK_INCEPTION_DATE, 'DD/MM/YYYY') INS_DATE, TO_CHAR (RD.RSK_EXPIRY_DATE, 'DD/MM/YYYY') EXP_DATE,\r\n"
-//							+ "(SELECT COMPANY_NAME FROM PERSONAL_INFO PERSONAL WHERE RD.RSK_CEDINGID = PERSONAL.CUSTOMER_ID AND PERSONAL.CUSTOMER_TYPE='C' \r\n"
-//							+ "AND PERSONAL.BRANCH_CODE = PM.BRANCH_CODE)COMPANY_NAME,PM.UW_YEAR,PM.UW_YEAR_TO,PM.CONTRACT_NO,PM.BASE_LAYER,PM.LAYER_NO,\r\n"
-//							+ "(SELECT TMAS_PRODUCT_NAME FROM TMAS_PRODUCT_MASTER PD WHERE PD.TMAS_PRODUCT_ID=PM.PRODUCT_ID AND PD.BRANCH_CODE=PM.BRANCH_CODE)\r\n"
-//							+ "BUSINESS_TYPE,PM.PROPOSAL_NO,(SELECT DETAIL_NAME FROM  CONSTANT_DETAIL WHERE CATEGORY_ID=DECODE(PM.PRODUCT_ID,'2','43','29') AND \r\n"
-//							+ "TYPE=DECODE(PM.PRODUCT_ID,'2',RD.TREATYTYPE,RD.RSK_BUSINESS_TYPE))TREATY_TYPE,RD.RSK_TREATYID,'New' POLICY_STATUS,''EXISTING_SHARE,\r\n"
-//							+ "PM.BOUQUET_NO,Bouquet_Mode_YN,( select TMAS_DEPARTMENT_NAME From tmas_department_master where TMAS_DEPARTMENT_ID=RD.RSK_DEPTId and\r\n"
-//							+ "branch_code=RD.branch_code and TMAS_PRODUCT_ID=RD.RSK_PRODUCTID  AND TMAS_STATUS='Y')  CLASS,CASE WHEN RD.RSK_SPFCID='ALL' THEN 'ALL' \r\n"
-//							+ "ELSE (select RTRIM(XMLAGG(XMLELEMENT(E,TMAS_SPFC_NAME,',')).EXTRACT('//text()'),',')  from TMAS_SPFC_MASTER SPFC where SPFC.TMAS_SPFC_ID\r\n"
-//							+ "in(select * from table(SPLIT_TEXT_FN(replace(RD.RSK_SPFCID,' ', '')))) AND  SPFC.TMAS_PRODUCT_ID = RD.RSK_PRODUCTID AND \r\n"
-//							+ "SPFC.BRANCH_CODE = RD.BRANCH_CODE) END SUB_CLASS,DECODE(PM.PRODUCT_ID,'2',PM.SECTION_NO,PM.LAYER_NO) SECTION_NO,PM.OFFER_NO,PM.PRODUCT_ID,\r\n"
-//							+ "SHARE_OFFERED,SHARE_PROPOSAL_WRITTEN,SHARE_PROPOSED_SIGNED FROM POSITION_MASTER PM,TTRN_RISK_DETAILS RD,TTRN_RI_PLACEMENT TRP WHERE\r\n"
-//							+ "PM.BRANCH_CODE=? AND PM.PROPOSAL_NO=RD.RSK_PROPOSAL_NUMBER AND PM.PROPOSAL_NO='202002347' AND TRP.REINSURER_ID=? AND TRP.BROKER_ID=?\r\n"
-//							+ "AND TRP.STATUS=? AND PM.contract_status='P' AND PM.PROPOSAL_NO = TRP.PROPOSAL_NO  AND TRP.STATUS_NO IN (SELECT   MAX (STATUS_NO) FROM   \r\n"
-//							+ "TTRN_RI_PLACEMENT TRP1  WHERE TRP.PROPOSAL_NO = TRP1.PROPOSAL_NO AND TRP.SNO = TRP1.SNO  AND TRP.BRANCH_CODE = TRP1.BRANCH_CODE) \r\n"
-//							+ "ORDER BY PRODUCT_ID,BOUQUET_NO,PROPOSAL_NO";
-//					
-//					Query query = em.createNativeQuery(nativequery);
-//					query.setParameter(1, bean.getBranchCode());
-//					query.setParameter(2, bean.getProposalNo());
-//					query.setParameter(3, bean.getSearchReinsurerId());
-//					query.setParameter(4, bean.getSearchBrokerId());
-//					query.setParameter(4, bean.getNewStatus());
-//					
-//				query.unwrap(NativeQueryImpl.class).setResultTransformer(AliasToEntityMapResultTransformer.INSTANCE);
-//				list = query.getResultList();
-//				}
-//			}
-//			
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		return list;
-//	}
 	
 	public String getOfferMsg(List<Tuple> agentWiseReport, GetMailTemplateReq bean) {
 		String messageContent ="";
@@ -2961,5 +1744,22 @@ public class PlacementServiceImple implements PlacementService {
 	
 	return messageContent.toString();
 	}
+	private void  encodeBase64ToFile(String file, File copyFile) {
+		byte[] data = Base64.getDecoder().decode(file);
 
+		try( OutputStream stream = new FileOutputStream(copyFile) ) 
+		{
+		   stream.write(data);
+		}
+		catch (Exception e) 
+		{
+		   System.err.println("Couldn't write to file...");
+		}
+	}
+
+	@Override
+	public GetPlacementNoRes getPlacementNo(SavePlacingReq req) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	}

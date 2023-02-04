@@ -386,32 +386,8 @@ public List<ErrorCheck> validationStatus(UpdatePlacementReq bean) {
 		if (StringUtils.isBlank(req.getBranchCode())) {
 			list.add(new ErrorCheck("Please Enter BranchCode", "BranchCode", "1"));
 		}
-		if (StringUtils.isBlank(req.getCorresId())) {
-			list.add(new ErrorCheck("Please Enter CorresId", "CorresId", "2"));
-		}
-		if (StringUtils.isBlank(req.getBrokerId())) {
-			list.add(new ErrorCheck("Please Enter BrokerId", "BrokerId", "3"));
-		}
-		if (StringUtils.isBlank(req.getBaseproposalNo())) {
-			list.add(new ErrorCheck("Please Enter BaseProposalNo", "BaseProposalNo", "4"));
-		}
-		if (StringUtils.isBlank(req.getBouquetNo())) {
-			list.add(new ErrorCheck("Please Enter BouquetNo", "BouquetNo", "5"));
-		}
-		if (StringUtils.isBlank(req.getFilePath())) {
-			list.add(new ErrorCheck("Please Enter FilePath", "FilePath", "6"));
-		}
-		if (StringUtils.isBlank(req.getProposalNo())) {
-			list.add(new ErrorCheck("Please Enter ProposalNo", "ProposalNo", "7"));
-		}
-		if (StringUtils.isBlank(req.getSno())) {
-			list.add(new ErrorCheck("Please Enter Sno", "Sno", "8"));
-		}
-		if (StringUtils.isBlank(req.getUpload())) {
-			list.add(new ErrorCheck("Please Enter Upload", "Upload", "10"));
-		}
-		if (StringUtils.isBlank(req.getReinsurerId())) {
-			list.add(new ErrorCheck("Please Enter ReinsurerId", "ReinsurerId", "11"));
+		if (StringUtils.isBlank(req.getCorrespondentId())) {
+			list.add(new ErrorCheck("Please Enter CorrespondentId", "CorresId", "2"));
 		}
 		if (StringUtils.isBlank(req.getUserId())) {
 			list.add(new ErrorCheck("Please Enter UserId", "UserId", "12"));
@@ -431,7 +407,7 @@ public List<ErrorCheck> validationStatus(UpdatePlacementReq bean) {
 			list.add(new ErrorCheck("Please Enter BranchCode", "BranchCode", "1"));
 		}
 		if (StringUtils.isBlank(req.getBaseProposalNo())) {
-			list.add(new ErrorCheck("Please Enter BaseProposalNo", "BaseProposalNo", "2"));
+			//list.add(new ErrorCheck("Please Enter BaseProposalNo", "BaseProposalNo", "2"));
 		}
 		if (StringUtils.isBlank(req.getBrokerId())) {
 			list.add(new ErrorCheck("Please Enter BrokerId", "BrokerId", "3"));
@@ -443,7 +419,7 @@ public List<ErrorCheck> validationStatus(UpdatePlacementReq bean) {
 			//list.add(new ErrorCheck("Please Enter BouquetNo", "BouquetNo", "5"));
 		}
 		if (StringUtils.isBlank(req.getPlacementMode())) {
-			list.add(new ErrorCheck("Please Enter PlacementMode", "PlacementMode", "6"));
+			//list.add(new ErrorCheck("Please Enter PlacementMode", "PlacementMode", "6"));
 		}
 		if (StringUtils.isBlank(req.getReinsurerId())) {
 			list.add(new ErrorCheck("Please Enter ReinsurerId", "ReinsurerId", "7"));

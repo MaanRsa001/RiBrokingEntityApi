@@ -8,30 +8,15 @@ import lombok.Data;
 @Data
 public class UploadDocumentReq {
 
-	@JsonProperty("Upload")
-	private String upload; 
-	@JsonProperty("FilePath")
-	private String filePath; 
-	@JsonProperty("Sno")
-	private String sno; 
-	@JsonProperty("BouquetNo")
-	private String bouquetNo; 
-	@JsonProperty("BaseproposalNo")
-	private String baseproposalNo; 
-	@JsonProperty("BrokerId")
-	private String brokerId; 
-	@JsonProperty("ProposalNo")
-	private String proposalNo; 
-	@JsonProperty("ReinsurerId")
-	private String reinsurerId; 
-	@JsonProperty("InsertDocdetailsReq")
-	private List<InsertDocdetailsReq> insertDocdetailsReq; 
+	
 	@JsonProperty("BranchCode")
 	private String branchCode; 
 	@JsonProperty("UserId")
 	private String userId; 
-	@JsonProperty("CorresId")
-	private String corresId; 
+	@JsonProperty("CorrespondentId")
+	private String correspondentId; 
+	@JsonProperty("InsertDocdetailsReq")
+	private List<InsertDocdetailsReq> insertDocdetailsReq; 
 	@JsonProperty("UploadDocumentReq1")
 	private List<UploadDocumentReq1> uploadDocumentReq1; 
 }

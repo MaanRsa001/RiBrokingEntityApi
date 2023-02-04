@@ -18,4 +18,6 @@ public class AttachFileRes1 {
 	private String sno;  
 	@JsonProperty("BaseProposalNo")
 	private String baseProposalNo;
+	@JsonProperty("CorrespondentId")
+	private String correspondentId; 
 }

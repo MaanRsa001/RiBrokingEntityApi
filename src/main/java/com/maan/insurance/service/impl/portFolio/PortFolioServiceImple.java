@@ -784,6 +784,8 @@ public class PortFolioServiceImple implements PortFolioService{
     		} catch(Exception e) {
     			e.printStackTrace();
     		} 
+    		List<BigDecimal>departId=new ArrayList<BigDecimal>();
+    		departId.add(beanObj.getDeptId()==null?BigDecimal.ZERO:new BigDecimal(beanObj.getDeptId()));
             if(list!=null && list.size()>0){
             for (int i = 0; i < list.size(); i++) {
                 Map<String, Object> tempMap = list.get(i);
@@ -858,7 +860,7 @@ public class PortFolioServiceImple implements PortFolioService{
                 count  = pdRepo.countByContractNoAndLayerNo(new BigDecimal(tempBean.getProposalNo()),layerno);
                 tempBean.setPremiumcount(String.valueOf(count));
                 
-                count  = dmRepo.countByBranchCodeAndTmasProductIdAndTmasStatusAndCoreCompanyCodeIsNotNullAndTmasDepartmentIdIn(beanObj.getBranchCode(),new BigDecimal(beanObj.getProductId()),"Y",beanObj.getDepartmentId());
+                count  = dmRepo.countByBranchCodeAndTmasProductIdAndTmasStatusAndCoreCompanyCodeIsNotNullAndTmasDepartmentIdIn(beanObj.getBranchCode(),new BigDecimal(beanObj.getProductId()),"Y",departId);
                 tempBean.setCombinedClassCount(String.valueOf(count==0?"N":"Y"));
 
                 if("Y".equalsIgnoreCase(tempBean.getCeaseStatus())){
