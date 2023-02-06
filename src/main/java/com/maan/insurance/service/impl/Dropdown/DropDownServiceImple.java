@@ -2445,7 +2445,7 @@ public class DropDownServiceImple implements DropDownService{
 						Predicate n3 = cb.isNotNull(pm.get("contractNo"));
 						Predicate n4 = cb.notEqual(pm.get("contractNo"),"0");
 				//		ParameterExpression<Date> param = cb.parameter(Date.class, req.getIncepDate());
-						Predicate n6 = cb.lessThanOrEqualTo(p.get("expiryDate") ,incep);
+						Predicate n6 = cb.lessThanOrEqualTo(pm.get("expiryDate") ,incep);
 						Predicate n7 = cb.equal(pm.get("branchCode"),req.getBranchCode());
 						Predicate n8 = cb.equal(pm.get("amendId"),amend);
 						query.where(n1,n2,n3,n4,n6,n7,n8).orderBy(orderList);
@@ -4347,11 +4347,11 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 		return status;
 	}
 	public String getRiskComMaxAmendId(final String proposalNo) {
-		String result="";
+		String result="0";
 		try{
 			List<TtrnRiskCommission> list = rcRepo.findTop1ByRskProposalNumberOrderByRskEndorsementNoDesc(proposalNo);
 			if(list.size()>0) {
-				result= list.get(0).getRskEndorsementNo()==null?"":list.get(0).getRskEndorsementNo().toString();
+				result= list.get(0).getRskEndorsementNo()==null?"0":list.get(0).getRskEndorsementNo().toString();
 			}
 		}catch(Exception e){
 			e.printStackTrace();
@@ -5941,6 +5941,7 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 				}
 			return response;
 		}
+
 		public String getSubClass(String id,String branchCode,String productId) {
 			String result="";
 			List<String> spfcId = new ArrayList<>(Arrays.asList(id.split(",")));
@@ -5951,6 +5952,55 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 					result=result+","+list.get(i).getTmasSpfcName();
 				}
 				result = result.replaceFirst(",", "");
+			}
+			return result;
+		}
+			
+
+		public boolean getBaseContractValid(String branchCode, String proposalNo, String productId) {
+			String baselayer="",contractNo="";
+			boolean result=false;
+			try {
+				//GET_BASE_LAYER_DETAILS
+				CriteriaBuilder cb = em.getCriteriaBuilder(); 
+				CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+				Root<PositionMaster> rd = query.from(PositionMaster.class);
+
+				query.multiselect(rd.get("proposalNo").alias("PROPOSAL_NO"),rd.get("baseLayer").alias("BASE_LAYER"),
+						rd.get("contractNo").alias("CONTRACT_NO"),rd.get("contractStatus").alias("CONTRACT_STATUS")); 
+
+				Subquery<Long> amend = query.subquery(Long.class); 
+				Root<PositionMaster> rds = amend.from(PositionMaster.class);
+				amend.select(cb.max(rds.get("amendId")));
+				Predicate a1 = cb.equal( rds.get("proposalNo"), rd.get("proposalNo"));
+				amend.where(a1);
+
+				Predicate n1 = cb.equal(rd.get("productId"), productId);
+				Predicate n2 = cb.equal(rd.get("branchCode"), branchCode);
+				Predicate n3 = cb.equal(rd.get("proposalNo"), proposalNo);
+				Predicate n4 = cb.equal(rd.get("amendId"), amend);
+				query.where(n1,n2,n3,n4);
+
+				TypedQuery<Tuple> res = em.createQuery(query);
+				List<Tuple> list = res.getResultList();
+				
+			
+			
+				Tuple resMap1 = null;
+				if(list!=null && list.size()>0)
+					resMap1 = list.get(0);
+				if (resMap1 != null) {
+				
+					baselayer=resMap1.get("BASE_LAYER")==null?"":resMap1.get("BASE_LAYER").toString();
+					contractNo=resMap1.get("CONTRACT_NO")==null?"":resMap1.get("CONTRACT_NO").toString();
+				//	beanObj.setBaseLayerYN(baselayer);
+					if(StringUtils.isNotBlank(baselayer) && (StringUtils.isBlank(contractNo) || "0".equals(contractNo))) {
+						result=true;
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+
 			}
 			return result;
 		}
