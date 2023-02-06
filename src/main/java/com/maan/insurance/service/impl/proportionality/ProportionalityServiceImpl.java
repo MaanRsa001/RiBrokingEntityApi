@@ -604,6 +604,8 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 					} else {
 						proposalno = beanObj.getProposalNo();
 					}
+					proportionalityCustomRepository.updateBonus(beanObj.getRequestNumber(),beanObj.getProposalNo());
+					proportionalityCustomRepository.updateRip(beanObj.getRequestNumber(),beanObj.getProposalNo());
 					//this.showSecondpageEditItems(beanObj, pid, proposalno);
 				}
 			}
@@ -1176,10 +1178,10 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 					}
 				}
 			}
+			}
 			resp.setResponse("Success");
 			resp.setErroCode(0);
 			resp.setIsError(false);
-			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			resp.setResponse("Failed");
@@ -2442,19 +2444,16 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 			Tuple resMap = null;
 			if(list!=null && list.size()>0)
 				resMap = list.get(0);
-			if (resMap!=null) { //RI
+			
+			if (resMap!=null) {
+				
 				beanObj.setCedingCo(resMap.get("RSK_CEDINGID")==null?"":resMap.get("RSK_CEDINGID").toString());
-				beanObj.setInceptionDate(resMap.get("RSK_INCEPTION_DATE")==null?"":resMap.get("RSK_INCEPTION_DATE").toString());
-				beanObj.setExpiryDate(resMap.get("RSK_EXPIRY_DATE")==null?"":resMap.get("RSK_EXPIRY_DATE").toString());
+				beanObj.setInceptionDate(resMap.get("RSK_INCEPTION_DATE")==null?"":DateFormat(resMap.get("RSK_INCEPTION_DATE")));
+				beanObj.setExpiryDate(resMap.get("RSK_EXPIRY_DATE")==null?"":DateFormat(resMap.get("RSK_EXPIRY_DATE")));
 				beanObj.setUwYear(resMap.get("RSK_UWYEAR")==null?"":resMap.get("RSK_UWYEAR").toString());
 				beanObj.setUwYearTo(resMap.get("UW_YEAR_TO")==null?"":resMap.get("UW_YEAR_TO").toString());
 				beanObj.setBouquetModeYN(resMap.get("BOUQUET_MODE_YN")==null?"N":resMap.get("BOUQUET_MODE_YN").toString());
 				beanObj.setBouquetNo(resMap.get("BOUQUET_NO")==null?"":resMap.get("BOUQUET_NO").toString());
-				beanObj.setOfferNo(resMap.get("OFFER_NO")==null?"":resMap.get("OFFER_NO").toString());
-				if(StringUtils.isBlank(req.getSectionMode())) {
-				beanObj.setDepartId(resMap.get("RSK_DEPTID")==null?"":resMap.get("RSK_DEPTID").toString());	
-				
-				beanObj.setContractListVal(resMap.get("DATA_MAP_CONT_NO")==null?"":resMap.get("DATA_MAP_CONT_NO").toString());
 				beanObj.setProposalNo(resMap.get("RSK_PROPOSAL_NUMBER")==null?"":resMap.get("RSK_PROPOSAL_NUMBER").toString());
 				if(StringUtils.isBlank(beanObj.getBaseLayer()))
 				beanObj.setBaseLayer(resMap.get("BASE_LAYER")==null?"":resMap.get("BASE_LAYER").toString());
@@ -2462,18 +2461,18 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 				beanObj.setContractNo(resMap.get("RSK_CONTRACT_NO")==null?"":resMap.get("RSK_CONTRACT_NO").toString());
 				beanObj.setLayerNo(resMap.get("RSK_LAYER_NO")==null?"":resMap.get("RSK_LAYER_NO").toString());
 				beanObj.setProductId(resMap.get("RSK_PRODUCTID")==null?"":resMap.get("RSK_PRODUCTID").toString());
-				beanObj.setDepartmentId(resMap.get("RSK_DEPTID")==null?"":resMap.get("RSK_DEPTID").toString());
+				beanObj.setOfferNo(resMap.get("OFFER_NO")==null?"":resMap.get("OFFER_NO").toString());
+				
+				if(StringUtils.isBlank(req.getSectionMode())) {
+				beanObj.setDepartId(resMap.get("RSK_DEPTID")==null?"":resMap.get("RSK_DEPTID").toString());	
+				beanObj.setContractListVal(resMap.get("DATA_MAP_CONT_NO")==null?"":resMap.get("DATA_MAP_CONT_NO").toString());
 				beanObj.setProfitCenter(resMap.get("RSK_PFCID")==null?"":resMap.get("RSK_PFCID").toString());
 				beanObj.setSubProfitcenter(resMap.get("RSK_SPFCID")==null?"":resMap.get("RSK_SPFCID").toString());
 				beanObj.setPolicyBranch(resMap.get("RSK_POLBRANCH")==null?"":resMap.get("RSK_POLBRANCH").toString());
-				beanObj.setCedingCo(resMap.get("RSK_CEDINGID")==null?"":resMap.get("RSK_CEDINGID").toString());
 				beanObj.setBroker(resMap.get("RSK_BROKERID")==null?"":resMap.get("RSK_BROKERID").toString());
 				beanObj.setTreatyNametype(resMap.get("RSK_TREATYID")==null?"":resMap.get("RSK_TREATYID").toString());
 				beanObj.setMonth(resMap.get("RSK_MONTH")==null?"":resMap.get("RSK_MONTH").toString());
-				beanObj.setUwYear(resMap.get("RSK_UWYEAR")==null?"":resMap.get("RSK_UWYEAR").toString());
 				beanObj.setUnderwriter(resMap.get("RSK_UNDERWRITTER")==null?"":resMap.get("RSK_UNDERWRITTER").toString());
-				beanObj.setInceptionDate(resMap.get("RSK_INCEPTION_DATE")==null?"":DateFormat(resMap.get("RSK_INCEPTION_DATE")).toString());
-				beanObj.setExpiryDate(resMap.get("RSK_EXPIRY_DATE")==null?"":DateFormat(resMap.get("RSK_EXPIRY_DATE")).toString());
 				beanObj.setAcceptanceDate(resMap.get("RSK_ACCOUNT_DATE")==null?"":resMap.get("RSK_ACCOUNT_DATE").toString());
 				beanObj.setOrginalCurrency(resMap.get("RSK_ORIGINAL_CURR")==null?"":resMap.get("RSK_ORIGINAL_CURR").toString());
 				beanObj.setExchangeRate(resMap.get("RSK_EXCHANGE_RATE")==null?"":resMap.get("RSK_EXCHANGE_RATE").toString().equalsIgnoreCase("0") ? "0"	: resMap.get("RSK_EXCHANGE_RATE")==null?"":resMap.get("RSK_EXCHANGE_RATE").toString());
@@ -2483,6 +2482,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 				beanObj.setTerritoryscope(resMap.get("RSK_TERRITORY_SCOPE")==null?"":resMap.get("RSK_TERRITORY_SCOPE").toString());
 				beanObj.setTerritory(resMap.get("RSK_TERRITORY")==null?"":resMap.get("RSK_TERRITORY").toString()); //24
 				beanObj.setProStatus(resMap.get("RSK_STATUS")==null?"":resMap.get("RSK_STATUS").toString());
+				
 				beanObj.setEpiorigCur(resMap.get("RSK_EPI_OFFER_OC")==null?"":resMap.get("RSK_EPI_OFFER_OC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_EPI_OFFER_OC").toString()==null?"":resMap.get("RSK_EPI_OFFER_OC").toString());
 				beanObj.setPerilCovered(resMap.get("RSK_PERILS_COVERED")==null ? "" : resMap.get("RSK_PERILS_COVERED").toString());
 				if(beanObj.getProductId().equalsIgnoreCase("2")){
@@ -2514,6 +2514,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 					beanObj.setTreatyLimitsurplusOCPml(resMap.get("RSK_TRTY_LMT_SUR_PML_OC")==null?"":resMap.get("RSK_TRTY_LMT_SUR_PML_OC").toString());
 					beanObj.setEpipml(resMap.get("RSK_TRTY_LMT_OURASS_PML_OC")==null?"":resMap.get("RSK_TRTY_LMT_OURASS_PML_OC").toString());
 				}
+				
 				beanObj.setEndorsmenttype(resMap.get("RS_ENDORSEMENT_TYPE")==null?"":resMap.get("RS_ENDORSEMENT_TYPE").toString());
 				beanObj.setPml(resMap.get("RSK_PML")==null ? "" : resMap.get("RSK_PML").toString());
 				beanObj.setPmlPercent(resMap.get("RSK_PML_PERCENT")==null ? "" : resMap.get("RSK_PML_PERCENT").toString());
@@ -2536,7 +2537,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 				else{
 				beanObj.setLimitOrigCur(resMap.get("RSK_LIMIT_OC")==null?"0":resMap.get("RSK_LIMIT_OC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_LIMIT_OC").toString()==null?"":resMap.get("RSK_LIMIT_OC").toString());
 				}
-			}
+			
 			if(StringUtils.isNotBlank(beanObj.getContractNo())&&!"0".equals(beanObj.getContractNo())){
 				beanObj.setPrclFlag(dropDowmImpl.getPLCLCountStatus(beanObj.getContractNo(), "0"));
 			}else{
@@ -2554,13 +2555,13 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 			beanObj.setPaymentPartner(resMap.get("PAYMENT_PARTNER")==null?"":resMap.get("PAYMENT_PARTNER").toString());
 			beanObj.setSectionNo(resMap.get("SECTION_NO")==null?"":resMap.get("SECTION_NO").toString());
 			
-			beanObj.setQuotesharePercent(resMap.get("QUOTESHARE_PERCENT")==null?"":dropDowmImpl.formattereight(resMap.get("QUOTESHARE_PERCENT").toString()));
+			beanObj.setQuotesharePercent(resMap.get("QUOTESHARE_PERCENT")==null?"":fm.formattereight(resMap.get("QUOTESHARE_PERCENT").toString()));
 			beanObj.setAccountingPeriodNotes(resMap.get("RSK_ACCOUNT_PERIOD_NOTICE")==null?"":resMap.get("RSK_ACCOUNT_PERIOD_NOTICE").toString());
 			beanObj.setStatementConfirm(resMap.get("RSK_STATEMENT_CONFIRM")==null?"":resMap.get("RSK_STATEMENT_CONFIRM").toString());
-//			GetRemarksDetails(req.getProposalNo());
-//			getRetDetails(req.getProposalNo());
+			//GetRemarksDetails(beanObj);
+			//getGetRetDetails(beanObj);
 			beanObj.setAmendId(dropDowmImpl.getRiskComMaxAmendId(beanObj.getProposalNo()));
-			} 
+			}
 			else {
 				beanObj.setDepartId("");
 				beanObj.setContractListVal("");
@@ -2583,14 +2584,14 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 				
 				beanObj.setEpiorigCur("");
 				beanObj.setPerilCovered("");
-				if("2".equalsIgnoreCase(beanObj.getProductId())){  //error
+				if(beanObj.getProductId().equalsIgnoreCase("2")){
 					beanObj.setOurEstimate("");
 				}
-				if("2".equalsIgnoreCase(beanObj.getProductId())){
+				if(beanObj.getProductId().equalsIgnoreCase("2")){
 					beanObj.setEpi("");
 				}
 				beanObj.setXlCost("");
-				if("2".equalsIgnoreCase(beanObj.getProductId())){
+				if(beanObj.getProductId().equalsIgnoreCase("2")){
 					beanObj.setCedRetent("");
 				}
 				beanObj.setShareWritten("");
@@ -2647,29 +2648,14 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 			beanObj.setQuotesharePercent("");
 			beanObj.setAccountingPeriodNotes("");
 			beanObj.setStatementConfirm("");
-//			List<Map<String,Object>>result=new ArrayList<Map<String,Object>>();
-//			Map<String,Object> doubleMap = new HashMap<String,Object>();
-//			 doubleMap.put("one",new Double(1.0));
-//			 result.add(doubleMap);
-//			 beanObj.setRemarkList(result);
-//			
+			
 			}
-			String proposalno="";
-			if (StringUtils.isNotEmpty(req.getLayerProposalNo())) {
-				proposalno = req.getLayerProposalNo();
-			} else {
-				proposalno = beanObj.getProposalNo();
 			}
-	//		this.showSecondpageEditItems(beanObj, beanObj.getProductId(), proposalno);
 			if("copy".equals(req.getFlag())) {
 				String sectionNo="";
 				if("2".equals(beanObj.getProductId())) {
-					//if(StringUtils.isBlank(beanObj.getSectionNo())) {
-					//GET_MAX_SECTION_NO_DET
-					sectionNo =	proportionalityCustomRepository.getMaxSectionNoDet(beanObj.getProposalNo());
-						
-						beanObj.setSectionNo(sectionNo);
-					//}
+					sectionNo =	proportionalityCustomRepository.getMaxSectionNoDet(req.getBaseProposalNo());
+					beanObj.setSectionNo(sectionNo);
 				}
 			}
 			response.setCommonResponse(beanObj);
@@ -4658,6 +4644,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 		req1.setBranchCode(req.getBranchCode());
 		req1.setLayerNo(req.getLayerNo());
 		req1.setAmendId(req.getAmendId());
+		req1.setPageFor(req.getPageFor());
 		deleteMaintable(req1,req.getType());
 		
 		  if(StringUtils.isBlank(req.getProposalNo()) && StringUtils.isBlank(req.getReferenceNo())) { //Ri
@@ -4741,7 +4728,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 //           if(list!=null) {
 //        	   sno =   list.getSno()==null?"0": String.valueOf(list.getSno().intValue()+1);
 //           }
-           args[25] =String.valueOf(sno);
+           args[25] =String.valueOf(sno.intValue()+1);
            
 		TtrnBonus insert = proportionalityCustomRepository.bonusMainInsertPtty(args);
         if(insert!=null) {
@@ -5843,7 +5830,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 				Predicate n1 = cb.equal(pm.get("sectionNo"),formObj.getSectionNo());
 				Predicate n2 = cb.notEqual(pm.get("proposalNo"), formObj.getProposalNo()); 
 				Predicate n3 = cb.equal(cb.coalesce(pm.get("baseLayer"),pm.get("proposalNo")),StringUtils.isBlank(formObj.getBaseLayer())?formObj.getProposalNo():formObj.getBaseLayer());
-				Predicate n4 = cb.notEqual(pm.get("contractStatus"), "P"); 
+				Predicate n4 = cb.equal(pm.get("contractStatus"), "P"); 
 				Predicate n5 = cb.equal(pm.get("amendId"), amend); 
 				query1.where(n1,n2,n3,n4,n5);	
 		
@@ -5868,7 +5855,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 				
 				Predicate n1 = cb.equal(pm.get("sectionNo"),formObj.getSectionNo());
 				Predicate n2 = cb.equal(cb.coalesce(pm.get("baseLayer"),pm.get("proposalNo")),formObj.getBaseLayer());
-				Predicate n3 = cb.notEqual(pm.get("contractStatus"), "P"); 
+				Predicate n3 = cb.equal(pm.get("contractStatus"), "P"); 
 				query1.where(n1,n2,n3);	
 		
 				TypedQuery<BigDecimal> res1 = em.createQuery(query1);
@@ -5892,7 +5879,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 				
 				Predicate n1 = cb.equal(pm.get("sectionNo"),formObj.getSectionNo());
 				Predicate n2 = cb.equal(cb.coalesce(pm.get("baseLayer"),pm.get("proposalNo")),formObj.getProposalNo());
-				Predicate n3 = cb.notEqual(pm.get("contractStatus"), "P"); 
+				Predicate n3 = cb.equal(pm.get("contractStatus"), "P"); 
 				query1.where(n1,n2,n3);	
 		
 				TypedQuery<BigDecimal> res1 = em.createQuery(query1);

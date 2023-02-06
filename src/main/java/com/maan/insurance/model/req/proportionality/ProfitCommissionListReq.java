@@ -1,7 +1,5 @@
 package com.maan.insurance.model.req.proportionality;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
@@ -9,7 +7,7 @@ import lombok.Data;
 @Data
 public class ProfitCommissionListReq {
 
-	@JsonProperty("Proposalno")
+	@JsonProperty("ProposalNo")
 	private String proposalno;
 	
 	@JsonProperty("BranchCode")

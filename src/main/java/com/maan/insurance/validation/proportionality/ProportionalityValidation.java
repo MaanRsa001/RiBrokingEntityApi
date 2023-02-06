@@ -1889,11 +1889,11 @@ public class ProportionalityValidation {
 					list.add(new ErrorCheck(prop.getProperty("error.description")+String.valueOf(i+1),"Description","01"));
 				}
 				else if("".equalsIgnoreCase(req1.getRemark1())){
-					list.add(new ErrorCheck(prop.getProperty("error.remarks1")+String.valueOf(i+1),"Remark1","01"));
+					//list.add(new ErrorCheck(prop.getProperty("error.remarks1")+String.valueOf(i+1),"Remark1","01"));
 				}
 				if(StringUtils.isBlank(req1.getRemark2())){
 					//error.add(getText("error.remarks2",new String[]{String.valueOf(i+1)}));
-					list.add(new ErrorCheck(prop.getProperty("error.remarks2")+String.valueOf(i+1),"Remark2","01"));
+					//list.add(new ErrorCheck(prop.getProperty("error.remarks2")+String.valueOf(i+1),"Remark2","01"));
 				}
 			}
 			
@@ -2234,7 +2234,7 @@ return list;
 		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
 		
 		if(StringUtils.isBlank(req.getProposalno())) {
-			list.add(new ErrorCheck("Please Enter Proposalno", "Proposalno" ,"2"));
+			//list.add(new ErrorCheck("Please Enter Proposalno", "Proposalno" ,"2"));
 		}
 		
 		if(StringUtils.isBlank(req.getBranchCode())) {

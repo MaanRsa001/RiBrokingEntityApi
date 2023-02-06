@@ -39,6 +39,7 @@ import com.maan.insurance.model.entity.TtrnCommissionDetails;
 import com.maan.insurance.model.entity.TtrnCrestazoneDetails;
 import com.maan.insurance.model.entity.TtrnPttySection;
 import com.maan.insurance.model.entity.TtrnRi;
+import com.maan.insurance.model.entity.TtrnRip;
 import com.maan.insurance.model.entity.TtrnRiskCommission;
 import com.maan.insurance.model.entity.TtrnRiskDetails;
 import com.maan.insurance.model.entity.TtrnRiskProposal;
@@ -664,7 +665,7 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 				ttrnRiskCommission.setRskProCommType(args[45]);
 				ttrnRiskCommission.setRskProCommPer(fm.formatBigDecimal(args[46]));
 				ttrnRiskCommission.setRskProSetUp(args[47]);
-				ttrnRiskCommission.setRskProSubPfoCom(StringUtils.isBlank(args[48])? null : fm.formatBigDecimal(args[48]));
+				ttrnRiskCommission.setRskShareProfitCommission(args[48]);
 				ttrnRiskCommission.setRskProLossCaryType(args[49]);
 				ttrnRiskCommission.setRskProLossCaryYear(args[50]);
 				ttrnRiskCommission.setRskProProfitCaryType(args[51]);
@@ -889,7 +890,7 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 			ttrnBonus.setReferenceNo(fm.formatBigDecimal(input[21]));
 			ttrnBonus.setScaleMaxPartPercent(fm.formatBigDecimal(input[22]));
 			ttrnBonus.setFpcType(input[23]);
-			ttrnBonus.setFpcFixedDate(sdf.parse(input[24]));
+			ttrnBonus.setFpcFixedDate(StringUtils.isBlank(input[24])?null:sdf.parse(input[24]));
 			ttrnBonus.setSno(fm.formatBigDecimal(input[25]));	
 			}
 		}catch(Exception e) {
@@ -2250,7 +2251,7 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 
 		Predicate n1 = cb.equal(pm.get("proposalNo"), proposalNo);
 		Predicate n2 = cb.equal(pm.get("branch"), branchCode);
-		Predicate n3 = cb.equal(pm.get("type"), "SSC");
+		Predicate n3 = cb.equal(pm.get("type"), "LPC");
 		Predicate n4 = cb.equal(pm.get("endorsementNo"), end);
 		query.where(n1,n2,n3,n4).orderBy(orderList);
 		
@@ -2313,7 +2314,7 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 	
 			Predicate n1 = cb.equal(pm.get("referenceNo"), referenceNo);
 			Predicate n2 = cb.equal(pm.get("branch"), branchCode);
-			Predicate n3 = cb.equal(pm.get("type"), "SSC");
+			Predicate n3 = cb.equal(pm.get("type"), "LPC");
 			Predicate n4 = cb.equal(pm.get("endorsementNo"), end);
 			query.where(n1,n2,n3,n4).orderBy(orderList);
 			
@@ -2671,6 +2672,32 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 	}catch(Exception e) {
 		e.printStackTrace();
 	}
+	}
+
+	@Override
+	public int updateBonus(String requestNumber, String proposalNo) {
+		CriteriaBuilder cb = this.em.getCriteriaBuilder();
+		CriteriaUpdate<TtrnBonus> update = cb.createCriteriaUpdate(TtrnBonus.class);
+		Root<TtrnBonus> m = update.from(TtrnBonus.class);
+		update.set("proposalNo", fm.formatBigDecimal(proposalNo));
+		
+		Predicate n1 = cb.equal(m.get("referenceNo"),fm.formatBigDecimal(requestNumber));
+	
+		update.where(n1 );
+		return em.createQuery(update).executeUpdate();
+	}
+
+	@Override
+	public int updateRip(String requestNumber, String proposalNo) {
+		CriteriaBuilder cb = this.em.getCriteriaBuilder();
+		CriteriaUpdate<TtrnRip> update = cb.createCriteriaUpdate(TtrnRip.class);
+		Root<TtrnRip> m = update.from(TtrnRip.class);
+		update.set("proposalNo", fm.formatBigDecimal(proposalNo));
+		
+		Predicate n1 = cb.equal(m.get("referenceNo"),fm.formatBigDecimal(requestNumber));
+	
+		update.where(n1 );
+		return em.createQuery(update).executeUpdate();
 	}
 		
 	}

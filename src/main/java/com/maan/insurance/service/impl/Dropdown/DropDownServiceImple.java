@@ -4431,18 +4431,63 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 					args[7] = req.getProfitCenter();
 					args[8] = req.getBranchCode();
 					if("1".equalsIgnoreCase(req.getTreatyType()) ||"4".equalsIgnoreCase(req.getTreatyType())||"5".equalsIgnoreCase(req.getTreatyType()) ){
+						args = new String[10];
+						args[0] = req.getCedingCo();
+						args[1] = req.getIncepDate();
+						args[2] = req.getExpDate();
+						args[3] = req.getUwYear();
+						args[4] = req.getOrginalCurrency();
+						args[5] = req.getDepartId();
+						args[6] = req.getTreatyType();
+						args[7] = req.getProfitCenter();
+						args[8] = req.getBranchCode();
+						args[9] = sumInsured;
 						//query+="  and RP.RSK_LIMIT_OC="+req.getSumInsured();
 						query="PTTY_CONTRACT_LIST1";
 					}
 					else if("2".equalsIgnoreCase(req.getTreatyType())){
 						//query+="  and RP.RSK_TREATY_SURP_LIMIT_OC="+req.getSumInsured();
+						args = new String[10];
+						args[0] = req.getCedingCo();
+						args[1] = req.getIncepDate();
+						args[2] = req.getExpDate();
+						args[3] = req.getUwYear();
+						args[4] = req.getOrginalCurrency();
+						args[5] = req.getDepartId();
+						args[6] = req.getTreatyType();
+						args[7] = req.getProfitCenter();
+						args[8] = req.getBranchCode();
+						args[9] = sumInsured;
 						query="PTTY_CONTRACT_LIST2";
 					}
 					else if("3".equalsIgnoreCase(req.getTreatyType())){
+						args = new String[11];
+						args[0] = req.getCedingCo();
+						args[1] = req.getIncepDate();
+						args[2] = req.getExpDate();
+						args[3] = req.getUwYear();
+						args[4] = req.getOrginalCurrency();
+						args[5] = req.getDepartId();
+						args[6] = req.getTreatyType();
+						args[7] = req.getProfitCenter();
+						args[8] = req.getBranchCode();
+						args[9] = sumInsured;
+						args[10] = surplus;
 						//query+="  and RP.RSK_LIMIT_OC="+req.getSumInsured()+" and RP.RSK_TREATY_SURP_LIMIT_OC = "+req.getSurplus();
 						query="PTTY_CONTRACT_LIST3";
 					}
-					if(ContNo!="0"){
+					if(!"0".equals(ContNo)){
+						args = new String[10];
+						args[0] = req.getCedingCo();
+						args[1] = req.getIncepDate();
+						args[2] = req.getExpDate();
+						args[3] = req.getUwYear();
+						args[4] = req.getOrginalCurrency();
+						args[5] = req.getDepartId();
+						args[6] = req.getTreatyType();
+						args[7] = req.getProfitCenter();
+						args[8] = req.getBranchCode();
+						args[9] = req.getContNo();
 						//query+="  and RD.RSK_CONTRACT_NO!="+req.getContno();
 						query="PTTY_CONTRACT_LIST4";
 					}
@@ -4516,7 +4561,7 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 				}
 		
 				
-				ContractList =queryImpl.selectList(query,args);
+				//ContractList =queryImpl.selectList(query,args);commented by  vinodh
 			
 		
 					 for(int i=0 ; i<ContractList.size() ; i++) {

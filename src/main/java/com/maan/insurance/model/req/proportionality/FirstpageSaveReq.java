@@ -272,5 +272,7 @@ public class FirstpageSaveReq {
 	
 	@JsonProperty("OfferNo")
 	private String offerNo; 
+	@JsonProperty("RequestNumber")
+	private String requestNumber;
 
 }
