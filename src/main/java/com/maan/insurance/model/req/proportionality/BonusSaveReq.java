@@ -37,5 +37,14 @@ public class BonusSaveReq {
 	private String pageFor;
 	@JsonProperty("Sno")
 	private String sno;
+	
+	
+	@JsonProperty("ScaleMaxPartPercent")	
+	private String scaleMaxPartPercent;
+	@JsonProperty("FpcType")	
+	private String fpcType;
+	
+	@JsonProperty("FpcfixedDate")	
+	private String fpcfixedDate;
 
 }

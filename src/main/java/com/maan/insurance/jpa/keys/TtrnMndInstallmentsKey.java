@@ -31,13 +31,13 @@ public class TtrnMndInstallmentsKey implements Serializable {
     private static final long serialVersionUID = 1L;
 
     //--- ENTITY KEY ATTRIBUTES 
-    private Long installmentNo ;
+    private BigDecimal installmentNo ;
     
     private String     proposalNo ;
     
     private String     contractNo ;
     
-    private Long endorsementNo ;
+    private BigDecimal endorsementNo ;
     
      
 }

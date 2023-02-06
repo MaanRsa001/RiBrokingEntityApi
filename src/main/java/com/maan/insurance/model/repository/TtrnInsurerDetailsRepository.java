@@ -35,4 +35,7 @@ public interface TtrnInsurerDetailsRepository  extends JpaRepository<TtrnInsurer
 
 	void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bigDecimal);
 
+	TtrnInsurerDetails findByProposalNoAndInsurerNoAndEndorsementNo(String string, BigDecimal formatBigDecimal,
+			BigDecimal formatBigDecimal2);
+
 }

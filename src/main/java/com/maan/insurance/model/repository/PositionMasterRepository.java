@@ -37,4 +37,6 @@ public interface PositionMasterRepository  extends JpaRepository<PositionMaster,
 
 	PositionMaster findByProposalNoAndContractStatus(BigDecimal bigDecimal, String string);
 
+	PositionMaster findTop1ByProposalNoOrderByAmendIdDesc(BigDecimal bigDecimal);
+
 }

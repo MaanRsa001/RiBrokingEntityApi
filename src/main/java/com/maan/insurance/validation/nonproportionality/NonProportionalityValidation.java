@@ -1,8 +1,6 @@
 package com.maan.insurance.validation.nonproportionality;
 
 import java.io.InputStream;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,17 +13,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import com.maan.insurance.error.ErrorCheck;
 import com.maan.insurance.model.req.nonproportionality.BonusReq;
 import com.maan.insurance.model.req.nonproportionality.CoverLimitAmount;
-import com.maan.insurance.model.req.nonproportionality.CoverLimitAmountreq;
-import com.maan.insurance.model.req.nonproportionality.CoverLimitOCReq;
+import com.maan.insurance.model.req.nonproportionality.CoverList;
 import com.maan.insurance.model.req.nonproportionality.CrestaSaveReq;
 import com.maan.insurance.model.req.nonproportionality.GetLayerInfoReq;
-import com.maan.insurance.model.req.nonproportionality.CoverLimitAmount;
-import com.maan.insurance.model.req.nonproportionality.CoverLimitAmountreq;
-import com.maan.insurance.model.req.nonproportionality.CoverLimitOCReq;
-import com.maan.insurance.model.req.nonproportionality.CoverList;
 import com.maan.insurance.model.req.nonproportionality.GetRetroContractDetailsListReq;
 import com.maan.insurance.model.req.nonproportionality.GetRetroContractDetailsReq;
 import com.maan.insurance.model.req.nonproportionality.InsertBonusDetailsReq;
@@ -35,7 +29,6 @@ import com.maan.insurance.model.req.nonproportionality.InsertRetroContractsReq;
 import com.maan.insurance.model.req.nonproportionality.InstalMentPremiumReq;
 import com.maan.insurance.model.req.nonproportionality.LowClaimBonusInserReq;
 import com.maan.insurance.model.req.nonproportionality.MoveReinstatementMainReq;
-import com.maan.insurance.model.req.nonproportionality.NoRetroCessReq;
 import com.maan.insurance.model.req.nonproportionality.ReInstatementMainInsertReq;
 import com.maan.insurance.model.req.nonproportionality.ReinstatementNoList;
 import com.maan.insurance.model.req.nonproportionality.RemarksReq;
@@ -49,24 +42,17 @@ import com.maan.insurance.model.req.nonproportionality.ShowSecondPageDataReq;
 import com.maan.insurance.model.req.nonproportionality.ShowSecondpageEditItemsReq;
 import com.maan.insurance.model.req.nonproportionality.UpdateProportionalTreatyReq;
 import com.maan.insurance.model.req.nonproportionality.ViewRiskDetailsReq;
-import com.maan.insurance.model.req.nonproportionality.coverLimitOC;
 import com.maan.insurance.model.req.nonproportionality.insertClassLimitReq;
 import com.maan.insurance.model.req.nonproportionality.insertProportionalTreatyReq;
 import com.maan.insurance.model.req.proportionality.ContractReq;
 import com.maan.insurance.model.req.proportionality.GetClassLimitDetailsReq;
-import com.maan.insurance.model.req.proportionality.RetroListReq;
 import com.maan.insurance.model.res.DropDown.CommonResDropDown;
 import com.maan.insurance.model.res.DropDown.GetCommonDropDownRes;
-import com.maan.insurance.model.res.DropDown.GetCommonValueRes;
 import com.maan.insurance.model.res.DropDown.GetContractValRes;
 import com.maan.insurance.model.res.DropDown.GetContractValidationRes;
-import com.maan.insurance.model.res.DropDown.GetOpenPeriodRes;
-import com.maan.insurance.model.res.nonproportionality.SaveSecondPageRes1;
 import com.maan.insurance.service.impl.QueryImplemention;
 import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
 import com.maan.insurance.service.impl.nonproportionality.NonProportionalityServiceImpl;
-import com.maan.insurance.validation.CommonCalculation;
-import com.maan.insurance.validation.Formatters;
 import com.maan.insurance.validation.Validation;
 @Service
 public class NonProportionalityValidation {
@@ -74,17 +60,14 @@ public class NonProportionalityValidation {
 	private Logger log = LogManager.getLogger(QueryImplemention.class);
 	private Properties prop = new Properties();
 	
-	@Autowired
-	private Formatters fm;
 	
 	@Autowired
 	private DropDownServiceImple dropDownImple;
 	
 	@Autowired
 	private NonProportionalityServiceImpl nonPropImple;
+
 	
-	@Autowired
-	private CommonCalculation calcu;
 	public NonProportionalityValidation() {
 		try {
 			InputStream inputStream = getClass().getClassLoader()

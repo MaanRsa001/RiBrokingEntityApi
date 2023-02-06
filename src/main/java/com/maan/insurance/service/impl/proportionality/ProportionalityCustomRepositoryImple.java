@@ -2674,6 +2674,7 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 	}
 	}
 
+
 	@Override
 	public int updateBonus(String requestNumber, String proposalNo) {
 		CriteriaBuilder cb = this.em.getCriteriaBuilder();
@@ -2698,6 +2699,27 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 	
 		update.where(n1 );
 		return em.createQuery(update).executeUpdate();
+	}
+	@Override
+	public void riskUpdateHomeContNo(String[] args) {
+		try {
+			//GET_RETRO_CON_UPDATE
+			CriteriaBuilder cb = this.em.getCriteriaBuilder();
+			CriteriaUpdate<PositionMaster> update = cb.createCriteriaUpdate(PositionMaster.class);
+			Root<PositionMaster> m = update.from(PositionMaster.class);
+		
+			update.set("contractNo", fm.formatBigDecimal(args[0]));
+			update.set("proposalStatus", args[1]);
+			update.set("contractStatus", args[2]);
+			
+			Predicate n1 = cb.equal(m.get("proposalNo"), args[3]);
+			update.where(n1);
+			em.createQuery(update).executeUpdate();
+
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+
 	}
 		
 	}

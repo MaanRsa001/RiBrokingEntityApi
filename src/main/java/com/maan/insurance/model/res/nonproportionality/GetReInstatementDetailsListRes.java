@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 public class GetReInstatementDetailsListRes {
 	@JsonProperty("Result")
-	private List<GetReInstatementDetailsListRes1> commonResponse;
+	private List<ReInStatementRes> commonResponse;
 		
 	@JsonProperty("Message")
 	private String message;

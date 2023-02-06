@@ -32,7 +32,7 @@ import com.maan.insurance.jpa.entity.propPremium.TtrnRetroCessionaryId;
  
 public interface TtrnRetroCessionaryRepository  extends JpaRepository<TtrnRetroCessionary,TtrnRetroCessionaryId > , JpaSpecificationExecutor<TtrnRetroCessionary> {
 
-	Long countByProposalNo(String proposalNo);
+	int countByProposalNo(String proposalNo);
 
 	int countByProposalNoAndSnoAndAmendId(String proposalNo, BigDecimal bigDecimal,
 			BigDecimal bigDecimal2);

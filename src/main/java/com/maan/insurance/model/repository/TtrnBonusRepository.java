@@ -26,4 +26,7 @@ public interface TtrnBonusRepository extends JpaRepository<TtrnBonus,BigDecimal>
 
 	TtrnBonus findTop1ByBranchOrderBySnoDesc(String branchCode);
 
+	int countByReferenceNoAndBranchAndTypeAndEndorsementNoAndLayerNoAndLcbFromNotNull(BigDecimal bigDecimal,
+			String string, String string2, BigDecimal bigDecimal2, String string3);
+
 }

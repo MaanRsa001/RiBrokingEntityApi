@@ -127,8 +127,12 @@ public interface ProportionalityCustomRepository {
 
 	void insertRiDetails(String[] obj);
 
+
 	int updateBonus(String requestNumber, String proposalNo);
 
 	int updateRip(String requestNumber, String proposalNo);
+
+	void riskUpdateHomeContNo(String[] args);
+
 
 }

@@ -20,4 +20,7 @@ public class ReInStatementRes {
 	
 	@JsonProperty("MinTime")
 	private String minTime;
+	
+	@JsonProperty("ReinstatementOption")
+	private String reinstatementOption;
 }

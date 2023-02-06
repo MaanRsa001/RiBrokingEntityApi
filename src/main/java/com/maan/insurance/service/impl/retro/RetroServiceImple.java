@@ -2698,7 +2698,7 @@ public SaveSecondPageRes saveSecondPage(SaveSecondPageReq req) {
 public int checkSecondPageMode(final String proposalNo) {
 	int mode=0;
 	try{
-		Long selectCount = cessRepo.countByProposalNo(proposalNo);
+		int selectCount = cessRepo.countByProposalNo(proposalNo);
 		if (selectCount == 0) {
 			mode = 1;
 		} else if (selectCount != 0) {
