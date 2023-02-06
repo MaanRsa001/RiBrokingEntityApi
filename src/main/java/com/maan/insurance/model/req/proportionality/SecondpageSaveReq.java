@@ -203,9 +203,18 @@ public class SecondpageSaveReq {
 	@JsonProperty("SourceId")
 	private String sourceId;
 	@JsonProperty("RetroDupContract")
-	private String retroDupContract;
+	private String retroDupContract; 
 	@JsonProperty("UwYear")
 	private String uwYear;
+	
+	@JsonProperty("AcqdetailYN")
+	private String acqdetailYN; 
+	@JsonProperty("CommissiondetailYN")
+	private String commissiondetailYN;
+	@JsonProperty("DepositdetailYN")
+	private String depositdetailYN;
+	@JsonProperty("LossdetailYN")
+	private String lossdetailYN;
 	
 	@JsonProperty("RetroListReq")
 	private List<RetroListReq> retroListReq; 

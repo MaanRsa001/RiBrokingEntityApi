@@ -8,6 +8,8 @@ import lombok.Data;
 
 @Data
 public class FirstpageSaveReq {
+	@JsonProperty("ContractMode")
+	private String contractMode;
 
 	@JsonProperty("ProductId")
 	private String productId;
