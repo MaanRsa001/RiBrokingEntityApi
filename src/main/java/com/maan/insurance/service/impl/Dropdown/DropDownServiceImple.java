@@ -3279,7 +3279,7 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 					if (day >= 25) {
 						cal.add(Calendar.YEAR, 1);
 						year = cal.get(Calendar.YEAR);
-
+						res = new CommonResDropDown();
 						res.setCode(String.valueOf(year));
 						res.setCodeDescription(String.valueOf(year));
 						yearsList.add(res);
@@ -3289,6 +3289,7 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 					if (7 >= day) {
 						cal.add(Calendar.YEAR, -1);
 						year = cal.get(Calendar.YEAR);
+						res = new CommonResDropDown();
 						res.setCode(String.valueOf(year));
 						res.setCodeDescription(String.valueOf(year));
 						yearsList.add(res);
@@ -6072,5 +6073,49 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 
 			}
 			return result;
+		}
+
+
+
+		@Override
+		public GetCommonDropDownRes getProductDropDown(String branchCode) {
+			GetCommonDropDownRes response = new GetCommonDropDownRes();
+			List<CommonResDropDown> productList = new ArrayList<CommonResDropDown>();
+			try {
+				List<Tuple> list =null;
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			Root<TmasProductMaster> pm = query.from(TmasProductMaster.class);
+			query.multiselect(pm.get("tmasProductId").alias("TMAS_PRODUCT_ID"),pm.get("tmasProductName").alias("TMAS_PRODUCT_NAME")).distinct(true);						
+			
+			List<Order> orderList = new ArrayList<Order>();
+			orderList.add(cb.asc(pm.get("tmasProductId")));
+			Predicate n1 = cb.equal(pm.get("tmasStatus"), "1");
+			Predicate n2 = cb.equal(pm.get("branchCode"), branchCode);
+			Expression<String> e0 = pm.get("tmasProductId");
+			List<String> pidList =new ArrayList<String>(Arrays.asList("1,2,3".split(","))) ;
+			Predicate n3 = e0.in(pidList);
+			query.where(n1,n2,n3).orderBy(orderList);
+			TypedQuery<Tuple> res1 = em.createQuery(query);
+			list = res1.getResultList();
+		
+		for (int i = 0; i < list.size(); i++) {
+			CommonResDropDown res = new CommonResDropDown();
+			Tuple tempMap = list.get(i);
+			res.setCode(tempMap.get("TMAS_PRODUCT_ID") == null ? "" : tempMap.get("TMAS_PRODUCT_ID").toString());
+			res.setCodeDescription(tempMap.get("TMAS_PRODUCT_NAME") == null ? "": tempMap.get("TMAS_PRODUCT_NAME").toString());
+			productList.add(res);
+		}
+			response.setCommonResponse(productList);
+			response.setMessage("Success");
+			response.setIsError(false);
+		}catch(Exception e){
+			log.error(e);
+			e.printStackTrace();
+			response.setMessage("Failed");
+			response.setIsError(true);
+	}
+
+	return response;
 		}
 }

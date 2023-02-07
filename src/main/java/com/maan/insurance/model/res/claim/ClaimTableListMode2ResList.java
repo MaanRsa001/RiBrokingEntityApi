@@ -28,6 +28,16 @@ public class ClaimTableListMode2ResList {
 	@JsonProperty("claimNo")
 	private String claimNo;
 	
-
+	@JsonProperty("ClaimPaidOC")
+	private String claimPaidOC;
+	
+	@JsonProperty("ClaimPaidDC")
+	private String claimPaidDC;
+	
+	@JsonProperty("OsAmtOC")
+	private String osAmtOC;
+	
+	@JsonProperty("OsAmtDC")
+	private String osAmtDC;
 
 }

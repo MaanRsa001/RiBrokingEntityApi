@@ -300,8 +300,8 @@ public class PlacementServiceImple implements PlacementService {
 				bean.setCedingCompany(map.get("RSK_CEDINGID")==null?"":map.get("RSK_CEDINGID").toString());
 				bean.setBrokerCompany(map.get("RSK_BROKERID")==null?"":map.get("RSK_BROKERID").toString());
 				bean.setTreatyName(map.get("TREATY_TYPE")==null?"":map.get("TREATY_TYPE").toString());
-				bean.setInceptionDate(map.get("INS_DATE")==null?"":formatdate(map.get("INS_DATE")).toString());
-				bean.setExpiryDate(map.get("EXP_DATE")==null?"":formatdate(map.get("EXP_DATE")).toString());
+				bean.setInceptionDate(map.get("INS_DATE")==null?"":formatdate(map.get("INS_DATE")));
+				bean.setExpiryDate(map.get("EXP_DATE")==null?"":formatdate(map.get("EXP_DATE")));
 				bean.setUwYear(map.get("UW_YEAR")==null?"":map.get("UW_YEAR").toString());
 				bean.setUwYearTo(map.get("UW_YEAR_TO")==null?"":map.get("UW_YEAR_TO").toString());
 				bean.setBouquetModeYN(map.get("BOUQUET_MODE_YN")==null?"":map.get("BOUQUET_MODE_YN").toString());

@@ -751,7 +751,7 @@ public ClaimValidation() {
 						list.add(new ErrorCheck(prop.getProperty("error.claim.registration.repudiate.gr"), "CreatedDate,ReputedDate", "01"));
 					}
 				}
-				 if(!val.isNull(req.getReputedDate()).equalsIgnoreCase("") && !val.isNull(req.getCreatedDate()).equalsIgnoreCase(""))  {
+				 if(!val.isNull(req.getReputedDate()).equalsIgnoreCase("") && !val.isNull(req.getCreatedDate()).equalsIgnoreCase("") && !val.isNull(preDate).equalsIgnoreCase(""))  {
 					if(Validation.ValidateTwo(Validation.getMaxDateValidate(req.getCreatedDate(), preDate),req.getReputedDate()).equalsIgnoreCase("invalid"))
 					{
 						list.add(new ErrorCheck(prop.getProperty("error.claim.registration.repudi.pr"), "CreatedDate,ReputedDate", "01"));

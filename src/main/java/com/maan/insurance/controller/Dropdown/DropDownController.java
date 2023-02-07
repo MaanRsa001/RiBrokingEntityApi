@@ -497,6 +497,10 @@ public class DropDownController {
 		}
 		return dropDownservice.getProductieModuleDropDown(req);
 	}
+	@GetMapping("/getProductDropDown/{branchCode}")
+	public GetCommonDropDownRes getProductDropDown(@PathVariable("branchCode") String branchCode)throws CommonValidationException {
+		return dropDownservice.getProductDropDown(branchCode);
+	}
 
 	@PostMapping("/getInwardBusinessTypeDropDown")
 	public GetCommonDropDownRes getInwardBusinessTypeDropDown(@RequestBody GetInwardBusinessTypeDropDownReq req)

@@ -9,6 +9,8 @@ import lombok.Data;
 @Data
 public class SecondpageSaveReq {
 
+	@JsonProperty("ContractMode")
+	private String contractMode;
 	@JsonProperty("ProductId")
 	private String productId;
 	@JsonProperty("ProposalNo")

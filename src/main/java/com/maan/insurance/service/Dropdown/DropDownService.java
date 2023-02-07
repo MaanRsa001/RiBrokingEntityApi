@@ -228,4 +228,6 @@ public interface DropDownService {
 	GetPlacementInfoListRes getPlacementInfoList(String branchCode, String layerProposalNo);
 
 	GetCompanyInfoRes getCompanyInfo(String branchCode);
+
+	GetCommonDropDownRes getProductDropDown(String branchCode);
 }

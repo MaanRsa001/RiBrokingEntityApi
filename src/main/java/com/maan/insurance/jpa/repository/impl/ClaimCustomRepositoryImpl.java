@@ -1310,6 +1310,8 @@ public class ClaimCustomRepositoryImpl implements ClaimCustomRepository{
 					rp.get("rskLimitDc").alias("RSK_LIMIT_DC"),
 					rp.get("rskLimitOsOc").alias("RSK_LIMIT_OS_OC"),
 					rp.get("rskLimitOsDc").alias("RSK_LIMIT_OS_DC"),
+					rp.get("rskTreatySurpLimitOc").alias("RSK_TREATY_SURP_LIMIT_OC"),
+					rp.get("rskTreatySurpLimitDc").alias("RSK_TREATY_SURP_LIMIT_DC"),
 					rp.get("rskCedantRetention").alias("RSK_CEDANT_RETENTION"),
 					rk.get("rskInceptionDate").alias("INCP_DATE"),
 					rk.get("rskAccountDate").alias("RSK_ACCOUNT_DATE"),

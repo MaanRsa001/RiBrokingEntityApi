@@ -683,6 +683,11 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 				bean.setSNo(tempMap.get("SL_NO")==null?"":tempMap.get("SL_NO").toString());
 				bean.setPolicyContractNo(tempMap.get("CONTRACT_NO")==null?"":tempMap.get("CONTRACT_NO").toString());
 				bean.setClaimNo(tempMap.get("CLAIM_NO")==null?"":tempMap.get("CLAIM_NO").toString());
+				bean.setClaimPaidOC(tempMap.get("PAIDAMTOC")==null?"":fm.formatter(tempMap.get("PAIDAMTOC").toString()));
+				bean.setClaimPaidDC(tempMap.get("PAIDAMTUSD")==null?"":fm.formatter(tempMap.get("PAIDAMTUSD").toString()));
+				bean.setOsAmtOC(String.valueOf(Double.parseDouble(bean.getLossEstimateRevisedOrigCurr().replaceAll(",", ""))-Double.parseDouble(bean.getClaimPaidOC().replaceAll(",", ""))));
+				bean.setOsAmtDC(String.valueOf(Double.parseDouble(bean.getLossEstimateRevisedUSD().replaceAll(",", ""))-Double.parseDouble(bean.getClaimPaidDC().replaceAll(",", ""))));
+				
 				cliamlists.add(bean);
 				
 			}
@@ -1512,18 +1517,19 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 					res.setDepartmentId(contractDetails.get("RSK_DEPTID")==null?"":contractDetails.get("RSK_DEPTID").toString());
 					res.setDepartmentClass(contractDetails.get("RSK_DEPTID")==null?"":contractDetails.get("RSK_DEPTID").toString());
 					res.setUwYear(contractDetails.get("RSK_UWYEAR")==null?"":contractDetails.get("RSK_UWYEAR").toString());
-					res.setCurrecny(contractDetails.get("RSK_ORIGINAL_CURR")==null?"":contractDetails.get("RSK_ORIGINAL_CURR").toString());
+					
 					if("1".equalsIgnoreCase(req.getProductId())){
+					res.setCurrecny(contractDetails.get("RSK_ORIGINAL_CURR")==null?"":contractDetails.get("RSK_ORIGINAL_CURR").toString());
 					res.setSignedShare(contractDetails.get("SHARE_SIGNED")==null?"":contractDetails.get("SHARE_SIGNED").toString());
 					res.setLimitOurshareUSD(contractDetails.get("SUM_INSURED_OUR_SHARE_DC")==null?"":fm.formatter(contractDetails.get("SUM_INSURED_OUR_SHARE_DC").toString()));
 					res.setSumInsOSOC(contractDetails.get("SUM_INSURED_OUR_SHARE_OC")==null?"":fm.formatter(contractDetails.get("SUM_INSURED_OUR_SHARE_OC").toString()));
 					res.setSumInsOSDC(contractDetails.get("SUM_INSURED_OUR_SHARE_DC")==null?"":fm.formatter(contractDetails.get("SUM_INSURED_OUR_SHARE_DC").toString()));
-					List<Map<String, Object>>	list1 =queryImpl.selectList("claim.select.tmasDeptName",new String[]{res.getDepartmentId(),req.getProductId(),req.getBranchCode()});
+					/*List<Map<String, Object>>	list1 =queryImpl.selectList("claim.select.tmasDeptName",new String[]{res.getDepartmentId(),req.getProductId(),req.getBranchCode()});
 					if (!CollectionUtils.isEmpty(list1)) {
 						res.setDepartmentName(list1.get(0).get("TMAS_NAME") == null ? ""
 								: list1.get(0).get("TMAS_NAME").toString());
-					}
-
+					}*/
+					res.setDepartmentName(contractDetails.get("TMAS_DEPARTMENT_NAME")==null?"":contractDetails.get("TMAS_DEPARTMENT_NAME").toString());
 					}else
 					{
 					res.setSignedShare(contractDetails.get("RSK_SHARE_SIGNED")==null?"":contractDetails.get("RSK_SHARE_SIGNED").toString());
@@ -1533,14 +1539,16 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 					res.setSumInsOSDC(contractDetails.get("RSK_TREATY_SURP_LIMIT_DC")==null?"":fm.formatter(contractDetails.get("RSK_TREATY_SURP_LIMIT_DC").toString()));
 					res.setDepartmentName(contractDetails.get("TMAS_DEPARTMENT_NAME")==null?"":contractDetails.get("TMAS_DEPARTMENT_NAME").toString());
 					}
-					res.setSubProfitCenter(contractDetails.get("TMAS_SPFC_NAME")==null?"":contractDetails.get("TMAS_SPFC_NAME").toString());
+					String id=contractDetails.get("RSK_SPFCID")==null?"":contractDetails.get("RSK_SPFCID").toString();
+					//res.setSubProfitCenter(contractDetails.get("TMAS_SPFC_NAME")==null?"":contractDetails.get("TMAS_SPFC_NAME").toString());
+					res.setSubProfitCenter(dropDowmImpl.getSubClass(id, req.getBranchCode(), req.getProductId()));
 					res.setRetention(contractDetails.get("RSK_CEDANT_RETENTION")==null?"":fm.formatter(contractDetails.get("RSK_CEDANT_RETENTION").toString()));
-					res.setFrom(contractDetails.get("INCP_DATE")==null?"":contractDetails.get("INCP_DATE").toString());
-					res.setTo(contractDetails.get("EXP_DATE")==null?"":contractDetails.get("EXP_DATE").toString());
+					res.setFrom(contractDetails.get("INCP_DATE")==null?"":formatDate(contractDetails.get("INCP_DATE")));
+					res.setTo(contractDetails.get("EXP_DATE")==null?"":formatDate(contractDetails.get("EXP_DATE")));
 					res.setTreatyName(contractDetails.get("RSK_TREATYID")==null?"":contractDetails.get("RSK_TREATYID").toString());
 					res.setBrokercode(contractDetails.get("RSK_BROKERID")==null?"":contractDetails.get("RSK_BROKERID").toString());
 					res.setBrokerName(contractDetails.get("BROKER_NAME")==null?"":contractDetails.get("BROKER_NAME").toString());
-					res.setAcceptenceDate(contractDetails.get("RSK_ACCOUNT_DATE")==null?"":contractDetails.get("RSK_ACCOUNT_DATE").toString());
+					res.setAcceptenceDate(contractDetails.get("RSK_ACCOUNT_DATE")==null?"":formatDate(contractDetails.get("RSK_ACCOUNT_DATE")));
 					String count="";
 					if("2".equals(req.getProductId())){
 					count= dropDowmImpl.getCombinedClass(req.getBranchCode(),req.getProductId(),res.getDepartmentId());
@@ -1824,12 +1832,12 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 			//GET_DUPLICATE_CEDENT_NO_LIST
 			
 			CriteriaBuilder cb = em.getCriteriaBuilder(); 
-			CriteriaQuery<BigDecimal> query = cb.createQuery(BigDecimal.class); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
 			
 			Root<TtrnClaimDetails> c = query.from(TtrnClaimDetails.class);
 			Root<PositionMaster> p = query.from(PositionMaster.class);
 			
-			query.multiselect(c.get("docType").alias("CLAIM_NO")); 
+			query.multiselect(c.get("claimNo").alias("CLAIM_NO"),c.get("statusOfClaim").alias("STATUS_OF_CLAIM")); 
 
 			Subquery<Long> amend = query.subquery(Long.class); 
 			Root<PositionMaster> cp = amend.from(PositionMaster.class);
@@ -1856,11 +1864,11 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 			}else {
 				query.where(n1,n3,n4,n2,n5,n6,n7).orderBy(orderList);
 			}
-			TypedQuery<BigDecimal> res1 = em.createQuery(query);
-			List<BigDecimal> list = res1.getResultList();
+			TypedQuery<Tuple> res1 = em.createQuery(query);
+			List<Tuple> list = res1.getResultList();
 			
 			if(list!=null && list.size()>0) {
-				claimno=list.get(0)==null?"":list.get(0).toString();
+				claimno=list.get(0).get("CLAIM_NO")==null?"":list.get(0).get("CLAIM_NO").toString();
 			}
 		}catch(Exception e){
 			e.printStackTrace();

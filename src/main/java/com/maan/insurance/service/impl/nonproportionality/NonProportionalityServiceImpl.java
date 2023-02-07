@@ -4845,7 +4845,7 @@ private boolean checkEditSaveModeMethod(final insertProportionalTreatyReq req) {
 			if(StringUtils.isBlank(bean.getContNo())) {
 			
 				obj= new String[2];
-				if("Y".equals(bean.getContractMode())) {
+				if("Y".equals(bean.getContractMode()) && StringUtils.isNotBlank(bean.getBaseLayer())) {
 					obj[0]=bean.getBaseLayer();
 					obj[1]=bean.getBaseLayer();
 				}else {
@@ -4857,7 +4857,7 @@ private boolean checkEditSaveModeMethod(final insertProportionalTreatyReq req) {
 			}else {
 				
 				obj= new String[2];
-				if("Y".equals(bean.getContractMode())) {
+				if("Y".equals(bean.getContractMode()) && StringUtils.isNotBlank(bean.getBaseLayer())) {
 					obj[0]=bean.getBaseLayer();
 					obj[1]=bean.getBaseLayer();
 				}else {
