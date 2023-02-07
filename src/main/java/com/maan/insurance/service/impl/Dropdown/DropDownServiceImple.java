@@ -1598,15 +1598,34 @@ public class DropDownServiceImple implements DropDownService{
 	public CommonResponse riskDetailsEndorsement(String proposalNo, String endtStatus, String branchCode) {
 		CommonResponse response = new CommonResponse();
 		try {
+			StoredProcedureQuery sp = em.createStoredProcedureQuery("COPYQUOTE");
+
+			// Assign parameters
+			sp.registerStoredProcedureParameter("PVTYPE", String.class, ParameterMode.IN);
+			sp.registerStoredProcedureParameter("PVTYPE1", String.class, ParameterMode.IN);
+			sp.registerStoredProcedureParameter("PVPRODUCT_ID", Integer.class, ParameterMode.IN);
+			sp.registerStoredProcedureParameter("PVBRANCH_CODE", String.class, ParameterMode.IN);
+			sp.registerStoredProcedureParameter("PVPROPOSAL", String.class, ParameterMode.INOUT);
 			
-			String query = "call COPYQUOTE (?,?,?,?,?)";
+			// Set parameters
+			sp.setParameter("PVTYPE", "Endt");
+			sp.setParameter("PVTYPE1", endtStatus==null?"":endtStatus);
+			sp.setParameter("PVPRODUCT_ID", 0);
+			sp.setParameter("PVBRANCH_CODE", branchCode);
+			sp.setParameter("PVPROPOSAL", proposalNo);
 			
-			queryImpl.updateQuery(query, new String[]{"Endt",endtStatus==null?"":endtStatus,"","branchCode",proposalNo});
+			System.out.println("PVTYPE: "+sp.getParameterValue("PVTYPE"));
+			System.out.println("PVTYPE1: "+sp.getParameterValue("PVTYPE1"));
+			System.out.println("PVPRODUCT_ID: "+sp.getParameterValue("PVPRODUCT_ID"));
+			System.out.println("PVBRANCH_CODE: "+sp.getParameterValue("PVBRANCH_CODE"));
+			System.out.println("PVPROPOSAL: "+sp.getParameterValue("PVPROPOSAL"));
+			sp.execute(); 
 			
 			response.setMessage("Success");
 			response.setIsError(false);
 	 }	catch(Exception e){
 				log.error(e);
+				e.printStackTrace();
 
 	}
 		return response;
@@ -5989,7 +6008,12 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 
 		public String getSubClass(String id,String branchCode,String productId) {
 			String result="";
-			List<String> spfcId = new ArrayList<>(Arrays.asList(id.split(",")));
+			List<String> spfcId = new ArrayList<>();
+			String[] arg=id.split(",");
+			for(String a:arg) {
+				spfcId.add(a.trim());
+			}
+			//List<String> spfcId = new ArrayList<>(Arrays.asList(id.trim().split(",")));
 			List<TmasSpfcMaster>list = spfcRepo.findDistinctByBranchCodeAndTmasProductIdAndTmasStatusAndTmasSpfcIdInOrderByTmasSpfcNameAsc(
 							branchCode,new BigDecimal(productId),"Y",spfcId);
 			if(!CollectionUtils.isEmpty(list)) {

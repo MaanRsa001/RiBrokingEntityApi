@@ -441,12 +441,12 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 			ttrnRiskDetails.setRskCedingid(fm.formatBigDecimal(args[4]));
 			ttrnRiskDetails.setRskBrokerid(fm.formatBigDecimal(args[5]));
 			ttrnRiskDetails.setRskTreatyid(args[6]);
-			ttrnRiskDetails.setRskMonth(sdf.parse(args[7]));
+			ttrnRiskDetails.setRskMonth(StringUtils.isBlank(args[7])?null:sdf.parse(args[7]));
 			ttrnRiskDetails.setRskUwyear(fm.formatBigDecimal(args[8]));
 			ttrnRiskDetails.setRskUnderwritter(args[9]);
 			ttrnRiskDetails.setRskInceptionDate(sdf.parse(args[10]));
 			ttrnRiskDetails.setRskExpiryDate(sdf.parse(args[11]));
-			ttrnRiskDetails.setRskAccountDate(sdf.parse(args[12]));
+			ttrnRiskDetails.setRskAccountDate(StringUtils.isBlank(args[12])?null:sdf.parse(args[12]));
 			ttrnRiskDetails.setRskOriginalCurr(args[13]);
 			ttrnRiskDetails.setRskExchangeRate(fm.formatBigDecimal(args[14]));
 			ttrnRiskDetails.setRskBasis(args[15]);
@@ -514,12 +514,12 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 				ttrnRiskDetails.setRskCedingid(fm.formatBigDecimal(args[8]));
 				ttrnRiskDetails.setRskBrokerid(fm.formatBigDecimal(args[9]));
 				ttrnRiskDetails.setRskTreatyid(args[10]);
-				ttrnRiskDetails.setRskMonth(sdf.parse(args[11]));
+				ttrnRiskDetails.setRskMonth(StringUtils.isBlank(args[11])?null:sdf.parse(args[11]));
 				ttrnRiskDetails.setRskUwyear(fm.formatBigDecimal(args[12]));
 				ttrnRiskDetails.setRskUnderwritter(args[13]);
 				ttrnRiskDetails.setRskInceptionDate(sdf.parse(args[14]));
 				ttrnRiskDetails.setRskExpiryDate(sdf.parse(args[15]));
-				ttrnRiskDetails.setRskAccountDate(sdf.parse(args[16]));
+				ttrnRiskDetails.setRskAccountDate(StringUtils.isBlank(args[16])?null:sdf.parse(args[16]));
 				ttrnRiskDetails.setRskOriginalCurr(args[17]);
 				ttrnRiskDetails.setRskExchangeRate(fm.formatBigDecimal(args[18]));
 				ttrnRiskDetails.setRskBasis(args[19]);
@@ -742,6 +742,7 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 	return positionMaster;
 	}
 	@Override
+	@Transactional
 	public void deleteClassLimit(String proposalno) {
 		try {
 			CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -1274,7 +1275,27 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 						pr.get("depositDetYn").alias("DEPOSIT_DET_YN"),	pr.get("lossDetYn").alias("LOSS_DET_YN"), 
 						pr.get("docDetYn").alias("DOC_DET_YN"),	pr.get("paymentPartner").alias("PAYMENT_PARTNER"),
 						pm.get("sectionNo").alias("SECTION_NO"),	pr.get("quotesharePercent").alias("QUOTESHARE_PERCENT"), 
-						de.get("rskAccountPeriodNotice").alias("RSK_ACCOUNT_PERIOD_NOTICE"),de.get("rskStatementConfirm").alias("RSK_STATEMENT_CONFIRM")); 
+						de.get("rskAccountPeriodNotice").alias("RSK_ACCOUNT_PERIOD_NOTICE"),de.get("rskStatementConfirm").alias("RSK_STATEMENT_CONFIRM"),
+						pr.get("rskSubjPremiumOc").alias("RSK_SUBJ_PREMIUM_OC"),pr.get("rskXlpremOc").alias("RSK_XLPREM_OC"),
+						pr.get("rskDeducOc").alias("RSK_DEDUC_OC"),pr.get("rskMdPremOc").alias("RSK_MD_PREM_OC"),pr.get("rskAdjrate").alias("RSK_ADJRATE"),
+						pr.get("rskPfCovered").alias("RSK_PF_COVERED"),de.get("mndInstallments").alias("MND_INSTALLMENTS"),pr.get("egpniAsOffer").alias("EGPNI_AS_OFFER"),
+						pr.get("egpniAsOfferDc").alias("EGPNI_AS_OFFER_DC"),pr.get("ourassessment").alias("OURASSESSMENT"),
+						pr.get("rskTreatySurpLimitOsOc").alias("RSK_TREATY_SURP_LIMIT_OS_OC"),pr.get("rskTreatySurpLimitOsDc").alias("RSK_TREATY_SURP_LIMIT_OS_DC"),
+						pr.get("rskEventLimitOc").alias("RSK_EVENT_LIMIT_OC"),pr.get("rskEventLimitDc").alias("RSK_EVENT_LIMIT_DC"),
+						pr.get("rskEventLimitOsOc").alias("RSK_EVENT_LIMIT_OS_OC"),pr.get("rskEventLimitOsDc").alias("RSK_EVENT_LIMIT_OS_DC"),
+						pr.get("rskCoverLimitUxlOsDc").alias("RSK_COVER_LIMIT_UXL_OS_DC"),pr.get("rskDeductableUxlOc").alias("RSK_DEDUCTABLE_UXL_OC"),
+						pr.get("rskDeductableUxlDc").alias("RSK_DEDUCTABLE_UXL_DC"),pr.get("rskDeductableUxlOsOc").alias("RSK_DEDUCTABLE_UXL_OS_OC"),
+						pr.get("rskDeductableUxlOsDc").alias("RSK_DEDUCTABLE_UXL_OS_DC"),de.get("rskBusinessType").alias("RSK_BUSINESS_TYPE"),
+						de.get("rskExchangeType").alias("RSK_EXCHANGE_TYPE"),de.get("rskUmbrellaXl").alias("RSK_UMBRELLA_XL"),
+						pr.get("rskCoverLimitUxlOc").alias("RSK_COVER_LIMIT_UXL_OC"),pr.get("rskEgnpiPmlOc").alias("RSK_EGNPI_PML_OC"),
+						pr.get("rskPremiumBasis").alias("RSK_PREMIUM_BASIS"),pr.get("rskMinimumRate").alias("RSK_MINIMUM_RATE"),pr.get("rskMaxiimumRate").alias("RSK_MAXIIMUM_RATE"),
+						pr.get("rskBurningCostLf").alias("RSK_BURNING_COST_LF"),pr.get("rskPaymentDueDays").alias("RSK_PAYMENT_DUE_DAYS"),
+						pr.get("rskMinimumPremiumOc").alias("RSK_MINIMUM_PREMIUM_OC"),pr.get("rskMinimumPremiumDc").alias("RSK_MINIMUM_PREMIUM_DC"),
+						pr.get("rskMinimumPremiumOsOc").alias("RSK_MINIMUM_PREMIUM_OS_OC"),pr.get("rskMinimumPremiumOsDc").alias("RSK_MINIMUM_PREMIUM_OS_DC"),
+						pr.get("rskCoverLimitUxlDc").alias("RSK_COVER_LIMIT_UXL_DC"),pr.get("rateOnLine").alias("RATE_ON_LINE"),pr.get("reinstDetYn").alias("REINST_DET_YN"),
+						pr.get("rskCoverLimitUxlOsOc").alias("RSK_COVER_LIMIT_UXL_OS_OC"),pr.get("intallDetYn").alias("INTALL_DET_YN"), 
+						pr.get("rskTrtyLmtPmlDc").alias("RSK_TRTY_LMT_PML_DC"),pm.get("branchCode").alias("BRANCH_CODE")
+						); 
 				//amend
 				Subquery<Long> amend = query.subquery(Long.class); 
 				Root<PositionMaster> pms = amend.from(PositionMaster.class);
@@ -2778,7 +2799,7 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 			ttrnMndInstallments.setContractNo(input[2]);
 			ttrnMndInstallments.setLayerNo(fm.formatBigDecimal(input[3]));
 			ttrnMndInstallments.setEndorsementNo(fm.formatBigDecimal(input[4]));	
-			ttrnMndInstallments.setInstallmentDate(sdf.parse(input[5]));
+			ttrnMndInstallments.setInstallmentDate(StringUtils.isBlank(input[5])?null:sdf.parse(input[5]));
 			ttrnMndInstallments.setMndPremiumOc(fm.formatBigDecimal(input[6]));
 			ttrnMndInstallments.setMndPremiumDc(fm.formatBigDecimal(input[7]));			
 			ttrnMndInstallments.setStatus("Y");

@@ -2,6 +2,7 @@ package com.maan.insurance.service.impl.nonproportionality;
 
 import java.math.BigDecimal;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -190,7 +191,9 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 	@Autowired
 	private TtrnInsurerDetailsRepository ttrnInsurerDetailsRepository;
 	
-
+	private String DateFormat(Object input) {
+		return new SimpleDateFormat("dd/MM/yyyy").format(input).toString();
+		}
 
 	@Override
 	public GetCommonValueRes getShortname(String branchCode) {
@@ -857,7 +860,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		}
 	}
 	private String getMaxAmednId(String  proposalNo) {
-		String result = "";
+		String result = "0";
 		try{
 			//risk.select.getMaxEndorseNo
 			TtrnRiskDetails list = ttrnRiskDetailsRepository.findTop1ByRskProposalNumberOrderByRskEndorsementNoDesc(proposalNo);
@@ -1049,21 +1052,21 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 					args1[3]=StringUtils.isEmpty(intreq.getLayerNo())?"0":intreq.getLayerNo();
 					args1[4]=intreq.getProductid();
 					args1[5]=reqlist3.getCoverdepartId();
-					args1[6]=reqlist3.getCoverLimitOC().replace(",", "");
+					args1[6]=reqlist3.getCoverLimitOC()==null?"0":reqlist3.getCoverLimitOC().replace(",", "");
 					args1[7]="";
-					args1[8]=reqlist3.getDeductableLimitOC().replace(",", "");
+					args1[8]=reqlist3.getDeductableLimitOC()==null?"0":reqlist3.getDeductableLimitOC().replace(",", "");
 					args1[9]="";
 					args1[10]=intreq.getBranchCode();
 					args1[11]=String.valueOf(i+1);
-					args1[12]=reqlist3.getEgnpiAsPerOff().replace(",", "");
+					args1[12]=reqlist3.getEgnpiAsPerOff()==null?"0":reqlist3.getEgnpiAsPerOff().replace(",", "");
 					args1[13]=reqlist3.getGnpiAsPO()==null?"0":reqlist3.getGnpiAsPO().replace(",", "");
-					args1[14]=reqlist3.getNetMaxRetentPer().replace(",", ""); //ri
+					args1[14]=reqlist3.getNetMaxRetentPer()==null?"0":reqlist3.getNetMaxRetentPer().replace(",", ""); //ri
 
 					TtrnRskClassLimits	list = nonProportCustomRepository.insertClassLimit(args1);
 					if(list!=null) {
 						ttrnRskClassLimitsRepository.saveAndFlush(list)	;
 						}
-					String val = reqlist3.getCoverLimitOC().replace(",", "");
+					//String val = reqlist3.getCoverLimitOC().replace(",", "");
 				}
 				}
 				}
@@ -1077,14 +1080,14 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 						args2[3]=StringUtils.isEmpty(intreq.getLayerNo())?"0":intreq.getLayerNo();
 						args2[4]=intreq.getProductid();
 						args2[5]=covreq.getCoverdepartIdS();
-						args2[6]=covreq.getCoverLimitAmount().replace(",", "");
-						args2[7]=covreq.getCoverLimitPercent().replace(",", "");
-						args2[8]=covreq.getDeductableLimitAmount().replace(",", "");
-						args2[9]=covreq.getDeductableLimitPercent().replace(",", "");
+						args2[6]=covreq.getCoverLimitAmount()==null?"0":covreq.getCoverLimitAmount().replace(",", "");
+						args2[7]=covreq.getCoverLimitPercent()==null?"0":covreq.getCoverLimitPercent().replace(",", "");
+						args2[8]=covreq.getDeductableLimitAmount()==null?"0":covreq.getDeductableLimitAmount().replace(",", "");
+						args2[9]=covreq.getDeductableLimitPercent()==null?"0":covreq.getDeductableLimitPercent().replace(",", "");
 						args2[10]=intreq.getBranchCode();
 						args2[11]=String.valueOf(i+1);
-						args2[12]=covreq.getEgnpiAsPerOffSlide().replace(",", "");
-						args2[13]=covreq.getGnpiAsPOSlide().replace(",", "");
+						args2[12]=covreq.getEgnpiAsPerOffSlide()==null?"0":covreq.getEgnpiAsPerOffSlide().replace(",", "");
+						args2[13]=covreq.getGnpiAsPOSlide()==null?"0":covreq.getGnpiAsPOSlide().replace(",", "");
 						args2[14]="";
 						TtrnRskClassLimits	list = nonProportCustomRepository.insertClassLimit(args2);
 						if(list!=null) {
@@ -1837,9 +1840,14 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			if(list!=null && list.size()>0)
 				resMap = list.get(0);
 			if (resMap!=null) {
+				String id=resMap.get("RSK_SPFCID")==null?"":resMap.get("RSK_SPFCID").toString();
+				String productId=resMap.get("RSK_PRODUCTID")==null?"":resMap.get("RSK_PRODUCTID").toString();
+				String branchcode=resMap.get("BRANCH_CODE")==null?"":resMap.get("BRANCH_CODE").toString();
+				beanObj.setSubClass(dropDowmImpl.getSubClass(id,branchcode , productId));
 				beanObj.setContractListVal(resMap.get("DATA_MAP_CONT_NO")==null?"":resMap.get("DATA_MAP_CONT_NO").toString());
 				beanObj.setProposalNo(resMap.get("RSK_PROPOSAL_NUMBER")==null?"":resMap.get("RSK_PROPOSAL_NUMBER").toString());
 			//	beanObj.setBaseLayer(resMap.get("BASE_LAYER")==null?"":resMap.get("BASE_LAYER").toString());
+				
 				beanObj.setEndorsmentNo(resMap.get("RSK_ENDORSEMENT_NO")==null?"":resMap.get("RSK_ENDORSEMENT_NO").toString());
 				beanObj.setContractNo(resMap.get("RSK_CONTRACT_NO")==null?"":resMap.get("RSK_CONTRACT_NO").toString());
 				beanObj.setLayerNo(resMap.get("RSK_LAYER_NO")==null?"":resMap.get("RSK_LAYER_NO").toString());
@@ -1855,16 +1863,16 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 				beanObj.setUwYear(resMap.get("RSK_UWYEAR")==null?"":resMap.get("RSK_UWYEAR").toString());
 				//RI
 				beanObj.setUwYearTo(resMap.get("UW_YEAR_TO")==null?"":resMap.get("UW_YEAR_TO").toString());
-				beanObj.setBouquetModeYN(resMap.get("Bouquet_Mode_YN")==null?"N":resMap.get("Bouquet_Mode_YN").toString());
-				beanObj.setBouquetNo(resMap.get("Bouquet_No")==null?"":resMap.get("Bouquet_No").toString());
+				beanObj.setBouquetModeYN(resMap.get("BOUQUET_MODE_YN")==null?"N":resMap.get("BOUQUET_MODE_YN").toString());
+				beanObj.setBouquetNo(resMap.get("BOUQUET_NO")==null?"":resMap.get("BOUQUET_NO").toString());
 				beanObj.setOfferNo(resMap.get("OFFER_NO")==null?"":resMap.get("OFFER_NO").toString());
 				beanObj.setUnderwriter(resMap.get("RSK_UNDERWRITTER")==null?"":resMap.get("RSK_UNDERWRITTER").toString());
 				if(!"Layer".equalsIgnoreCase(req.getProposalReference())){
 					if(StringUtils.isBlank(beanObj.getBaseLayer()))
 				beanObj.setBaseLayer(resMap.get("BASE_LAYER")==null?"":resMap.get("BASE_LAYER").toString());
 				}
-				beanObj.setInceptionDate(resMap.get("RSK_INCEPTION_DATE")==null?"":resMap.get("RSK_INCEPTION_DATE").toString());
-				beanObj.setExpiryDate(resMap.get("RSK_EXPIRY_DATE")==null?"":resMap.get("RSK_EXPIRY_DATE").toString());
+				beanObj.setInceptionDate(resMap.get("RSK_INCEPTION_DATE")==null?"":DateFormat(resMap.get("RSK_INCEPTION_DATE")));
+				beanObj.setExpiryDate(resMap.get("RSK_EXPIRY_DATE")==null?"":DateFormat(resMap.get("RSK_EXPIRY_DATE")));
 				beanObj.setAcceptanceDate(resMap.get("RSK_ACCOUNT_DATE")==null?"":resMap.get("RSK_ACCOUNT_DATE").toString());
 				
 				beanObj.setOrginalCurrency(resMap.get("RSK_ORIGINAL_CURR")==null?"":resMap.get("RSK_ORIGINAL_CURR").toString());
@@ -3679,9 +3687,9 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 					for (int k = 0; k < instalmentList.size(); k++) {
 						InstalmentListRes instalmentRes = new InstalmentListRes();
 						Tuple insMap = instalmentList.get(k);
-						instalmentRes.setInstalmentDateList(insMap.get("INSTALLMENT_DATE")==null?"":insMap.get("INSTALLMENT_DATE").toString());
+						instalmentRes.setInstalmentDateList(insMap.get("INSTALLMENT_DATE")==null?"":DateFormat(insMap.get("INSTALLMENT_DATE")));
 						instalmentRes.setPaymentDueDays((insMap.get("PAYEMENT_DUE_DAY")==null?"":insMap.get("PAYEMENT_DUE_DAY").toString()));
-						instalmentRes.setInstalList(insMap.get("INSTALLMENT_DATE")==null?"":insMap.get("INSTALLMENT_DATE").toString());
+						instalmentRes.setInstalList(insMap.get("INSTALLMENT_DATE")==null?"":DateFormat(insMap.get("INSTALLMENT_DATE")));
 						instalmentResList.add(instalmentRes);
 						}
 					res.setInstalmentList(instalmentResList);					
@@ -3783,7 +3791,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			String layerNo = StringUtils.isEmpty(req.getLayerNo())?"0":req.getLayerNo();
 			//GET_CLASS_LIMIT_DETAILS
 			List<Tuple> result = nonProportCustomRepository.getClassLimitDetails(req.getProposalNo(),layerNo); //RI
-		
+			if(StringUtils.isNotBlank(req.getBusinessType())) {
 			if(result!=null && result.size()>0){
 				for (int i = 0; i < result.size(); i++) {
 					Tuple insMap = result.get(i);
@@ -3803,7 +3811,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 						 	res.setDeductableLimitPercent(insMap.get("RSK_DEDUCTABLE_PERCENTAGE")==null?"0.00":insMap.get("RSK_DEDUCTABLE_PERCENTAGE").toString());
 							res.setEgnpi(insMap.get("RSK_EGNPI_AS_OFF")==null?"0.00":fm.formatter(insMap.get("RSK_EGNPI_AS_OFF").toString()));
 							res.setGnpi(insMap.get("RSK_GNPI_AS_OFF")==null?"0.00":fm.formatter(insMap.get("RSK_GNPI_AS_OFF").toString()));	
-							res.setNetMaxRetentPer(insMap.get("RSK_NET_MAX_RETENT_PERCENT")==null?"0.00":fm.formatter(insMap.get("RSK_GNPI_AS_OFF").toString()));
+							res.setNetMaxRetentPer(insMap.get("RSK_NET_MAX_RETENT_PERCENT")==null?"0.00":fm.formatter(insMap.get("RSK_NET_MAX_RETENT_PERCENT").toString()));
 							res.setDeductableLimitAmount(insMap.get("RSK_DEDUCTABLE_LIMT")==null?"0.00":fm.formatter(insMap.get("RSK_DEDUCTABLE_LIMT").toString()));
 							res.setTotalLoopCount(String.valueOf(i+1));
 					}else{
@@ -3814,9 +3822,8 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 						res.setDeductableLimitPercent(insMap.get("RSK_DEDUCTABLE_PERCENTAGE")==null?"0.00":insMap.get("RSK_DEDUCTABLE_PERCENTAGE").toString());
 						res.setEgnpi(insMap.get("RSK_EGNPI_AS_OFF")==null?"0.00":fm.formatter(insMap.get("RSK_EGNPI_AS_OFF").toString()));
 						res.setGnpi(insMap.get("RSK_GNPI_AS_OFF")==null?"0.00":fm.formatter(insMap.get("RSK_GNPI_AS_OFF").toString()));	
-						res.setNetMaxRetentPer(insMap.get("RSK_NET_MAX_RETENT_PERCENT")==null?"0.00":fm.formatter(insMap.get("RSK_GNPI_AS_OFF").toString()));		
+						res.setNetMaxRetentPer(insMap.get("RSK_NET_MAX_RETENT_PERCENT")==null?"0.00":fm.formatter(insMap.get("RSK_NET_MAX_RETENT_PERCENT").toString()));		
 						res.setGnpi(insMap.get("RSK_GNPI_AS_OFF")==null?"0.00":fm.formatter(insMap.get("RSK_GNPI_AS_OFF").toString()));
-						res.setNetMaxRetentPer(insMap.get("RSK_NET_MAX_RETENT_PERCENT")==null?"":insMap.get("RSK_NET_MAX_RETENT_PERCENT").toString());
 						res.setTotalLoopCount(String.valueOf(i+1));
 					}
 					
@@ -3843,7 +3850,8 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 					
 					resList.add(res);
 					}
-			}else {
+			}}
+			else {
 				resList.add(new GetClassLimitDetailsRes1());
 
 			}
@@ -4712,7 +4720,8 @@ public CommonResponse insertCrestaMaintable(CrestaSaveReq bean) {
 		 obj[1]=bean.getProposalNo();
 		 obj[2]=bean.getAmendId();
 		 obj[3]=bean.getBranchCode();
-		//CREATA_CONTRACT_UPDATE
+		//CREATA_CONTRACT_
+
 		 TtrnCrestazoneDetails list = ttrnCrestazoneDetailsRepository.findByProposalNoAndAmendIdAndBranchCode(new BigDecimal(bean.getProposalNo()),bean.getAmendId(),bean.getBranchCode());
 		 if(list!= null) {
 			 list.setContractNo(new BigDecimal(bean.getContractNo()));	

@@ -86,8 +86,8 @@ public class TtrnRskClassLimits implements Serializable{
     @Column(name="RSK_EGNPI_AS_OFF")
     private BigDecimal     rskEgnpiAsOff ;
     
-    @Column(name="RSK_COVER_SUB_CLASS")
-    private String     rskCoverSubClass; 
+   // @Column(name="RSK_COVER_SUB_CLASS")
+    //private String     rskCoverSubClass; 
     
     @Column(name="RSK_GNPI_AS_OFF")
     private String     rskGnpiAsOff;

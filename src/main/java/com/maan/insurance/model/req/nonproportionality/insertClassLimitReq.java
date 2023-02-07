@@ -8,6 +8,8 @@ import lombok.Data;
 
 @Data
 public class insertClassLimitReq {
+	@JsonProperty("ContractMode")
+	private String contractMode;
 	
 	@JsonProperty("Productid")
 	private String productid;

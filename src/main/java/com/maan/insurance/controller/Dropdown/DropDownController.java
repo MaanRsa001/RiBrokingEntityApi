@@ -38,6 +38,7 @@ import com.maan.insurance.model.req.DropDown.GetYearListValueReq;
 import com.maan.insurance.model.req.DropDown.GetYearToListValueReq;
 import com.maan.insurance.model.req.DropDown.UpdatepositionMasterEndtStatusReq;
 import com.maan.insurance.model.req.DropDown.ValidatethreeReq;
+import com.maan.insurance.model.req.DropDown.endorsementModeReq;
 import com.maan.insurance.model.req.DropDown.updateBqEditModeReq;
 import com.maan.insurance.model.req.DropDown.updateSubEditModeReq;
 import com.maan.insurance.model.req.proportionality.ContractReq;
@@ -242,10 +243,9 @@ public class DropDownController {
 //	public GetCommonValueRes editModeStatus(@PathVariable ("proposalNo") String proposalNo, @PathVariable ("layerNo") String layerNo) throws CommonValidationException {
 //				return dropDownservice.editModeStatus(proposalNo, layerNo);
 //		}
-	@GetMapping("/riskDetailsEndorsement/{proposalNo}/{endtStatus}/{branchCode}")
-	public CommonResponse riskDetailsEndorsement(@PathVariable("proposalNo") String proposalNo,
-			@PathVariable("endtStatus") String endtStatus,@PathVariable("branchCode") String branchCode) throws CommonValidationException {
-		return dropDownservice.riskDetailsEndorsement(proposalNo, endtStatus,branchCode);
+	@PostMapping("/riskDetailsEndorsement")
+	public CommonResponse riskDetailsEndorsement(@RequestBody endorsementModeReq req) throws CommonValidationException {
+		return dropDownservice.riskDetailsEndorsement(req.getProposalNo(), req.getEndtstatus(),req.getBranchCode());
 	}
 
 	@GetMapping("/updateSubClass/{proposalNo}/{type}")

@@ -23,6 +23,8 @@ public class RiskDetailsEditModeRes1 {
 	private String profitCenter;
 	@JsonProperty("SubProfitcenter")
 	private String subProfitcenter;
+	@JsonProperty("SubClass")
+	private String subClass;
 	@JsonProperty("PolicyBranch")
 	private String policyBranch;
 	@JsonProperty("CedingCo")

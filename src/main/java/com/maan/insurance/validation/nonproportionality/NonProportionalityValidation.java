@@ -256,6 +256,7 @@ public class NonProportionalityValidation {
 	
 	public List<ErrorCheck> insertClassLimitVali(insertClassLimitReq req) {
 		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
+		if("Y".equals(req.getContractMode())) {
 		if (StringUtils.isBlank(req.getBranchCode())) {
 		list.add(new ErrorCheck("Please Enter BranchCode", "BranchCode", "2"));
 		}
@@ -323,7 +324,7 @@ public class NonProportionalityValidation {
 		if (StringUtils.isBlank(req.getProposalno())) {
 			list.add(new ErrorCheck("Please Enter Proposalno", "Proposalno", "20"));
 			}
-		
+		}
 		return list;
 		}
 	
@@ -1460,11 +1461,11 @@ public class NonProportionalityValidation {
 					list.add(new ErrorCheck(prop.getProperty("error.description")+String.valueOf(i+1),"Description","01"));
 				}
 				else if("".equalsIgnoreCase(req1.getRemark1())){
-					list.add(new ErrorCheck(prop.getProperty("error.remarks1")+String.valueOf(i+1),"Remark1","01"));
+					//list.add(new ErrorCheck(prop.getProperty("error.remarks1")+String.valueOf(i+1),"Remark1","01"));
 				}
 				if(StringUtils.isBlank(req1.getRemark2())){
 					//error.add(getText("error.remarks2",new String[]{String.valueOf(i+1)}));
-					list.add(new ErrorCheck(prop.getProperty("error.remarks2")+String.valueOf(i+1),"Remark2","01"));
+					//list.add(new ErrorCheck(prop.getProperty("error.remarks2")+String.valueOf(i+1),"Remark2","01"));
 				}
 			}
 			
