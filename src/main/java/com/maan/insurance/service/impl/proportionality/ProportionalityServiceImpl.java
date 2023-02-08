@@ -1211,7 +1211,10 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 				updateRiskProposal(req);
 				savFlg = true;
 			}
-			res.setStatus(savFlg);
+		
+			SecondpagesaveRes secRes = saveSecondPage(req);
+			
+			res.setStatus(secRes.getResp().getContractGendration());
 			res.setIsError(false);
 			res.setMessage("Success");
 		} catch (Exception e) {

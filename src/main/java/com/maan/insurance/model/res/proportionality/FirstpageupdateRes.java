@@ -11,7 +11,7 @@ public class FirstpageupdateRes {
 
 	
 	@JsonProperty("Result")
-	private Boolean status;
+	private String status;
 
 	@JsonProperty("Message")
 	private String message;
