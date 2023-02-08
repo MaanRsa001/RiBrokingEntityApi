@@ -650,7 +650,7 @@ public class PortFolioServiceImple implements PortFolioService{
             String qutext = prop.getProperty(query);
             if (!"1".equals(beanObj.getProductId()))
             	qutext += " " +prop.getProperty("portfolio.select.contractListLayerNo1");
-            qutext += " " +prop.getProperty("portfolio.select.contractList2");
+            qutext += " " +prop.getProperty("portfolio.select.contractList2"); //  UNDERWRITTER_MASTER E //RSK_PRODUCTID missing
             if (!"1".equals(beanObj.getProductId()))
             	qutext += " " +prop.getProperty("portfolio.select.contractListLayerNo2");
                 qutext += " " +prop.getProperty("portfolio.select.contractList3");
@@ -749,7 +749,7 @@ public class PortFolioServiceImple implements PortFolioService{
             	}
             	if(StringUtils.isNotBlank(beanObj.getOfferNoSearch())){
             		obj = dropDowmImpl.getIncObjectArray(obj, new String[]{("%" + beanObj.getOfferNoSearch() + "%")});
-            		query += " AND A.OFFER_NO LIKE ? ";
+            		qutext += " AND A.OFFER_NO LIKE ? ";
             		
             	}
             	res1.setType("Yes");
@@ -1292,7 +1292,6 @@ public class PortFolioServiceImple implements PortFolioService{
 			List<GetConfirmedListRes1> finalList = new ArrayList<GetConfirmedListRes1>();
 			String res ="";
 	        try {
-	           
 	           //GET_NEW_CONTRACT_LIST
 	            CriteriaBuilder cb = em.getCriteriaBuilder(); 
 	      		CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
@@ -1403,26 +1402,27 @@ public class PortFolioServiceImple implements PortFolioService{
 		      	predicateList.add(cb.equal(c1.get("branchCode"),  beanObj.getBranchCode()));
 		      	predicateList.add(cb.equal(c1.get("amendId"), amendC1));
 		        predicateList.add(cb.or(cb.isNull(e.get("oldContractno")),cb.equal(e.get("oldContractno"), "0")));
-		      	predicateList.add(cb.equal(a.get("proposalNo"), prop));	           		
+		      	predicateList.add(cb.equal(a.get("proposalNo"), prop==null?null:prop));	           		
 	            
 	            if(StringUtils.isNotBlank(beanObj.getSearchType()) && null !=beanObj.getSearchType()){
 	            	if(StringUtils.isNotBlank(beanObj.getProposalNoSearch())){
-	            		predicateList.add(cb.like(a.get("proposalNo"), beanObj.getProposalNoSearch()));	            		
+	            	
+	            		predicateList.add(cb.like(a.get("proposalNo").as(String.class), "%"+beanObj.getProposalNoSearch()+"%"));	            		
 	            	}	
 	            	if(StringUtils.isNotBlank(beanObj.getContractNoSearch())){
-	                    predicateList.add(cb.like(a.get("contractNo"), beanObj.getContractNoSearch()));	        
+	                    predicateList.add(cb.like(a.get("contractNo").as(String.class), "%"+beanObj.getContractNoSearch()+"%"));	        
 	            	}
 	        		if(StringUtils.isNotBlank(beanObj.getCompanyNameSearch())){
-	                    predicateList.add(cb.like(cb.upper(c.get("companyName")), beanObj.getCompanyNameSearch().toUpperCase()));	     
+	                    predicateList.add(cb.like(cb.upper(c.get("companyName")), "%"+beanObj.getCompanyNameSearch().toUpperCase()+"%"));	     
 	            	}
 	        		if(StringUtils.isNotBlank(beanObj.getBrokerNameSearch())){ 
-	                    predicateList.add(cb.like(cb.upper(c1.get("firstName")), beanObj.getBrokerNameSearch().toUpperCase()));	 
+	                    predicateList.add(cb.like(cb.upper(c1.get("firstName")), "%"+beanObj.getBrokerNameSearch().toUpperCase()+"%"));	 
 	            	}
 	        		if(StringUtils.isNotBlank(beanObj.getDepartmentNameSearch())){
-	            		 predicateList.add(cb.like(deptName, beanObj.getDepartmentNameSearch().toUpperCase()));	 
+	            		 predicateList.add(cb.like(deptName, "%"+beanObj.getDepartmentNameSearch().toUpperCase()+"%"));	 
 	            	}
 	        		if(StringUtils.isNotBlank(beanObj.getBouquetNoSearch())){
-	            		 predicateList.add(cb.like(cb.upper(a.get("bouquetNo")), beanObj.getBouquetNoSearch().toUpperCase()));	 
+	            		 predicateList.add(cb.like(cb.upper(a.get("bouquetNo").as(String.class)), "%"+beanObj.getBouquetNoSearch().toUpperCase()+"%"));	 
 	            	}
 	        		if(StringUtils.isNotBlank(beanObj.getSubclassSearch())){ //pending
 //	            		obj = dropDowmImpl.getIncObjectArray(obj, new String[]{("%" + beanObj.getSubclassSearch() + "%")});
@@ -1430,30 +1430,30 @@ public class PortFolioServiceImple implements PortFolioService{
 	            	}
 	            	if("1".equalsIgnoreCase(beanObj.getProductId())){
 	        		if(StringUtils.isNotBlank(beanObj.getInsuredNameSearch())){
-	            		 predicateList.add(cb.like(cb.upper(e.get("rskInsuredName")), beanObj.getInsuredNameSearch().toUpperCase()));	
+	            		 predicateList.add(cb.like(cb.upper(e.get("rskInsuredName")), "%"+beanObj.getInsuredNameSearch().toUpperCase()+"%"));	
 	            	}
 	            	if(StringUtils.isNotBlank(beanObj.getUwYearSearch())){  
-	                    predicateList.add(cb.like(a.get("uwYear"), beanObj.getUwYearSearch()));	        
+	                    predicateList.add(cb.like(a.get("uwYear"), "%"+beanObj.getUwYearSearch()+"%"));	        
 	            	
 	            	}if(StringUtils.isNotBlank(beanObj.getUnderwriterSearch())){
 	            		List<UnderwritterMaster> list = uwRepo.findByBranchCodeAndUwrStatusAndUnderwritterIgnoreCaseContaining(beanObj.getBranchCode(),"Y",beanObj.getUnderwriterSearch());
                 		 if (!CollectionUtils.isEmpty(list)) {
                 			 res =  list.get(0).getUwrCode();
                 			}
-	            		 predicateList.add(cb.like(cb.upper(e.get("rskUnderwritter")), res.toUpperCase()));	
+	            		 predicateList.add(cb.like(cb.upper(e.get("rskUnderwritter")), "%"+res.toUpperCase()+"%"));	
 	            	}
 	            	}else{
 	            		if(StringUtils.isNotBlank(beanObj.getUwYearSearch1())){
-	                        predicateList.add(cb.like(a.get("uwYear"), beanObj.getUwYearSearch1()));	  
+	                        predicateList.add(cb.like(a.get("uwYear"), "%"+beanObj.getUwYearSearch1()+"%"));	  
 	                	}if(StringUtils.isNotBlank(beanObj.getUnderwriterSearch1())){
 	                		List<UnderwritterMaster> list = uwRepo.findByBranchCodeAndUwrStatusAndUnderwritterIgnoreCaseContaining(beanObj.getBranchCode(),"Y",beanObj.getUnderwriterSearch1());
 	                		 if (!CollectionUtils.isEmpty(list)) {
 	                			 res =  list.get(0).getUwrCode();
 	                			}
-	                		 predicateList.add(cb.like(cb.upper(e.get("rskUnderwritter")), res.toUpperCase()));	
+	                		 predicateList.add(cb.like(cb.upper(e.get("rskUnderwritter")), "%"+res.toUpperCase()+"%"));	
 	                	}
 	            	}if(StringUtils.isNotBlank(beanObj.getOfferNoSearch())){
-	            		  predicateList.add(cb.like(a.get("offerNo"), beanObj.getOfferNoSearch()));	  
+	            		  predicateList.add(cb.like(a.get("offerNo"), "%"+beanObj.getOfferNoSearch()+"%"));	  
 	            	}
 	            	
 	            	res1.setType("Yes");

@@ -1,6 +1,8 @@
 package com.maan.insurance.validation.nonproportionality;
 
 import java.io.InputStream;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +29,7 @@ import com.maan.insurance.model.req.nonproportionality.InsertIEModuleReq;
 import com.maan.insurance.model.req.nonproportionality.InsertRetroCessReq;
 import com.maan.insurance.model.req.nonproportionality.InsertRetroContractsReq;
 import com.maan.insurance.model.req.nonproportionality.InstalMentPremiumReq;
+import com.maan.insurance.model.req.nonproportionality.InstalmentperiodReq;
 import com.maan.insurance.model.req.nonproportionality.LowClaimBonusInserReq;
 import com.maan.insurance.model.req.nonproportionality.MoveReinstatementMainReq;
 import com.maan.insurance.model.req.nonproportionality.ReInstatementMainInsertReq;
@@ -34,7 +37,6 @@ import com.maan.insurance.model.req.nonproportionality.ReinstatementNoList;
 import com.maan.insurance.model.req.nonproportionality.RemarksReq;
 import com.maan.insurance.model.req.nonproportionality.RemarksSaveReq;
 import com.maan.insurance.model.req.nonproportionality.RiskDetailsEditModeReq;
-import com.maan.insurance.model.req.nonproportionality.SaveSecondPageReq;
 import com.maan.insurance.model.req.nonproportionality.ShowRetroCess1Req;
 import com.maan.insurance.model.req.nonproportionality.ShowRetroContractsReq;
 import com.maan.insurance.model.req.nonproportionality.ShowSecondPageData1Req;
@@ -42,6 +44,7 @@ import com.maan.insurance.model.req.nonproportionality.ShowSecondPageDataReq;
 import com.maan.insurance.model.req.nonproportionality.ShowSecondpageEditItemsReq;
 import com.maan.insurance.model.req.nonproportionality.UpdateProportionalTreatyReq;
 import com.maan.insurance.model.req.nonproportionality.ViewRiskDetailsReq;
+import com.maan.insurance.model.req.nonproportionality.coverLimitOC;
 import com.maan.insurance.model.req.nonproportionality.insertClassLimitReq;
 import com.maan.insurance.model.req.nonproportionality.insertProportionalTreatyReq;
 import com.maan.insurance.model.req.proportionality.ContractReq;
@@ -53,19 +56,28 @@ import com.maan.insurance.model.res.DropDown.GetContractValidationRes;
 import com.maan.insurance.service.impl.QueryImplemention;
 import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
 import com.maan.insurance.service.impl.nonproportionality.NonProportionalityServiceImpl;
+import com.maan.insurance.service.impl.proportionality.ProportionalityServiceImpl;
+import com.maan.insurance.validation.CommonCalculation;
+import com.maan.insurance.validation.Formatters;
 import com.maan.insurance.validation.Validation;
 @Service
 public class NonProportionalityValidation {
 	final static DecimalFormat twoDigit = new DecimalFormat("###0.00");
 	private Logger log = LogManager.getLogger(QueryImplemention.class);
 	private Properties prop = new Properties();
-	
+	CommonCalculation calcu = new CommonCalculation();
 	
 	@Autowired
 	private DropDownServiceImple dropDownImple;
 	
 	@Autowired
 	private NonProportionalityServiceImpl nonPropImple;
+	
+	@Autowired
+	private ProportionalityServiceImpl propImple;
+	
+	@Autowired
+	private Formatters fm;
 
 	
 	public NonProportionalityValidation() {
@@ -412,886 +424,700 @@ public class NonProportionalityValidation {
 
 		return list;
 	}
-	public List<ErrorCheck> saveSecondPageVali(SaveSecondPageReq req) {
-		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
-//		SaveSecondPageRes1 res = new SaveSecondPageRes1();
-//		double amt = 0;
-//		GetOpenPeriodRes openPeriodRes = new GetOpenPeriodRes();
-//		openPeriodRes = dropDownImple.getOpenPeriod(req.getBranchCode());
-//		try {
-//			if("A".equalsIgnoreCase(req.getProStatus())|| "5".equalsIgnoreCase(req.getProductId())){
-//			//	validateSecondPage();
-//				Validation validation = new Validation();
-//	            
-//				String limitOurShare = validation.isNull(req.getLimitOurShare());
-//				if ("3".equals(req.getProductId()) || "5".equals(req.getProductId())) {
-//					int instalmentperiod = Integer.parseInt(req.getMdInstalmentNumber());
-//					double mndPremiumOC=Double.parseDouble(req.getMdpremiumourservice().replaceAll(",", ""));
-//					double totalInstPremium=0.0;
-//					boolean tata = false;
-//					for (int i = 0; i < instalmentperiod; i++) {
-//						if (validation.isNull(req.getInstalmentperiod().get(i).getInstalmentDateList()).equalsIgnoreCase("")) {
-//							list.add(new ErrorCheck(prop.getProperty("Error.required.InstalDate")+ String.valueOf(i + 1),"InstalDate","01"));
-//						} else if (validation.checkDate(req.getInstalmentperiod().get(i).getInstalmentDateList()).equalsIgnoreCase("Invalid")) {
-//							list.add(new ErrorCheck(prop.getProperty("Error.Error.InstalDate")+ String.valueOf(i + 1),"InstalDate","01"));
-//						}
-//						if (!validation.isNull(req.getInstalmentperiod().get(0).getInstalmentDateList()).equalsIgnoreCase("")) {
-//							if (validation.ValidateINstallDates(req.getIncepDate(),req.getInstalmentperiod().get(0).getInstalmentDateList()).equalsIgnoreCase("Invalid")) {
-//								tata = true;
-//							}
-//						}
-//						if (!validation.isNull(	req.getInstalmentperiod().get(0).getInstalmentDateList()).equalsIgnoreCase("")) {
-//							if (validation.ValidateTwoDates(req.getInstalmentperiod().get(i).getInstalmentDateList(),req.getExpiryDate()).equalsIgnoreCase("Invalid")) {
-//								list.add(new ErrorCheck(prop.getProperty("Error.Select.Expirydate")+ String.valueOf(i + 1),"Expirydate","01"));
-//							}
-//						}
-//						if (validation.isNull(req.getInstalmentperiod().get(i).getInstallmentPremium())	.equalsIgnoreCase("")) {
-//							list.add(new ErrorCheck(prop.getProperty("Error.required.InstallPremium")+ String.valueOf(i + 1),"InstallPremium","01"));
-//						} else if (validation.isValidNo(req.getInstalmentperiod().get(i).getInstallmentPremium().replaceAll(",", "")).equalsIgnoreCase("Invalid")) {
-//							list.add(new ErrorCheck(prop.getProperty("Error.error.InstallPremium")+ String.valueOf(i + 1),"InstallPremium","01"));
-//						}else{
-//							try{
-//				            	totalInstPremium+=Double.parseDouble(req.getInstalmentperiod().get(i).getInstallmentPremium().replaceAll(",", ""));                	
-//				            }catch (Exception e) {
-//				            	list.add(new ErrorCheck(prop.getProperty("Error.installment.Premium")+ String.valueOf(i + 1),"InstallPremium","01"));
-//							}
-//						}
-//						if (i != 0) {
-//							if (!validation.isNull(req.getInstalmentperiod().get(i).getInstalmentDateList()).equalsIgnoreCase("")) {
-//								if (validation.ValidateTwoDates(req.getInstalmentperiod().get(i-1).getInstalmentDateList(),	req.getInstalmentperiod().get(i).getInstalmentDateList()).equalsIgnoreCase("Invalid")) {
-//									list.add(new ErrorCheck(prop.getProperty("Error.required.InstalDate")+ String.valueOf(i + 1),"InstalDate","01"));
-//								}
-//							}
-//						}
-//						if(StringUtils.isBlank(req.getInstalmentperiod().get(i).getPaymentDueDays())){
-//			            	list.add(new ErrorCheck(prop.getProperty("Error.payement.due.day")+ String.valueOf(i + 1),"PaymentDueDays","01"));
-//						}
-//					}
-//					BigDecimal bd = new BigDecimal(totalInstPremium).setScale(2, RoundingMode.HALF_EVEN);
-//					totalInstPremium = bd.doubleValue();
-//					if((totalInstPremium)!=mndPremiumOC){
-//						list.add(new ErrorCheck(prop.getProperty("Error.total.installment.premium")+" Deposit Premium - Our Share - OC","mndPremiumOC","01"));
-//				    }
-//					if (tata == true) {
-//						list.add(new ErrorCheck(prop.getProperty("Error.Select.AfterInceptionDate"),"AfterInceptionDate","01"));
-//					}
-//				}
-//				if ("3".equals(req.getProductId())) {
-//					String epiAsPerOffer = validation.isNull(req.getEpiAsPerOffer());
-//					if (validation.isNull(epiAsPerOffer).equalsIgnoreCase("")) {
-//						list.add(new ErrorCheck(prop.getProperty("errors.epiAsPerOffer.second.val"),"epiAsPerOffer","01"));
-//					} else {
-//						if (validation.isValidNo(req.getEpiAsPerOffer().trim()).equalsIgnoreCase("INVALID")) {
-//							list.add(new ErrorCheck(prop.getProperty("errors.epiAsPerOffer.second1.val"),"epiAsPerOffer","01"));
-//						}
-//					}
-//					if (validation.isNull(req.getMdpremiumourservice()).equalsIgnoreCase("")) {
-//						list.add(new ErrorCheck(prop.getProperty("errors.mdpremiumourservice.number.val"),"mdpremiumourservice","01"));
-//					} else {
-//						if (validation.isValidNo(req.getMdpremiumourservice()).equalsIgnoreCase("INVALID")) {
-//							list.add(new ErrorCheck(prop.getProperty("errors.mdpremiumourservice.number.format"),"mdpremiumourservice","01"));
-//						}
-//					}
-//					
-//					
-//					if (validation.isNull(req.getAnualAggregateLiability()).equalsIgnoreCase("")) {
-//						list.add(new ErrorCheck(prop.getProperty("errors.AnualAggregateLiability.number"),"AnualAggregateLiability","01"));
-//					} else {
-//						req.setAnualAggregateLiability((req.getAnualAggregateLiability()).replaceAll(",", ""));
-//						if (validation.isValidNo(req.getAnualAggregateLiability()).equalsIgnoreCase("INVALID")) {
-//							list.add(new ErrorCheck(prop.getProperty("errors.AnualAggregateLiability.number.format"),"AnualAggregateLiability","01"));
-//						}
-//					}
-//					
-//					if (validation.isNull(req.getAnualAggregateDeduct()).equalsIgnoreCase("")) {
-//						list.add(new ErrorCheck(prop.getProperty("errors.AnualAggregateDeduct.number"),"AnualAggregateDeduct","01"));
-//					} else {
-//						req.setAnualAggregateDeduct((req.getAnualAggregateDeduct()).replaceAll(",", ""));
-//						if (validation.isValidNo(req.getAnualAggregateDeduct()).equalsIgnoreCase("INVALID")) {
-//							list.add(new ErrorCheck(prop.getProperty("errors.AnualAggregateDeduct.number.format"),"AnualAggregateDeduct","01"));
-//						}
-//					}
-//					if("2".endsWith(req.getBusinessType()) ||"3".endsWith(req.getBusinessType()) ||  "7".equalsIgnoreCase(req.getBusinessType())||  "8".equalsIgnoreCase(req.getBusinessType())){
-//					if (validation.isNull(req.getOccurrentLimit()).equalsIgnoreCase("")) {
-//						list.add(new ErrorCheck(prop.getProperty("errors.occlimit.number.req"),"occlimit","01"));
-//					} else {
-//						req.setOccurrentLimit((req.getOccurrentLimit()).replaceAll(",", ""));
-//						if (validation.isValidNo(req.getOccurrentLimit()).equalsIgnoreCase("INVALID")) {
-//							list.add(new ErrorCheck(prop.getProperty("errors.occlimit.number"),"occlimit","01"));
-//						}
-//					}
-//					}
-//				
-//				}
-//				if(StringUtils.isBlank(req.getReInstatementPremium())){
-//					list.add(new ErrorCheck(prop.getProperty("Please Select Reinstatement Premium"),"Reinstatement","01"));
-//				}
-//				else if("Y".equalsIgnoreCase(req.getReInstatementPremium())){
-//					if(StringUtils.isBlank(req.getReinsPopUp())){
-//	                    list.add(new ErrorCheck(prop.getProperty("reins.popup.recheck"),"popup","01"));
-//	                }else{
-//					int count= nonPropImple.getReInstatementCount(req.getAmendId(),req.getProposalNo(),req.getBranchCode(),req.getReferenceNo());
-//					if(count<=0){
-//						list.add(new ErrorCheck(prop.getProperty("errors.reinstatement.schedule"),"reinstatement","01"));
-//					}
-//	                }
-//				}
-//				if (validation.isNull(req.getBrokerage()).equalsIgnoreCase("")) {
-//					list.add(new ErrorCheck(prop.getProperty("errors.brokerage.second"),"brokerage","01"));
-//				} else if (validation.percentageValid(req.getBrokerage()).trim().equalsIgnoreCase("INVALID")) {
-//					list.add(new ErrorCheck(prop.getProperty("errors.brokerage.second1"),"brokerage","01"));
-//				} else if (validation.percentageValid(req.getBrokerage()).trim().equalsIgnoreCase("greater")) {
-//					list.add(new ErrorCheck(prop.getProperty("errors.brokerage.secondgreater"),"brokerage","01"));
-//				}
-//				if (validation.isNull(req.getTax()).equalsIgnoreCase("")) {
-//					list.add(new ErrorCheck(prop.getProperty("errors.tax.second"),"tax","01"));
-//				} else if (validation.percentageValid(req.getTax()).trim().equalsIgnoreCase("INVALID")) {
-//					list.add(new ErrorCheck(prop.getProperty("errors.tax.second1"),"tax","01"));
-//				} else if (validation.percentageValid(req.getTax()).trim().equalsIgnoreCase("less")) {
-//					list.add(new ErrorCheck(prop.getProperty("errors.tax.secondless"),"tax","01"));
-//				} else if (validation.percentageValid(req.getTax()).trim().equalsIgnoreCase("greater")) {
-//					list.add(new ErrorCheck(prop.getProperty("errors.tax.secondgreater"),"tax","01"));
-//				}
-//				if (validation.isNull(req.getOthercost()).equalsIgnoreCase("")) {
-//					list.add(new ErrorCheck(prop.getProperty("errors.othercost.second"),"othercost","01"));
-//				} else if (validation.percentageValid(req.getOthercost()).trim().equalsIgnoreCase("INVALID")) {
-//					list.add(new ErrorCheck(prop.getProperty("errors.othercost.secondinvalid"),"othercost","01"));
-//				} else if (validation.percentageValid(req.getOthercost()).trim().equalsIgnoreCase("less")) {
-//					list.add(new ErrorCheck(prop.getProperty("errors.othercost.secondless"),"othercost","01"));
-//				} else if (validation.percentageValid(req.getOthercost()).trim().equalsIgnoreCase("greater")) {
-//					list.add(new ErrorCheck(prop.getProperty("errors.othercost.secondgreater"),"othercost","01"));
-//				}
-//				if ((!"4".equalsIgnoreCase(req.getProductId())) && (!"5".equalsIgnoreCase(req.getProductId()))) {
-//					if (validation.isNull(limitOurShare).equalsIgnoreCase("")) {
-//						list.add(new ErrorCheck(prop.getProperty("errors.limitOurShare.second"),"limitOurShare","01"));	
-//					} else if (validation.isValidNo(req.getLimitOurShare().trim()).equalsIgnoreCase("INVALID")) {
-//						list.add(new ErrorCheck(prop.getProperty("errors.limitOurShare.second1"),"limitOurShare","01"));
-//					}
-//					
-//					if ("3".equalsIgnoreCase(req.getProductId())) {
-//					
-//					}
-//					if ((!"4".equalsIgnoreCase(req.getProductId())) && (!"5".equalsIgnoreCase(req.getProductId()))) {
-//						
-//						if(StringUtils.isBlank(req.getAcqBonus())){
-//							}
-//							else{
-//							if("LCB".equalsIgnoreCase(req.getAcqBonus())){
-//								if(StringUtils.isBlank(req.getBonusPopUp())){
-//				                    list.add(new ErrorCheck(prop.getProperty("bonus.popup.recheck"),"popup","01"));
-//				                }else{
-//								int count = nonPropImple.getBonusListCount(req);
-//								if(count<=0){
-//									list.add(new ErrorCheck(prop.getProperty("bonus.error.lcb.table.empty"),"BonusListCount","01"));
-//								}
-//				                }
-//							}
-//							else if("NCB".equalsIgnoreCase(req.getAcqBonus())){
-//							   if(StringUtils.isBlank(req.getAcqBonusPercentage())){
-//								   list.add(new ErrorCheck(prop.getProperty("bonus.error.noclaimbonu.per"),"AcqBonus","01"));
-//									}
-//							   else if(100<Double.parseDouble(req.getAcqBonusPercentage())){
-//								list.add(new ErrorCheck(prop.getProperty("bonus.error.low.claim.bonus.range"),"AcqBonusPercentage","01"));
-//								}
-//								}
-//							
-//							}
-//					}
-//					
-//					if (validation.isNull(req.getAcquisitionCost()).equalsIgnoreCase("")) {
-//						list.add(new ErrorCheck(prop.getProperty("errors.acquisition_Cost.second"),"AcquisitionCost","01"));
-//					} else {
-//						req.setAcquisitionCost((req.getAcquisitionCost()).replaceAll(",", ""));
-//						if (validation.isValidNo(req.getAcquisitionCost()).trim().equalsIgnoreCase("INVALID")) {
-//							list.add(new ErrorCheck(prop.getProperty("errors.acquisition_Cost.second1"),"AcquisitionCost","01"));
-//						}
-//						else{
-//							//String ans = calcu.calculateXOL(req,"AcqCost",0,req.getSourceId());
-//							
-//							double a = 0;
-//							if("RI01".equalsIgnoreCase(req.getSourceId())){
-//								a = Double.parseDouble(StringUtils.isBlank(req.getMinPremiumOurShare())?"0":req.getMinPremiumOurShare().replaceAll(",", ""));
-//							}else{
-//								a = Double.parseDouble(StringUtils.isBlank(req.getEpiAsPerOffer())?"0":req.getEpiAsPerOffer().replaceAll(",", ""));
-//							}
-//							double b=Double.parseDouble(StringUtils.isBlank(req.getOthercost())?"0":req.getOthercost().replaceAll(",", ""));
-//							double c=Double.parseDouble(StringUtils.isBlank(req.getBrokerage())?"0":req.getBrokerage().replaceAll(",", ""));
-//							double d=Double.parseDouble(StringUtils.isBlank(req.getTax())?"0":req.getTax().replaceAll(",", ""));
-//							if(!"0".equals(a) ) {
-//							amt = ((b+c+d)*a)/100;
-//							}
-//							String ans =  fm.formatter(Double.toString(amt)).replaceAll(",", "");
-//						
-//							if(Double.parseDouble(ans)!=Double.parseDouble(req.getAcquisitionCost().replaceAll(",",""))){
-//								list.add(new ErrorCheck(prop.getProperty("error.calcul.mistake"),"AcquisitionCost","01"));
-//							}else{
-//								req.setAcquisitionCost(ans);
-//							}
-//
-//						}
-//					}
-//				
-//					
-//					if (validation.isNull(req.getLeaderUnderwriter()).equalsIgnoreCase("")) {
-//						list.add(new ErrorCheck(prop.getProperty("errors.leader_Underwriter.second"),"LeaderUnderwriter","01"));
-//					}
-//					if("RI02".equalsIgnoreCase(req.getSourceId()) && "3".equalsIgnoreCase(req.getProductId())){
-//						if(StringUtils.isBlank(req.getLeaderUnderwritercountry())){
-//							list.add(new ErrorCheck(prop.getProperty("errors.leader_Underwriter.second.country"),"LeaderUnderwriter","01"));
-//						}
-//					}
-//					if (validation.isNull(req.getUnderwriterRecommendations()).equalsIgnoreCase("")) {
-//						list.add(new ErrorCheck(prop.getProperty("errors.underwriter_Recommendations.second"),"UnderwriterRecommendations","01"));
-//					}
-//					if (validation.isNull(req.getLeaderUnderwritershare()).equalsIgnoreCase("")) {
-//						list.add(new ErrorCheck(prop.getProperty("errors.leader_Underwriter_share.second"),"LeaderUnderwritershare","01"));
-//					} else if (validation.percentageValid(req.getLeaderUnderwritershare()).trim().equalsIgnoreCase("INVALID")) {
-//						list.add(new ErrorCheck(prop.getProperty("errors.leader_Underwriter_share.second1"),"LeaderUnderwritershare","01"));
-//					} else if (validation.percentageValid(req.getLeaderUnderwritershare()).trim().equalsIgnoreCase("less")) {
-//						list.add(new ErrorCheck(prop.getProperty("errors.leader_Underwriter_share.secondless"),"LeaderUnderwritershare","01"));
-//					} else if (validation.percentageValid(req.getLeaderUnderwritershare()).trim().equalsIgnoreCase("greater")) {
-//						list.add(new ErrorCheck(prop.getProperty("errors.leader_Underwriter_share.secondgreater"),"LeaderUnderwritershare","01"));
-//					}
-//					if(StringUtils.isNotBlank(req.getLeaderUnderwritershare()) && !"64".equalsIgnoreCase(req.getLeaderUnderwriter())){
-//						if(nonPropImple.GetShareValidation(req.getProposalNo(),req.getLeaderUnderwritershare())){
-//						list.add(new ErrorCheck(prop.getProperty("errors.leader_Underwriter_share.greater.signed"),"LeaderUnderwritershare","01"));
-//					}
-//					}else{
-//						if(dropDownImple.GetShareEqualValidation(req.getProductId(),req.getLeaderUnderwritershare(),req.getProposalNo())){
-//							list.add(new ErrorCheck(prop.getProperty("errors.leader_Underwriter_share.equals.signed"),"LeaderUnderwritershare","01"));
-//						} 
-//					}
-//				}
-//				if("Y".equalsIgnoreCase(req.getEndorsementStatus())) {
-//					req.setAccDate((dropDownImple.getAcceptanceDate(req.getProposalNo())));
-//					req.setMaxDate(Validation.getMaxDateValidate(req.getAccDate(), req.getPreviousendoDate()));
-//					final String endorseDate=validation.checkDate(req.getEndorsementDate());
-//						if (validation.isNull(req.getEndorsementDate()).equalsIgnoreCase("")) {
-//							if("Endorsement".equalsIgnoreCase(req.getEndorsmenttype())){
-//								list.add(new ErrorCheck(prop.getProperty("error.endoDate.required"),"Endorsmenttype","01"));
-//							}
-//							else if("Rectification".equalsIgnoreCase(req.getEndorsmenttype())){
-//								list.add(new ErrorCheck(prop.getProperty("error.rectification.required"),"rectification","01"));
-//							}
-//							else if("GNPI".equalsIgnoreCase(req.getEndorsmenttype())){
-//								list.add(new ErrorCheck(prop.getProperty("error.gnpiDate.required"),"gnpiDate","01"));
-//							}
-//						} else if (endorseDate.equalsIgnoreCase("INVALID")) {
-//							if("Endorsement".equalsIgnoreCase(req.getEndorsmenttype())){
-//								list.add(new ErrorCheck(prop.getProperty("error.endoDate.check"),"endoDate","01"));
-//							}
-//							else if("Rectification".equalsIgnoreCase(req.getEndorsmenttype())){
-//								list.add(new ErrorCheck(prop.getProperty("error.rectification.check"),"rectification","01"));
-//							}
-//							else if("GNPI".equalsIgnoreCase(req.getEndorsmenttype())){
-//								list.add(new ErrorCheck(prop.getProperty("error.gnpiDate.check"),"gnpiDate","01"));
-//							}
-//						} else  if ("Invalid".equalsIgnoreCase(Validation.ValidateTwo(req.getMaxDate(), req.getEndorsementDate()))) {
-//								if("Endorsement".equalsIgnoreCase(req.getEndorsmenttype())){
-//									list.add(new ErrorCheck(prop.getProperty(("errors.endoDate.invalid")+req.getAccDate(),req.getPreviousendoDate()==null?"":req.getPreviousendoDate()),"endoDate","01"));
-//								}
-//								else if("Rectification".equalsIgnoreCase(req.getEndorsmenttype())){
-//									list.add(new ErrorCheck(prop.getProperty(("errors.rectificationDate.invalid")+req.getAccDate(), req.getPreviousendoDate()==null?"":req.getPreviousendoDate()),"Endorsmenttype","01"));
-//								}
-//								else if("GNPI".equalsIgnoreCase(req.getEndorsmenttype())){
-//									list.add(new ErrorCheck(prop.getProperty(("errors.gnpiDate.invalid")+req.getAccDate(), req.getPreviousendoDate()==null?"":req.getPreviousendoDate()),"Endorsmenttype","01"));
-//								}
-//						}
-//					
-//					if(!validation.isNull(openPeriodRes.getOpenPeriodDate()).equalsIgnoreCase("") && !validation.isNull(req.getEndorsementDate()).equalsIgnoreCase("")){
-//						if(dropDownImple.Validatethree(req.getBranchCode(), req.getEndorsementDate())==0){
-//							list.add(new ErrorCheck(prop.getProperty("errors.open.period.date.endo")+openPeriodRes.getOpenPeriodDate(),"OpenPeriodDate","01"));
-//						}
-//					}
-//					}
-//					if("Y".equalsIgnoreCase(req.getCrestaStatus())){
-//						if(StringUtils.isBlank(req.getCrestaPopUp())){
-//		                    list.add(new ErrorCheck(prop.getProperty("cresta.popup.check"),"popup","01"));
-//		                }
-//						else if(nonPropImple.getCrestaCount(req.getAmendId(),req.getProposalNo(),req.getBranchCode())==0){
-//							list.add(new ErrorCheck(prop.getProperty("error.creasta.invalid"),"creasta","01"));
-//						}
-//					}
-//				if ("3".equalsIgnoreCase(req.getProductId())) {
-//					
-//				}
-//				if(StringUtils.isNotBlank(req.getEndorsementStatus())&& "Y".equalsIgnoreCase(req.getEndorsementStatus()) && StringUtils.isBlank(req.getDocStatus())) {
-//					list.add(new ErrorCheck(prop.getProperty("doc.status"),"EndorsementStatus","01"));
-//				}
-//				if ("3".equalsIgnoreCase(req.getProductId())) {
-//					final int LoopCount = Integer.parseInt(req.getNoInsurer());
-//					double totPer = 0.0;
-//					boolean flag = true;
-//					if (LoopCount != 0) {
-//						if (validation.isNull(req.getRetentionPercentage()).equalsIgnoreCase("")) {
-//							list.add(new ErrorCheck(prop.getProperty("Error.RetentionPercentage.Required"),"RetentionPercentage","01"));
-//							flag = false;
-//						} else if (validation.percentageValid(req.getRetentionPercentage()).equalsIgnoreCase("INVALID")) {
-//							list.add(new ErrorCheck(prop.getProperty("Error.RetentionPercentage.invalid"),"RetentionPercentage","01"));
-//							flag = false;
-//						} else if (validation.percentageValid(req.getRetentionPercentage()).equalsIgnoreCase("greater")) {
-//							list.add(new ErrorCheck(prop.getProperty("Error.RetentionPercentage.greater"),"RetentionPercentage","01"));
-//							flag = false;
-//						} else {
-//							totPer += Double.parseDouble(req.getRetentionPercentage());
-//						}
-//					}
-//					boolean dupCheck = true;
-//					for (int i = 0; i < LoopCount; i++) {
-//						RetroListReq retroReq =req.getRetroListReq().get(i);
-//						if ("".equals(retroReq.getRetroYear())) {
-//							list.add(new ErrorCheck(prop.getProperty("error.uwYear.Required")+String.valueOf(i + 1),"uwYear","01"));
-//							dupCheck = false;
-//						}
-//						if(retroReq.getRetroCeding() ==null){
-//							list.add(new ErrorCheck(prop.getProperty("Error.CeddingCompany.Required")+String.valueOf(i + 1),"CeddingCompany","01"));
-//							dupCheck = false;
-//						}
-//						if (StringUtils.isBlank(retroReq.getRetroCeding())) {
-//							list.add(new ErrorCheck(prop.getProperty("Error.CeddingCompany.Required")+String.valueOf(i + 1),"CeddingCompany","01"));
-//							dupCheck = false;
-//						}
-//						if (validation.isNull(retroReq.getPercentRetro()).equalsIgnoreCase("")) {
-//							list.add(new ErrorCheck(prop.getProperty("Error.RetroPercentahge.Required")+String.valueOf(i + 1),"RetroPercentahge","01"));
-//							flag = false;
-//						} else if (validation.percentageValid(retroReq.getPercentRetro()).equalsIgnoreCase("INVALID")) {
-//							list.add(new ErrorCheck(prop.getProperty("Error.RetroPercentahge.invalid")+String.valueOf(i + 1),"RetroPercentahge","01"));
-//							flag = false;
-//						} else if (validation.percentageValid(retroReq.getPercentRetro()).equalsIgnoreCase("greater")) {
-//							list.add(new ErrorCheck(prop.getProperty("Error.RetroPercentahge.greater")+String.valueOf(i + 1),"RetroPercentahge","01"));
-//							flag = false;
-//						} else {
-//							totPer += Double.parseDouble(retroReq.getPercentRetro());
-//						}
-//
-//					//	RiskDetailsreq req = new RiskDetailsreq();
-//						if ("2".equals(req.getProductId())) {
-//							req.setProductId("4");
-//							req.setRetroType("TR");
-//						} else if ("3".equals(req.getProductId())) {
-//							req.setProductId("4");
-//							req.setRetroType("TR");
-//						}
-//					}
-//					if (dupCheck) {
-//						for (int i = 0; i < LoopCount - 1; i++) {
-//							for (int j = i + 1; j < LoopCount; j++) {
-//								if ((req.getRetroListReq().get(i).getRetroCeding()).equalsIgnoreCase((req.getRetroListReq().get(j).getRetroCeding()))) {
-//									list.add(new ErrorCheck(prop.getProperty("error.RetroContract.Repeat")+String.valueOf(j + 1),"RetroContract","01"));
-//								}
-//							}
-//						}
-//					}
-//					if (LoopCount != 0) {
-//						if (flag) {
-//							DecimalFormat df = new DecimalFormat("#.##");
-//							totPer=Double.parseDouble(df.format(totPer));
-//							if (totPer != 100) {
-//								list.add(new ErrorCheck(prop.getProperty("error.totPercentage.invalid"),"totPercentage","01"));
-//							}
-//						}
-//					}
-//				}
-//				if("5".equals(req.getProductId())){
-//					int NoRetroCess = Integer.parseInt(req.getNoRetroCess()== null ? "0" : req.getNoRetroCess());
-//					for (int i = 0; i < NoRetroCess; i++) {
-//						NoRetroCessReq req2 = req.getNoRetroCessReq().get(i);
-//						String cedComp = req2.getCedingCompany() == null ? "0" : req2.getCedingCompany();
-//						String broker = req2.getRetroBroker() == null ? "0" : req2.getRetroBroker();
-//						String shAccep = req2.getShareAccepted()== null ? "" : req2.getShareAccepted();
-//						String shSign = req2.getShareSigned()== null ? "" : req2.getShareSigned();
-//						String proStatus = req2.getProposalStatus() == null ? "0" : req2.getProposalStatus();
-//						if (StringUtils.isBlank(validation.isSelect(cedComp))) {
-//							list.add(new ErrorCheck(prop.getProperty("errors.reinsurersName.required")+String.valueOf(i + 1),"reinsurersName","01"));
-//						}
-//						if (StringUtils.isBlank(validation.isSelect(broker))) {
-//							list.add(new ErrorCheck(prop.getProperty("errors.brokerRetro.required")+String.valueOf(i + 1),"brokerRetro","01"));
-//						}
-//						boolean shAccSign = true;
-//						if (StringUtils.isBlank(shAccep)) {
-//							list.add(new ErrorCheck(prop.getProperty("errors.shAccepPer.required")+ String.valueOf(i + 1),"shAccepPer","01"));
-//							shAccSign = false;
-//						} else if (validation.percentageValid(shAccep).equalsIgnoreCase("INVALID")) {
-//							list.add(new ErrorCheck(prop.getProperty("errors.shAccepPer.invalid")+ String.valueOf(i + 1),"shAccepPer","01"));
-//							shAccSign = false;
-//						}
-//						if (StringUtils.isBlank(validation.isSelect(proStatus))) {
-//							list.add(new ErrorCheck(prop.getProperty("errors.proStatus.required")+ String.valueOf(i + 1),"proStatus","01"));
-//						}
-//						if (StringUtils.isBlank(shSign) && proStatus.equalsIgnoreCase("A")) {
-//							list.add(new ErrorCheck(prop.getProperty("errors.shSignPer.required")+ String.valueOf(i + 1),"shSignPer","01"));
-//							shAccSign = false;
-//						} else if (validation.percentageValid(shSign).equalsIgnoreCase("INVALID") && !"A".equalsIgnoreCase(proStatus)) {
-//							list.add(new ErrorCheck(prop.getProperty("errors.shSignPer.invalid")+String.valueOf(i + 1),"shSignPer","01"));
-//							shAccSign = false;
-//						}
-//						if (shAccSign  && "A".equalsIgnoreCase(proStatus) ) {
-//							double shac = Double.parseDouble(shAccep);
-//							double shsign = Double.parseDouble(shSign);
-//							if (shac < shsign) {
-//								list.add(new ErrorCheck(prop.getProperty("errors.shAccepLessShSign.invalid")+ String.valueOf(i + 1),"shAccepLessShSign","01"));
-//							}
-//
-//						}
-//											}
-//					if (CollectionUtils.isEmpty(list)) {
-//						double totShAcc = 0.0;
-//						double totShsg = 0.0;
-//						for (int i = 0; i < NoRetroCess; i++) {
-//							NoRetroCessReq req2 = req.getNoRetroCessReq().get(i);
-//							String cedComp = req2.getCedingCompany()== null ? "0" : req2.getCedingCompany();
-//							String broker = req2.getRetroBroker() == null ? "0" : req2.getRetroBroker();
-//							String shAccep = req2.getShareAccepted()== null ? "" : req2.getShareAccepted();
-//							String shSign = req2.getShareSigned()== null ? "" : req2.getShareSigned();
-//							totShAcc += Double.parseDouble(shAccep);
-//							totShsg += Double.parseDouble(shSign);
-//							for (int j = i + 1; j < NoRetroCess; j++) {		
-//								NoRetroCessReq req3 = req.getNoRetroCessReq().get(j);
-//								String cedComp1 = req3.getCedingCompany() == null ? "0" : req3.getCedingCompany();
-//								String broker1 = req3.getRetroBroker() == null ? "0" : req3.getRetroBroker();
-//								String shAccep1 = req3.getShareAccepted()== null ? "" : req3.getShareAccepted();
-//								String shSign1 = req3.getShareSigned()== null ? "" : req3.getShareSigned();
-//								if (cedComp.equals(cedComp1)&& broker.equals(broker1))
-//									list.add(new ErrorCheck(prop.getProperty("errors.cedCompBroker.invalid")+ String.valueOf(j + 1),"shAccepLessShSign","01"));
-//								if (((i + 1) == NoRetroCess) && (j == NoRetroCess)) {
-//									totShAcc += Double.parseDouble(shAccep1);
-//									totShsg += Double.parseDouble(shSign1);
-//								}
-//							}
-//						}
-//						if(StringUtils.isBlank(req.getRetroDupContract()) &&"3".equalsIgnoreCase(req.getProductId())){
-//							list.add(new ErrorCheck(prop.getProperty("errors.dummy.contract")+req.getUwYear(),"RetroDupContract","01"));
-//						}
-//						if (totShsg != 100)
-//							list.add(new ErrorCheck(prop.getProperty("errors.shSign.invalid"),"shSign","01"));
-//					}
-//				}
-//				if ("5".equalsIgnoreCase(req.getProductId())) {
-//					
-//				}
-//			//	validationRemarks();
-//
-//			 
-//				}
-//				else{
-//				//	validateSecodnPageSaveMethod();	
-//
-//					Validation validation = new Validation();
-//		            
-//					String limitOurShare = validation.isNull(req.getLimitOurShare());
-//					if ("3".equals(req.getProductId()) || "5".equals(req.getProductId())) {
-//						int instalmentperiod = Integer.parseInt(req.getMdInstalmentNumber());
-//						double mndPremiumOC=Double.parseDouble(req.getMdpremiumourservice().replaceAll(",", ""));
-//						double totalInstPremium=0.0;
-//						boolean tata = false;
-//						for (int i = 0; i < instalmentperiod; i++) {
-//							
-//							if (!validation.isNull(req.getInstalmentperiod().get(0).getInstalmentDateList()).equalsIgnoreCase("")) {
-//								if (validation.ValidateINstallDates(req.getIncepDate(),req.getInstalmentperiod().get(0).getInstalmentDateList()).equalsIgnoreCase("Invalid")) {
-//									tata = true;
-//								}
-//							}
-//							if (!validation.isNull(	req.getInstalmentperiod().get(i).getInstalmentDateList()).equalsIgnoreCase("")) {
-//								if (validation.ValidateTwoDates(req.getInstalmentperiod().get(i).getInstalmentDateList(),req.getExpiryDate()).equalsIgnoreCase("Invalid")) {
-//									list.add(new ErrorCheck(prop.getProperty("Error.Select.Expirydate")+String.valueOf(i + 1),"Expirydate","01"));
-//								}
-//							}
-//							if (!validation.isNull(req.getInstalmentperiod().get(i).getInstallmentPremium()).equalsIgnoreCase("")) {
-//								try{
-//					            	totalInstPremium+=Double.parseDouble(req.getInstalmentperiod().get(i).getInstallmentPremium().replaceAll(",", ""));                	
-//					            }catch (Exception e) {
-//								}
-//							}
-//							if (i != 0) {
-//								if (!validation.isNull(	req.getInstalmentperiod().get(i).getInstalmentDateList()).equalsIgnoreCase("")) {
-//									if (validation.ValidateTwoDates(req.getInstalmentperiod().get(i-1).getInstalmentDateList(),	req.getInstalmentperiod().get(i).getInstalmentDateList()).equalsIgnoreCase("Invalid")) {
-//										list.add(new ErrorCheck(prop.getProperty("Error.required.InstalDate")+ String.valueOf(i + 1),"InstalDate","01"));
-//									}
-//								}
-//							}
-//							
-//						}
-//						BigDecimal bd = new BigDecimal(totalInstPremium).setScale(2, RoundingMode.HALF_EVEN);
-//						totalInstPremium = bd.doubleValue();
-//						if((totalInstPremium)!=mndPremiumOC){
-//					    }
-//						if (tata == true) {
-//							list.add(new ErrorCheck(prop.getProperty("Error.Select.AfterInceptionDate"),"AfterInceptionDate","01"));
-//						}
-//					}
-//					if ("3".equals(req.getProductId())) {
-//						String epiAsPerOffer = validation.isNull(req.getEpiAsPerOffer());
-//						if (validation.isNull(epiAsPerOffer).equalsIgnoreCase("")) {
-//							list.add(new ErrorCheck(prop.getProperty("errors.epiAsPerOffer.second.val"),"epiAsPerOffer","01"));
-//						} else {
-//							if (validation.isValidNo(req.getEpiAsPerOffer().trim()).equalsIgnoreCase("INVALID")) {
-//								list.add(new ErrorCheck(prop.getProperty("errors.epiAsPerOffer.second1.val"),"epiAsPerOffer","01"));
-//							}
-//						}
-//						if (validation.isNull(req.getMdpremiumourservice()).equalsIgnoreCase("")) {
-//							list.add(new ErrorCheck(prop.getProperty("errors.mdpremiumourservice.number.val"),"mdpremiumourservice","01"));
-//						} else {
-//							if (validation.isValidNo(req.getMdpremiumourservice()).equalsIgnoreCase("INVALID")) {
-//								list.add(new ErrorCheck(prop.getProperty("errors.mdpremiumourservice.number.format"),"mdpremiumourservice","01"));
-//							}
-//						}
-//						
-//						if(StringUtils.isBlank(req.getReInstatementPremium())){
-//							list.add(new ErrorCheck(prop.getProperty("errors.reinstatement.blank"),"reinstatement","01"));
-//						}
-//						else if("Y".equalsIgnoreCase(req.getReInstatementPremium())){
-//							if(StringUtils.isBlank(req.getReinsPopUp())){
-//			                    list.add(new ErrorCheck(prop.getProperty("reins.popup.recheck"),"popup","01"));
-//			                }else{
-//							int count=nonPropImple.getReInstatementCount(req.getAmendId(),req.getProposalNo(),req.getBranchCode(), req.getReferenceNo());
-//							if(count<=0){
-//								list.add(new ErrorCheck(prop.getProperty("errors.reinstatement.schedule"),"reinstatement","01"));
-//							}
-//			                }
-//						}
-//						if (!validation.isNull(req.getAnualAggregateLiability()).equalsIgnoreCase("")) {
-//							req.setAnualAggregateLiability((req.getAnualAggregateLiability()).replaceAll(",", ""));
-//							
-//						}
-//						
-//						if (!validation.isNull(req.getAnualAggregateDeduct()).equalsIgnoreCase("")) {
-//							req.setAnualAggregateDeduct((req.getAnualAggregateDeduct()).replaceAll(",", ""));
-//							
-//						}
-//						if("2".endsWith(req.getBusinessType()) ||"3".endsWith(req.getBusinessType()) || "7".equalsIgnoreCase(req.getBusinessType()) ||  "8".equalsIgnoreCase(req.getBusinessType())){
-//						if (!validation.isNull(req.getOccurrentLimit()).equalsIgnoreCase("")) {
-//							req.setOccurrentLimit((req.getOccurrentLimit()).replaceAll(",", ""));
-//						}
-//						}
-//						
-//					}
-//					if ((!"4".equalsIgnoreCase(req.getProductId())) && (!"5".equalsIgnoreCase(req.getProductId()))) {
-//						if (validation.isNull(limitOurShare).equalsIgnoreCase("")) {
-//							list.add(new ErrorCheck(prop.getProperty("errors.limitOurShare.second"),"limitOurShare","01"));	
-//						} else if (validation.isValidNo(req.getLimitOurShare().trim()).equalsIgnoreCase("INVALID")) {
-//							list.add(new ErrorCheck(prop.getProperty("errors.limitOurShare.second1"),"limitOurShare","01"));
-//						}
-//					
-//						if (!validation.isNull(req.getAcquisitionCost()).equalsIgnoreCase("")) {
-//							req.setAcquisitionCost((req.getAcquisitionCost()).replaceAll(",", ""));
-//							//	String ans = calcu.calculateXOL(req,"AcqCost",0,req.getSourceId());
-//							double a = 0;
-//							if("RI01".equalsIgnoreCase(req.getSourceId())){
-//								a = Double.parseDouble(StringUtils.isBlank(req.getMinPremiumOurShare ())?"0":req.getMinPremiumOurShare().replaceAll(",", ""));
-//							}else{
-//								a = Double.parseDouble(StringUtils.isBlank(req.getEpiAsPerOffer())?"0":req.getEpiAsPerOffer().replaceAll(",", ""));
-//							}
-//							double b=Double.parseDouble(StringUtils.isBlank(req.getOthercost())?"0":req.getOthercost().replaceAll(",", ""));
-//							double c=Double.parseDouble(StringUtils.isBlank(req.getBrokerage())?"0":req.getBrokerage().replaceAll(",", ""));
-//							double d=Double.parseDouble(StringUtils.isBlank(req.getTax())?"0":req.getTax().replaceAll(",", ""));
-//							if(!"0".equals(a) ) {
-//							amt = ((b+c+d)*a)/100;
-//							}
-//							String ans =  fm.formatter(Double.toString(amt)).replaceAll(",", "");
-//								if(Double.parseDouble(ans)!=Double.parseDouble(req.getAcquisitionCost().replaceAll(",",""))){
-//									list.add(new ErrorCheck(prop.getProperty("error.calcul.mistake"),"AcquisitionCost","01"));
-//								}else{
-//									req.setAcquisitionCost(ans);
-//								}
-//						}
-//						if("Y".equalsIgnoreCase(req.getEndorsementStatus())) {
-//						req.setAccDate((dropDownImple.getAcceptanceDate(req.getProposalNo())));
-//						req.setMaxDate(Validation.getMaxDateValidate(req.getAccDate(), req.getPreviousendoDate()));
-//						final String endorseDate=validation.checkDate(req.getEndorsementDate());
-//						if (validation.isNull(req.getEndorsementDate()).equalsIgnoreCase("")) {
-//							if("Endorsement".equalsIgnoreCase(req.getEndorsmenttype())){
-//								list.add(new ErrorCheck(prop.getProperty("error.endoDate.required"),"endoDate","01"));
-//							}
-//							else if("Rectification".equalsIgnoreCase(req.getEndorsmenttype())){
-//								list.add(new ErrorCheck(prop.getProperty("error.rectification.required"),"rectification","01"));
-//							}
-//							else if("GNPI".equalsIgnoreCase(req.getEndorsmenttype())){
-//								list.add(new ErrorCheck(prop.getProperty("error.gnpiDate.required"),"gnpiDate","01"));
-//							}
-//						} else if (endorseDate.equalsIgnoreCase("INVALID")) {
-//							if("Endorsement".equalsIgnoreCase(req.getEndorsmenttype())){
-//								list.add(new ErrorCheck(prop.getProperty("error.endoDate.check"),"endoDate","01"));
-//							}
-//							else if("Rectification".equalsIgnoreCase(req.getEndorsmenttype())){
-//								list.add(new ErrorCheck(prop.getProperty("error.rectification.check"),"rectification","01"));
-//							}
-//							else if("GNPI".equalsIgnoreCase(req.getEndorsmenttype())){
-//								list.add(new ErrorCheck(prop.getProperty("error.gnpiDate.check"),"gnpiDate","01"));
-//							}
-//						} else  if ("Invalid".equalsIgnoreCase(Validation.ValidateTwo(req.getMaxDate(), req.getEndorsementDate()))) {
-//							if("Endorsement".equalsIgnoreCase(req.getEndorsmenttype())){
-//								list.add(new ErrorCheck(prop.getProperty(("errors.endoDate.invalid")+req.getAccDate(),req.getPreviousendoDate()==null?"":req.getPreviousendoDate()),"endoDate","01"));
-//							}
-//							else if("Rectification".equalsIgnoreCase(req.getEndorsmenttype())){
-//								list.add(new ErrorCheck(prop.getProperty(("errors.rectificationDate.invalid")+req.getAccDate(), req.getPreviousendoDate()==null?"":req.getPreviousendoDate()),"Endorsmenttype","01"));
-//							}
-//							else if("GNPI".equalsIgnoreCase(req.getEndorsmenttype())){
-//								list.add(new ErrorCheck(prop.getProperty(("errors.gnpiDate.invalid")+req.getAccDate(), req.getPreviousendoDate()==null?"":req.getPreviousendoDate()),"Endorsmenttype","01"));
-//								}
-//						}
-//						}
-//						if("Y".equalsIgnoreCase(req.getCrestaStatus())){
-//							if(StringUtils.isBlank(req.getCrestaPopUp())){
-//			                    list.add(new ErrorCheck(prop.getProperty("cresta.popup.check"),"popup","01"));
-//			                }
-//							
-//							else if(nonPropImple.getCrestaCount(req.getAmendId(),req.getProposalNo(),req.getBranchCode())==0){
-//								list.add(new ErrorCheck(prop.getProperty("error.creasta.invalid"),"creasta","01"));
-//							}
-//						}
-//						
-//					}
-//					if(StringUtils.isNotBlank(req.getEndorsementStatus())&& "Y".equalsIgnoreCase(req.getEndorsementStatus()) && StringUtils.isBlank(req.getDocStatus())) {
-//						list.add(new ErrorCheck(prop.getProperty("doc.status"),"EndorsementStatus","01"));
-//					}
-//					if ("3".equalsIgnoreCase(req.getProductId())) {
-//						final int LoopCount = Integer.parseInt(req.getNoInsurer());
-//						double totPer = 0.0;
-//						boolean flag = true;
-//						if (LoopCount != 0) {
-//							if (validation.isNull(req.getRetentionPercentage()).equalsIgnoreCase("")) {
-//								list.add(new ErrorCheck(prop.getProperty("Error.RetentionPercentage.Required"),"RetentionPercentage","01"));
-//								flag = false;
-//							} else if (validation.percentageValid(req.getRetentionPercentage()).equalsIgnoreCase("INVALID")) {
-//								list.add(new ErrorCheck(prop.getProperty("Error.RetentionPercentage.invalid"),"RetentionPercentage","01"));
-//								flag = false;
-//							} else if (validation.percentageValid(req.getRetentionPercentage()).equalsIgnoreCase("greater")) {
-//								list.add(new ErrorCheck(prop.getProperty("Error.RetentionPercentage.greater"),"RetentionPercentage","01"));
-//								flag = false;
-//							} else {
-//								totPer += Double.parseDouble(req.getRetentionPercentage());
-//							}
-//						}
-//						boolean dupCheck = true;
-//						for (int i = 0; i < LoopCount; i++) {
-//							RetroListReq retroReq =req.getRetroListReq().get(i);
-//							if ("".equals(retroReq.getRetroYear())) {
-//								list.add(new ErrorCheck(prop.getProperty("error.uwYear.Required")+String.valueOf(i + 1),"uwYear","01"));
-//								dupCheck = false;
-//							}
-//							if(retroReq.getRetroCeding() ==null){
-//								list.add(new ErrorCheck(prop.getProperty("Error.CeddingCompany.Required")+String.valueOf(i + 1),"CeddingCompany","01"));
-//								dupCheck = false;
-//							}
-//							if (StringUtils.isBlank(retroReq.getRetroCeding())) {
-//								list.add(new ErrorCheck(prop.getProperty("Error.CeddingCompany.Required")+String.valueOf(i + 1),"CeddingCompany","01"));
-//								dupCheck = false;
-//							}
-//							if (validation.isNull(retroReq.getPercentRetro()).equalsIgnoreCase("")) {
-//								list.add(new ErrorCheck(prop.getProperty("Error.RetroPercentahge.Required")+String.valueOf(i + 1),"RetroPercentahge","01"));
-//								flag = false;
-//							} else if (validation.percentageValid(retroReq.getPercentRetro()).equalsIgnoreCase("INVALID")) {
-//								list.add(new ErrorCheck(prop.getProperty("Error.RetroPercentahge.invalid")+String.valueOf(i + 1),"RetroPercentahge","01"));
-//								flag = false;
-//							} else if (validation.percentageValid(retroReq.getPercentRetro()).equalsIgnoreCase("greater")) {
-//								list.add(new ErrorCheck(prop.getProperty("Error.RetroPercentahge.greater")+String.valueOf(i + 1),"RetroPercentahge","01"));
-//								flag = false;
-//							} else {
-//								totPer += Double.parseDouble(retroReq.getPercentRetro());
-//							}
-//
-//						//	RiskDetailsreq req = new RiskDetailsreq();
-//							if ("2".equals(req.getProductId())) {
-//								req.setProductId("4");
-//								req.setRetroType("TR");
-//							} else if ("3".equals(req.getProductId())) {
-//								req.setProductId("4");
-//								req.setRetroType("TR");
-//							}
-//						}
-//						if (dupCheck) {
-//							for (int i = 0; i < LoopCount - 1; i++) {
-//								for (int j = i + 1; j < LoopCount; j++) {
-//									if ((req.getRetroListReq().get(i).getRetroCeding()).equalsIgnoreCase((req.getRetroListReq().get(j).getRetroCeding()))) {
-//										list.add(new ErrorCheck(prop.getProperty("error.RetroContract.Repeat")+String.valueOf(j + 1),"RetroContract","01"));
-//									}
-//								}
-//							}
-//						}
-//						if (LoopCount != 0) {
-//							if (flag) {
-//								DecimalFormat df = new DecimalFormat("#.##");
-//								totPer=Double.parseDouble(df.format(totPer));
-//								if (totPer != 100) {
-//									list.add(new ErrorCheck(prop.getProperty("error.totPercentage.invalid"),"totPercentage","01"));
-//								}
-//							}
-//						}
-//					}
-//					if("5".equals(req.getProductId())){
-//						int NoRetroCess = Integer.parseInt(req.getNoRetroCess()== null ? "0" : req.getNoRetroCess());
-//						for (int i = 0; i < NoRetroCess; i++) {
-//							NoRetroCessReq req2 = req.getNoRetroCessReq().get(i);
-//							String cedComp = req2.getCedingCompany()== null ? "0" : req2.getCedingCompany();
-//							String broker = req2.getRetroBroker() == null ? "0" : req2.getRetroBroker();
-//							String shAccep = req2.getShareAccepted()== null ? "" : req2.getShareAccepted();
-//							String shSign = req2.getShareSigned()== null ? "" : req2.getShareSigned();
-//							String proStatus = req2.getProposalStatus() == null ? "0" : req2.getProposalStatus();
-//							if (StringUtils.isBlank(validation.isSelect(cedComp))) {
-//								list.add(new ErrorCheck(prop.getProperty("errors.reinsurersName.required")+ String.valueOf(i + 1),"reinsurersName","01"));
-//							}
-//							if (StringUtils.isBlank(validation.isSelect(broker))) {
-//								list.add(new ErrorCheck(prop.getProperty("errors.brokerRetro.required")+ String.valueOf(i + 1),"brokerRetro","01"));
-//							}
-//							boolean shAccSign = true;
-//							if (StringUtils.isBlank(shAccep)) {
-//								list.add(new ErrorCheck(prop.getProperty("errors.shAccepPer.required")+ String.valueOf(i + 1),"shAccepPer","01"));
-//								shAccSign = false;
-//							} else if (validation.percentageValid(shAccep).equalsIgnoreCase("INVALID")) {
-//								list.add(new ErrorCheck(prop.getProperty("errors.shAccepPer.invalid")+ String.valueOf(i + 1),"shAccepPer","01"));
-//								shAccSign = false;
-//							}
-//							if (StringUtils.isBlank(validation.isSelect(proStatus))) {
-//								list.add(new ErrorCheck(prop.getProperty("errors.proStatus.required")+ String.valueOf(i + 1),"proStatus","01"));
-//							}
-//							if (StringUtils.isBlank(shSign) && "A".equalsIgnoreCase(proStatus)) {
-//								list.add(new ErrorCheck(prop.getProperty("errors.shSignPer.required")+ String.valueOf(i + 1),"shSignPer","01"));
-//								shAccSign = false;
-//							} else if (validation.percentageValid(shSign).equalsIgnoreCase("INVALID") && !"A".equalsIgnoreCase(proStatus)) {
-//								list.add(new ErrorCheck(prop.getProperty("errors.shSignPer.invalid")+ String.valueOf(i + 1),"shSignPer","01"));
-//								shAccSign = false;
-//							}
-//							if (shAccSign  && "A".equalsIgnoreCase(proStatus) ) {
-//								double shac = Double.parseDouble(shAccep);
-//								double shsign = Double.parseDouble(shSign);
-//								if (shac < shsign) {
-//									list.add(new ErrorCheck(prop.getProperty("errors.shAccepLessShSign.invalid")+ String.valueOf(i + 1),"shAccepLessShSign","01"));
-//								}
-//
-//							}
-//						}
-//						if (CollectionUtils.isEmpty(list)) {
-//							double totShAcc = 0.0;
-//							double totShsg = 0.0;
-//							for (int i = 0; i < NoRetroCess; i++) {
-//								NoRetroCessReq req2 = req.getNoRetroCessReq().get(i);
-//								String cedComp = req2.getCedingCompany()== null ? "0" : req2.getCedingCompany();
-//								String broker = req2.getRetroBroker() == null ? "0" : req2.getRetroBroker();
-//								String shAccep = req2.getShareAccepted()== null ? "" : req2.getShareAccepted();
-//								String shSign = req2.getShareSigned()== null ? "" : req2.getShareSigned();
-//								totShAcc += Double.parseDouble(shAccep);
-//								totShsg += Double.parseDouble(shSign);
-//								for (int j = i + 1; j < NoRetroCess; j++) {							
-//									
-//									String cedComp1 = req2.getCedingCompany()== null ? "0" : req2.getCedingCompany();
-//									String broker1 = req2.getRetroBroker() == null ? "0" : req2.getRetroBroker();
-//									String shAccep1 = req2.getShareAccepted()== null ? "" : req2.getShareAccepted();
-//									String shSign1 = req2.getShareSigned()== null ? "" : req2.getShareSigned();
-//									if (cedComp.equals(cedComp1)&& broker.equals(broker1))
-//										list.add(new ErrorCheck(prop.getProperty("errors.cedCompBroker.invalid")+String.valueOf(j + 1),"cedCompBroker","01"));
-//									if (((i + 1) == NoRetroCess) && (j == NoRetroCess)) {
-//										totShAcc += Double.parseDouble(shAccep1);
-//										totShsg += Double.parseDouble(shSign1);
-//									}
-//								}
-//							}
-//							if (totShsg != 100)
-//								list.add(new ErrorCheck(prop.getProperty("errors.shSign.invalid"),"shSign","01"));
-//						}
-//					}
-//					if(StringUtils.isBlank(req.getRetroDupContract())&&"3".equalsIgnoreCase(req.getProductId())){
-//						list.add(new ErrorCheck(prop.getProperty("errors.dummy.contract")+req.getUwYear(),"RetroDupContract","01"));
-//					}
-//					
-//					//validationRemarks();
-//				 
-//				}
-//			
-//		}catch(Exception e){
-//			e.printStackTrace();
-//		}
-		return list;
-	}
+	
 	
 	public List<ErrorCheck> insertProportionalTreatyvali(insertProportionalTreatyReq req) {
 		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
-		
 		try {
-		final Validation val = new Validation();
-		Map<String, Object> map = null;
-		List<Map<String, Object>> relist = nonPropImple.getValidation(req.getIncepDate(),req.getRenewalcontractno());
-		if (relist != null && relist.size() > 0) {
-			map = (Map<String, Object>) relist.get(0);
-		}
-		if(StringUtils.isBlank(req.getBouquetModeYN())) {
-			list.add(new ErrorCheck(prop.getProperty("error.bouquetModeYn.required"),"BouquetModeYN","01"));
-		}
-		
-		if (val.isSelect(req.getCedingCo()).equalsIgnoreCase("")) {
-			list.add(new ErrorCheck(prop.getProperty("error.cedingCo.required"),"CedingCo","02"));
-		}
-		if (val.isNull(req.getIncepDate()).equalsIgnoreCase("")) {
-			list.add(new ErrorCheck(prop.getProperty("error.incepDate.required"),"IncepDate","03"));
-		} else if (val.checkDate(req.getIncepDate()).equalsIgnoreCase("INVALID")) {
-			list.add(new ErrorCheck(prop.getProperty("error.incepDate.check"),"IncepDate","03"));
-		} else if (StringUtils.isNotBlank((req.getRenewalcontractno()))&& !"0".equals(req.getRenewalcontractno())&& map != null) {
-			if ("Invalid".equalsIgnoreCase(val.getDateValidate((String) map.get("EXPIRY_DATE"), req.getIncepDate()))) {
-				list.add(new ErrorCheck(prop.getProperty("errors.InceptionDate.invalid"),"DateValidate","03"));
+			  if("Y".equals(req.getContractMode())) { 
+				  list =  validateNext(req); 
 			}else {
-				req.setRenewalFlag("NEWCONTNO");
-			}
-		}
-		if (val.isNull(req.getExpDate()).equalsIgnoreCase("")) {
-			list.add(new ErrorCheck(prop.getProperty("error.expDate.required"),"ExpDate", "04"));
-			
-		} else if (val.checkDate(req.getExpDate()).equalsIgnoreCase("INVALID")) {
-			list.add(new ErrorCheck(prop.getProperty("errors.ExpiryDate.Error"),"ExpDate", "05"));
-		}
-		if (!req.getIncepDate().equalsIgnoreCase("")&& !req.getExpDate().equalsIgnoreCase("")) {
-			if (Validation.ValidateTwo(req.getIncepDate(),req.getExpDate()).equalsIgnoreCase("Invalid")) {
-				list.add(new ErrorCheck(prop.getProperty("error.expDate.check"),"IncepDate", "06"));
-			}
-		}
-		if (val.isSelect(req.getUwYear()).equalsIgnoreCase("")) {
-			list.add(new ErrorCheck(prop.getProperty("error.uwYear.required"),"UWYear", "07"));
-		}if (val.isSelect(req.getUwYearTo()).equalsIgnoreCase("")) {
-			list.add(new ErrorCheck(prop.getProperty("error.uwYearTo.UwYearTo"),"UwYearTo", "08"));
-		}
-		if (StringUtils.isNotBlank(req.getIncepDate())&& StringUtils.isNotBlank(req.getExpDate())) {
-			if (Validation.ValidateTwo(req.getIncepDate(),req.getExpDate()).equalsIgnoreCase("Invalid")) {
-				list.add(new ErrorCheck(prop.getProperty("error.accDate.check1"),"IncepDate", "08"));
-			}
-		}
-		if (val.isNull(req.getLayerNo()).equalsIgnoreCase("")) {
-			list.add(new ErrorCheck(prop.getProperty("error.layerNo.required"),"LayerNo", "09"));
-		} else if (val.isValidNo(req.getLayerNo()).equalsIgnoreCase("INVALID")) {
-			list.add(new ErrorCheck(prop.getProperty("error.layerNo.error"),"LayerNo", "10"));
-		}
-		if (!val.isNull(req.getLayerNo()).equalsIgnoreCase("")) {
-			if (nonPropImple.getLayerDuplicationCheck(req.getProposalno(),req.getLayerNo(),req.getBaseLayer()).getResponse().equals("true")) {
-				list.add(new ErrorCheck(prop.getProperty("error.layer.duplicate"),"Layer", "11"));
-			}
-		}
-		if("Y".equals(req.getBouquetModeYN()) && StringUtils.isNotBlank(req.getBouquetNo())) {
-			if (dropDownImple.getBouquetCedentBrokercheck(req.getBouquetNo(),req.getCedingCo(),req.getBroker()).getResponse().equals("true")) {
-				list.add(new ErrorCheck(prop.getProperty("error.brokercedent.duplicate"),"Broker", "12"));
-			}
-		}
-		if(StringUtils.isBlank(req.getRiskdetailYN())) {
-			list.add(new ErrorCheck(prop.getProperty("error.alldetails.required"),"ALLDetails", "08"));
-		}
-		if(StringUtils.isBlank(req.getBrokerdetYN())) {
-			list.add(new ErrorCheck(prop.getProperty("error.alldetails.required"),"IncepDate", "08"));
-		}
-		if(StringUtils.isBlank(req.getPremiumdetailYN())) {
-			list.add(new ErrorCheck(prop.getProperty("error.alldetails.required"),"IncepDate", "08"));
-		}
-		if(StringUtils.isBlank(req.getInstallYN())) {
-				list.add(new ErrorCheck(prop.getProperty("error.InstallYN.required"),"IncepDate", "08"));
-		}
-		if(StringUtils.isBlank(req.getAcqdetailYN())) {
-			list.add(new ErrorCheck(prop.getProperty("error.alldetails.required"),"IncepDate", "08"));
-		}
-		if(StringUtils.isBlank(req.getReinstdetailYN())) {
-			list.add(new ErrorCheck(prop.getProperty("error.alldetails.required"),"IncepDate", "08"));
-		}
-		}
-		catch(Exception e) {
+				list =   validateOffer(req);
+				}
+			 
+		}catch(Exception e){
 			e.printStackTrace();
 		}
 		return list;
 	}
 
+	
+	private List<ErrorCheck> validateOffer(insertProportionalTreatyReq bean) {
+		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
+		try {
+			final Validation val = new Validation();
+			Map<String, Object> map = null;
+			List<Map<String, Object>> list1 = nonPropImple.getValidation(bean.getIncepDate(), bean.getRenewalcontractno());
+			if (list1 != null && list1.size() > 0) {
+				map = (Map<String, Object>) list1.get(0);
+			}
+			if(StringUtils.isBlank(bean.getBouquetModeYN())) {
+				list.add(new ErrorCheck(prop.getProperty("error.bouquetModeYn.required"),"bouquetModeYn","01"));
+			}
+			
+			if (val.isSelect(bean.getCedingCo()).equalsIgnoreCase("")) {
+				list.add(new ErrorCheck(prop.getProperty("error.cedingCo.required"),"cedingCo","01"));
+			}
+			if (val.isNull(bean.getIncepDate()).equalsIgnoreCase("")) {
+				list.add(new ErrorCheck(prop.getProperty("error.incepDate.required"),"incepDate","01"));
+			} else if (val.checkDate(bean.getIncepDate()).equalsIgnoreCase("INVALID")) {
+				list.add(new ErrorCheck(prop.getProperty("error.incepDate.check"),"incepDate","01"));
+			} else if (StringUtils.isNotBlank((bean.getRenewalcontractno()))&& !"0".equals(bean.getRenewalcontractno())&& map != null) {
+				if ("Invalid".equalsIgnoreCase(val.getDateValidate((String) map.get("EXPIRY_DATE"), bean.getIncepDate()))) {
+					list.add(new ErrorCheck(prop.getProperty("errors.InceptionDate.invalid"),"InceptionDate","01"));
+				}else {
+					bean.setRenewalFlag("NEWCONTNO");
+				}
+			}
+			if (val.isNull(bean.getExpDate()).equalsIgnoreCase("")) {
+				list.add(new ErrorCheck(prop.getProperty("error.expDate.required"),"ExpiryDate","01"));
+			} else if (val.checkDate(bean.getExpDate()).equalsIgnoreCase("INVALID")) {
+				list.add(new ErrorCheck(prop.getProperty("errors.ExpiryDate.Error"),"ExpiryDate","01"));
+			}
+			if (!bean.getIncepDate().equalsIgnoreCase("")&& !bean.getExpDate().equalsIgnoreCase("")) {
+				if (Validation.ValidateTwo(bean.getIncepDate(),bean.getExpDate()).equalsIgnoreCase("Invalid")) {
+					list.add(new ErrorCheck(prop.getProperty("error.expDate.check"),"ExpiryDate","01"));
+				}
+			}
+			if (val.isSelect(bean.getUwYear()).equalsIgnoreCase("")) {
+				list.add(new ErrorCheck(prop.getProperty("error.uwYear.required"),"uwYear","01"));
+			}if (val.isSelect(bean.getUwYearTo()).equalsIgnoreCase("")) {
+				list.add(new ErrorCheck(prop.getProperty("error.uwYearTo.required"),"uwYearTo","01"));
+			}
+			if (StringUtils.isNotBlank(bean.getIncepDate())&& StringUtils.isNotBlank(bean.getExpDate())) {
+				if (Validation.ValidateTwo(bean.getIncepDate(),bean.getExpDate()).equalsIgnoreCase("Invalid")) {
+					list.add(new ErrorCheck(prop.getProperty("error.accDate.check1"),"accDate","01"));
+				}
+			}
+			if (val.isNull(bean.getLayerNo()).equalsIgnoreCase("")) {
+				list.add(new ErrorCheck(prop.getProperty("error.layerNo.required"),"layerNo","01"));
+			} else if (val.isValidNo(bean.getLayerNo()).equalsIgnoreCase("INVALID")) {
+				list.add(new ErrorCheck(prop.getProperty("error.layerNo.error"),"layerNo","01"));
+			}
+			if (!val.isNull(bean.getLayerNo()).equalsIgnoreCase("")) {
+				if (nonPropImple.getLayerDuplicationCheck(bean.getProposalNo(),bean.getLayerNo(),bean.getBaseLayer()).getResponse().equalsIgnoreCase("true")) {
+				
+					list.add(new ErrorCheck(prop.getProperty("error.layer.duplicate"),"layer","01"));
+				}
+			}
+			if("Y".equals(bean.getBouquetModeYN()) && StringUtils.isNotBlank(bean.getBouquetNo())) {
+				if (dropDownImple.getBouquetCedentBrokercheck(bean.getBouquetNo(),bean.getCedingCo(),bean.getBroker()).getResponse().equalsIgnoreCase("true")) {
+					list.add(new ErrorCheck(prop.getProperty("error.brokercedent.duplicate"),"brokercedent","01"));
+				}
+			}
+			if(StringUtils.isBlank(bean.getRiskdetailYN())) {
+				list.add(new ErrorCheck(prop.getProperty("error.alldetails.required"),"alldetails","01"));
+			}
+			if(StringUtils.isBlank(bean.getBrokerdetYN())) {
+				list.add(new ErrorCheck(prop.getProperty("error.alldetails.required"),"alldetails","01"));
+			}
+			if(StringUtils.isBlank(bean.getPremiumdetailYN())) {
+				list.add(new ErrorCheck(prop.getProperty("error.alldetails.required"),"alldetails","01"));
+			}
+			if(StringUtils.isBlank(bean.getInstallYN())) {
+					list.add(new ErrorCheck(prop.getProperty("error.InstallYN.required"),"InstallYN","01"));
+			}
+			if(StringUtils.isBlank(bean.getAcqdetailYN())) {
+				list.add(new ErrorCheck(prop.getProperty("error.alldetails.required"),"alldetails","01"));
+			}
+			if(StringUtils.isBlank(bean.getReinstdetailYN())) {
+				list.add(new ErrorCheck(prop.getProperty("error.alldetails.required"),"alldetails","01"));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+	private List<ErrorCheck> validateNext(insertProportionalTreatyReq bean) {
+		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
+		try {
+			//validateNext
+			
+				boolean flags = true;
+				boolean cedCheck = true;
+				boolean cedflag = true;
+				final Validation val = new Validation();
+				Map<String, Object> map = null;
+				List<Map<String, Object>> list1 = nonPropImple.getValidation(bean.getIncepDate(), bean.getRenewalcontractno());
+				if (list1 != null && list1.size() > 0) {
+					map = (Map<String, Object>) list1.get(0);
+				}
+				if(StringUtils.isNotBlank(bean.getAmendId())&& Integer.parseInt(bean.getAmendId())>0 && bean.getProductId().equalsIgnoreCase("3")){
+					if(StringUtils.isBlank(bean.getEndorsmenttype())){
+						list.add(new ErrorCheck(prop.getProperty("end.type.error"),"type","01"));
+					}
+				}
+				if(StringUtils.isBlank(bean.getBouquetModeYN())) {
+					list.add(new ErrorCheck(prop.getProperty("error.bouquetModeYn.required"),"bouquetModeYn","01"));
+				}
+				
+				if (val.isSelect(bean.getCedingCo()).equalsIgnoreCase("")) {
+					list.add(new ErrorCheck(prop.getProperty("error.cedingCo.required"),"cedingCo","01"));
+				}
+				if (val.isNull(bean.getIncepDate()).equalsIgnoreCase("")) {
+					list.add(new ErrorCheck(prop.getProperty("error.incepDate.required"),"incepDate","01"));
+				} else if (val.checkDate(bean.getIncepDate()).equalsIgnoreCase("INVALID")) {
+					list.add(new ErrorCheck(prop.getProperty("error.incepDate.check"),"incepDate","01"));
+				} else if (StringUtils.isNotBlank((bean.getRenewalcontractno()))&& !"0".equals(bean.getRenewalcontractno())&& map != null) {
+					if ("Invalid".equalsIgnoreCase(val.getDateValidate((String) map.get("EXPIRY_DATE"), bean.getIncepDate()))) {
+						list.add(new ErrorCheck(prop.getProperty("errors.InceptionDate.invalid"),"incepDate","01"));
+					}else {
+						bean.setRenewalFlag("NEWCONTNO");
+					}
+				}
+				if (val.isNull(bean.getExpDate()).equalsIgnoreCase("")) {
+					list.add(new ErrorCheck(prop.getProperty("error.expDate.required"),"ExpiryDate","01"));
+				} else if (val.checkDate(bean.getExpDate()).equalsIgnoreCase("INVALID")) {
+					list.add(new ErrorCheck(prop.getProperty("errors.ExpiryDate.Error"),"ExpiryDate","01"));
+				}
+				if (!bean.getIncepDate().equalsIgnoreCase("")&& !bean.getExpDate().equalsIgnoreCase("")) {
+					if (Validation.ValidateTwo(bean.getIncepDate(),bean.getExpDate()).equalsIgnoreCase("Invalid")) {
+						list.add(new ErrorCheck(prop.getProperty("error.expDate.check"),"ExpiryDate","01"));
+					}
+				}
+				if (val.isSelect(bean.getUwYear()).equalsIgnoreCase("")) {
+					list.add(new ErrorCheck(prop.getProperty("error.uwYear.required"),"uwYear","01"));
+				}if (val.isSelect(bean.getUwYearTo()).equalsIgnoreCase("")) {
+					list.add(new ErrorCheck(prop.getProperty("error.uwYearTo.required"),"uwYearTo","01"));
+				}
+				if (StringUtils.isNotBlank(bean.getIncepDate())&& StringUtils.isNotBlank(bean.getExpDate())) {
+					if (Validation.ValidateTwo(bean.getIncepDate(),bean.getExpDate()).equalsIgnoreCase("Invalid")) {
+						list.add(new ErrorCheck(prop.getProperty("error.accDate.check1"),"accDate","01"));
+					}
+				}
+				if (val.isNull(bean.getLayerNo()).equalsIgnoreCase("")) {
+					list.add(new ErrorCheck(prop.getProperty("error.layerNo.required"),"layerNo","01"));
+				} else if (val.isValidNo(bean.getLayerNo()).equalsIgnoreCase("INVALID")) {
+					list.add(new ErrorCheck(prop.getProperty("error.layerNo.error"),"layerNo","01"));
+				}
+				if (!val.isNull(bean.getLayerNo()).equalsIgnoreCase("")) {
+					if (nonPropImple.getLayerDuplicationCheck(bean.getProposalNo(),bean.getLayerNo(),bean.getBaseLayer()).getResponse().equalsIgnoreCase("true")) {
+					
+						list.add(new ErrorCheck(prop.getProperty("error.layer.duplicate"),"layer","01"));
+					}
+				}
+				if(StringUtils.isBlank(bean.getRiskdetailYN())) {
+					list.add(new ErrorCheck(prop.getProperty("error.alldetails.required"),"alldetails","01"));
+				}else if("Y".equals(bean.getRiskdetailYN())) {
+					if (StringUtils.isBlank(val.isSelect(bean.getOrginalCurrency()))) {
+						list.add(new ErrorCheck(prop.getProperty("error.orginalCurrency.required"),"orginalCurrency","01"));
+					}
+					/*if(StringUtils.isBlank(bean.getExchangeType())){
+						list.add(new ErrorCheck(prop.getProperty("error.ExchangeType.required"),"","01"));
+					}*/
+					if (StringUtils.isBlank(bean.getExchRate())) {
+						list.add(new ErrorCheck(prop.getProperty("error.exchRate.required"),"exchRate","01"));
+						cedCheck = false;
+					} else if (val.isValidNo(bean.getExchRate().trim().toString()).equalsIgnoreCase("invalid")) {
+						list.add(new ErrorCheck(prop.getProperty("error.exchRate.check"),"exchRate","01"));
+						cedCheck = false;
+					}
+					if (StringUtils.isBlank(bean.getTreatyNametype())) {
+						if("3".equalsIgnoreCase(bean.getProductId())) {
+							list.add(new ErrorCheck(prop.getProperty("error.treatyName_type.required"),"treatyName_type","01"));
+						}
+						else if("5".equalsIgnoreCase(bean.getProductId())){
+							list.add(new ErrorCheck(prop.getProperty("error.retroTreatyName.required"),"retroTreatyName","01"));
+						}
+					}
+					if(StringUtils.isBlank(bean.getBusinessType())){
+						list.add(new ErrorCheck(prop.getProperty("error.BusinessType.required"),"BusinessType","01"));
+					}
+					if (val.isSelect(bean.getDepartId()).equalsIgnoreCase("")) {
+						list.add(new ErrorCheck(prop.getProperty("error.departId.required"),"departId","01"));
+					}
+					if (StringUtils.isBlank(bean.getBasis())) {
+						list.add(new ErrorCheck(prop.getProperty("error.basic.required"),"basic","01"));
+					}
+					List<String> deptId = new ArrayList<>();
+					if(StringUtils.isNotBlank(bean.getBusinessType()) &&(!"5".equalsIgnoreCase(bean.getBusinessType()))){
+						for(int i=0;i<bean.getCoverLimitOC().size();i++){
+							coverLimitOC req = bean.getCoverLimitOC().get(i);
+							if(StringUtils.isBlank(req.getCoverdepartId())){
+								list.add(new ErrorCheck(prop.getProperty("error.enter.CoverdepartId")+String.valueOf(i + 1),"CoverdepartId","01"));
+								deptId.add(req.getCoverdepartId());
+								}
+							if(StringUtils.isBlank(req.getCoverLimitOC())){
+								list.add(new ErrorCheck(prop.getProperty("error.enter.CoverLimitOC")+String.valueOf(i + 1),"CoverLimitOC","01"));
+							}
+							if(StringUtils.isBlank(req.getDeductableLimitOC())){
+								list.add(new ErrorCheck(prop.getProperty("error.enter.DeductableLimitOC")+String.valueOf(i + 1),"DeductableLimitOC","01"));
+							}
+							if(StringUtils.isBlank(req.getEgnpiAsPerOff()) ){
+								list.add(new ErrorCheck(prop.getProperty("error.enter.egnpi.as.per.off")+String.valueOf(i + 1),"egnpi","01"));
+							}
+							if(StringUtils.isNotBlank(bean.getEndorsmenttype()) &&"GNPI".equalsIgnoreCase(bean.getEndorsmenttype())){
+								if(StringUtils.isBlank(req.getGnpiAsPO()) ){
+									list.add(new ErrorCheck(prop.getProperty("error.enter.gnpi.as.per.off")+String.valueOf(i + 1),"gnpi","01"));
+								}
+							}
+						}
+						if(dropDownImple.findDuplicates(deptId).size()>0){
+							list.add(new ErrorCheck(prop.getProperty("error.CoverdepartId.duplicate"),"CoverdepartId","01"));
+						}
+						if("17".equalsIgnoreCase(bean.getDepartId()) || "18".equalsIgnoreCase(bean.getDepartId()) || "19".equalsIgnoreCase(bean.getDepartId())){
+							if(deptId.contains(bean.getDepartId()) && deptId.size()>1){
+								list.add(new ErrorCheck(prop.getProperty("error.CoverdepartId.groped"),"CoverdepartId","01"));
+							}
+						}
+					}
+					if(StringUtils.isNotBlank(bean.getBusinessType()) &&("5".equalsIgnoreCase(bean.getBusinessType()))){
+						for(int i=0;i<bean.getCoverLimitAmount().size();i++){
+							CoverLimitAmount req = bean.getCoverLimitAmount().get(i);
+							if(StringUtils.isBlank(req.getCoverdepartIdS()) ){
+								list.add(new ErrorCheck(prop.getProperty("error.enter.CoverdepartId")+String.valueOf(i + 1),"CoverdepartId","01"));
+							}
+							if(StringUtils.isBlank(req.getCoverLimitAmount()) && StringUtils.isNotBlank(req.getCoverLimitPercent())){
+								list.add(new ErrorCheck(prop.getProperty("error.enter.CoverLimitAmount")+String.valueOf(i + 1),"CoverLimitAmount","01"));
+							}
+							if(StringUtils.isBlank(req.getCoverLimitPercent())&& StringUtils.isNotBlank(req.getCoverLimitAmount())){
+								list.add(new ErrorCheck(prop.getProperty("error.enter.CoverLimittPercent")+String.valueOf(i + 1),"CoverLimittPercent","01"));
+							}
+							if(StringUtils.isBlank(req.getDeductableLimitAmount()) &&StringUtils.isNotBlank(req.getDeductableLimitPercent())){
+								list.add(new ErrorCheck(prop.getProperty("error.enter.DeductableLimitAmount")+String.valueOf(i + 1),"DeductableLimitAmount","01"));
+							}
+							if(StringUtils.isBlank(req.getDeductableLimitPercent()) && StringUtils.isNotBlank(req.getDeductableLimitAmount())){
+								list.add(new ErrorCheck(prop.getProperty("error.enter.DeductableLimitPercent")+String.valueOf(i + 1),"DeductableLimitPercent","01"));
+							}
+							if(StringUtils.isBlank(req.getCoverLimitAmount()) && StringUtils.isBlank(req.getCoverLimitPercent()) && StringUtils.isBlank(req.getDeductableLimitPercent()) && StringUtils.isBlank(req.getDeductableLimitAmount())){
+								list.add(new ErrorCheck(prop.getProperty("error.enter.CoverLimitAmount")+String.valueOf(i + 1),"CoverLimitAmount","01"));
+								list.add(new ErrorCheck(prop.getProperty("error.enter.CoverLimittPercent")+String.valueOf(i + 1),"CoverLimittPercent","01"));
+								list.add(new ErrorCheck(prop.getProperty("error.enter.DeductableLimitAmount")+String.valueOf(i + 1),"DeductableLimitPercent","01"));
+								list.add(new ErrorCheck(prop.getProperty("error.enter.DeductableLimitPercent")+String.valueOf(i + 1),"DeductableLimitPercent","01"));
+							}
+							if(StringUtils.isBlank(req.getEgnpiAsPerOffSlide()) ){
+								list.add(new ErrorCheck(prop.getProperty("error.enter.egnpi.as.per.off")+String.valueOf(i + 1),"egnpi","01"));
+							}
+							if(StringUtils.isNotBlank(bean.getEndorsmenttype()) &&"GNPI".equalsIgnoreCase(bean.getEndorsmenttype())){
+								if(StringUtils.isBlank(req.getGnpiAsPOSlide()) ){
+									list.add(new ErrorCheck(prop.getProperty("error.enter.gnpi.as.per.off")+String.valueOf(i + 1),"gnpi","01"));
+								}
+							}
+							
+						}
+						if(dropDownImple.findDuplicates(deptId).size()>0){
+							list.add(new ErrorCheck(prop.getProperty("error.CoverdepartId.duplicate"),"CoverdepartId","01"));
+						}
+						if("17".equalsIgnoreCase(bean.getDepartId()) || "18".equalsIgnoreCase(bean.getDepartId()) || "19".equalsIgnoreCase(bean.getDepartId())){
+							if(deptId.contains(bean.getDepartId()) && deptId.size()>1){
+								list.add(new ErrorCheck(prop.getProperty("error.CoverdepartId.groped"),"CoverdepartId","01"));
+							}
+						}
+					}
+					
+					if(StringUtils.isNotBlank(bean.getBusinessType()) &&(!"4".equalsIgnoreCase(bean.getBusinessType()) && !"5".equalsIgnoreCase(bean.getBusinessType()))){
+						
+					if(!"5".equalsIgnoreCase(bean.getBusinessType())){
+						/*if(StringUtils.isBlank(bean.getEvent_limit())){
+							list.add(new ErrorCheck(prop.getProperty("error.eventLimit.required"),"","01"));
+							}else {
+								bean.setEvent_limit((bean.getEvent_limit()).replaceAll(",", ""),"","01"));
+								if (val.isValidNo(bean.getEvent_limit().trim()).equalsIgnoreCase("INVALID")) {
+									list.add(new ErrorCheck(prop.getProperty("error.eventLimit.required"),"","01"));
+								}
+							}*/
+					}
+					if(StringUtils.isNotBlank(bean.getUmbrellaXL()) && "Y".equalsIgnoreCase(bean.getUmbrellaXL())){
+					
+					if(StringUtils.isBlank(bean.getCoverLimitXL())){
+						list.add(new ErrorCheck(prop.getProperty("error.CoverLimitXL.required"),"CoverLimitXL","01"));
+						}else {
+							bean.setCoverLimitXL((bean.getCoverLimitXL()).replaceAll(",", ""));
+							if (val.isValidNo(bean.getCoverLimitXL().trim()).equalsIgnoreCase("INVALID")) {
+								list.add(new ErrorCheck(prop.getProperty("error.CoverLimitXL.required.format"),"CoverLimitXL","01"));
+							}
+						}
+					if(StringUtils.isBlank(bean.getDeductLimitXL())){
+						list.add(new ErrorCheck(prop.getProperty("error.DeductLimitXL.required"),"DeductLimitXL","01"));
+						}else {
+							bean.setDeductLimitXL((bean.getDeductLimitXL()).replaceAll(",", ""));
+							if (val.isValidNo(bean.getDeductLimitXL().trim()).equalsIgnoreCase("INVALID")) {
+								list.add(new ErrorCheck(prop.getProperty("error.DeductLimitXL.required.format"),"DeductLimitXL","01"));
+							}
+						}
+					
+					}
+				}
+				}
+
+				if(StringUtils.isBlank(bean.getPremiumdetailYN())) {
+					list.add(new ErrorCheck(prop.getProperty("error.alldetails.required"),"alldetails","01"));
+				}else if("Y".equals(bean.getPremiumdetailYN())) {
+					if (StringUtils.isBlank(bean.getSubPremium())) {
+						list.add(new ErrorCheck(prop.getProperty("error.subPremium.required"),"subPremium","01"));
+					} else {
+						bean.setSubPremium((bean.getSubPremium()).replaceAll(",", ""));
+						if (val.isValidNo(bean.getSubPremium().trim()).equalsIgnoreCase("INVALID")) {
+							list.add(new ErrorCheck(prop.getProperty("error.subPremium.required.format"),"subPremium","01"));
+						}
+						
+					}
+					if(StringUtils.isBlank(bean.getPremiumbasis())){
+						list.add(new ErrorCheck(prop.getProperty("error.Premiumbasis.required"),"Premiumbasis","01"));
+					}
+					else if("1".equalsIgnoreCase(bean.getPremiumbasis())){
+						if (StringUtils.isBlank(bean.getAdjRate())) {
+							list.add(new ErrorCheck(prop.getProperty("error.adjRate.required"),"adjRate","01"));
+						} else if (val.isValidNo(bean.getAdjRate().trim()).equalsIgnoreCase("INVALID")) {
+							list.add(new ErrorCheck(prop.getProperty("error.adjRate.required.format"),"adjRate","01"));
+						} else if (val.percentageValid(bean.getAdjRate().trim()).equalsIgnoreCase("greater")) {
+							list.add(new ErrorCheck(prop.getProperty("error.adjrate.checkgreater"),"adjRate","01"));
+						}
+						if(StringUtils.isNotBlank(bean.getBusinessType()) && "5".equalsIgnoreCase(bean.getBusinessType())) {
+							if (StringUtils.isBlank(bean.getMinimumRate())) {
+								list.add(new ErrorCheck(prop.getProperty("error.MinimumRate.required"),"MinimumRate","01"));
+							} else if (val.isValidNo(bean.getMinimumRate().trim()).equalsIgnoreCase("INVALID")) {
+								list.add(new ErrorCheck(prop.getProperty("error.MinimumRate.required.format"),"MinimumRate","01"));
+							} else if (val.percentageValid(bean.getMinimumRate().trim()).equalsIgnoreCase("greater")) {
+								list.add(new ErrorCheck(prop.getProperty("error.MinimumRate.checkgreater"),"MinimumRate","01"));
+							}
+							if (StringUtils.isBlank(bean.getMaximumRate())) {
+								list.add(new ErrorCheck(prop.getProperty("error.MaximumRate.required"),"MinimumRate","01"));
+							} else if (val.isValidNo(bean.getMaximumRate().trim()).equalsIgnoreCase("INVALID")) {
+								list.add(new ErrorCheck(prop.getProperty("error.MaximumRate.required.format"),"MinimumRate","01"));
+							} else if (val.percentageValid(bean.getMaximumRate().trim()).equalsIgnoreCase("greater")) {
+								list.add(new ErrorCheck(prop.getProperty("error.MaximumRate.checkgreater"),"MinimumRate","01"));
+							}
+							double min=Double.parseDouble(bean.getMinimumRate());
+							double max=Double.parseDouble(bean.getMaximumRate());
+							if(min>max){
+								list.add(new ErrorCheck(prop.getProperty("min.rate.less"),"rate","01"));
+							}
+						}
+					}
+					else if("2".equalsIgnoreCase(bean.getPremiumbasis())){
+						if (StringUtils.isBlank(bean.getMinimumRate())) {
+							list.add(new ErrorCheck(prop.getProperty("error.MinimumRate.required"),"MinimumRate","01"));
+						} else if (val.isValidNo(bean.getMinimumRate().trim()).equalsIgnoreCase("INVALID")) {
+							list.add(new ErrorCheck(prop.getProperty("error.MinimumRate.required"),"MinimumRate","01"));
+						} else if (val.percentageValid(bean.getMinimumRate().trim()).equalsIgnoreCase("greater")) {
+							list.add(new ErrorCheck(prop.getProperty("error.MinimumRate.checkgreater"),"MinimumRate","01"));
+						}
+						if (StringUtils.isBlank(bean.getMaximumRate())) {
+							list.add(new ErrorCheck(prop.getProperty("error.MaximumRate.required"),"MaximumRate","01"));
+						} else if (val.isValidNo(bean.getMaximumRate().trim()).equalsIgnoreCase("INVALID")) {
+							list.add(new ErrorCheck(prop.getProperty("error.MaximumRate.required"),"MaximumRate","01"));
+						} else if (val.percentageValid(bean.getMaximumRate().trim()).equalsIgnoreCase("greater")) {
+							list.add(new ErrorCheck(prop.getProperty("error.MaximumRate.checkgreater"),"MaximumRate","01"));
+						}
+						double min=Double.parseDouble(bean.getMinimumRate());
+						double max=Double.parseDouble(bean.getMaximumRate());
+						if(min>max){
+							list.add(new ErrorCheck(prop.getProperty("min.rate.less"),"rate","01"));
+						}
+						if(StringUtils.isBlank(bean.getBurningCostLF())){
+							list.add(new ErrorCheck(prop.getProperty("error.BurningCostLF.required"),"BurningCostLF","01"));
+						}
+						if (val.percentageValid(bean.getBurningCostLF().trim()).equalsIgnoreCase("greater")) {
+							list.add(new ErrorCheck(prop.getProperty("error.BurningCostLF().checkgreater"),"BurningCostLF","01"));
+						}
+						
+					}
+					if (StringUtils.isBlank(bean.getEpi())) {
+						list.add(new ErrorCheck(prop.getProperty("error.epiperCent.required"),"epiperCent","01"));
+					} else {
+						bean.setEpi((bean.getEpi()).replaceAll(",", ""));
+						if (val.isValidNo(bean.getEpi().trim()).equalsIgnoreCase("Invalid")) {
+							list.add(new ErrorCheck(prop.getProperty("error.epiperCent.required.format"),"epiperCent","01"));
+						}else{
+							if(!"3".equalsIgnoreCase(bean.getPremiumbasis())){
+							//	String ans = calcu.calculateXOL(bean,"EPI",0,bean.getSourceId());
+
+								double a=0;
+								double amt=0.0;
+								if("1".equalsIgnoreCase(bean.getPremiumbasis())){
+								a =  Double.parseDouble((bean.getAdjRate()==null||bean.getAdjRate().equalsIgnoreCase(""))?"0":bean.getAdjRate().replaceAll(",", ""));	
+								}else if("2".equalsIgnoreCase(bean.getPremiumbasis())){
+								a =  Double.parseDouble((bean.getMinimumRate()==null||bean.getMinimumRate().equalsIgnoreCase(""))?"0":bean.getMinimumRate().replaceAll(",", ""));	
+								}
+								String premiumRate=StringUtils.isBlank(bean.getSubPremium())?"0":bean.getSubPremium().replaceAll(",", "");
+								amt = (Double.parseDouble(premiumRate) * a)/100;
+								String ans =  fm.formatter(Double.toString(amt)).replaceAll(",", "");
+							
+								
+								if(Double.parseDouble(ans)!=Double.parseDouble(bean.getEpi().replaceAll(",",""))){
+									//list.add(new ErrorCheck(prop.getProperty("error.calcul.mistake"));
+									
+								}else{
+									bean.setEpi(ans);
+								}
+							}
+						}
+					}
+					if("3".equalsIgnoreCase(bean.getPremiumbasis())){
+						bean.setMinimumRate(bean.getEpi());
+					}
+					if(StringUtils.isBlank(bean.getMinPremium())){
+						 list.add(new ErrorCheck(prop.getProperty("error.MinPremium.required"),"MinPremium","01"));
+						}else {
+							bean.setMinPremium((bean.getMinPremium()).replaceAll(",", ""));
+							if (val.isValidNo(bean.getMinPremium().trim()).equalsIgnoreCase("INVALID")) {
+								list.add(new ErrorCheck(prop.getProperty("error.MinPremium.required.format"),"MinPremium","01"));
+							}else if("2".equalsIgnoreCase(bean.getPremiumbasis())){
+								double amt = 0.0;
+								//String ans = calcu.calculateXOL(bean,"MinPremium",0,bean.getSourceId());
+								String premiumRate=StringUtils.isBlank(bean.getSubPremium())?"0":bean.getSubPremium().replaceAll(",", "");
+								String coverlimit=StringUtils.isBlank(bean.getMinimumRate())?"0":bean.getMinimumRate().replaceAll(",", "");
+								amt = (Double.parseDouble(premiumRate) *Double.parseDouble(coverlimit))/100;
+								String ans =  fm.formatter(Double.toString(amt)).replaceAll(",", "");
+								
+								if(Double.parseDouble(ans)!=Double.parseDouble(bean.getMinPremium().replaceAll(",",""))){
+									//list.add(new ErrorCheck(prop.getProperty("error.calcul.mistake"),"","01"));
+								}else{
+									bean.setMinPremium(ans);
+								}
+							}
+						}
+					if (StringUtils.isBlank(bean.getMdPremium())) {
+						list.add(new ErrorCheck(prop.getProperty("error.m_dPremium.required1"),"m_dPremium","01"));
+					} else {
+						bean.setMdPremium((bean.getMdPremium()).replaceAll(",", ""));
+						if (val.isValidNo(bean.getMdPremium().trim()).equalsIgnoreCase("INVALID")) {
+							list.add(new ErrorCheck(prop.getProperty("error.m_dPremium.required.format"),"m_dPremium","01"));
+						}
+					}
+					if (StringUtils.isNotBlank(bean.getMdPremium()) && StringUtils.isNotBlank(bean.getEpi())) {
+						bean.setMdPremium((bean.getMdPremium()).replaceAll(",", ""));
+						bean.setEpi((bean.getEpi()).replaceAll(",", ""));
+						if (!val.isValidNo(bean.getMdPremium().trim())	.equalsIgnoreCase("INVALID")&& !val.isValidNo(bean.getEpi().trim()).equalsIgnoreCase("INVALID")) {
+
+							final float mdpremium = Float.parseFloat(bean.getMdPremium());
+							final float Pepi = Float.parseFloat(bean.getEpi());
+
+							if (mdpremium > Pepi) {
+								list.add(new ErrorCheck(prop.getProperty("error.mdandpremium.difference.invalid1"),"mdandpremium","01"));
+							}
+						}
+					}
+				
+				if (StringUtils.isNotBlank(bean.getMdPremium()) && StringUtils.isNotBlank(bean.getMinPremium())) {
+					bean.setMdPremium((bean.getMdPremium()).replaceAll(",", ""));
+					bean.setMinPremium((bean.getMinPremium()).replaceAll(",", ""));
+					if (!val.isValidNo(bean.getMdPremium().trim())	.equalsIgnoreCase("INVALID")&& !val.isValidNo(bean.getMinPremium().trim()).equalsIgnoreCase("INVALID")) {
+
+						final float mdpremium = Float.parseFloat(bean.getMdPremium());
+						final float minp = Float.parseFloat(bean.getMinPremium());
+
+						if (mdpremium > minp) {
+							list.add(new ErrorCheck(prop.getProperty("error.mdandminpremium.difference.invalid"),"mdandpremium","01"));
+						}
+					}
+				}
+					if (val.isNull(bean.getMdInstalmentNumber()).equalsIgnoreCase("")) {
+						list.add(new ErrorCheck(prop.getProperty("error.Instalment.error"),"Instalment","01"));
+						
+					} else if (val.isValidNo(bean.getMdInstalmentNumber()).equalsIgnoreCase("INVALID")) {
+						list.add(new ErrorCheck(prop.getProperty("error.Instalment.Required"),"Instalment","01"));
+					}
+					if(StringUtils.isBlank(bean.getRateOnLine())) {
+						list.add(new ErrorCheck(prop.getProperty("error.rateonline.Required"),"rateonline","01"));
+					}
+				}
+				//-------->instalMentPremiumVali
+				if(StringUtils.isBlank(bean.getInstallYN())) {
+					list.add(new ErrorCheck(prop.getProperty("error.InstallYN.required"),"InstallYN","01"));
+				}else if("Y".equalsIgnoreCase(bean.getInstallYN()) && StringUtils.isNotBlank(bean.getMdInstalmentNumber())) {
+				if ("3".equals(bean.getProductId()) || "5".equals(bean.getProductId())) {
+					int instalmentperiod = Integer.parseInt(bean.getMdInstalmentNumber());
+					double totalInstPremium=0.0;
+					boolean tata = false;
+					double mndPremiumOC=Double.parseDouble(bean.getMdPremium().replaceAll(",", ""));
+					for (int i = 0; i < instalmentperiod; i++) {
+						InstalmentperiodReq req = bean.getInstalmentperiodReq().get(i);
+						if (!val.isNull(bean.getInstalmentperiodReq().get(0).getInstalmentDateList()).equalsIgnoreCase("")) {
+							if (val.ValidateINstallDates(bean.getIncepDate(),bean.getInstalmentperiodReq().get(0).getInstalmentDateList()).equalsIgnoreCase("Invalid")) {
+								tata = true;
+							}
+						}
+						if (!val.isNull(req.getInstalmentDateList()).equalsIgnoreCase("")) {
+							if (val.ValidateTwoDates(req.getInstalmentDateList(),bean.getExpDate()).equalsIgnoreCase("Invalid")) {
+								list.add(new ErrorCheck(prop.getProperty("Error.Select.Expirydate")+String.valueOf(i + 1),"Expirydate","01"));
+							}
+						}
+						
+						if (!val.isNull(req.getInstallmentPremium()).equalsIgnoreCase("")) {
+							
+							try{
+								if(Double.parseDouble(req.getInstallmentPremium().replaceAll(",", ""))<0) {
+									list.add(new ErrorCheck(prop.getProperty("Error.installment.Premium")+String.valueOf(i + 1),"installment","01"));
+								}else {
+									totalInstPremium+=Double.parseDouble(req.getInstallmentPremium().replaceAll(",", "")); 
+								}
+				            }catch (Exception e) {
+				            	list.add(new ErrorCheck(prop.getProperty("Error.installment.Premium")+String.valueOf(i + 1),"installment","01"));
+							}
+						}
+						if (i != 0) {
+							if (!val.isNull(req.getInstalmentDateList()).equalsIgnoreCase("")) {
+								if (val.ValidateTwoDates( bean.getInstalmentperiodReq().get(i-1).getInstalmentDateList(),	req.getInstalmentDateList()).equalsIgnoreCase("Invalid")) {
+									list.add(new ErrorCheck(prop.getProperty("Error.required.InstalDate")+ String.valueOf(i + 1),"InstalDate","01"));
+								}
+							}
+						}
+						
+					}
+					BigDecimal bd = new BigDecimal(totalInstPremium).setScale(2, RoundingMode.HALF_EVEN);
+					totalInstPremium = bd.doubleValue();
+					if((totalInstPremium)!=mndPremiumOC){
+						list.add(new ErrorCheck(prop.getProperty("Error.total.installment.premium")+" Deposit Premium - Our Share - OC","installment","01"));
+				    }
+					if (tata == true) {
+						list.add(new ErrorCheck(prop.getProperty("Error.Select.AfterInceptionDate"),"AfterInceptionDate","01"));
+					}
+				}
+				if(StringUtils.isNotBlank(bean.getMdInstalmentNumber())){
+					int count=dropDownImple.getCountOfInstallmentBooked(bean.getContNo(), bean.getLayerNo());
+					if(Double.parseDouble(bean.getMdInstalmentNumber())<count){
+						list.add(new ErrorCheck(prop.getProperty("error.no.installment.premiumbooked.xol"),"premiumbooked","01"));
+					}
+				}
+			}
+
+				//----------------savesecondpage
+						if(StringUtils.isBlank(bean.getBrokerdetYN())) {
+							list.add(new ErrorCheck(prop.getProperty("error.alldetails.required"),"alldetails","01"));
+						}else if("Y".equals(bean.getBrokerdetYN())) {
+							if (StringUtils.isBlank(bean.getBroker())) {
+								list.add(new ErrorCheck(prop.getProperty("error.broker.required"),"broker","01"));
+							}
+							if(StringUtils.isBlank(bean.getPaymentPartner())) {
+								list.add(new ErrorCheck(prop.getProperty("error.PaymentPartner.required"),"PaymentPartner","01"));
+							}
+							if (val.isNull(bean.getLeaderUnderwriter()).equalsIgnoreCase("")) {
+								list.add(new ErrorCheck(prop.getProperty("errors.leader_Underwriter.second"),"leader_Underwriter","01"));
+							}
+							if("RI02".equalsIgnoreCase(bean.getSourceId()) && "3".equalsIgnoreCase(bean.getProductId())){
+								if(StringUtils.isBlank(bean.getLeaderUnderwritercountry())){
+									list.add(new ErrorCheck(prop.getProperty("errors.leader_Underwriter.second.country"),"leader_Underwriter","01"));
+								}
+							}
+							if (val.isNull(bean.getUnderwriterRecommendations()).equalsIgnoreCase("")) {
+								//list.add(new ErrorCheck(prop.getProperty("errors.underwriter_Recommendations.second"),"","01"));
+							}
+							if (val.isNull(bean.getLeaderUnderwritershare()).equalsIgnoreCase("")) {
+								list.add(new ErrorCheck(prop.getProperty("errors.leader_Underwriter_share.second"),"LeaderUnderwritershare","01"));
+							} else if (val.percentageValid(bean.getLeaderUnderwritershare()).trim().equalsIgnoreCase("INVALID")) {
+								list.add(new ErrorCheck(prop.getProperty("errors.leader_Underwriter_share.second1"),"LeaderUnderwritershare","01"));
+							} else if (val.percentageValid(bean.getLeaderUnderwritershare()).trim().equalsIgnoreCase("less")) {
+								list.add(new ErrorCheck(prop.getProperty("errors.leader_Underwriter_share.secondless"),"LeaderUnderwritershareless","01"));
+							} else if (val.percentageValid(bean.getLeaderUnderwritershare()).trim().equalsIgnoreCase("greater")) {
+								list.add(new ErrorCheck(prop.getProperty("errors.leader_Underwriter_share.secondgreater"),"LeaderUnderwritersharegreater","01"));
+							}
+							
+						}
+						if(StringUtils.isBlank(bean.getAcqdetailYN())) {
+							list.add(new ErrorCheck(prop.getProperty("error.alldetails.required"),"alldetails","01"));
+						}else if("Y".equals(bean.getAcqdetailYN())) {
+							if (val.isNull(bean.getBrokerage()).equalsIgnoreCase("")) {
+								list.add(new ErrorCheck(prop.getProperty("errors.brokerage.second"),"brokerage","01"));
+							} else if (val.percentageValid(bean.getBrokerage()).trim().equalsIgnoreCase("INVALID")) {
+								list.add(new ErrorCheck(prop.getProperty("errors.brokerage.second1"),"brokerage","01"));
+							} else if (val.percentageValid(bean.getBrokerage()).trim().equalsIgnoreCase("greater")) {
+								list.add(new ErrorCheck(prop.getProperty("errors.brokerage.secondgreater"),"brokerage","01"));
+							}
+							if (val.isNull(bean.getTax()).equalsIgnoreCase("")) {
+								list.add(new ErrorCheck(prop.getProperty("errors.tax.second"),"tax","01"));
+							} else if (val.percentageValid(bean.getTax()).trim().equalsIgnoreCase("INVALID")) {
+								list.add(new ErrorCheck(prop.getProperty("errors.tax.second1"),"tax","01"));
+							} else if (val.percentageValid(bean.getTax()).trim().equalsIgnoreCase("less")) {
+								list.add(new ErrorCheck(prop.getProperty("errors.tax.secondless"),"tax","01"));
+							} else if (val.percentageValid(bean.getTax()).trim().equalsIgnoreCase("greater")) {
+								list.add(new ErrorCheck(prop.getProperty("errors.tax.secondgreater"),"tax","01"));
+							}
+							if (val.isNull(bean.getOthercost()).equalsIgnoreCase("")) {
+								list.add(new ErrorCheck(prop.getProperty("errors.othercost.second"),"othercost","01"));
+							} else if (val.percentageValid(bean.getOthercost()).trim().equalsIgnoreCase("INVALID")) {
+								list.add(new ErrorCheck(prop.getProperty("errors.othercost.secondinvalid"),"othercost","01"));
+							} else if (val.percentageValid(bean.getOthercost()).trim().equalsIgnoreCase("less")) {
+								list.add(new ErrorCheck(prop.getProperty("errors.othercost.secondless"),"othercost","01"));
+							} else if (val.percentageValid(bean.getOthercost()).trim().equalsIgnoreCase("greater")) {
+								list.add(new ErrorCheck(prop.getProperty("errors.othercost.secondgreater"),"othercost","01"));
+							}
+							if ((!"4".equalsIgnoreCase(bean.getProductId())) && (!"5".equalsIgnoreCase(bean.getProductId()))) {
+								
+								if(StringUtils.isBlank(bean.getAcqBonus())){
+									//list.add(new ErrorCheck(prop.getProperty("bonus.error.bonus"));
+								}
+								else{
+									if("LCB".equalsIgnoreCase(bean.getAcqBonus())){
+										if(StringUtils.isBlank(bean.getBonusPopUp())){
+						                    list.add(new ErrorCheck(prop.getProperty("bonus.popup.recheck"),"popup","01"));
+						                }else{
+										int count = nonPropImple.getBonusListCount(bean);
+										if(count<=0){
+											list.add(new ErrorCheck(prop.getProperty("bonus.error.lcb.table.empty"),"lcb","01"));
+										}
+						                }
+									}
+									else if("NCB".equalsIgnoreCase(bean.getAcqBonus())){
+									   if(StringUtils.isBlank(bean.getAcqBonusPercentage())){
+										   list.add(new ErrorCheck(prop.getProperty("bonus.error.noclaimbonu.per"),"noclaimbonu","01"));
+										}
+									   else if(100<Double.parseDouble(bean.getAcqBonusPercentage())){
+										list.add(new ErrorCheck(prop.getProperty("bonus.error.low.claim.bonus.range"),"lowclaim","01"));
+										}
+									}
+									
+								}
+							}
+							if (val.isNull(bean.getAcquisitionCost()).equalsIgnoreCase("")) {
+								list.add(new ErrorCheck(prop.getProperty("errors.acquisition_Cost.second"),"AcquisitionCost","01"));
+							} else {
+								bean.setAcquisitionCost((bean.getAcquisitionCost()).replaceAll(",", ""));
+								if (val.isValidNo(bean.getAcquisitionCost()).trim().equalsIgnoreCase("INVALID")) {
+									list.add(new ErrorCheck(prop.getProperty("errors.acquisition_Cost.second1"),"AcquisitionCost","01"));
+								}
+							}
+						}
+						if(StringUtils.isBlank(bean.getReinstdetailYN())) {
+							list.add(new ErrorCheck(prop.getProperty("error.alldetails.required"),"alldetails","01"));
+						}else if("Y".equals(bean.getReinstdetailYN())) {
+							if(StringUtils.isBlank(bean.getReInstatementPremium())){
+								list.add(new ErrorCheck(prop.getProperty("Please Select Reinstatement Premium"),"Reinstatement Premium","01"));
+							}
+							else if("Y".equalsIgnoreCase(bean.getReInstatementPremium())){
+								if(StringUtils.isBlank(bean.getReinsPopUp())){
+				                    list.add(new ErrorCheck(prop.getProperty("reins.popup.recheck"),"popup","01"));
+				                }else{
+								int count=nonPropImple.getReInstatementCount(bean.getAmendId(),bean.getProposalNo(),bean.getBranchCode(),bean.getReferenceNo());
+								if(count<=0){
+									list.add(new ErrorCheck(prop.getProperty("errors.reinstatement.schedule"),"reinstatementschedule","01"));
+								}
+				                }
+							}
+							if (val.isNull(bean.getAnualAggregateLiability()).equalsIgnoreCase("")) {
+								list.add(new ErrorCheck(prop.getProperty("errors.AnualAggregateLiability.number"),"AnualAggregateLiability","01"));
+							} else {
+								bean.setAnualAggregateLiability((bean.getAnualAggregateLiability()).replaceAll(",", ""));
+								if (val.isValidNo(bean.getAnualAggregateLiability()).equalsIgnoreCase("INVALID")) {
+									list.add(new ErrorCheck(prop.getProperty("errors.AnualAggregateLiability.number.format"),"AnualAggregateLiability","01"));
+								}
+							}
+							
+							if (val.isNull(bean.getAnualAggregateDeduct()).equalsIgnoreCase("")) {
+								list.add(new ErrorCheck(prop.getProperty("errors.AnualAggregateDeduct.number"),"AnualAggregateDeduct","01"));
+							} else {
+								bean.setAnualAggregateDeduct((bean.getAnualAggregateDeduct()).replaceAll(",", ""));
+								if (val.isValidNo(bean.getAnualAggregateDeduct()).equalsIgnoreCase("INVALID")) {
+									list.add(new ErrorCheck(prop.getProperty("errors.AnualAggregateDeduct.number.format"),"AnualAggregateDeduct","01"));
+								}
+							}
+						}
+						if(dropDownImple.getBaseContractValid(bean.getBranchCode(),bean.getProposalNo(), bean.getProductId())) {
+						//	list.add(new ErrorCheck(prop.getProperty("errors.base.contract")+bean.getBaseLayerYN(),"","01"));
+						}
+				
+				if("3".equalsIgnoreCase(bean.getProductId())){
+				//	validationContract();
+					}
+				/*validationRemarks();
+				validateRiDetail();*/
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
 	public List<ErrorCheck> moveReinstatementMainVali(MoveReinstatementMainReq req) {
 		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
 		try {
@@ -1526,32 +1352,7 @@ public class NonProportionalityValidation {
 		}
 		return list;
 	}
-	public List<ErrorCheck> instalMentPremiumVali(InstalMentPremiumReq req) {
-		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
-		if (StringUtils.isBlank(req.getLayerNo())) {
-			list.add(new ErrorCheck("Please Enter LayerNo", "LayerNo", "1"));
-		}
-		if (StringUtils.isBlank(req.getBranchCode())) {
-			list.add(new ErrorCheck("Please Enter BranchCode", "BranchCode", "2"));
-		}
-		
-		if (StringUtils.isBlank(req.getLoginId())) {
-			list.add(new ErrorCheck("Please Enter LoginId", "LoginId", "4"));
-		}
-		if (StringUtils.isBlank(req.getExchangeRate())) {
-			list.add(new ErrorCheck("Please Enter ExchangeRate", "ExchangeRate", "5"));
-		}
-		if (StringUtils.isBlank(req.getMdInstalmentNumber())) {
-			list.add(new ErrorCheck("Please Enter MdInstalmentNumber", "MdInstalmentNumber", "6"));
-		}
-		if (StringUtils.isBlank(req.getProposalNo())) {
-			list.add(new ErrorCheck("Please Enter ProposalNo", "ProposalNo", "7"));
-		}
-//		if (CollectionUtils.isEmpty(req.getInstalmentperiodReq())) {
-//			list.add(new ErrorCheck("Please Enter Instalmentperiod", "Instalmentperiod", "8"));
-//		}
-		return list;
-	}
+	
 	public List<ErrorCheck> insertRetroContractsVali(InsertRetroContractsReq req) {
 		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
 		if (StringUtils.isBlank(req.getDepartmentId())) {

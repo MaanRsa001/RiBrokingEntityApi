@@ -2099,6 +2099,7 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 			ttrnRip.setSysDate(new Date());
 			ttrnRip.setSectionType(args[13]);	
 			ttrnRip.setReferenceNo(fm.formatBigDecimal(args[14]));
+			ttrnRip.setSno(fm.formatBigDecimal(args[15]));
 			}
 	}catch(Exception e) {
 		e.printStackTrace();
@@ -3166,7 +3167,59 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 		}
 		return result;
 	}
+	@Transactional
+	@Override
+	public void cancelOldProposal(String proposalNo) {
+		try {
+			//CANCEL_OLD_PROPOSAL
+			CriteriaBuilder cb = this.em.getCriteriaBuilder();
+			CriteriaUpdate<PositionMaster> update = cb.createCriteriaUpdate(PositionMaster.class);
+			Root<PositionMaster> m = update.from(PositionMaster.class);
+			
+			update.set("renewalStatus", "1");
+			//amend
+			Subquery<Long> amend = update.subquery(Long.class); 
+			Root<PositionMaster> p = amend.from(PositionMaster.class);
+			amend.select(cb.max(p.get("amendId")));
+			Predicate d1 = cb.equal(p.get("proposalNo"), m.get("proposalNo"));
+			amend.where(d1);
+			
+			Predicate n1 = cb.equal(m.get("proposalNo"), proposalNo);
+			Predicate n2 = cb.equal(m.get("amendId"), amend);
+			update.where(n1,n2);
+			em.createQuery(update).executeUpdate();
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	@Transactional
+	@Override
+	public void cancelProposal(String newProposal) {
+		try {
+			//CANCEL_PROPOSAL
+			CriteriaBuilder cb = this.em.getCriteriaBuilder();
+			CriteriaUpdate<PositionMaster> update = cb.createCriteriaUpdate(PositionMaster.class);
+			Root<PositionMaster> m = update.from(PositionMaster.class);
+			
+			update.set("contractStatus", "C");
+			update.set("editMode", "N");
+			//amend
+			Subquery<Long> amend = update.subquery(Long.class); 
+			Root<PositionMaster> p = amend.from(PositionMaster.class);
+			amend.select(cb.max(p.get("amendId")));
+			Predicate d1 = cb.equal(p.get("proposalNo"), m.get("proposalNo"));
+			amend.where(d1);
+			
+			Predicate n1 = cb.equal(m.get("proposalNo"), newProposal);
+			Predicate n2 = cb.equal(m.get("amendId"), amend);
+			update.where(n1,n2);
+			em.createQuery(update).executeUpdate();
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
 
-	
 	}
  

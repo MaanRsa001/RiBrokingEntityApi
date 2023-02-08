@@ -7,11 +7,16 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
+
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,12 +31,17 @@ import lombok.ToString;
 * @author Telosys Tools Generator
 *
 */
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
 @Entity
+@DynamicInsert
+@DynamicUpdate
+@Builder
+@IdClass(TtrnRipId.class)
 @Table(name="TTRN_RIP")
 public class TtrnRip implements Serializable {
 	 
@@ -39,6 +49,12 @@ public class TtrnRip implements Serializable {
 	 
 	    //--- ENTITY PRIMARY KEY 
 	    @Id
+	    @Column(name="SNO")
+	    private BigDecimal sno;
+	    @Id
+	    @Column(name="BRANCH_CODE")
+	    private String  branchCode;
+	    
 	    @Column(name="PROPOSAL_NO")
 	    private String proposalNo;
 	    
@@ -70,8 +86,7 @@ public class TtrnRip implements Serializable {
 	    @Column(name="SYS_DATE")
 	    private Date sysDate;
 	    
-	    @Column(name="BRANCH_CODE")
-	    private String  branchCode;
+	  
 	    
 	    @Column(name="SUB_CLASS")
 	    private BigDecimal subClass;

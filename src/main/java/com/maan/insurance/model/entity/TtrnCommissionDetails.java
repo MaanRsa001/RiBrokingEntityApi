@@ -7,6 +7,7 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -21,6 +22,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -30,16 +33,26 @@ import lombok.ToString;
 @DynamicInsert
 @DynamicUpdate
 @Builder
+@IdClass(TtrnCommissionDetailsId.class)
 @Table(name="TTRN_COMMISSION_DETAILS")
 public class TtrnCommissionDetails implements Serializable{
 	private static final long serialVersionUID = 1L;
 	 
     //--- ENTITY PRIMARY KEY 
     @Id
-    @Column(name="PROPOSAL_NO", nullable=false)
-    private BigDecimal proposalNo ;
+    @Column(name="BRANCH_CODE", nullable=false)
+    private String     branchCode ;
+    @Id
+    @Column(name="SERIAL_NO", nullable=false)
+    private BigDecimal     serialNo ;
     
     //--- ENTITY DATA FIELDS 
+    @Column(name="REFERENCE_NO")
+    private BigDecimal referenceNo ;
+    
+    @Column(name="PROPOSAL_NO")
+    private BigDecimal proposalNo ;
+    
     @Column(name="CONTRACT_NO")
     private BigDecimal contractNo ;
     
@@ -66,8 +79,7 @@ public class TtrnCommissionDetails implements Serializable{
     @Column(name="SUB_CLASS")
     private String     subClass ;
     
-    @Column(name="BRANCH_CODE")
-    private String     branchCode ;
+
     
     @Column(name="COMMISSION_TYPE")
     private String     commissionType ;

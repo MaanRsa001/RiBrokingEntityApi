@@ -73,7 +73,7 @@ public interface NonProportionalityService {
 
 	ShowRetroCess1Res showRetroCess1(ShowRetroCess1Req req);
 
-	UpdateProportionalTreatyRes updateProportionalTreaty(UpdateProportionalTreatyReq req);
+	UpdateProportionalTreatyRes updateProportionalTreaty(insertProportionalTreatyReq req);
 
 	CommonResponse insertClassLimit(insertClassLimitReq req);
 
@@ -85,7 +85,7 @@ public interface NonProportionalityService {
 
 	GetRetroContractDetailsListRes getRetroContractDetailsList(GetRetroContractDetailsListReq req, int flag, String UWYear);
 
-	SaveSecondPageRes saveSecondPage(SaveSecondPageReq req);
+	//SaveSecondPageRes saveSecondPage(SaveSecondPageReq req);
 	
 	insertProportionalTreatyRes insertProportionalTreaty(insertProportionalTreatyReq req);
 
@@ -114,7 +114,7 @@ public interface NonProportionalityService {
 
 	CommonResponse insertRetroCess(InsertRetroCessReq req);
 
-	CommonResponse instalMentPremium(InstalMentPremiumReq req);
+//	CommonResponse instalMentPremium(InstalMentPremiumReq req);
 
 	CommonResponse insertRetroContracts(InsertRetroContractsReq req);
 

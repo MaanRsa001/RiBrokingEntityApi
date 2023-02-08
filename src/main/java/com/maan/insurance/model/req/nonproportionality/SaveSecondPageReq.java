@@ -236,4 +236,6 @@ public class SaveSecondPageReq {
 	
 	@JsonProperty("ReferenceNo")
 	private String referenceNo; //ri
+	@JsonProperty("ContractMode")
+	private String contractMode; 
 }

@@ -919,6 +919,8 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 			ttrnCommissionDetails.setCommissionType(input[10]);
 			ttrnCommissionDetails.setLoginId(input[11]);
 			ttrnCommissionDetails.setEntryDate(new Date());	
+			ttrnCommissionDetails.setReferenceNo(fm.formatBigDecimal(input[12]));
+			ttrnCommissionDetails.setSerialNo(fm.formatBigDecimal(input[13]));			;
 		}
 		}catch(Exception e) {
 			e.printStackTrace();
@@ -2720,6 +2722,95 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 			e.printStackTrace();
 		}
 
+	}
+
+	@Override
+	public List<Tuple> commissionTypeList(String proposalno, String branchCode, String commissionType,
+			String contractNo) {
+		List<Tuple> list = new ArrayList<>();
+		try {
+			//COMMISSION_TYPE_LIST
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			Root<TtrnCommissionDetails> c = query.from(TtrnCommissionDetails.class);
+		
+			query.multiselect(c.get("sNo").alias("SNO"),c.get("commFrom").alias("COMM_FROM"),
+					c.get("commTo").alias("COMM_TO"),
+					c.get("profitComm").alias("PROFIT_COMM"));
+					
+			Subquery<Long> end = query.subquery(Long.class); 
+			Root<TtrnCommissionDetails> pms = end.from(TtrnCommissionDetails.class);
+			end.select(cb.max(pms.get("endorsementNo")));
+			Predicate a1 = cb.equal(c.get("proposalNo"), pms.get("proposalNo"));
+			Predicate a2 = cb.equal(c.get("branchCode"), pms.get("branchCode"));
+			end.where(a1,a2);
+			List<Order> orderList = new ArrayList<Order>();
+			orderList.add(cb.asc(c.get("sNo")));
+
+			Predicate n1 = cb.equal(c.get("proposalNo"), proposalno);
+			Predicate n2 = cb.equal(c.get("branchCode"), branchCode);
+			Predicate n3 = cb.equal(c.get("commissionType"), commissionType);
+			Predicate n4 = cb.equal(c.get("endorsementNo"), end);
+			
+			
+		 if(StringUtils.isNotBlank(contractNo)){
+			//COMMISSION_TYPE_LIST1
+				Predicate n5 = cb.equal(c.get("contractNo"), contractNo);
+				query.where(n1,n2,n3,n4,n5).orderBy(orderList);
+				}
+		 else{
+			 query.where(n1,n2,n3,n4).orderBy(orderList);
+		 }
+		 TypedQuery<Tuple> res1 = em.createQuery(query);
+		 list = res1.getResultList();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+
+	@Override
+	public List<Tuple> commissionTypeListReference(String referenceNo, String branchCode, String commissionType,
+			String contractNo) {
+		List<Tuple> list = new ArrayList<>();
+		try {
+			//COMMISSION_TYPE_LIST_Ref
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			Root<TtrnCommissionDetails> c = query.from(TtrnCommissionDetails.class);
+			query.multiselect(c.get("sNo").alias("SNO"),c.get("commFrom").alias("COMM_FROM"),
+					c.get("commTo").alias("COMM_TO"),
+					c.get("profitComm").alias("PROFIT_COMM"));
+					
+			Subquery<Long> end = query.subquery(Long.class); 
+			Root<TtrnCommissionDetails> pms = end.from(TtrnCommissionDetails.class);
+			end.select(cb.max(pms.get("endorsementNo")));
+			Predicate a1 = cb.equal(c.get("referenceNo"), pms.get("referenceNo"));
+			Predicate a2 = cb.equal(c.get("branchCode"), pms.get("branchCode"));
+			end.where(a1,a2);
+			List<Order> orderList = new ArrayList<Order>();
+			orderList.add(cb.asc(c.get("sNo")));
+
+			Predicate n1 = cb.equal(c.get("referenceNo"), referenceNo);
+			Predicate n2 = cb.equal(c.get("branchCode"), branchCode);
+			Predicate n3 = cb.equal(c.get("commissionType"), commissionType);
+			Predicate n4 = cb.equal(c.get("endorsementNo"), end);
+			
+			
+		 if(StringUtils.isNotBlank(contractNo)){
+			//COMMISSION_TYPE_LIST1
+				Predicate n5 = cb.equal(c.get("contractNo"), contractNo);
+				query.where(n1,n2,n3,n4,n5).orderBy(orderList);
+				}
+		 else{
+			 query.where(n1,n2,n3,n4).orderBy(orderList);
+		 }
+		 TypedQuery<Tuple> res1 = em.createQuery(query);
+		 list = res1.getResultList();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return list;
 	}
 		
 	}

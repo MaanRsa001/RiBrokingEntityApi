@@ -170,6 +170,8 @@ public interface NonProportionalityCustomRepository {
 
 	List<Tuple> getLayerInfo(String[] obj);
 
+	void cancelOldProposal(String proposalNo);
 
+	void cancelProposal(String newProposal);
 
 }

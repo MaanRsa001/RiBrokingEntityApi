@@ -74,7 +74,7 @@ public interface ProportionalityService {
 
 	GetRemarksDetailsRes GetRemarksDetails(String proposalNo, String layerNo);
 
-	SecondpagesaveRes saveSecondPage(SecondpageSaveReq req);
+	SecondpagesaveRes saveSecondPage(FirstpageSaveReq req);
 
 	CommonSaveRes insertRetroContracts(RetroSaveReq req);
 

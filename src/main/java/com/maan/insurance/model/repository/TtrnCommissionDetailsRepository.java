@@ -8,10 +8,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import com.maan.insurance.model.entity.TtrnCommissionDetails;
-import com.maan.insurance.model.entity.TtrnCrestazoneDetails;
+import com.maan.insurance.model.entity.TtrnCommissionDetailsId;
 
 @Transactional
-public interface TtrnCommissionDetailsRepository extends JpaRepository<TtrnCommissionDetails,BigDecimal> , JpaSpecificationExecutor<TtrnCommissionDetails> {
+public interface TtrnCommissionDetailsRepository extends JpaRepository<TtrnCommissionDetails,TtrnCommissionDetailsId> , JpaSpecificationExecutor<TtrnCommissionDetails> {
 
 	void deleteByProposalNoAndBranchCodeAndEndorsementNo(BigDecimal bigDecimal, String branchCode,
 			BigDecimal bigDecimal2);
@@ -21,5 +21,10 @@ public interface TtrnCommissionDetailsRepository extends JpaRepository<TtrnCommi
 
 	TtrnCommissionDetails findByProposalNoAndBranchCodeAndEndorsementNo(BigDecimal bigDecimal, String branchCode,
 			BigDecimal bigDecimal2);
+
+	TtrnCommissionDetails findTop1ByBranchCodeOrderBySerialNoDesc(String branchCode);
+
+	void deleteByReferenceNoAndBranchCodeAndEndorsementNoAndContractNo(BigDecimal bigDecimal, String branchCode,
+			BigDecimal bigDecimal2, BigDecimal bigDecimal3);
 
 }

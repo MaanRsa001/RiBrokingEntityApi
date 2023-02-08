@@ -4,11 +4,18 @@ import java.util.Hashtable;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.maan.insurance.model.req.proportionality.RetroListReq;
 
 import lombok.Data;
 
 @Data
 public class insertProportionalTreatyReq {
+	
+	
+	@JsonProperty("CoverLimitOC")
+	private List<coverLimitOC> coverLimitOC;
+	@JsonProperty("CoverLimitAmount")
+	private List<CoverLimitAmount> CoverLimitAmount;
 
 	@JsonProperty("Pid")
 	private String pid;
@@ -21,9 +28,7 @@ public class insertProportionalTreatyReq {
 	
 	@JsonProperty("AmendId")
 	private String amendId;
-	
-	@JsonProperty("Proposalno")
-	private String proposalno;
+
 	
 	@JsonProperty("RenewalEditMode")
 	private String renewalEditMode;
@@ -37,8 +42,8 @@ public class insertProportionalTreatyReq {
 	@JsonProperty("SubProfitcenter")
 	private String subProfitcenter;
 	
-	@JsonProperty("PolBr")
-	private String polBr;
+	@JsonProperty("PolicyBranch")
+	private String policyBranch;
 	
 	@JsonProperty("CedingCo")
 	private String cedingCo;
@@ -328,8 +333,8 @@ public class insertProportionalTreatyReq {
 	@JsonProperty("SourceId")
 	private String sourceId;
 	
-	@JsonProperty("CoverLimitOC")
-	private List<coverLimitOC> coverLimitOC;
+
+	
 
 	@JsonProperty("Edit")
 	private String edit;
@@ -346,8 +351,7 @@ public class insertProportionalTreatyReq {
 	@JsonProperty("OpenPeriodDate")
 	private String openPeriodDate;
 	
-	@JsonProperty("CoverLimitAmount")
-	private List<CoverLimitAmount> CoverLimitAmount;
+
 	
 	@JsonProperty("CedReten")
 	private String cedReten;
@@ -421,10 +425,128 @@ public class insertProportionalTreatyReq {
 	private String paymentPartner;
 	
 	@JsonProperty("RateOnLine")
-	private String rateOnLine;
+	private String rateOnLine; 
 	
 	@JsonProperty("QuotesharePercent")
 	private String quotesharePercent;
+	
+	@JsonProperty("ContractMode")
+	private String contractMode;
+	//-----------------------savesecondpage
+
+	@JsonProperty("ProposalNo")
+	private String proposalNo;
+	@JsonProperty("ContractNo")
+	private String contractNo;
+	
+	@JsonProperty("ReInstatementPremium")
+	private String reInstatementPremium;
+	@JsonProperty("CrestaStatus")
+	private String crestaStatus;
+	@JsonProperty("AcqBonus")
+	private String acqBonus;
+	@JsonProperty("AcqBonusPercentage")
+	private String acqBonusPercentage;
+
+	
+	
+	@JsonProperty("AnualAggregateLiability")
+	private String anualAggregateLiability;
+	@JsonProperty("ReinstNo")
+	private String reinstNo;
+	@JsonProperty("ReinstAdditionalPremium")
+	private String reinstAdditionalPremium;
+
+	@JsonProperty("CrestaPopUp")
+	private String crestaPopUp;
+	@JsonProperty("Brokerage")
+	private String brokerage;
+	@JsonProperty("Tax")
+	private String tax;
+	@JsonProperty("ShareProfitCommission")
+	private String shareProfitCommission;
+	
+	@JsonProperty("acquisitionCost")
+	private String AcquisitionCost;
+
+	@JsonProperty("LeaderUnderwriter")
+	private String leaderUnderwriter;
+	@JsonProperty("LeaderUnderwritershare")
+	private String leaderUnderwritershare;
+	@JsonProperty("Accounts")
+	private String accounts;
+	@JsonProperty("Exclusion")
+	private String exclusion;
+	@JsonProperty("Remarks")
+	private String remarks;
+	@JsonProperty("UnderwriterRecommendations")
+	private String underwriterRecommendations;
+	@JsonProperty("GmsApproval")
+	private String gmsApproval;
+	@JsonProperty("Othercost")
+	private String othercost;
+	@JsonProperty("ReinstAditionalPremiumpercent")
+	private String reinstAditionalPremiumpercent;
+	@JsonProperty("BurningCost")
+	private String burningCost;
+	@JsonProperty("AnualAggregateDeduct")
+	private String anualAggregateDeduct;
+	@JsonProperty("OccurrentLimit")
+	private String occurrentLimit;
+
+	@JsonProperty("DepartmentId")
+	private String departmentId;
+
+	@JsonProperty("LeaderUnderwritercountry")
+	private String leaderUnderwritercountry;
+
+
+	
+	@JsonProperty("PreviousendoDate")
+	private String previousendoDate;
+	@JsonProperty("EndorsementDate")
+	private String endorsementDate;
+
+	@JsonProperty("MaxDate")
+	private String maxDate;
+	@JsonProperty("NoInsurer")
+	private String NoInsurer;
+	
+	@JsonProperty("RetentionPercentage")
+	private String retentionPercentage;
+
+	@JsonProperty("BonusPopUp")
+	private String bonusPopUp;
+
+	@JsonProperty("ReinsPopUp")
+	private String reinsPopUp;
+
+	@JsonProperty("RetroDupContract")
+	private String retroDupContract;
+
+
+	@JsonProperty("ExpiryDate")
+	private String expiryDate;
+
+	
+	@JsonProperty("RetroListReq")
+	private List<RetroListReq> retroListReq;
+//	@JsonProperty("Instalmentperiod")
+//	private List<InstalmentperiodReq> instalmentperiod;
+	@JsonProperty("NoRetroCessReq")
+	private List<NoRetroCessReq> noRetroCessReq;
+	
+	@JsonProperty("ReferenceNo")
+	private String referenceNo; //ri
+//-------------------installmentPremium
+	
+	@JsonProperty("EndorsementNo")
+	private String endorsementNo;
+	
+	@JsonProperty("InstalmentperiodReq")
+	private List<InstalmentperiodReq> instalmentperiodReq;
+
+	
 	
 
 }

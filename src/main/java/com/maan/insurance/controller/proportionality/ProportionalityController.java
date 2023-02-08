@@ -109,8 +109,8 @@ public class ProportionalityController {
 		return propService.GetRemarksDetails( proposalNo,layerNo);
 		}
 	@PostMapping("/saveSecondPage")
-	public SecondpagesaveRes saveSecondPage(@RequestBody SecondpageSaveReq req) throws CommonValidationException {
-		List<ErrorCheck> error=propValidation.validatesecondpageSave(req);
+	public SecondpagesaveRes saveSecondPage(@RequestBody FirstpageSaveReq req) throws CommonValidationException {
+		List<ErrorCheck> error=propValidation.validatefirstpageSave(req);
 		if(error!=null && error.size()>0) {
 			throw new CommonValidationException("error",error);
 		}

@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -1163,48 +1164,7 @@ public class DropDownServiceImple implements DropDownService{
 		return response;
 	
 	}
-//	public int validatethree(String branchCode, String accountDate) {
-//
-//		int count=0;
-//		
-//		List<Map<String, Object>> result=new ArrayList<Map<String, Object>>();
-//		
-//		try{
-//			String query="GET_OPEN_PERIOD_DATE";
-//			String OpstartDate="";
-//			String OpendDate="";
-//			String[] args = new String[1];
-//			args[0]=branchCode;
-//			
-//			log.info("Select Query ==> " + query);
-//			List<Map<String,Object>> list=queryImpl.selectList(query,args);
-//			for(int i=0 ; i<list.size() ; i++) {
-//				Map<String,Object> tempMap = (Map<String,Object>) list.get(i);
-//				OpstartDate=tempMap.get("START_DATE")==null?"":tempMap.get("START_DATE").toString();
-//				OpendDate=tempMap.get("END_DATE")==null?"":tempMap.get("END_DATE").toString();
-//				String query1="GET_OPEN_PERIOD_VALIDATE";
-//				args = new String[3];
-//				args[0]=accountDate;
-//				args[1]=OpstartDate;
-//				args[2]=OpendDate;
-//		
-//				result=queryImpl.selectList(query1,args);
-//				if (!CollectionUtils.isEmpty(result)) {
-//					count =Integer.valueOf((result.get(0).get("TOTAL") == null ? ""
-//							: result.get(0).get("TOTAL").toString()));
-//				
-//				}
-//				
-//				 if(count>0)
-//					 break;
-//			}
-//		}catch(Exception e){
-//			e.printStackTrace();
-//			log.debug("Exception @ {" + e + "}");	
-//		}
-//		return count;
-//	
-//	}
+
 	public  String GetDesginationCountry(final String limitOrigCur,final String ExchangeRate) {
 		String valu="0";
 		if (StringUtils.isNotBlank(limitOrigCur)&& Double.parseDouble(limitOrigCur) != 0) {
@@ -2157,13 +2117,66 @@ public class DropDownServiceImple implements DropDownService{
 			  integration.execute(); */
 			// output=(String) integration.getOutputParameterValue("pvQuoteNo");
 			
-			String query = "UPDATE_SUB_LAYER_INFO";
-		
-			int result = queryImpl.updateQuery(query,new String[]{proposalNo,proposalNo});
-			query = "UPDATE_SUB_LAYER_RISK";
-			result = queryImpl.updateQuery(query,new String[]{proposalNo,proposalNo});
+			//UPDATE_SUB_LAYER_INFO
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			Root<PositionMaster> pm = query.from(PositionMaster.class);
+			query.multiselect(
+					pm.get("cedingCompanyId").alias("CEDING_COMPANY_ID"),
+					pm.get("inceptionDate").alias("INCEPTION_DATE"),
+					pm.get("expiryDate").alias("EXPIRY_DATE"),
+					pm.get("uwYear").alias("UW_YEAR"),
+					pm.get("uwYearTo").alias("UW_YEAR_TO"));
 			
-			System.out.println(result);
+			Subquery<Long> prop = query.subquery(Long.class); 
+			Root<PositionMaster> pms = prop.from(PositionMaster.class);
+			prop.select(pms.get("proposalNo")).distinct(true);
+			Predicate a1 = cb.equal(pm.get("baseLayer"), type);
+			prop.where(a1);
+			
+			Subquery<Long> amend = query.subquery(Long.class); 
+			Root<PositionMaster> pm1 = amend.from(PositionMaster.class);
+			amend.select(pm1.get("proposalNo")).distinct(true);
+			Predicate b1 = cb.equal(pm.get("proposalNo"), pm1.get("proposalNo"));
+			amend.where(b1);
+			
+			Expression<String> e0 = pm.get("proposalNo");
+			Predicate n1 = e0.in(prop);
+			Predicate n2 = cb.equal(pm.get("amendId"), amend);
+			query.where(n1,n2);
+	
+			TypedQuery<Tuple> res1 = em.createQuery(query);
+			List<Tuple> list = res1.getResultList();
+			
+			//UPDATE_SUB_LAYER_INFO subquery
+			query.multiselect(
+					pm.get("cedingCompanyId").alias("CEDING_COMPANY_ID"),
+					pm.get("inceptionDate").alias("INCEPTION_DATE"),
+					pm.get("expiryDate").alias("EXPIRY_DATE"),
+					pm.get("uwYear").alias("UW_YEAR"),
+					pm.get("uwYearTo").alias("UW_YEAR_TO"));
+		
+			Subquery<Long> amen = query.subquery(Long.class); 
+			Root<PositionMaster> pms1 = amen.from(PositionMaster.class);
+			amen.select(cb.max(pm.get("amendId")));
+			Predicate c1 = cb.equal(pms1.get("proposalNo"), pm.get("proposalNo"));
+			amen.where(c1);
+			
+			
+			Predicate m1 =cb.equal(pm.get("proposalNo"), proposalNo);
+			Predicate m2 = cb.equal(pm.get("amendId"), amen);
+			query.where(m1,m2);
+	
+			TypedQuery<Tuple> res = em.createQuery(query);
+			List<Tuple> list1 = res.getResultList();
+			
+			
+		
+//			int result = queryImpl.updateQuery(query,new String[]{proposalNo,proposalNo});
+//			query = "UPDATE_SUB_LAYER_RISK";
+//			result = queryImpl.updateQuery(query,new String[]{proposalNo,proposalNo});
+//			
+//			System.out.println(result);
 
 			response.setMessage("Success");
 			response.setIsError(false);
@@ -6077,6 +6090,7 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 
 
 
+
 		@Override
 		public GetCommonDropDownRes getProductDropDown(String branchCode) {
 			GetCommonDropDownRes response = new GetCommonDropDownRes();
@@ -6118,4 +6132,19 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 
 	return response;
 		}
+
+		public  Set<String> findDuplicates(List<String> listContainingDuplicates) {
+			 
+			final Set<String> setToReturn = new HashSet<String>();
+			final Set<String> set1 = new HashSet<String>();
+	 
+			for (String yourInt : listContainingDuplicates) {
+				if (!set1.add(yourInt)) {
+					setToReturn.add(yourInt);
+				}
+			}
+			return setToReturn;
+	}
+		
+
 }

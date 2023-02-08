@@ -71,6 +71,7 @@ public class QueryImplemention {
 	@Transactional
 	public List<Map<String, Object>> selectSingle(String props, String[] arg) {
 		List<Map<String,Object>> list = new ArrayList<>();
+		
 		log.info("Inside updateQuery => " + props +" args=>"+ arg);
 		query=setQueryProp(props, arg);
 		query.unwrap(NativeQueryImpl.class).setResultTransformer(AliasToEntityMapResultTransformer.INSTANCE);

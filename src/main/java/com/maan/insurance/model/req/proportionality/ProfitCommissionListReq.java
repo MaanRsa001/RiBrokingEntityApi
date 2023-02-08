@@ -14,8 +14,11 @@ public class ProfitCommissionListReq {
 	private String branchCode;
 	
 	@JsonProperty("CommissionType")
-	private String commissionType;
+	private String commissionType; 
 	
 	@JsonProperty("ContractNo")
 	private String contractNo;
+	
+	@JsonProperty("ReferenceNo")
+	private String referenceNo;
 }

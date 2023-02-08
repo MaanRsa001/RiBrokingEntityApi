@@ -134,5 +134,10 @@ public interface ProportionalityCustomRepository {
 
 	void riskUpdateHomeContNo(String[] args);
 
+	List<Tuple> commissionTypeList(String proposalno, String branchCode, String commissionType, String contractNo);
+
+	List<Tuple> commissionTypeListReference(String referenceNo, String branchCode, String commissionType,
+			String contractNo);
+
 
 }

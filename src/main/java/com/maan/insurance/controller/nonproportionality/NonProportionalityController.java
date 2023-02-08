@@ -128,8 +128,8 @@ public class NonProportionalityController {
 			return nonPropService.showRetroCess1(req);
 		}
 		@PostMapping("/updateProportionalTreaty")
-		public UpdateProportionalTreatyRes updateProportionalTreaty(@RequestBody UpdateProportionalTreatyReq req) throws CommonValidationException {
-			List<ErrorCheck> error=nonPropValidation.updateProportionalTreatyVali(req);
+		public UpdateProportionalTreatyRes updateProportionalTreaty(@RequestBody insertProportionalTreatyReq req) throws CommonValidationException {
+			List<ErrorCheck> error=nonPropValidation.insertProportionalTreatyvali(req);
 			if(error!=null && error.size()>0) {
 				throw new CommonValidationException("error",error);
 			}
@@ -175,14 +175,14 @@ public class NonProportionalityController {
 			}
 			return nonPropService.getRetroContractDetailsList(req, req.getFlag(), req.getUwYear());
 		} 
-		@PostMapping("/saveSecondPage")
-		public SaveSecondPageRes saveSecondPage(@RequestBody SaveSecondPageReq req) throws CommonValidationException {
-			List<ErrorCheck> error=nonPropValidation.saveSecondPageVali(req);
-			if(error!=null && error.size()>0) {
-				throw new CommonValidationException("error",error);
-			}
-			return nonPropService.saveSecondPage(req);
-		}
+//		@PostMapping("/saveSecondPage")
+//		public SaveSecondPageRes saveSecondPage(@RequestBody SaveSecondPageReq req) throws CommonValidationException {
+//			List<ErrorCheck> error=nonPropValidation.saveSecondPageVali(req);
+//			if(error!=null && error.size()>0) {
+//				throw new CommonValidationException("error",error);
+//			}
+//			return nonPropService.saveSecondPage(req);
+//		}
 	@PostMapping("/insertProportionalTreaty")
 	public insertProportionalTreatyRes insertProportionalTreaty(@RequestBody insertProportionalTreatyReq req) throws CommonValidationException {
 		List<ErrorCheck> error=nonPropValidation.insertProportionalTreatyvali(req);
@@ -263,14 +263,14 @@ public class NonProportionalityController {
 			}
 			return nonPropService.getClassLimitDetails(req);
 		}
-		@PostMapping("/saveRiskDeatilsSecondForm")
-		public SaveRiskDeatilsSecondFormRes saveRiskDeatilsSecondForm(@RequestBody SaveSecondPageReq req) throws CommonValidationException {
-			List<ErrorCheck> error=nonPropValidation.saveSecondPageVali(req);
-			if(error!=null && error.size()>0) {
-				throw new CommonValidationException("error",error);
-			}
-			return nonPropService.saveRiskDeatilsSecondForm(req);
-		}
+//		@PostMapping("/saveRiskDeatilsSecondForm")
+//		public SaveRiskDeatilsSecondFormRes saveRiskDeatilsSecondForm(@RequestBody SaveSecondPageReq req) throws CommonValidationException {
+//			List<ErrorCheck> error=nonPropValidation.saveSecondPageVali(req);
+//			if(error!=null && error.size()>0) {
+//				throw new CommonValidationException("error",error);
+//			}
+//			return nonPropService.saveRiskDeatilsSecondForm(req);
+//		}
 //		@GetMapping("/insertRetroCess/{proposalNo}/{noRetroCess}")
 //		public CommonResponse insertRetroCess(@PathVariable ("proposalNo") String proposalNo, @PathVariable ("noRetroCess") String noRetroCess) throws CommonValidationException {
 //						return nonPropService.insertRetroCess(proposalNo, noRetroCess);
@@ -283,14 +283,14 @@ public class NonProportionalityController {
 				}
 				return nonPropService.insertRetroCess(req);
 			}
-			@PostMapping("/instalMentPremium")
-			public CommonResponse instalMentPremium(@RequestBody InstalMentPremiumReq req) throws CommonValidationException {
-				List<ErrorCheck> error=nonPropValidation.instalMentPremiumVali(req);
-				if(error!=null && error.size()>0) {
-					throw new CommonValidationException("error",error);
-				}
-				return nonPropService.instalMentPremium(req);
-			}
+//			@PostMapping("/instalMentPremium")
+//			public CommonResponse instalMentPremium(@RequestBody InstalMentPremiumReq req) throws CommonValidationException {
+//				List<ErrorCheck> error=nonPropValidation.instalMentPremiumVali(req);
+//				if(error!=null && error.size()>0) {
+//					throw new CommonValidationException("error",error);
+//				}
+//				return nonPropService.instalMentPremium(req);
+//			}
 			@PostMapping("/insertRetroContracts")
 			public CommonResponse insertRetroContracts(@RequestBody InsertRetroContractsReq req) throws CommonValidationException {
 				List<ErrorCheck> error=nonPropValidation.insertRetroContractsVali(req);

@@ -1,13 +1,10 @@
 package com.maan.insurance.service.impl.nonproportionality;
 
 import java.math.BigDecimal;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import com.maan.insurance.model.entity.TtrnRip;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -35,6 +32,7 @@ import com.maan.insurance.model.entity.PositionMaster;
 import com.maan.insurance.model.entity.TtrnBonus;
 import com.maan.insurance.model.entity.TtrnCrestazoneDetails;
 import com.maan.insurance.model.entity.TtrnIeModule;
+import com.maan.insurance.model.entity.TtrnRip;
 import com.maan.insurance.model.entity.TtrnRiskCommission;
 import com.maan.insurance.model.entity.TtrnRiskDetails;
 import com.maan.insurance.model.entity.TtrnRiskProposal;
@@ -67,7 +65,6 @@ import com.maan.insurance.model.req.nonproportionality.InsertIEModuleReq;
 import com.maan.insurance.model.req.nonproportionality.InsertRetroCessReq;
 import com.maan.insurance.model.req.nonproportionality.InsertRetroCessReq1;
 import com.maan.insurance.model.req.nonproportionality.InsertRetroContractsReq;
-import com.maan.insurance.model.req.nonproportionality.InstalMentPremiumReq;
 import com.maan.insurance.model.req.nonproportionality.InstalmentperiodReq;
 import com.maan.insurance.model.req.nonproportionality.LowClaimBonusInserReq;
 import com.maan.insurance.model.req.nonproportionality.MoveReinstatementMainReq;
@@ -104,7 +101,6 @@ import com.maan.insurance.model.res.nonproportionality.GetLayerInfoRes1;
 import com.maan.insurance.model.res.nonproportionality.GetLowClaimBonusListRes;
 import com.maan.insurance.model.res.nonproportionality.GetLowClaimBonusListRes1;
 import com.maan.insurance.model.res.nonproportionality.GetReInstatementDetailsListRes;
-import com.maan.insurance.model.res.nonproportionality.GetReInstatementDetailsListRes1;
 import com.maan.insurance.model.res.nonproportionality.GetRemarksDetailsRes;
 import com.maan.insurance.model.res.nonproportionality.GetRetroContractDetailsListRes;
 import com.maan.insurance.model.res.nonproportionality.GetRetroContractDetailsListRes1;
@@ -586,11 +582,11 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			String [] args=null;
 			if (req.isSaveFlag()) {	
 				if (ChkSavFlg){
-					String maxAmendID= getMaxAmednId(req.getProposalno());
+					String maxAmendID= getMaxAmednId(req.getProposalNo());
 					args = getFirstPageEditSaveModeAruguments(req,maxAmendID);
 				
 					//UpdateProportionalTreatyQuery
-					TtrnRiskDetails list = ttrnRiskDetailsRepository.findByRskProposalNumberAndRskEndorsementNo(req.getProposalno(), maxAmendID);
+					TtrnRiskDetails list = ttrnRiskDetailsRepository.findByRskProposalNumberAndRskEndorsementNo(req.getProposalNo(), maxAmendID);
 					if(list!=null) {
 						list.setRskLayerNo(StringUtils.isEmpty(req.getLayerNo())?BigDecimal.ZERO:new BigDecimal(req.getLayerNo()))	;	
 						ttrnRiskDetailsRepository.saveAndFlush(list);
@@ -613,11 +609,11 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 					//risk.insert.isAmendIDProTreaty
 					TtrnRiskDetails	 insert = nonProportCustomRepository.ttrnRiskDetailsInsert(args);
 					ttrnRiskDetailsRepository.saveAndFlush(insert);	
-					response.setContractGendration("Your Proposal Number :"+ req.getProposalno());
+					response.setContractGendration("Your Proposal Number :"+ req.getProposalNo());
 				}
 			} 
 			else {
-				String maxAmendID = getMaxAmednId(req.getProposalno());
+				String maxAmendID = getMaxAmednId(req.getProposalNo());
 				if( maxAmendID.equalsIgnoreCase(req.getAmendId())) {
 					args = getFirstPageInsertAruguments(req);
 					//risk.insert.isAmendIDProTreaty
@@ -626,12 +622,12 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 				}
 				else{
 					//UpdateProportionalTreatyQuery
-					TtrnRiskDetails list = ttrnRiskDetailsRepository.findByRskProposalNumberAndRskEndorsementNo(req.getProposalno(), maxAmendID);
+					TtrnRiskDetails list = ttrnRiskDetailsRepository.findByRskProposalNumberAndRskEndorsementNo(req.getProposalNo(), maxAmendID);
 					if(list!=null) {
 						list.setRskLayerNo(StringUtils.isEmpty(req.getLayerNo())?BigDecimal.ZERO:new BigDecimal(req.getLayerNo()))	;	
 						ttrnRiskDetailsRepository.saveAndFlush(list);
 						}
-					args = getFirstPageEditSaveModeAruguments(req,getMaxAmednId(req.getProposalno()));
+					args = getFirstPageEditSaveModeAruguments(req,getMaxAmednId(req.getProposalNo()));
 					//risk.update.rskDtls
 					TtrnRiskDetails	 update = nonProportCustomRepository.ttrnRiskDetailsUpdate(args);
 					if(update!=null) {
@@ -641,9 +637,15 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 					args[1]=(Integer.parseInt(maxAmendID)+1)+"";
 				}
 			}
+		
+			
 //			insertClassLimit(req2);
 //			insertRemarkDetails(req3);
 			response = insertRiskProposal(req,ChkSavFlg);
+			SaveSecondPageRes secRes = 	saveSecondPage(req);
+			instalMentPremium(req);
+			
+			response.setContractGendration(secRes.getCommonResponse().getContractGendration());
 			response.setMessage("Success");
 			response.setIsError(false);
 			}
@@ -733,7 +735,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 	}
 
 	@Override
-	public UpdateProportionalTreatyRes updateProportionalTreaty(UpdateProportionalTreatyReq req) {
+	public UpdateProportionalTreatyRes updateProportionalTreaty(insertProportionalTreatyReq req) {
 		UpdateProportionalTreatyRes response = new UpdateProportionalTreatyRes();
 		boolean savFlg = false;
 		int updateCount = 0;
@@ -750,11 +752,11 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			args = new String[55]; //RI
 			args[0] = req.getDepartmentId();
 			args[1] = req.getProfitCenter();
-			args[2] = req.getSubProfitCenter();
+			args[2] = req.getSubProfitcenter();
 			args[3] = StringUtils.isBlank(req.getPolicyBranch())? "":req.getPolicyBranch();
 			args[4] = req.getCedingCo();
 			args[5] = StringUtils.isBlank(req.getBroker())?"63":req.getBroker();
-			args[6] = req.getTreatyNameType();
+			args[6] = req.getTreatyNametype();
 			args[7] = StringUtils.isBlank(req.getMonth())? "":req.getMonth();
 			args[8] = req.getUwYear();
 			args[9] = StringUtils.isBlank(req.getUnderwriter())? "":req.getUnderwriter();
@@ -832,6 +834,9 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 //				this.showSecondpageEditItems(beanObj, pid, proposalno);
 				savFlg = true;
 			}
+			saveSecondPage(req);
+			instalMentPremium(req);
+			
 			response.setSaveFlag(savFlg);
 			response.setMessage("Success");
 			response.setIsError(false);
@@ -937,7 +942,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 //			}
 //		return response;
 //	}
-	private boolean updateRiskProposal(final UpdateProportionalTreatyReq beanObj) {
+	private boolean updateRiskProposal(final insertProportionalTreatyReq beanObj) {
 		boolean saveFlag = false;
 		String endtNo="";
 		try {
@@ -977,14 +982,14 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		}
 		return saveFlag;
 	}
-	public String[] updateRiskProposalArgs(final UpdateProportionalTreatyReq beanObj,final String pid,String endNo) {
+	public String[] updateRiskProposalArgs(final insertProportionalTreatyReq beanObj,final String pid,String endNo) {
 		String[] obj=null;
 		obj = new String[36];
 		obj[0] = beanObj.getLimitOrigCur().replaceAll(",", "");
 		obj[1] = getDesginationCountry(beanObj.getLimitOrigCur().replaceAll(",", ""), beanObj.getExchRate());
 		obj[2] = beanObj.getEpi();
 		obj[3] = getDesginationCountry(beanObj.getEpi(), beanObj.getExchRate());
-		obj[4] = StringUtils.isBlank(beanObj.getShareWritten())? "":beanObj.getShareWritten();
+		obj[4] = StringUtils.isBlank(beanObj.getShareWritt())? "":beanObj.getShareWritt();
 		if (beanObj.getProStatus().equalsIgnoreCase("P")) {
 			obj[5] = "0";
 		} else if (beanObj.getProStatus().equalsIgnoreCase("A")) {
@@ -1109,15 +1114,15 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 
 		String[] args= new String[59]; //ri
 		if (req.getAmendStatus()) {
-			args[0] = req.getProposalno();
-			args[1] =(Integer.parseInt(getMaxAmednId(req.getProposalno()))+1)+"";
+			args[0] = req.getProposalNo();
+			args[1] =(Integer.parseInt(getMaxAmednId(req.getProposalNo()))+1)+"";
 			args[26] = req.getContNo();
 		}else{
 			args[26] = "";
-			if(StringUtils.isBlank(req.getProposalno())){
-			req.setProposalno(getMaxProposanlno(req.getPid(),req.getBranchCode(),req.getDepartId()));
+			if(StringUtils.isBlank(req.getProposalNo())){
+			req.setProposalNo(getMaxProposanlno(req.getPid(),req.getBranchCode(),req.getDepartId()));
 			}
-			args[0] = req.getProposalno();
+			args[0] = req.getProposalNo();
 			args[1] = "0";
 		}
 		args[2] = StringUtils.isEmpty(req.getLayerNo())?"0":req.getLayerNo();
@@ -1129,7 +1134,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		args[4] = StringUtils.isEmpty(req.getDepartId()) ? "0" : req.getDepartId();
 		args[5] = StringUtils.isEmpty(req.getProfitCenter()) ? "0" : req.getProfitCenter();
 		args[6] = StringUtils.isEmpty(req.getSubProfitcenter()) ? "0" : req.getSubProfitcenter();
-		args[7] = StringUtils.isEmpty(req.getPolBr()) ? "0" : req.getPolBr();
+		args[7] = StringUtils.isEmpty(req.getPolicyBranch()) ? "0" : req.getPolicyBranch();
 		args[8] = StringUtils.isEmpty(req.getCedingCo()) ? "0" : req.getCedingCo();
 		args[9] = StringUtils.isEmpty(req.getBroker()) ? "63" : req.getBroker();
 		args[10] = StringUtils.isEmpty(req.getTreatyNametype()) ? "" : req.getTreatyNametype();
@@ -1287,7 +1292,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		}
 		return output;
 		}
-	public String[] updateHomePostion(final UpdateProportionalTreatyReq beanObj,final String pid, final boolean bool) {
+	public String[] updateHomePostion(final insertProportionalTreatyReq beanObj,final String pid, final boolean bool) {
 
 		String[] obj = new String[23]; //RI
 		obj[0] = StringUtils.isEmpty(beanObj.getLayerNo()) ? "0" : beanObj.getLayerNo();
@@ -1338,7 +1343,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		
 		return obj;
 	}
-	private void layerNoUpdate(UpdateProportionalTreatyReq beanObj, String endNo) {
+	private void layerNoUpdate(insertProportionalTreatyReq beanObj, String endNo) {
 		try{
 			//RISK_LAYER_UPDATE
 			TtrnRiskProposal list  = ttrnRiskProposalRepository.findByRskProposalNumberAndRskEndorsementNo(beanObj.getProposalNo(),new BigDecimal(endNo));
@@ -1956,7 +1961,6 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 					beanObj.setLocCreditAmt(resMap.get("RSK_LOC_CRDT_AMT")==null?"":fm.formatter(resMap.get("RSK_LOC_CRDT_AMT").toString()));
 					beanObj.setLocBeneficerName(resMap.get("RSK_LOC_BENFCRE_NAME")==null?"":resMap.get("RSK_LOC_BENFCRE_NAME").toString());
 					
-				
 				beanObj.setEndorsmenttype(resMap.get("RS_ENDORSEMENT_TYPE")==null?"":resMap.get("RS_ENDORSEMENT_TYPE").toString());
 				beanObj.setRenewalcontractNo(resMap.get("OLD_CONTRACTNO")==null?"":resMap.get("OLD_CONTRACTNO").toString());
 				beanObj.setBaseLoginId(resMap.get("LOGIN_ID")==null?"":resMap.get("LOGIN_ID").toString());
@@ -2092,8 +2096,8 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		return response;
 	}
 
-	@Override
-	public SaveSecondPageRes saveSecondPage(SaveSecondPageReq req) {
+	
+	public SaveSecondPageRes saveSecondPage(insertProportionalTreatyReq req) {
 		SaveSecondPageRes response = new SaveSecondPageRes();
 		SaveSecondPageRes1 beanObj = new SaveSecondPageRes1();
 		try{
@@ -2242,7 +2246,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			if (req.isSaveFlag()) {
 				if (ChkSavFlg) {
 					//risk.select.maxEndom
-					TtrnRiskDetails list = ttrnRiskDetailsRepository.findTop1ByRskProposalNumberOrderByRskEndorsementNoDesc(req.getProposalno());
+					TtrnRiskDetails list = ttrnRiskDetailsRepository.findTop1ByRskProposalNumberOrderByRskEndorsementNoDesc(req.getProposalNo());
 					if(list!=null) {
 					req.setEndNo(list.getRskEndorsementNo()==null?"0":list.getRskEndorsementNo().toString());
 					}
@@ -2267,7 +2271,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 						 */
 					}
 					int count =0;
-					updateFirstPageFields(req, getMaxAmednIdPro(req.getProposalno()));
+					updateFirstPageFields(req, getMaxAmednIdPro(req.getProposalNo()));
 					args = updateHomePositionMasterAruguments(req,maxAmendId);
 					//risk.update.positionMaster
 					PositionMaster update1 = nonProportCustomRepository.positionMasterUpdate(args);
@@ -2277,14 +2281,14 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 					}
 					if (count > 0) {
 						if(StringUtils.isNotBlank(req.getContNo())) {
-							response.setContractGendration("Your Proposal is saved in Endorsement with Proposal No : "+ req.getProposalno());
+							response.setContractGendration("Your Proposal is saved in Endorsement with Proposal No : "+ req.getProposalNo());
 						}
 						else if (req.getProStatus().equalsIgnoreCase("A") || req.getProStatus().equalsIgnoreCase("P")||"0".equalsIgnoreCase(req.getProStatus())) {
-							response.setContractGendration("Your Proposal is saved in Pending Stage with Proposal No : "+ req.getProposalno()+" and Layer No : "+req.getLayerNo());
+							response.setContractGendration("Your Proposal is saved in Pending Stage with Proposal No : "+ req.getProposalNo()+" and Layer No : "+req.getLayerNo());
 						}else if(req.getProStatus().equalsIgnoreCase("N")){
-							response.setContractGendration("Your Proposal is saved in Not Taken Up Stage with Proposal No : "+ req.getProposalno()+" and Layer No : "+req.getLayerNo());
+							response.setContractGendration("Your Proposal is saved in Not Taken Up Stage with Proposal No : "+ req.getProposalNo()+" and Layer No : "+req.getLayerNo());
 						}else if(req.getProStatus().equalsIgnoreCase("R")){
-							response.setContractGendration("Your Proposal is saved in Rejected Stage with Proposal No : "+ req.getProposalno() +" and Layer No : "+req.getLayerNo());
+							response.setContractGendration("Your Proposal is saved in Rejected Stage with Proposal No : "+ req.getProposalNo() +" and Layer No : "+req.getLayerNo());
 						}
 					}
 				} else {
@@ -2296,7 +2300,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 						ttrnRiskProposalRepository.saveAndFlush(insert);	
 						res = 1;
 					}
-					updateFirstPageFields(req, getMaxAmednIdPro(req.getProposalno()));
+					updateFirstPageFields(req, getMaxAmednIdPro(req.getProposalNo()));
 					String renewalStatus = getRenewalStatus(req);
 					args = insertHomePositionMasterAruguments(req);
 					//risk.insert.positionMaster
@@ -2306,11 +2310,11 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 						res=1;
 					}
 					if (req.getProStatus().equalsIgnoreCase("A") || req.getProStatus().equalsIgnoreCase("P")||"0".equalsIgnoreCase(req.getProStatus())) {
-						response.setContractGendration("Your Proposal is saved in Pending Stage with Proposal No : "+ req.getProposalno()+" and Layer No : "+req.getLayerNo());
+						response.setContractGendration("Your Proposal is saved in Pending Stage with Proposal No : "+ req.getProposalNo()+" and Layer No : "+req.getLayerNo());
 					}else if(req.getProStatus().equalsIgnoreCase("N")){
-						response.setContractGendration("Your Proposal is saved in Not Taken Up Stage with Proposal No : "+ req.getProposalno()+" and Layer No : "+req.getLayerNo());
+						response.setContractGendration("Your Proposal is saved in Not Taken Up Stage with Proposal No : "+ req.getProposalNo()+" and Layer No : "+req.getLayerNo());
 					}else if(req.getProStatus().equalsIgnoreCase("R")){
-						response.setContractGendration("Your Proposal is saved in Rejected Stage with Proposal No : "+ req.getProposalno() +" and Layer No : "+req.getLayerNo());
+						response.setContractGendration("Your Proposal is saved in Rejected Stage with Proposal No : "+ req.getProposalNo() +" and Layer No : "+req.getLayerNo());
 				}
 			}
 		}
@@ -2334,7 +2338,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 						//InsertFlag = true;
 					}
 					
-					updateFirstPageFields(req, getMaxAmednIdPro(req.getProposalno()));
+					updateFirstPageFields(req, getMaxAmednIdPro(req.getProposalNo()));
 					int insertCount = 0;
 					if(maxAmendId.equalsIgnoreCase(req.getAmendId())){
 						String renewalStatus = getRenewalStatus(req);
@@ -2361,18 +2365,18 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 						//InsertFlag = true;
 					}
 					if (req.getProStatus().equalsIgnoreCase("R")) {
-						response.setContractGendration("Your Proposal is saved in Rejected Stage with Proposal No : "+ req.getProposalno());
+						response.setContractGendration("Your Proposal is saved in Rejected Stage with Proposal No : "+ req.getProposalNo());
 					}
 					String proposalno="";
 					if (StringUtils.isNotEmpty(req.getLayerProposalNo())) {
 						proposalno = req.getLayerProposalNo();
 					} else {
-						proposalno = req.getProposalno();
+						proposalno = req.getProposalNo();
 						}
 //					this.showSecondpageEditItems(beanObj, pid, proposalno);
 				}
 			}
-		response.setProposalno(req.getProposalno());
+		response.setProposalno(req.getProposalNo());
 		response.setMessage("Success");
 		response.setIsError(false);
 	} catch (Exception e) {
@@ -2389,10 +2393,10 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		String arg2 = null;
 		arg = new String[37];
 		if (req.getAmendStatus()) {
-			arg[0] = req.getProposalno();
+			arg[0] = req.getProposalNo();
 			arg[1] = arg2;
 		} else {
-			arg[0] = req.getProposalno();
+			arg[0] = req.getProposalNo();
 			arg[1] = "0";
 		}
 		arg[3] = StringUtils.isEmpty(req.getLimitOrigCur()) ? "0" : req.getLimitOrigCur().replaceAll(",", "");
@@ -2465,7 +2469,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			argus[2] = "0";
 			argus[16] = StringUtils.isBlank(req.getBaseLayer())?StringUtils.isBlank(req.getLayerProposalNo())? "": req.getLayerProposalNo():req.getBaseLayer();
 		}
-		argus[0] = req.getProposalno();
+		argus[0] = req.getProposalNo();
 		argus[3] = StringUtils.isEmpty(req.getLayerNo()) ? "0" : req.getLayerNo();
 		argus[4] = "";
 		argus[5] = req.getPid();
@@ -2508,10 +2512,10 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		String args2 = null;
 		args = new String[37];
 		if (req.getAmendStatus()){
-			args[0] = req.getProposalno();
+			args[0] = req.getProposalNo();
 			args[1] = args2;
 		} else {
-			args[0] = req.getProposalno();
+			args[0] = req.getProposalNo();
 			args[1] = "0";
 		}
 		args[3] = StringUtils.isEmpty(req.getLimitOrigCur()) ? "0" : req.getLimitOrigCur().replaceAll(",", "");
@@ -2597,7 +2601,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		args[18] = req.getBouquetNo();
 		args[19] = req.getUwYearTo();
 		args[20] = req.getSectionNo();
-		args[21] = req.getProposalno();
+		args[21] = req.getProposalNo();
 		args[22] = maxAmendId;	
 		return args;
 	}
@@ -2641,13 +2645,13 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		args[30] =StringUtils.isEmpty(req.getOurAssessment()) ? "0"	: req.getOurAssessment();
 		args[32] = req.getLoginId();
 		args[33] = req.getBranchCode();
-		args[34] = req.getProposalno();
+		args[34] = req.getProposalNo();
 		args[35]=req.getEndNo()==null?"0":req.getEndNo();
 		return args;
 	}
 
 	public String[] saveUpdateRiskDetailsSecondForm(
-			final SaveSecondPageReq beanObj, final String endNo) {
+			final insertProportionalTreatyReq beanObj, final String endNo) {
 		String[] obj=null;
 		obj = new String[9];
 		obj[0] = StringUtils.isEmpty(beanObj.getLimitOurShare()) ? "0": beanObj.getLimitOurShare();
@@ -2662,7 +2666,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		return obj;
 	}
 	public String[] savemodeUpdateRiskDetailsSecondFormSecondTable(
-			final SaveSecondPageReq beanObj) {
+			final insertProportionalTreatyReq beanObj) {
 		String[] obj=new String[0];
 		if ("3".equalsIgnoreCase(beanObj.getProductId()) || "5".equalsIgnoreCase(beanObj.getProductId())) {
 			obj = new String[35];
@@ -2719,7 +2723,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		}
 		return obj;
 	}
-	public String[] secondPageFirstTableSaveAruguments(final SaveSecondPageReq beanObj, final String endNo) {
+	public String[] secondPageFirstTableSaveAruguments(final insertProportionalTreatyReq beanObj, final String endNo) {
 		String[] obj=null;
 		obj = new String[9];
 		obj[0] = StringUtils.isEmpty(beanObj.getLimitOurShare()) ? "0": beanObj.getLimitOurShare();
@@ -2734,7 +2738,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		return obj;
 	}
 	public String[] secondPageCommissionSaveAruguments(
-			final SaveSecondPageReq beanObj) {
+			final insertProportionalTreatyReq beanObj) {
 		String[] obj=null;
 		if ("3".equalsIgnoreCase(beanObj.getProductId()) || "5".equalsIgnoreCase(beanObj.getProductId())) {
 
@@ -2838,7 +2842,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		}
 		return result;
 	}	
-	public int getBonusListCount(SaveSecondPageReq bean) {
+	public int getBonusListCount(insertProportionalTreatyReq bean) {
 		String args[]=null;
 		int result=0;
 		try{
@@ -2961,7 +2965,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			args[50] = req.getReinstdetailYN();
 			args[51] = StringUtils.isBlank(req.getRateOnLine())? "":req.getRateOnLine();
 			args[52] =StringUtils.isEmpty(req.getQuotesharePercent()) ? "0": req.getQuotesharePercent();
-			args[53] = req.getProposalno();
+			args[53] = req.getProposalNo();
 			args[54]=endNo;
 			
 			//UPDATE_RISK_PROPOSAL_DETAILS
@@ -2989,7 +2993,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		try{
 			if(StringUtils.isNotBlank(req.getContNo())){
 				//risk.select.getRenewalStatus
-				 result = nonProportCustomRepository.riskSelectGetRenewalStatus(req.getProposalno());
+				 result = nonProportCustomRepository.riskSelectGetRenewalStatus(req.getProposalNo());
 			}
 		}
 			
@@ -3006,7 +3010,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		args[0] = StringUtils.isEmpty(req.getDepartId()) ? "0" : req.getDepartId();
 		args[1] = StringUtils.isEmpty(req.getProfitCenter()) ? "0" : req.getProfitCenter();
 		args[2] = StringUtils.isEmpty(req.getSubProfitcenter()) ? "0" : req.getSubProfitcenter();
-		args[3] = StringUtils.isEmpty(req.getPolBr()) ? "0" : req.getPolBr();
+		args[3] = StringUtils.isEmpty(req.getPolicyBranch()) ? "0" : req.getPolicyBranch();
 		args[4] = StringUtils.isEmpty(req.getCedingCo()) ? "0" : req.getCedingCo();
 		args[5] = StringUtils.isEmpty(req.getBroker()) ? "63" : req.getBroker();
 		args[6] = StringUtils.isEmpty(req.getTreatyNametype()) ? "" : req.getTreatyNametype();
@@ -3057,7 +3061,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		args[49]=StringUtils.isEmpty(req.getRetentionYN()) ? ""	:req.getRetentionYN();
 		args[50] = req.getAccountingPeriodNotes();
 		args[51] =req.getStatementConfirm();
-		args[52] = req.getProposalno();
+		args[52] = req.getProposalNo();
 		
 		args[53]= EndNo;
 		args[54] = StringUtils.isEmpty(req.getLayerNo())?"0":req.getLayerNo();
@@ -3161,7 +3165,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		if(StringUtils.isBlank(req.getProposalNo()) && StringUtils.isBlank(req.getReferenceNo())) { //ri
         	String referenceNo="";
         	
-        	List<Map<String, Object>> list  = queryImpl.selectSingle("GET_REFERENCE_NO_SEQ",new String[]{});
+        	List<Map<String, Object>> list  = queryImpl.selectSingle("SELECT  REFERENCENO_SEQ.NEXTVAL REFERENCENO FROM DUAL",new String[]{});
 
         	if (!CollectionUtils.isEmpty(list)) {
         		referenceNo = list.get(0).get("REFERENCENO") == null ? ""
@@ -3171,7 +3175,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
         }
 
 
-	    String args[] = new String[15];
+	    String args[] = new String[16];
 			for(int i=0;i<req.getReinstatementNo().size();i++){
 			ReinstatementNoList req1 = req.getReinstatementNo().get(i);
 			args[0] = req1.getReinstatementNo();
@@ -3189,6 +3193,13 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			args[12] = req.getReinstatementOption();
 			args[13] = "A";
 			args[14]=StringUtils.isBlank(req.getReferenceNo())?"":req.getReferenceNo();
+
+	           String sno = "";
+	           TtrnRip list = ttrnRipRepository.findTop1ByBranchCodeOrderBySnoDesc(req.getBranchCode());
+	           if(list!=null) {
+	        	   sno =   list.getSno()==null?"0": String.valueOf(list.getSno().intValue()+1);
+	           }
+			args[15] = sno;
 
 			 //INSERT_REINSTATEMENT_MAIN
 			TtrnRip insert =  nonProportCustomRepository.insertReinstatementMain(args);
@@ -3312,8 +3323,8 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 	      //  deleteMaintable(bean);
 			 if(StringUtils.isBlank(bean.getProposalNo()) && StringUtils.isBlank(bean.getReferenceNo())) {
 		        	String referenceNo="";
-		        	String query="GET_REFERENCE_NO_SEQ";  //ri
-		        	List<Map<String, Object>> list  = queryImpl.selectSingle(query,new String[]{});
+		        
+		        	List<Map<String, Object>> list  = queryImpl.selectSingle("SELECT  REFERENCENO_SEQ.NEXTVAL REFERENCENO FROM DUAL",new String[]{});
 		        	if (!CollectionUtils.isEmpty(list)) {
 		        		referenceNo = list.get(0).get("REFERENCENO") == null ? ""
 		        				: list.get(0).get("REFERENCENO").toString();
@@ -4386,9 +4397,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		return obj;
 	}
 
-
-	@Override
-	public CommonResponse instalMentPremium(InstalMentPremiumReq req) {
+	public CommonResponse instalMentPremium(insertProportionalTreatyReq req) {
 		CommonResponse response = new CommonResponse();
 		try{
 			String endtNo= dropDowmImpl.getRiskComMaxAmendId(req.getProposalNo());
@@ -4558,7 +4567,8 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 				if(update!=null) {
 					ttrnInsurerDetailsRepository.saveAndFlush(update);
 					}
-			}			response.setMessage("Success");
+			}
+			response.setMessage("Success");
 			response.setIsError(false);
 			}catch(Exception e){
 	   				e.printStackTrace();
@@ -4609,7 +4619,7 @@ public void MoveReinstatementEmptyData(ReInstatementMainInsertReq bean) {
 	if(StringUtils.isBlank(bean.getProposalNo()) && StringUtils.isBlank(bean.getReferenceNo())) { //ri
     	String referenceNo="";
     	
-    	List<Map<String, Object>> list  = queryImpl.selectSingle("GET_REFERENCE_NO_SEQ",new String[]{}); //dual
+    	List<Map<String, Object>> list  = queryImpl.selectSingle("SELECT  REFERENCENO_SEQ.NEXTVAL REFERENCENO FROM DUAL",new String[]{}); //dual
     	if (!CollectionUtils.isEmpty(list)) {
     		referenceNo = list.get(0).get("REFERENCENO") == null ? ""
     				: list.get(0).get("REFERENCENO").toString();
@@ -4777,7 +4787,7 @@ public void insetNOClaimBonusMainTable(InsertBonusDetailsReq bean) {
         	String referenceNo="";
         	String query="GET_REFERENCE_NO_SEQ";  //ri
         	
-        	List<Map<String, Object>> list  = queryImpl.selectSingle(query,new String[]{});
+        	List<Map<String, Object>> list  = queryImpl.selectSingle("SELECT  REFERENCENO_SEQ.NEXTVAL REFERENCENO FROM DUAL",new String[]{});
         	if (!CollectionUtils.isEmpty(list)) {
         		referenceNo = list.get(0).get("REFERENCENO") == null ? ""
         				: list.get(0).get("REFERENCENO").toString();
@@ -4823,7 +4833,7 @@ private boolean checkEditSaveModeMethod(final insertProportionalTreatyReq req) {
 	boolean editSaveMode = false;
 	try {
 		//risk.select.getRskProNO
-		List<TtrnRiskDetails> list = ttrnRiskDetailsRepository.findByRskProposalNumber(req.getProposalno());
+		List<TtrnRiskDetails> list = ttrnRiskDetailsRepository.findByRskProposalNumber(req.getProposalNo());
 		if (list.size() == 0) {
 			editSaveMode = false;
 		} else {
@@ -4845,7 +4855,7 @@ private boolean checkEditSaveModeMethod(final insertProportionalTreatyReq req) {
 			if(StringUtils.isBlank(bean.getContNo())) {
 			
 				obj= new String[2];
-				if("Y".equals(bean.getContractMode()) && StringUtils.isNotBlank(bean.getBaseLayer())) {
+				if("Y".equals(bean.getContractMode())) {
 					obj[0]=bean.getBaseLayer();
 					obj[1]=bean.getBaseLayer();
 				}else {
@@ -4857,7 +4867,7 @@ private boolean checkEditSaveModeMethod(final insertProportionalTreatyReq req) {
 			}else {
 				
 				obj= new String[2];
-				if("Y".equals(bean.getContractMode()) && StringUtils.isNotBlank(bean.getBaseLayer())) {
+				if("Y".equals(bean.getContractMode())) {
 					obj[0]=bean.getBaseLayer();
 					obj[1]=bean.getBaseLayer();
 				}else {
@@ -4897,21 +4907,19 @@ private boolean checkEditSaveModeMethod(final insertProportionalTreatyReq req) {
 			}
 		return response;
 	}
-
+	@Transactional
 	@Override
 	public CommonResponse cancelProposal(String proposalNo, String proposalReference, String newProposal) {
 		CommonResponse response = new CommonResponse();
-		String query="";
-		String args[] = new String[1];
 		try{
 			if(!"Layer".equalsIgnoreCase(proposalReference)){
-			query= "CANCEL_OLD_PROPOSAL";
-			args[0] = proposalNo;
-			queryImpl.updateQuery(query,args);
+				//CANCEL_OLD_PROPOSAL
+				nonProportCustomRepository.cancelOldProposal(proposalNo);
+			
 			}
-			query= "CANCEL_PROPOSAL";
-			args[0] = newProposal;
-			queryImpl.updateQuery(query,args);
+				//CANCEL_PROPOSAL
+				nonProportCustomRepository.cancelProposal(newProposal);
+			
 			response.setMessage("Success");
 			response.setIsError(false);
 			}catch(Exception e){
