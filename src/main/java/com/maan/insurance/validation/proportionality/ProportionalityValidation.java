@@ -288,10 +288,10 @@ public class ProportionalityValidation {
 				if (tear_nt.equalsIgnoreCase("")) {
 					list.add(new ErrorCheck(prop.getProperty("error.treatyName_type.required"),"TreatyType","01"));
 				}
-				if (bean.getTreatyType().equalsIgnoreCase("0")) {
+				if ("0".equalsIgnoreCase(bean.getTreatyType())) {
 					list.add(new ErrorCheck(prop.getProperty("error.TreatyType.Reqired"),"TreatyType","01"));
 				}
-				if(bean.getTreatyType().equalsIgnoreCase("3") || bean.getTreatyType().equalsIgnoreCase("1") ){
+				if("3".equalsIgnoreCase(bean.getTreatyType()) || "1".equalsIgnoreCase(bean.getTreatyType()) ){
 					if (limitPercent.equalsIgnoreCase("")) {
 						list.add(new ErrorCheck(prop.getProperty("error.limitOrigCurr.required"),"limitOrigCurr","01"));
 						cedCheck = false;
@@ -305,12 +305,12 @@ public class ProportionalityValidation {
 						}
 					}
 					}
-				if(bean.getTreatyType().equalsIgnoreCase("3") || bean.getTreatyType().equalsIgnoreCase("2") ){
+				if("3".equalsIgnoreCase(bean.getTreatyType()) || "2".equalsIgnoreCase(bean.getTreatyType()) ){
 					if(StringUtils.isBlank(bean.getTreatynoofLine())){
 						list.add(new ErrorCheck(prop.getProperty("error.noonline.required"),"noonline","01"));
 					}
 				}
-				if(bean.getTreatyType().equalsIgnoreCase("4") || bean.getTreatyType().equalsIgnoreCase("5") ){
+				if("4".equalsIgnoreCase(bean.getTreatyType()) || "5".equalsIgnoreCase(bean.getTreatyType()) ){
 					if(StringUtils.isBlank(bean.getFaclimitOrigCur())){
 						list.add(new ErrorCheck(prop.getProperty("error.fac.limit.currency"),"FaclimitOrigCur","01"));
 					}
@@ -319,7 +319,7 @@ public class ProportionalityValidation {
 						amt = Double.parseDouble(bean.getFaclimitOrigCur());
 					}
 				}
-				if(bean.getTreatyType().equalsIgnoreCase("3") || bean.getTreatyType().equalsIgnoreCase("2")){
+				if("3".equalsIgnoreCase(bean.getTreatyType()) || "2".equalsIgnoreCase(bean.getTreatyType())){
 					if(StringUtils.isBlank(bean.getTreatyLimitsurplusOC())){
 						list.add(new ErrorCheck(prop.getProperty("error.TreatyLimitsurplusOC.required"),"TreatyLimitsurplusOC","01"));
 						cedCheck = false;
@@ -366,7 +366,7 @@ public class ProportionalityValidation {
 						}
 					}
 				}*/
-				if (bean.getProposalType().equalsIgnoreCase("0")) {
+				if ("0".equalsIgnoreCase(bean.getProposalType())) {
 					list.add(new ErrorCheck(prop.getProperty("error.cleancutoff.required"),"cleancutoff","01"));
 				}else if("R".equalsIgnoreCase(bean.getProposalType()) || "H".equalsIgnoreCase(bean.getProposalType())){
 					if(StringUtils.isBlank(bean.getRunoffYear())){
@@ -382,7 +382,7 @@ public class ProportionalityValidation {
 					list.add(new ErrorCheck(prop.getProperty("error.broker.required"),"broker","01"));
 				}
 				if (StringUtils.isBlank(bean.getPaymentPartner())) {
-					list.add(new ErrorCheck(prop.getProperty("error.paymentpartner.required"),"paymentpartner","01"));
+					list.add(new ErrorCheck(prop.getProperty("error.PaymentPartner.required"),"paymentpartner","01"));
 				}
 			if (val.isNull(bean.getLeaderUnderwriter())
 					.equalsIgnoreCase("")) {
@@ -777,7 +777,7 @@ public class ProportionalityValidation {
 					list.add(new ErrorCheck(prop.getProperty("error.broker.required"),"broker","01"));
 				}
 				if (StringUtils.isBlank(bean.getPaymentPartner())) {
-					list.add(new ErrorCheck(prop.getProperty("error.paymentpartner.required"),"paymentpartner","01"));
+					list.add(new ErrorCheck(prop.getProperty("error.PaymentPartner.required"),"paymentpartner","01"));
 				}
 				
 				/*if(StringUtils.isNotBlank(bean.getLeader_Underwriter()) &&    !"64".equalsIgnoreCase(bean.getLeader_Underwriter())){
@@ -825,15 +825,15 @@ public class ProportionalityValidation {
 					}*/
 				}
 				
-				if (bean.getAccountingPeriod().equalsIgnoreCase("0")) {
+				if ("0".equalsIgnoreCase(bean.getAccountingPeriod())) {
 					list.add(new ErrorCheck(prop.getProperty("error.AccountionPeriod.reqired"),"AccountionPeriod","01"));
 				}
-				if (bean.getReceiptofStatements().equalsIgnoreCase("")) {
+				if (StringUtils.isBlank(bean.getReceiptofStatements())) {
 					list.add(new ErrorCheck(prop.getProperty("Error.ResciptStatments.Required"),"ResciptStatments","01"));
 				} else if (val.isValidNo(bean.getReceiptofStatements()).equalsIgnoreCase("invalid")) {
 					list.add(new ErrorCheck(prop.getProperty("Error.ReceiptofStatmenst.Error"),"ResciptStatments","01"));
 				}
-				if (bean.getReceiptofPayment().equalsIgnoreCase("")) {
+				if (StringUtils.isBlank(bean.getReceiptofPayment())) {
 					list.add(new ErrorCheck(prop.getProperty("error.ReceiptOfStatments.required"),"ResciptStatments","01"));
 				} else if (val.isValidNo(bean.getReceiptofPayment()).equalsIgnoreCase("invalid")) {
 					list.add(new ErrorCheck(prop.getProperty("error.ReceiptOfStatments.Error"),"ResciptStatments","01"));

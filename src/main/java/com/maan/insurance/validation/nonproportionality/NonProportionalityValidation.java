@@ -474,7 +474,7 @@ public class NonProportionalityValidation {
 			} else if (val.checkDate(bean.getExpDate()).equalsIgnoreCase("INVALID")) {
 				list.add(new ErrorCheck(prop.getProperty("errors.ExpiryDate.Error"),"ExpiryDate","01"));
 			}
-			if (!bean.getIncepDate().equalsIgnoreCase("")&& !bean.getExpDate().equalsIgnoreCase("")) {
+			if (StringUtils.isNotBlank(bean.getIncepDate()) && StringUtils.isNotBlank(bean.getExpDate())) {
 				if (Validation.ValidateTwo(bean.getIncepDate(),bean.getExpDate()).equalsIgnoreCase("Invalid")) {
 					list.add(new ErrorCheck(prop.getProperty("error.expDate.check"),"ExpiryDate","01"));
 				}
@@ -570,7 +570,7 @@ public class NonProportionalityValidation {
 				} else if (val.checkDate(bean.getExpDate()).equalsIgnoreCase("INVALID")) {
 					list.add(new ErrorCheck(prop.getProperty("errors.ExpiryDate.Error"),"ExpiryDate","01"));
 				}
-				if (!bean.getIncepDate().equalsIgnoreCase("")&& !bean.getExpDate().equalsIgnoreCase("")) {
+				if (StringUtils.isNotBlank(bean.getIncepDate()) && StringUtils.isNotBlank(bean.getExpDate())) {
 					if (Validation.ValidateTwo(bean.getIncepDate(),bean.getExpDate()).equalsIgnoreCase("Invalid")) {
 						list.add(new ErrorCheck(prop.getProperty("error.expDate.check"),"ExpiryDate","01"));
 					}
@@ -1073,7 +1073,7 @@ public class NonProportionalityValidation {
 							list.add(new ErrorCheck(prop.getProperty("error.alldetails.required"),"alldetails","01"));
 						}else if("Y".equals(bean.getReinstdetailYN())) {
 							if(StringUtils.isBlank(bean.getReInstatementPremium())){
-								list.add(new ErrorCheck(prop.getProperty("Please Select Reinstatement Premium"),"Reinstatement Premium","01"));
+								list.add(new ErrorCheck(prop.getProperty("error.ReinstatementPremium.required"),"Reinstatement Premium","01"));
 							}
 							else if("Y".equalsIgnoreCase(bean.getReInstatementPremium())){
 								if(StringUtils.isBlank(bean.getReinsPopUp())){
