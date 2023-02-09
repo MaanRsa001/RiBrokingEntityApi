@@ -18,4 +18,6 @@ public interface TtrnRipRepository extends JpaRepository<TtrnRip,TtrnRipId> , Jp
 
 	TtrnRip findTop1ByBranchCodeOrderBySnoDesc(String branchCode);
 
+	int countByProposalNo(String proposalNo);
+
 }

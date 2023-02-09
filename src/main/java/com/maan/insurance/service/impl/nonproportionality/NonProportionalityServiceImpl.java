@@ -834,8 +834,10 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 //				this.showSecondpageEditItems(beanObj, pid, proposalno);
 				savFlg = true;
 			}
-			saveSecondPage(req);
+			
 			instalMentPremium(req);
+			saveSecondPage(req);
+		
 			
 			response.setSaveFlag(savFlg);
 			response.setMessage("Success");
@@ -1991,6 +1993,11 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			} else {
 				proposalno = beanObj.getProposalNo();
 			}
+			
+			int count = ttrnRipRepository.countByProposalNo(req.getProposalNo());
+			beanObj.setTotalNoOfRows(String.valueOf(count));
+			
+			
 	//		this.showSecondpageEditItems(beanObj, beanObj.getProductId(), proposalno);
 			response.setCommonResponse(beanObj);
 			response.setMessage("Success");

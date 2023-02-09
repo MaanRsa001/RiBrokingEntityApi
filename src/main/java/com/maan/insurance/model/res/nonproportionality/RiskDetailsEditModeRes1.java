@@ -267,4 +267,7 @@ public class RiskDetailsEditModeRes1 {
 	@JsonProperty("ReinstdetailYN")
 	private String reinstdetailYN;
 	
+	@JsonProperty("TotalNoOfRows")
+	private String totalNoOfRows;
+	
 }
