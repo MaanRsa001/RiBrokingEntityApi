@@ -23,6 +23,7 @@ import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
+import javax.transaction.Transactional;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -30,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.maan.insurance.jpa.entity.propPremium.TtrnInsurerDetails;
+import com.maan.insurance.jpa.entity.xolpremium.TtrnMndInstallments;
 import com.maan.insurance.model.entity.PersonalInfo;
 import com.maan.insurance.model.entity.PositionMaster;
 import com.maan.insurance.model.entity.TmasDepartmentMaster;
@@ -2811,6 +2813,26 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 			e.printStackTrace();
 		}
 		return list;
+	}
+
+	@Override
+	@Transactional
+	public void UpdateInstallmentContNo(String proposalNo, String maxContarctNo) {
+		try {
+			//GET_RETRO_CON_UPDATE
+			CriteriaBuilder cb = this.em.getCriteriaBuilder();
+			CriteriaUpdate<TtrnMndInstallments> update = cb.createCriteriaUpdate(TtrnMndInstallments.class);
+			Root<TtrnMndInstallments> m = update.from(TtrnMndInstallments.class);
+		
+			update.set("contractNo", maxContarctNo);
+			
+			Predicate n1 = cb.equal(m.get("proposalNo"), proposalNo);
+			update.where(n1);
+			em.createQuery(update).executeUpdate();
+
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 		
 	}

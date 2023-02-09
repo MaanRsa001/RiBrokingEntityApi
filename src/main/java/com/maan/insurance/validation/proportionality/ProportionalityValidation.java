@@ -20,6 +20,7 @@ import com.maan.insurance.model.req.proportionality.CedentRetentReq;
 import com.maan.insurance.model.req.proportionality.CedentSaveReq;
 import com.maan.insurance.model.req.proportionality.ContractReq;
 import com.maan.insurance.model.req.proportionality.ConvertPolicyReq;
+import com.maan.insurance.model.req.proportionality.ConvertPolicyReq1;
 import com.maan.insurance.model.req.proportionality.CrestaReq;
 import com.maan.insurance.model.req.proportionality.CrestaSaveReq;
 import com.maan.insurance.model.req.proportionality.FirstpageSaveReq;
@@ -2808,6 +2809,24 @@ return list;
 
 	public List<ErrorCheck> convertPolicyVali(ConvertPolicyReq req) {
 		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
+		for(int i=0;i<req.getConvertPolicyReq1().size();i++) {
+			ConvertPolicyReq1 req1=req.getConvertPolicyReq1().get(i);
+			if("CSL".equalsIgnoreCase(req1.getNewStatus()) || "CSL".equalsIgnoreCase(req1.getCurrentStatus())) {
+				if(StringUtils.isBlank(req1.getReinsurerIds())) {
+					list.add(new ErrorCheck(prop.getProperty("error.ReinsurerId.required")+"For Row"+String.valueOf(i+1),"ReinsurerIds","01"));
+				}if(StringUtils.isBlank(req1.getBrokerIds())) {
+					list.add(new ErrorCheck(prop.getProperty("error.BrokerIds.required")+"For Row"+String.valueOf(i+1),"BrokerIds","01"));
+				}if(StringUtils.isBlank(req1.getBrokerages())) {
+					list.add(new ErrorCheck(prop.getProperty("error.WrittenLine.required")+"For Row"+String.valueOf(i+1),"Brokerages","01"));
+				}if(StringUtils.isBlank(req1.getSignedLine())) {
+					list.add(new ErrorCheck(prop.getProperty("error.SignedLine.required")+"For Row"+String.valueOf(i+1),"SignedLine","01"));
+				}
+				
+			}
+			}
+		
+		
+		
 		return list;
 	}
 }

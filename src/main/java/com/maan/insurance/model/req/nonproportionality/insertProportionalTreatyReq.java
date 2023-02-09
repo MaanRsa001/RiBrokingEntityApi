@@ -1,6 +1,5 @@
 package com.maan.insurance.model.req.nonproportionality;
 
-import java.util.Hashtable;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -12,11 +11,6 @@ import lombok.Data;
 public class insertProportionalTreatyReq {
 	
 	
-	@JsonProperty("CoverLimitOC")
-	private List<coverLimitOC> coverLimitOC;
-	@JsonProperty("CoverLimitAmount")
-	private List<CoverLimitAmount> CoverLimitAmount;
-
 	@JsonProperty("Pid")
 	private String pid;
 	
@@ -32,9 +26,6 @@ public class insertProportionalTreatyReq {
 	
 	@JsonProperty("RenewalEditMode")
 	private String renewalEditMode;
-	
-	@JsonProperty("DepartId")
-	private String departId;
 	
 	@JsonProperty("ProfitCenter")
 	private String profitCenter;
@@ -75,8 +66,6 @@ public class insertProportionalTreatyReq {
 	@JsonProperty("OrginalCurrency")
 	private String orginalCurrency;
 	
-	@JsonProperty("ExchRate")
-	private String exchRate;
 	
 	@JsonProperty("Basis")
 	private String basis;
@@ -546,7 +535,11 @@ public class insertProportionalTreatyReq {
 	@JsonProperty("InstalmentperiodReq")
 	private List<InstalmentperiodReq> instalmentperiodReq;
 
+	@JsonProperty("CoverList")
+	private List<CoverList> CoverList;
 	
+	@JsonProperty("CoverLimitAmount")
+	private List<CoverLimitAmount> CoverLimitAmount;
 	
 
 }

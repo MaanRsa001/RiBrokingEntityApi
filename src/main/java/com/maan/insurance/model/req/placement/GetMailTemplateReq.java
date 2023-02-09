@@ -7,8 +7,7 @@ import lombok.Data;
 public class GetMailTemplateReq {
 	@JsonProperty("MailType")
 	private String mailType;
-	@JsonProperty("TranasctionNo")
-	private String tranasctionNo; 
+ 
 	@JsonProperty("BranchCode")
 	private String branchCode;
 	@JsonProperty("ProposalNo")
@@ -17,8 +16,8 @@ public class GetMailTemplateReq {
 	private String eproposalNo; 
 	@JsonProperty("NewStatus")
 	private String newStatus;
-	@JsonProperty("ReinsurerName")
-	private String reinsurerName; 
+	//@JsonProperty("ReinsurerName")
+	//private String reinsurerName; 
 	@JsonProperty("SearchType")
 	private String searchType;
 	@JsonProperty("PlacementMode")

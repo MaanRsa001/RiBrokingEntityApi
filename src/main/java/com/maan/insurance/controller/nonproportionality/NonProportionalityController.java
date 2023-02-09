@@ -135,14 +135,15 @@ public class NonProportionalityController {
 			}
 			return nonPropService.updateProportionalTreaty(req);
 		}
-		@PostMapping("/insertClassLimit")
-		public CommonResponse insertClassLimit(@RequestBody insertClassLimitReq req) throws CommonValidationException {
-			List<ErrorCheck> error=nonPropValidation.insertClassLimitVali(req);
-			if(error!=null && error.size()>0) {
-				throw new CommonValidationException("error",error);
-			}
-			return nonPropService.insertClassLimit(req);
-		}
+
+		/*
+		 * @PostMapping("/insertClassLimit") public CommonResponse
+		 * insertClassLimit(@RequestBody insertClassLimitReq req) throws
+		 * CommonValidationException { List<ErrorCheck>
+		 * error=nonPropValidation.insertClassLimitVali(req); if(error!=null &&
+		 * error.size()>0) { throw new CommonValidationException("error",error); }
+		 * return nonPropService.insertClassLimit(req); }
+		 */
 		@PostMapping("/viewRiskDetails")
 		public ViewRiskDetailsRes viewRiskDetails(@RequestBody ViewRiskDetailsReq req) throws CommonValidationException {
 			List<ErrorCheck> error=nonPropValidation.viewRiskDetailsVali(req);

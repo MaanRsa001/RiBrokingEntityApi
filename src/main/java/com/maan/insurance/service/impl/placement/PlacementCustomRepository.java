@@ -29,7 +29,7 @@ public interface PlacementCustomRepository {
 
 	List<Tuple> getExistingAttachList(GetExistingAttachListReq bean);
 
-	List<Tuple> getExistingProposal(String proposal, String branchCode);
+	List<Tuple> getExistingProposal(String proposal, String branchCode, String string);
 
 	GetPlacementNoRes getPlacementNo(SavePlacingReq bean);
 

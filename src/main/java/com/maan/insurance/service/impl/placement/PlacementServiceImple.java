@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -293,7 +294,7 @@ public class PlacementServiceImple implements PlacementService {
 		try {
 			String proposal=StringUtils.isBlank(req.getEProposalNo())?req.getProposalNo():req.getEProposalNo();
 			
-			List<Tuple> list = placementCustomRepository.getExistingProposal(proposal, req.getBranchCode());
+			List<Tuple> list = placementCustomRepository.getExistingProposal(proposal, req.getBranchCode(),"0");
 			if(list.size()>0) {
 				Tuple map=list.get(0);
 				bean.setCedingCompanyName(map.get("COMPANY_NAME")==null?"":map.get("COMPANY_NAME").toString());
@@ -1339,12 +1340,15 @@ public class PlacementServiceImple implements PlacementService {
 		CommonSaveRes response = new CommonSaveRes();
 		String result="";
 		try {
+			 String filePath=commonPath+"documents/"+"PL/";
 			//DOWNLOAD_ATTACHED_FILE
 			NotificationAttachmentDetail list =  notiRepo.findByDocIdAndOrgFileName(new BigDecimal(req.getDocId()), req.getFileName());
 			if(list!=null) {
 				result = list.getOurFileName();
 			}
-			response.setResponse(result);
+			final File copyFile = new File(filePath+result);
+			String file=encodeFileToBase64(copyFile);
+			response.setResponse(file);
 		    response.setMessage("Success");
 			response.setIsError(false);
 		}catch(Exception e){
@@ -1536,7 +1540,7 @@ public class PlacementServiceImple implements PlacementService {
 			
 			//proposalInfo
 			String proposal=StringUtils.isBlank(req.getEproposalNo())?req.getProposalNo():req.getEproposalNo();
-			List<Tuple> list1 = placementCustomRepository.getExistingProposal(proposal, req.getBranchCode());
+			List<Tuple> list1 = placementCustomRepository.getExistingProposal(proposal, req.getBranchCode(),req.getReinsurerId());
 		
 			if(!CollectionUtils.isEmpty(list1)) {
 				Tuple map=list1.get(0);
@@ -1555,7 +1559,7 @@ public class PlacementServiceImple implements PlacementService {
 				 
 				 if("PWL".equalsIgnoreCase(req.getNewStatus())) {
 					if(mailbody.contains("COMPANY_NAME") == true) {
-						mailbody = mailbody.replace("{COMPANY_NAME}", req.getReinsurerName());
+						mailbody = mailbody.replace("{COMPANY_NAME}", map.get("REINSURER_NAME").toString());
 					}
 				 }
 				
@@ -1681,8 +1685,8 @@ public class PlacementServiceImple implements PlacementService {
 			"<td style=\"border: 1px solid #000000;\">"+(map.get("TREATY_TYPE")==null?"":map.get("TREATY_TYPE").toString())+"</td>" + 
 			"<td style=\"border: 1px solid #000000;\">"+(map.get("RSK_TREATYID")==null?"":map.get("RSK_TREATYID").toString())+"</td>" +
 			"<td style=\"border: 1px solid #000000;\">"+(map.get("SECTION_NO")==null?"":map.get("SECTION_NO").toString())+"</td>" +
-			"<td style=\"border: 1px solid #000000;\">"+(map.get("INS_DATE")==null?"":map.get("INS_DATE").toString())+"</td>" + 
-			"<td style=\"border: 1px solid #000000;\">"+(map.get("EXP_DATE")==null?"":map.get("EXP_DATE").toString())+"</td>" + 
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("INS_DATE")==null?"":formatdate(map.get("INS_DATE")))+"</td>" + 
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("EXP_DATE")==null?"":formatdate(map.get("EXP_DATE")))+"</td>" + 
 			"<td style=\"border: 1px solid #000000;text-align: right;\">"+(map.get("SHARE_OFFERED")==null?"":fm.formattereight(map.get("SHARE_OFFERED").toString()))+"</td>" +
 			"<td style=\"border: 1px solid #000000;text-align: right;\">"+(map.get("SHARE_PROPOSAL_WRITTEN")==null?"":fm.formattereight(map.get("SHARE_PROPOSAL_WRITTEN").toString()))+"</td>" +
 			"</tr>";
@@ -1729,8 +1733,8 @@ public class PlacementServiceImple implements PlacementService {
 			"<td style=\"border: 1px solid #000000;\">"+(map.get("TREATY_TYPE")==null?"":map.get("TREATY_TYPE").toString())+"</td>" + 
 			"<td style=\"border: 1px solid #000000;\">"+(map.get("RSK_TREATYID")==null?"":map.get("RSK_TREATYID").toString())+"</td>" +
 			"<td style=\"border: 1px solid #000000;\">"+(map.get("SECTION_NO")==null?"":map.get("SECTION_NO").toString())+"</td>" +
-			"<td style=\"border: 1px solid #000000;\">"+(map.get("INS_DATE")==null?"":map.get("INS_DATE").toString())+"</td>" + 
-			"<td style=\"border: 1px solid #000000;\">"+(map.get("EXP_DATE")==null?"":map.get("EXP_DATE").toString())+"</td>" + 
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("INS_DATE")==null?"":formatdate(map.get("INS_DATE")))+"</td>" + 
+			"<td style=\"border: 1px solid #000000;\">"+(map.get("EXP_DATE")==null?"":formatdate(map.get("EXP_DATE")))+"</td>" + 
 			"<td style=\"border: 1px solid #000000;text-align: right;\">"+(map.get("SHARE_OFFERED")==null?"":fm.formattereight(map.get("SHARE_OFFERED").toString()))+"</td>" +
 			"<td style=\"border: 1px solid #000000;text-align: right;\">"+(map.get("SHARE_PROPOSAL_WRITTEN")==null?"":fm.formattereight(map.get("SHARE_PROPOSAL_WRITTEN").toString()))+"</td>" +
 			"<td style=\"border: 1px solid #000000;text-align: right;\">"+(map.get("SHARE_PROPOSED_SIGNED")==null?"":fm.formattereight(map.get("SHARE_PROPOSED_SIGNED").toString()))+"</td>" +
@@ -1756,7 +1760,14 @@ public class PlacementServiceImple implements PlacementService {
 		   System.err.println("Couldn't write to file...");
 		}
 	}
-
+	private static String encodeFileToBase64(File file) {
+	    try {
+	        byte[] fileContent = Files.readAllBytes(file.toPath());
+	        return Base64.getEncoder().encodeToString(fileContent);
+	    } catch (Exception e) {
+	        throw new IllegalStateException("could not read file " + file, e);
+	    }
+	}
 	@Override
 	public GetPlacementNoRes getPlacementNo(SavePlacingReq req) {
 		// TODO Auto-generated method stub

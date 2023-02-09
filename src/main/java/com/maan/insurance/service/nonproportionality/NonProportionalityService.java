@@ -75,7 +75,7 @@ public interface NonProportionalityService {
 
 	UpdateProportionalTreatyRes updateProportionalTreaty(insertProportionalTreatyReq req);
 
-	CommonResponse insertClassLimit(insertClassLimitReq req);
+	/* CommonResponse insertClassLimit(insertClassLimitReq req); */
 
 	ViewRiskDetailsRes viewRiskDetails(ViewRiskDetailsReq req);
 

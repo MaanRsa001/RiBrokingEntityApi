@@ -605,10 +605,10 @@ public class NonProportionalityValidation {
 					/*if(StringUtils.isBlank(bean.getExchangeType())){
 						list.add(new ErrorCheck(prop.getProperty("error.ExchangeType.required"),"","01"));
 					}*/
-					if (StringUtils.isBlank(bean.getExchRate())) {
+					if (StringUtils.isBlank(bean.getExchangeRate())) {
 						list.add(new ErrorCheck(prop.getProperty("error.exchRate.required"),"exchRate","01"));
 						cedCheck = false;
-					} else if (val.isValidNo(bean.getExchRate().trim().toString()).equalsIgnoreCase("invalid")) {
+					} else if (val.isValidNo(bean.getExchangeRate().trim().toString()).equalsIgnoreCase("invalid")) {
 						list.add(new ErrorCheck(prop.getProperty("error.exchRate.check"),"exchRate","01"));
 						cedCheck = false;
 					}
@@ -623,7 +623,7 @@ public class NonProportionalityValidation {
 					if(StringUtils.isBlank(bean.getBusinessType())){
 						list.add(new ErrorCheck(prop.getProperty("error.BusinessType.required"),"BusinessType","01"));
 					}
-					if (val.isSelect(bean.getDepartId()).equalsIgnoreCase("")) {
+					if (val.isSelect(bean.getDepartmentId()).equalsIgnoreCase("")) {
 						list.add(new ErrorCheck(prop.getProperty("error.departId.required"),"departId","01"));
 					}
 					if (StringUtils.isBlank(bean.getBasis())) {
@@ -631,8 +631,8 @@ public class NonProportionalityValidation {
 					}
 					List<String> deptId = new ArrayList<>();
 					if(StringUtils.isNotBlank(bean.getBusinessType()) &&(!"5".equalsIgnoreCase(bean.getBusinessType()))){
-						for(int i=0;i<bean.getCoverLimitOC().size();i++){
-							coverLimitOC req = bean.getCoverLimitOC().get(i);
+						for(int i=0;i<bean.getCoverList().size();i++){
+							CoverList req = bean.getCoverList().get(i);
 							if(StringUtils.isBlank(req.getCoverdepartId())){
 								list.add(new ErrorCheck(prop.getProperty("error.enter.CoverdepartId")+String.valueOf(i + 1),"CoverdepartId","01"));
 								deptId.add(req.getCoverdepartId());
@@ -655,8 +655,8 @@ public class NonProportionalityValidation {
 						if(dropDownImple.findDuplicates(deptId).size()>0){
 							list.add(new ErrorCheck(prop.getProperty("error.CoverdepartId.duplicate"),"CoverdepartId","01"));
 						}
-						if("17".equalsIgnoreCase(bean.getDepartId()) || "18".equalsIgnoreCase(bean.getDepartId()) || "19".equalsIgnoreCase(bean.getDepartId())){
-							if(deptId.contains(bean.getDepartId()) && deptId.size()>1){
+						if("17".equalsIgnoreCase(bean.getDepartmentId()) || "18".equalsIgnoreCase(bean.getDepartmentId()) || "19".equalsIgnoreCase(bean.getDepartmentId())){
+							if(deptId.contains(bean.getDepartmentId()) && deptId.size()>1){
 								list.add(new ErrorCheck(prop.getProperty("error.CoverdepartId.groped"),"CoverdepartId","01"));
 							}
 						}
@@ -698,8 +698,8 @@ public class NonProportionalityValidation {
 						if(dropDownImple.findDuplicates(deptId).size()>0){
 							list.add(new ErrorCheck(prop.getProperty("error.CoverdepartId.duplicate"),"CoverdepartId","01"));
 						}
-						if("17".equalsIgnoreCase(bean.getDepartId()) || "18".equalsIgnoreCase(bean.getDepartId()) || "19".equalsIgnoreCase(bean.getDepartId())){
-							if(deptId.contains(bean.getDepartId()) && deptId.size()>1){
+						if("17".equalsIgnoreCase(bean.getDepartmentId()) || "18".equalsIgnoreCase(bean.getDepartmentId()) || "19".equalsIgnoreCase(bean.getDepartmentId())){
+							if(deptId.contains(bean.getDepartmentId()) && deptId.size()>1){
 								list.add(new ErrorCheck(prop.getProperty("error.CoverdepartId.groped"),"CoverdepartId","01"));
 							}
 						}
@@ -924,12 +924,13 @@ public class NonProportionalityValidation {
 					double mndPremiumOC=Double.parseDouble(bean.getMdPremium().replaceAll(",", ""));
 					for (int i = 0; i < instalmentperiod; i++) {
 						InstalmentperiodReq req = bean.getInstalmentperiodReq().get(i);
-						if (!val.isNull(bean.getInstalmentperiodReq().get(0).getInstalmentDateList()).equalsIgnoreCase("")) {
+						if(StringUtils.isBlank(req.getInstalmentDateList())) {
+							list.add(new ErrorCheck("Please Select Installment Date for Row "+String.valueOf(i + 1),"Intallment Date","01"));
+						}else if (!val.isNull(req.getInstalmentDateList()).equalsIgnoreCase("")) {
 							if (val.ValidateINstallDates(bean.getIncepDate(),bean.getInstalmentperiodReq().get(0).getInstalmentDateList()).equalsIgnoreCase("Invalid")) {
 								tata = true;
 							}
-						}
-						if (!val.isNull(req.getInstalmentDateList()).equalsIgnoreCase("")) {
+						}else if (!val.isNull(req.getInstalmentDateList()).equalsIgnoreCase("")) {
 							if (val.ValidateTwoDates(req.getInstalmentDateList(),bean.getExpDate()).equalsIgnoreCase("Invalid")) {
 								list.add(new ErrorCheck(prop.getProperty("Error.Select.Expirydate")+String.valueOf(i + 1),"Expirydate","01"));
 							}

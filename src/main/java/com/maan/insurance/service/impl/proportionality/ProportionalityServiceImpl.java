@@ -6000,7 +6000,11 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 									u.setRskContractNo(maxContarctNo);				
 									ttrnRiskDetailsRepository.saveAndFlush(u);
 								}		
-							
+								args=new String[4];
+								args[0]=maxContarctNo;
+								args[1] = "A";
+								args[2] = "A";
+								args[3] = beanObj.getProposalNo();
 								//risk.update.homeContNo
 								proportionalityCustomRepository.riskUpdateHomeContNo(args);
 						
@@ -6010,12 +6014,14 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 								}else{
 									res.setContractGendration("Your Proposal is Renewaled with Proposal No : "+beanObj.getProposalNo() +", Old Contract No:"+maxContarctNo+" and New Contract No : "+maxContarctNo+".");
 								}
+								proportionalityCustomRepository.UpdateInstallmentContNo(beanObj.getProposalNo(),maxContarctNo);
 								//risk.update.mndInstallments
-								TtrnMndInstallments list4 = ttrnMndInstallmentsRepository.findByProposalNo(beanObj.getProposalNo());
-								if(list4!=null) {
-									list4.setContractNo(maxContarctNo);	
-									ttrnMndInstallmentsRepository.saveAndFlush(list4);
-									}
+								/*
+								 * TtrnMndInstallments list4 =
+								 * ttrnMndInstallmentsRepository.findByProposalNo(beanObj.getProposalNo());
+								 * if(list4!=null) { list4.setContractNo(maxContarctNo);
+								 * ttrnMndInstallmentsRepository.saveAndFlush(list4); }
+								 */
 								
 							} else {
 								args = new String[4];
@@ -6036,27 +6042,17 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 									}
 								}
 								args[3] = beanObj.getProposalNo();
-								//risk.update.homeContNo
-
-								
 								
 								if("3".equalsIgnoreCase(beanObj.getProductId()) || "5".equalsIgnoreCase(beanObj.getProductId())){
 									UpdateContractLimit(beanObj.getContNo(),beanObj.getProposalNo());
 								}
-								PositionMaster list3 = positionMasterRepository.findByProposalNo(fm.formatBigDecimal(args[3]));
-								if( list3!=null) {
-									list3.setContractNo(fm.formatBigDecimal(args[0]));
-									list3.setProposalStatus(args[1]);
-									list3.setContractStatus(args[2]);
-									positionMasterRepository.saveAndFlush(list3);
-									}
-
+								
 								proportionalityCustomRepository.riskUpdateHomeContNo(args);
 
 							}
 						}
 					}
-				}else if (ContractEditMode == 2) {
+				}/*else if (ContractEditMode == 2) {
 					String endtNo= "";
 					//risk.select.endo
 					TtrnRiskProposal rp = ttrnRiskProposalRepository.findTop1ByRskProposalNumberOrderByRskEndorsementNoDesc(beanObj.getProposalNo());
@@ -6081,7 +6077,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 					}
 
 					res.setProStatus("A");
-				}
+				}*/
 				InsertPlacement(beanObj);
 				insertRiDetails(beanObj);
 				updateRiContractStatus(beanObj);
@@ -6128,7 +6124,7 @@ try{
 			e.printStackTrace();
 		}
 	}
-	public String[] updateContractRiskDetailsSecondForm(ConvertPolicyReq req, String productId, String endNo) {
+	/*public String[] updateContractRiskDetailsSecondForm(ConvertPolicyReq req, String productId, String endNo) {
 		String[] args=null;
 		args = new String[18];
 		args[0] = req.getLimitOurShare();
@@ -6246,7 +6242,7 @@ try{
 			args[66] = endNo;
 		} 
 		return args;
-	}
+	}*/
 	private void InsertPlacement(ConvertPolicyReq beanObj) {
 		UpdatePlacementReq bean = new UpdatePlacementReq();
 		List<UpdatePlacementListReq> reqList = new ArrayList<UpdatePlacementListReq>();
@@ -6300,7 +6296,7 @@ try{
 			for(int i=0;i<bean.getConvertPolicyReq1().size();i++) {
 				ConvertPolicyReq1 req = bean.getConvertPolicyReq1().get(i);
 				if("CSL".equalsIgnoreCase(req.getCurrentStatus()) || "CSL".equalsIgnoreCase(req.getNewStatus())) {
-					bean.setSubcontractNo(bean.getContNo()+(StringUtils.isBlank(bean.getLayerNo())?bean.getSectionNo():bean.getLayerNo())+req.getSnos());
+					String subcontract=bean.getContNo()+(StringUtils.isBlank(bean.getLayerNo())?bean.getSectionNo():bean.getLayerNo())+req.getSnos();
 					String obj[]=new String[23];
 					obj[0]=req.getStatusNo();
 					obj[1]=req.getSnos();
@@ -6308,7 +6304,7 @@ try{
 					obj[3]=req.getBaseproposalNos();
 					obj[4]=bean.getProposalNo();
 					obj[5]=bean.getContNo();
-					obj[6]=bean.getSubcontractNo();
+					obj[6]=subcontract;
 					obj[7]=bean.getLayerNo();
 					obj[8]=bean.getSectionNo();
 					obj[9]=bean.getAmendId();

@@ -335,6 +335,7 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 		Predicate n1 = cb.equal(bi.get("branchCode"), req.getBranchCode());
 		Predicate n2 = cb.equal(bi.get("transType"), req.getTransType());
 		query.where(n1,n2);
+		query.orderBy(cb.desc(bi.get("billingNo")));
 		TypedQuery<Tuple> res1 = em.createQuery(query);
 		return res1.getResultList();
 	}

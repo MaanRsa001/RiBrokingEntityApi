@@ -88,7 +88,7 @@ public class TtrnClaimDetailsMapper extends AbstractEntityMapper<TtrnClaimDetail
 			ttrnClaimDetails.setCoverLimitDeptid(req.getDepartmentClass());
 			ttrnClaimDetails.setProposalNo(new BigDecimal(req.getProposalNo()));
 			ttrnClaimDetails.setProductId(new BigDecimal(req.getProductId()));
-			ttrnClaimDetails.setRepudateDate(req.getReOpenDate()==null?null:formatDate(req.getReOpenDate()));
+			ttrnClaimDetails.setRepudateDate(req.getReputedDate()==null?null:formatDate(req.getReputedDate()));
 			ttrnClaimDetails.setContractNo(req.getPolicyContractNo().trim());
 		//	ttrnClaimDetails.setClaimNo(new BigDecimal(req.getClaimNo()));
 			ttrnClaimDetails.setLayerNo(StringUtils.isEmpty(req.getLayerNo())?BigDecimal.ZERO:new BigDecimal(req.getLayerNo()));

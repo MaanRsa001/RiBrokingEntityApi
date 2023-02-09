@@ -259,7 +259,7 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 	}
 
 	@Override
-	public List<Tuple> getExistingProposal(String proposal, String branchCode) {
+	public List<Tuple> getExistingProposal(String proposal, String branchCode,String reinsId) {
 		List<Tuple> list = new ArrayList<>();
 		try {
 			//GET_EXISTING_PROPOSAL
@@ -269,14 +269,41 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 			Root<PositionMaster> pm = query.from(PositionMaster.class);
 			Root<TtrnRiskDetails> rd = query.from(TtrnRiskDetails.class); //'New' POLICY_STATUS,''EXISTING_SHARE
 			
+			
 			// MAXAmend ID
 			Subquery<String> companyName = query.subquery(String.class); 
 			Root<PersonalInfo> pms = companyName.from(PersonalInfo.class);
+			
+			Subquery<Long> bAmend = query.subquery(Long.class); 
+			Root<PersonalInfo> pis1 = bAmend.from(PersonalInfo.class);
+			bAmend.select(cb.max(pis1.get("amendId")));
+			Predicate f1 = cb.equal( pis1.get("customerId"), pms.get("customerId"));
+			bAmend.where(f1);
+			
 			companyName.select(pms.get("companyName"));
 			Predicate a1 = cb.equal( rd.get("rskCedingid"), pms.get("customerId"));
 			Predicate a2 = cb.equal( pms.get("customerType"), "C");
 			Predicate a3 = cb.equal( pm.get("branchCode"), pms.get("branchCode"));
-			companyName.where(a1,a2,a3);
+			Predicate a4 = cb.equal( pms.get("amendId"), bAmend);
+			companyName.where(a1,a2,a3,a4);
+			
+			
+			
+			Subquery<String> reinsuredName = query.subquery(String.class); 
+			Root<PersonalInfo> pms1 = reinsuredName.from(PersonalInfo.class);
+			
+			Subquery<Long> bAmend1 = query.subquery(Long.class); 
+			Root<PersonalInfo> pis11 = bAmend1.from(PersonalInfo.class);
+			bAmend1.select(cb.max(pis11.get("amendId")));
+			Predicate bf1 = cb.equal( pms1.get("customerId"), pis11.get("customerId"));
+			bAmend1.where(bf1);
+			
+			reinsuredName.select(pms1.get("companyName"));
+			Predicate r1 = cb.equal( pms1.get("customerId"),reinsId);
+			Predicate r2 = cb.equal( pms1.get("customerType"), "R");
+			Predicate r3 = cb.equal( pm.get("branchCode"), pms1.get("branchCode"));
+			Predicate r4 = cb.equal( pms1.get("amendId"), bAmend1);
+			reinsuredName.where(r1,r2,r3,r4);
 			
 			//baseLayer
 			Subquery<String> baseLayer = query.subquery(String.class); 
@@ -295,7 +322,7 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 			treatyType.where(c1,c2);
 	
 			query.multiselect(rd.get("rskInceptionDate").alias("INS_DATE"),rd.get("rskExpiryDate").alias("EXP_DATE"),
-					companyName.alias("COMPANY_NAME"),pm.get("uwYear").alias("UW_YEAR"),
+					reinsuredName.alias("REINSURER_NAME"),companyName.alias("COMPANY_NAME"),pm.get("uwYear").alias("UW_YEAR"),
 					pm.get("uwYearTo").alias("UW_YEAR_TO"),pm.get("contractNo").alias("CONTRACT_NO"),
 					baseLayer.alias("BASE_LAYER"),pm.get("layerNo").alias("LAYER_NO"),pm.get("sectionNo").alias("SECTION_NO"),
 					pm.get("proposalNo").alias("PROPOSAL_NO"),

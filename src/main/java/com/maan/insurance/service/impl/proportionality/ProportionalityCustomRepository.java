@@ -139,5 +139,7 @@ public interface ProportionalityCustomRepository {
 	List<Tuple> commissionTypeListReference(String referenceNo, String branchCode, String commissionType,
 			String contractNo);
 
+	void UpdateInstallmentContNo(String proposalNo, String maxContarctNo);
+
 
 }

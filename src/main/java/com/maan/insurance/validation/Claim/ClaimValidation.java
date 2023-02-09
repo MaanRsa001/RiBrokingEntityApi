@@ -708,6 +708,9 @@ public ClaimValidation() {
 			if("Reopened".equals(req.getStatusofClaim()))
 			{
 				req.setPreReOpenDate(dropDownImple.getpreReopendDate(req.getPolicyContractNo(),req.getClaimNo(),"Reopen"));
+				if(StringUtils.isBlank(req.getReOpenDate())) {
+					list.add(new ErrorCheck(prop.getProperty("errors.claim.reopendate.required"), "ReOpenDate", "01"));
+				}
 				if (val.checkDate(req.getReOpenDate()).equalsIgnoreCase("INVALID")) 
 				{
 					list.add(new ErrorCheck(prop.getProperty("errors.claim.reopendate.required"), "ReOpenDate", "01"));

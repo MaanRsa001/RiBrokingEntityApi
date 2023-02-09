@@ -639,7 +639,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			}
 		
 			
-//			insertClassLimit(req2);
+			insertClassLimit(req);
 //			insertRemarkDetails(req3);
 			response = insertRiskProposal(req,ChkSavFlg);
 			SaveSecondPageRes secRes = 	saveSecondPage(req);
@@ -764,7 +764,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			args[11] = req.getExpDate();
 			args[12] = StringUtils.isBlank(req.getAccDate())? "":req.getAccDate();
 			args[13] = req.getOrginalCurrency();
-			args[14] = req.getExchRate();
+			args[14] = req.getExchangeRate();
 			args[15] = req.getBasis();
 			args[16] = "";
 			args[17] = "";
@@ -826,7 +826,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			}
 			if (updateCount > 0) {
 			
-			//	insertClassLimit(req);
+				insertClassLimit(req);
 				//InsertRemarkDetails(req); //already prop
 //				GetRemarksDetails(req); aready
 				updateOfferNo(req.getOfferNo(),req.getBranchCode(),req.getProposalNo(),req.getProductId());
@@ -988,9 +988,9 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		String[] obj=null;
 		obj = new String[36];
 		obj[0] = beanObj.getLimitOrigCur().replaceAll(",", "");
-		obj[1] = getDesginationCountry(beanObj.getLimitOrigCur().replaceAll(",", ""), beanObj.getExchRate());
+		obj[1] = getDesginationCountry(beanObj.getLimitOrigCur().replaceAll(",", ""), beanObj.getExchangeRate());
 		obj[2] = beanObj.getEpi();
-		obj[3] = getDesginationCountry(beanObj.getEpi(), beanObj.getExchRate());
+		obj[3] = getDesginationCountry(beanObj.getEpi(), beanObj.getExchangeRate());
 		obj[4] = StringUtils.isBlank(beanObj.getShareWritt())? "":beanObj.getShareWritt();
 		if (beanObj.getProStatus().equalsIgnoreCase("P")) {
 			obj[5] = "0";
@@ -1003,29 +1003,29 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		}
 		obj[6] = StringUtils.isBlank(beanObj.getMaxLimitProduct())?"":beanObj.getMaxLimitProduct();
 		obj[7] = beanObj.getSubPremium();
-		obj[8] = getDesginationCountry(beanObj.getSubPremium(), beanObj.getExchRate());
+		obj[8] = getDesginationCountry(beanObj.getSubPremium(), beanObj.getExchangeRate());
 		obj[9] = beanObj.getXlPremium();
-		obj[10] = getDesginationCountry(beanObj.getXlPremium(), beanObj.getExchRate());
+		obj[10] = getDesginationCountry(beanObj.getXlPremium(), beanObj.getExchangeRate());
 		obj[11] = StringUtils.isBlank(beanObj.getPortfoloCovered())? "":beanObj.getPortfoloCovered();
 		obj[12] = beanObj.getDeduchunPercent();
-		obj[13] = getDesginationCountry(beanObj.getDeduchunPercent(),beanObj.getExchRate());
+		obj[13] = getDesginationCountry(beanObj.getDeduchunPercent(),beanObj.getExchangeRate());
 		obj[14] = beanObj.getMdPremium();
-		obj[15] = getDesginationCountry(beanObj.getMdPremium(), beanObj.getExchRate());
+		obj[15] = getDesginationCountry(beanObj.getMdPremium(), beanObj.getExchangeRate());
 		obj[16] = StringUtils.isBlank(beanObj.getAdjRate())?"":beanObj.getAdjRate();
 		obj[17] = StringUtils.isEmpty(beanObj.getSpRetro()) ? "" : beanObj.getSpRetro();
 		obj[18] = StringUtils.isEmpty(beanObj.getNoInsurer()) ? "0" : beanObj.getNoInsurer();
 		obj[19] = StringUtils.isEmpty(beanObj.getLimitOurShare()) ? "0": beanObj.getLimitOurShare();
-		obj[20] = StringUtils.isEmpty(beanObj.getLimitOurShare())|| StringUtils.isEmpty(beanObj.getExchRate()) ? "0": getDesginationCountry(beanObj.getLimitOurShare(), beanObj.getExchRate());
+		obj[20] = StringUtils.isEmpty(beanObj.getLimitOurShare())|| StringUtils.isEmpty(beanObj.getExchangeRate()) ? "0": getDesginationCountry(beanObj.getLimitOurShare(), beanObj.getExchangeRate());
 		obj[21] = StringUtils.isEmpty(beanObj.getEpiAsPerOffer()) ? "0": beanObj.getEpiAsPerOffer();
-		obj[22] = StringUtils.isEmpty(beanObj.getEpiAsPerOffer())|| StringUtils.isEmpty(beanObj.getExchRate()) ? "0": getDesginationCountry(beanObj.getEpiAsPerOffer(), beanObj.getExchRate());
+		obj[22] = StringUtils.isEmpty(beanObj.getEpiAsPerOffer())|| StringUtils.isEmpty(beanObj.getExchangeRate()) ? "0": getDesginationCountry(beanObj.getEpiAsPerOffer(), beanObj.getExchangeRate());
 		obj[23] =StringUtils.isEmpty(beanObj.getMdpremiumourservice()) ? "0"	: beanObj.getMdpremiumourservice();
-		obj[24] = StringUtils.isEmpty(beanObj.getMdpremiumourservice())|| StringUtils.isEmpty(beanObj.getExchRate()) ? "0": getDesginationCountry(beanObj.getMdpremiumourservice(), beanObj.getExchRate());
+		obj[24] = StringUtils.isEmpty(beanObj.getMdpremiumourservice())|| StringUtils.isEmpty(beanObj.getExchangeRate()) ? "0": getDesginationCountry(beanObj.getMdpremiumourservice(), beanObj.getExchangeRate());
 		obj[25] =StringUtils.isEmpty(beanObj.getLimitPerVesselOC()) ? "0": beanObj.getLimitPerVesselOC();
-		obj[26] = StringUtils.isEmpty(beanObj.getLimitPerVesselOC())|| StringUtils.isEmpty(beanObj.getExchRate()) ? "0"	: getDesginationCountry(beanObj.getLimitPerVesselOC(), beanObj.getExchRate());
+		obj[26] = StringUtils.isEmpty(beanObj.getLimitPerVesselOC())|| StringUtils.isEmpty(beanObj.getExchangeRate()) ? "0"	: getDesginationCountry(beanObj.getLimitPerVesselOC(), beanObj.getExchangeRate());
 		obj[27] =StringUtils.isEmpty(beanObj.getLimitPerLocationOC()) ? "0"	: beanObj.getLimitPerLocationOC();
-		obj[28] = StringUtils.isEmpty(beanObj.getLimitPerLocationOC())|| StringUtils.isEmpty(beanObj.getExchRate()) ? "0": getDesginationCountry(beanObj.getLimitPerLocationOC(), beanObj.getExchRate());
+		obj[28] = StringUtils.isEmpty(beanObj.getLimitPerLocationOC())|| StringUtils.isEmpty(beanObj.getExchangeRate()) ? "0": getDesginationCountry(beanObj.getLimitPerLocationOC(), beanObj.getExchangeRate());
 		obj[29] =StringUtils.isEmpty(beanObj.getEgnpiOffer()) ? "0"	: beanObj.getEgnpiOffer();
-		obj[31] = StringUtils.isEmpty(beanObj.getEgnpiOffer())|| StringUtils.isEmpty(beanObj.getExchRate()) ? "0": getDesginationCountry(beanObj.getEgnpiOffer(), beanObj.getExchRate());
+		obj[31] = StringUtils.isEmpty(beanObj.getEgnpiOffer())|| StringUtils.isEmpty(beanObj.getExchangeRate()) ? "0": getDesginationCountry(beanObj.getEgnpiOffer(), beanObj.getExchangeRate());
 		obj[30] =StringUtils.isEmpty(beanObj.getOurAssessment()) ? "0"	: beanObj.getOurAssessment();
 		obj[32] = beanObj.getLoginId();
 		obj[33] = beanObj.getBranchCode();
@@ -1037,33 +1037,33 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		return obj;
 	}
 	
-	public CommonResponse insertClassLimit(insertClassLimitReq intreq) {
+	public CommonResponse insertClassLimit(insertProportionalTreatyReq req) {
 		CommonResponse response = new CommonResponse();
 		CoverList reqlist = new CoverList();
 		List<CoverList> reqlist2 = new ArrayList<CoverList>();
 			try {
 				String query = "";
-				if("3".equalsIgnoreCase(intreq.getProductid()) || "5".equalsIgnoreCase(intreq.getProductid())){
+				if("3".equalsIgnoreCase(req.getProductId()) || "5".equalsIgnoreCase(req.getProductId())){
 			
 				//DELETE_CLASS_LIMIT
-				nonProportCustomRepository.deleteClassLimit(intreq.getProposalno());
+				nonProportCustomRepository.deleteClassLimit(req.getProposalNo());
 			
 				//INSERT_CLASS_LIMIT
-				if(!"5".equalsIgnoreCase(intreq.getBusinessType())){
-				for(int i=0;i<intreq.getCoverList().size();i++){
-					CoverList reqlist3 = intreq.getCoverList().get(i);
+				if(!"5".equalsIgnoreCase(req.getBusinessType())){
+				for(int i=0;i<req.getCoverList().size();i++){
+					CoverList reqlist3 = req.getCoverList().get(i);
 					String[] args1= new String[15]; //ri
-					args1[0]=intreq.getProposalno();
-					args1[1]=(getMaxAmednId(intreq.getProposalno()))+"";
-					args1[2]=intreq.getContNo();
-					args1[3]=StringUtils.isEmpty(intreq.getLayerNo())?"0":intreq.getLayerNo();
-					args1[4]=intreq.getProductid();
+					args1[0]=req.getProposalNo();
+					args1[1]=(getMaxAmednId(req.getProposalNo()))+"";
+					args1[2]=req.getContNo();
+					args1[3]=StringUtils.isEmpty(req.getLayerNo())?"0":req.getLayerNo();
+					args1[4]=req.getProductId();
 					args1[5]=reqlist3.getCoverdepartId();
 					args1[6]=reqlist3.getCoverLimitOC()==null?"0":reqlist3.getCoverLimitOC().replace(",", "");
 					args1[7]="";
 					args1[8]=reqlist3.getDeductableLimitOC()==null?"0":reqlist3.getDeductableLimitOC().replace(",", "");
 					args1[9]="";
-					args1[10]=intreq.getBranchCode();
+					args1[10]=req.getBranchCode();
 					args1[11]=String.valueOf(i+1);
 					args1[12]=reqlist3.getEgnpiAsPerOff()==null?"0":reqlist3.getEgnpiAsPerOff().replace(",", "");
 					args1[13]=reqlist3.getGnpiAsPO()==null?"0":reqlist3.getGnpiAsPO().replace(",", "");
@@ -1078,20 +1078,20 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 				}
 				}
 				else{
-					for(int i=0;i<intreq.getCoverLimitAmount().size();i++){
-						CoverLimitAmount covreq = intreq.getCoverLimitAmount().get(i);
+					for(int i=0;i<req.getCoverLimitAmount().size();i++){
+						CoverLimitAmount covreq = req.getCoverLimitAmount().get(i);
 						String [] args2= new String[15];
-						args2[0]=intreq.getProposalno();
-						args2[1]=(getMaxAmednId(intreq.getProposalno()))+"";
-						args2[2]=intreq.getContNo();
-						args2[3]=StringUtils.isEmpty(intreq.getLayerNo())?"0":intreq.getLayerNo();
-						args2[4]=intreq.getProductid();
+						args2[0]=req.getProposalNo();
+						args2[1]=(getMaxAmednId(req.getProposalNo()))+"";
+						args2[2]=req.getContNo();
+						args2[3]=StringUtils.isEmpty(req.getLayerNo())?"0":req.getLayerNo();
+						args2[4]=req.getProductId();
 						args2[5]=covreq.getCoverdepartIdS();
 						args2[6]=covreq.getCoverLimitAmount()==null?"0":covreq.getCoverLimitAmount().replace(",", "");
 						args2[7]=covreq.getCoverLimitPercent()==null?"0":covreq.getCoverLimitPercent().replace(",", "");
 						args2[8]=covreq.getDeductableLimitAmount()==null?"0":covreq.getDeductableLimitAmount().replace(",", "");
 						args2[9]=covreq.getDeductableLimitPercent()==null?"0":covreq.getDeductableLimitPercent().replace(",", "");
-						args2[10]=intreq.getBranchCode();
+						args2[10]=req.getBranchCode();
 						args2[11]=String.valueOf(i+1);
 						args2[12]=covreq.getEgnpiAsPerOffSlide()==null?"0":covreq.getEgnpiAsPerOffSlide().replace(",", "");
 						args2[13]=covreq.getGnpiAsPOSlide()==null?"0":covreq.getGnpiAsPOSlide().replace(",", "");
@@ -1122,7 +1122,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		}else{
 			args[26] = "";
 			if(StringUtils.isBlank(req.getProposalNo())){
-			req.setProposalNo(getMaxProposanlno(req.getPid(),req.getBranchCode(),req.getDepartId()));
+			req.setProposalNo(getMaxProposanlno(req.getPid(),req.getBranchCode(),req.getDepartmentId()));
 			}
 			args[0] = req.getProposalNo();
 			args[1] = "0";
@@ -1133,7 +1133,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		args[29] = "0";
 		args[30] = "0";
 		args[3] = req.getPid();
-		args[4] = StringUtils.isEmpty(req.getDepartId()) ? "0" : req.getDepartId();
+		args[4] = StringUtils.isEmpty(req.getDepartmentId()) ? "0" : req.getDepartmentId();
 		args[5] = StringUtils.isEmpty(req.getProfitCenter()) ? "0" : req.getProfitCenter();
 		args[6] = StringUtils.isEmpty(req.getSubProfitcenter()) ? "0" : req.getSubProfitcenter();
 		args[7] = StringUtils.isEmpty(req.getPolicyBranch()) ? "0" : req.getPolicyBranch();
@@ -1147,7 +1147,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		args[15] = StringUtils.isEmpty(req.getExpDate()) ? "" : req.getExpDate();
 		args[16] = StringUtils.isEmpty(req.getAccDate()) ? "" : req.getAccDate();
 		args[17] = StringUtils.isEmpty(req.getOrginalCurrency()) ? "0" : req.getOrginalCurrency();
-		args[18] = StringUtils.isEmpty(req.getExchRate()) ? "0" : req.getExchRate();
+		args[18] = StringUtils.isEmpty(req.getExchangeRate()) ? "0" : req.getExchangeRate();
 		args[19] = StringUtils.isEmpty(req.getBasis()) ? "0" : req.getBasis();
 		args[20] = StringUtils.isEmpty(req.getPnoc()) ? "" : req.getPnoc();
 		args[21] = StringUtils.isEmpty(req.getRiskCovered()) ? "0"	: req.getRiskCovered();
@@ -2407,23 +2407,23 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			arg[1] = "0";
 		}
 		arg[3] = StringUtils.isEmpty(req.getLimitOrigCur()) ? "0" : req.getLimitOrigCur().replaceAll(",", "");
-		arg[4] = StringUtils.isEmpty(req.getLimitOrigCur())	|| StringUtils.isEmpty(req.getExchRate()) ? "0"	: getDesginationCountry(req.getLimitOrigCur().replaceAll(",", ""), req.getExchRate());
+		arg[4] = StringUtils.isEmpty(req.getLimitOrigCur())	|| StringUtils.isEmpty(req.getExchangeRate()) ? "0"	: getDesginationCountry(req.getLimitOrigCur().replaceAll(",", ""), req.getExchangeRate());
 		arg[2] = StringUtils.isEmpty(req.getLayerNo())?"0":req.getLayerNo();
 		arg[5] = StringUtils.isEmpty(req.getXlPremium()) ? "0" : req.getXlPremium();
-		arg[6] = StringUtils.isEmpty(req.getXlPremium()) || StringUtils.isEmpty(req.getExchRate()) ? "0" : getDesginationCountry(req.getXlPremium(), req.getExchRate());
+		arg[6] = StringUtils.isEmpty(req.getXlPremium()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0" : getDesginationCountry(req.getXlPremium(), req.getExchangeRate());
 		arg[7] = StringUtils.isEmpty(req.getDeduchunPercent()) ? "0" : req.getDeduchunPercent();
 		arg[10] = StringUtils.isEmpty(req.getMdPremium()) ? "0" : req.getMdPremium();
-		arg[11] = StringUtils.isEmpty(req.getMdPremium()) || StringUtils.isEmpty(req.getExchRate()) ? "0"	: getDesginationCountry(req.getMdPremium(), req.getExchRate());
+		arg[11] = StringUtils.isEmpty(req.getMdPremium()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0"	: getDesginationCountry(req.getMdPremium(), req.getExchangeRate());
 		arg[14] = StringUtils.isEmpty(req.getAdjRate()) ? "0" : req.getAdjRate();
 		arg[15] = StringUtils.isEmpty(req.getPortfoloCovered()) ? "0" : req.getPortfoloCovered();
 		arg[16] = StringUtils.isEmpty(req.getSubPremium()) ? "0" : req.getSubPremium();
-		arg[17] = StringUtils.isEmpty(req.getSubPremium()) || StringUtils.isEmpty(req.getExchRate()) ? "0" : getDesginationCountry(req.getSubPremium(), req.getExchRate());
+		arg[17] = StringUtils.isEmpty(req.getSubPremium()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0" : getDesginationCountry(req.getSubPremium(), req.getExchangeRate());
 		arg[18] = StringUtils.isEmpty(req.getMaxLimitProduct()) ? "0" : req.getMaxLimitProduct();
-		arg[19] = StringUtils.isEmpty(req.getDeduchunPercent()) || StringUtils.isEmpty(req.getExchRate()) ? "0" : getDesginationCountry(req.getDeduchunPercent(), req.getExchRate());
+		arg[19] = StringUtils.isEmpty(req.getDeduchunPercent()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0" : getDesginationCountry(req.getDeduchunPercent(), req.getExchangeRate());
 		arg[20] = StringUtils.isEmpty(req.getSpRetro()) ? "" : req.getSpRetro();
 		arg[21] = StringUtils.isEmpty(req.getNoInsurer()) ? "0" : req.getNoInsurer();
 		arg[8] = StringUtils.isEmpty(req.getEpi()) ? "0" : req.getEpi();
-		arg[9] = StringUtils.isEmpty(req.getEpi()) || StringUtils.isEmpty(req.getExchRate()) ? "0" : getDesginationCountry(req.getEpi(), req.getExchRate());
+		arg[9] = StringUtils.isEmpty(req.getEpi()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0" : getDesginationCountry(req.getEpi(), req.getExchangeRate());
 		arg[12] = StringUtils.isEmpty(req.getShareWritt()) ? "0" : req.getShareWritt();
 		if (req.getProStatus().equalsIgnoreCase("P")) {
 			arg[13] = "0";
@@ -2435,17 +2435,17 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			arg[13] = "0";
 		}
 		arg[22] = StringUtils.isEmpty(req.getLimitOurShare()) ? "0" : req.getLimitOurShare();
-		arg[23] = StringUtils.isEmpty(req.getLimitOurShare()) || StringUtils.isEmpty(req.getExchRate()) ? "0" : getDesginationCountry(req.getLimitOurShare(), req.getExchRate());
+		arg[23] = StringUtils.isEmpty(req.getLimitOurShare()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0" : getDesginationCountry(req.getLimitOurShare(), req.getExchangeRate());
 		arg[24] = StringUtils.isEmpty(req.getEpiAsPerShare()) ? "0" : req.getEpiAsPerShare();
-		arg[25] = StringUtils.isEmpty(req.getEpiAsPerShare()) || StringUtils.isEmpty(req.getExchRate()) ? "0" : getDesginationCountry(req.getEpiAsPerShare(), req.getExchRate());
+		arg[25] = StringUtils.isEmpty(req.getEpiAsPerShare()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0" : getDesginationCountry(req.getEpiAsPerShare(), req.getExchangeRate());
 		arg[26] = StringUtils.isEmpty(req.getMdpremiumourservice()) ? "0" : req.getMdpremiumourservice();
-		arg[27] = StringUtils.isEmpty(req.getMdpremiumourservice()) || StringUtils.isEmpty(req.getExchRate()) ? "0" : getDesginationCountry(req.getMdpremiumourservice(), req.getExchRate());
+		arg[27] = StringUtils.isEmpty(req.getMdpremiumourservice()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0" : getDesginationCountry(req.getMdpremiumourservice(), req.getExchangeRate());
 		arg[28] = StringUtils.isEmpty(req.getLimitPerVesselOC()) ? "0" : req.getLimitPerVesselOC();
-		arg[29] = StringUtils.isEmpty(req.getLimitPerVesselOC()) || StringUtils.isEmpty(req.getExchRate()) ? "0" : getDesginationCountry(req.getLimitPerVesselOC(), req.getExchRate());
+		arg[29] = StringUtils.isEmpty(req.getLimitPerVesselOC()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0" : getDesginationCountry(req.getLimitPerVesselOC(), req.getExchangeRate());
 		arg[30] = StringUtils.isEmpty(req.getLimitPerLocationOC()) ? "0"	: req.getLimitPerLocationOC();
-		arg[31] = StringUtils.isEmpty(req.getLimitPerLocationOC()) || StringUtils.isEmpty(req.getExchRate()) ? "0" : getDesginationCountry(req.getLimitPerLocationOC(), req.getExchRate());
+		arg[31] = StringUtils.isEmpty(req.getLimitPerLocationOC()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0" : getDesginationCountry(req.getLimitPerLocationOC(), req.getExchangeRate());
 		arg[32] = StringUtils.isEmpty(req.getEgnpiOffer()) ? "": req.getEgnpiOffer();
-		arg[34] = StringUtils.isEmpty(req.getEgnpiOffer()) || StringUtils.isEmpty(req.getExchRate()) ? "0" : getDesginationCountry(req.getEgnpiOffer(), req.getExchRate());
+		arg[34] = StringUtils.isEmpty(req.getEgnpiOffer()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0" : getDesginationCountry(req.getEgnpiOffer(), req.getExchangeRate());
 		arg[33] = StringUtils.isEmpty(req.getOurAssessment()) ? "": req.getOurAssessment();
 		arg[35] =req.getLoginId();
 		arg[36] = req.getBranchCode();
@@ -2480,7 +2480,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		argus[3] = StringUtils.isEmpty(req.getLayerNo()) ? "0" : req.getLayerNo();
 		argus[4] = "";
 		argus[5] = req.getPid();
-		argus[6] = req.getDepartId();
+		argus[6] = req.getDepartmentId();
 		argus[7] = req.getCedingCo();
 		argus[8] = req.getUwYear();
 		argus[9] = req.getMonth();
@@ -2526,23 +2526,23 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			args[1] = "0";
 		}
 		args[3] = StringUtils.isEmpty(req.getLimitOrigCur()) ? "0" : req.getLimitOrigCur().replaceAll(",", "");
-		args[4] = StringUtils.isEmpty(req.getLimitOrigCur())	|| StringUtils.isEmpty(req.getExchRate()) ? "0"	: getDesginationCountry(req.getLimitOrigCur().replaceAll(",", ""), req.getExchRate());
+		args[4] = StringUtils.isEmpty(req.getLimitOrigCur())	|| StringUtils.isEmpty(req.getExchangeRate()) ? "0"	: getDesginationCountry(req.getLimitOrigCur().replaceAll(",", ""), req.getExchangeRate());
 		args[2] = StringUtils.isEmpty(req.getLayerNo())?"0":req.getLayerNo();
 		args[5] = StringUtils.isEmpty(req.getXlPremium()) ? "0" : req.getXlPremium();
-		args[6] = StringUtils.isEmpty(req.getXlPremium()) || StringUtils.isEmpty(req.getExchRate()) ? "0" : getDesginationCountry(req.getXlPremium(), req.getExchRate());
+		args[6] = StringUtils.isEmpty(req.getXlPremium()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0" : getDesginationCountry(req.getXlPremium(), req.getExchangeRate());
 		args[7] = StringUtils.isEmpty(req.getDeduchunPercent()) ? "0" : req.getDeduchunPercent();
 		args[10] = StringUtils.isEmpty(req.getMdPremium()) ? "0" : req.getMdPremium();
-		args[11] = StringUtils.isEmpty(req.getMdPremium()) || StringUtils.isEmpty(req.getExchRate()) ? "0"	: getDesginationCountry(req.getMdPremium(), req.getExchRate());
+		args[11] = StringUtils.isEmpty(req.getMdPremium()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0"	: getDesginationCountry(req.getMdPremium(), req.getExchangeRate());
 		args[14] = StringUtils.isEmpty(req.getAdjRate()) ? "0" : req.getAdjRate();
 		args[15] = StringUtils.isEmpty(req.getPortfoloCovered()) ? "0" : req.getPortfoloCovered();
 		args[16] = StringUtils.isEmpty(req.getSubPremium()) ? "0" : req.getSubPremium();
-		args[17] = StringUtils.isEmpty(req.getSubPremium()) || StringUtils.isEmpty(req.getExchRate()) ? "0" : getDesginationCountry(req.getSubPremium(), req.getExchRate());
+		args[17] = StringUtils.isEmpty(req.getSubPremium()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0" : getDesginationCountry(req.getSubPremium(), req.getExchangeRate());
 		args[18] = StringUtils.isEmpty(req.getMaxLimitProduct()) ? "0" : req.getMaxLimitProduct();
-		args[19] = StringUtils.isEmpty(req.getDeduchunPercent()) || StringUtils.isEmpty(req.getExchRate()) ? "0" : getDesginationCountry(req.getDeduchunPercent(), req.getExchRate());
+		args[19] = StringUtils.isEmpty(req.getDeduchunPercent()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0" : getDesginationCountry(req.getDeduchunPercent(), req.getExchangeRate());
 		args[20] = StringUtils.isEmpty(req.getSpRetro()) ? "" : req.getSpRetro();
 		args[21] = StringUtils.isEmpty(req.getNoInsurer()) ? "0" : req.getNoInsurer();
 		args[8] = StringUtils.isEmpty(req.getEpi()) ? "0" : req.getEpi();
-		args[9] = StringUtils.isEmpty(req.getEpi()) || StringUtils.isEmpty(req.getExchRate()) ? "0" : getDesginationCountry(req.getEpi(), req.getExchRate());
+		args[9] = StringUtils.isEmpty(req.getEpi()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0" : getDesginationCountry(req.getEpi(), req.getExchangeRate());
 		args[12] = StringUtils.isEmpty(req.getShareWritt()) ? "0" : req.getShareWritt();
 		if (req.getProStatus().equalsIgnoreCase("P")) {
 			args[13] = "0";
@@ -2554,17 +2554,17 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			args[13] = "0";
 		}
 		args[22] = StringUtils.isEmpty(req.getLimitOurShare()) ? "0" : req.getLimitOurShare();
-		args[23] = StringUtils.isEmpty(req.getLimitOurShare()) || StringUtils.isEmpty(req.getExchRate()) ? "0" : getDesginationCountry(req.getLimitOurShare(), req.getExchRate());
+		args[23] = StringUtils.isEmpty(req.getLimitOurShare()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0" : getDesginationCountry(req.getLimitOurShare(), req.getExchangeRate());
 		args[24] = StringUtils.isEmpty(req.getEpiAsPerShare()) ? "0" : req.getEpiAsPerShare();
-		args[25] = StringUtils.isEmpty(req.getEpiAsPerShare()) || StringUtils.isEmpty(req.getExchRate()) ? "0" : getDesginationCountry(req.getEpiAsPerShare(), req.getExchRate());
+		args[25] = StringUtils.isEmpty(req.getEpiAsPerShare()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0" : getDesginationCountry(req.getEpiAsPerShare(), req.getExchangeRate());
 		args[26] = StringUtils.isEmpty(req.getMdpremiumourservice()) ? "0" : req.getMdpremiumourservice();
-		args[27] = StringUtils.isEmpty(req.getMdpremiumourservice()) || StringUtils.isEmpty(req.getExchRate()) ? "0" : getDesginationCountry(req.getMdpremiumourservice(), req.getExchRate());
+		args[27] = StringUtils.isEmpty(req.getMdpremiumourservice()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0" : getDesginationCountry(req.getMdpremiumourservice(), req.getExchangeRate());
 		args[28] = StringUtils.isEmpty(req.getLimitPerVesselOC()) ? "0" : req.getLimitPerVesselOC();
-		args[29] = StringUtils.isEmpty(req.getLimitPerVesselOC()) || StringUtils.isEmpty(req.getExchRate()) ? "0" : getDesginationCountry(req.getLimitPerVesselOC(), req.getExchRate());
+		args[29] = StringUtils.isEmpty(req.getLimitPerVesselOC()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0" : getDesginationCountry(req.getLimitPerVesselOC(), req.getExchangeRate());
 		args[30] = StringUtils.isEmpty(req.getLimitPerLocationOC()) ? "0"	: req.getLimitPerLocationOC();
-		args[31] = StringUtils.isEmpty(req.getLimitPerLocationOC()) || StringUtils.isEmpty(req.getExchRate()) ? "0" : getDesginationCountry(req.getLimitPerLocationOC(), req.getExchRate());
+		args[31] = StringUtils.isEmpty(req.getLimitPerLocationOC()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0" : getDesginationCountry(req.getLimitPerLocationOC(), req.getExchangeRate());
 		args[32] = StringUtils.isEmpty(req.getEgnpiOffer()) ? "": req.getEgnpiOffer();
-		args[34] = StringUtils.isEmpty(req.getEgnpiOffer()) || StringUtils.isEmpty(req.getExchRate()) ? "0" : getDesginationCountry(req.getEgnpiOffer(), req.getExchRate());
+		args[34] = StringUtils.isEmpty(req.getEgnpiOffer()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0" : getDesginationCountry(req.getEgnpiOffer(), req.getExchangeRate());
 		args[33] = StringUtils.isEmpty(req.getOurAssessment()) ? "": req.getOurAssessment();
 		args[35] =req.getLoginId();
 		args[36] = req.getBranchCode();
@@ -2579,7 +2579,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		args[0] = StringUtils.isEmpty(req.getLayerNo()) ? "0" : req.getLayerNo();
 		args[1] = "";
 		args[2] = req.getPid();
-		args[3] = req.getDepartId();
+		args[3] = req.getDepartmentId();
 		args[4] = req.getCedingCo();
 		args[5] = req.getUwYear();
 		args[6] = req.getMonth();
@@ -2619,36 +2619,36 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		String args [] = null;
 		args = new String[36];
 		args[0] = StringUtils.isEmpty(req.getLimitOrigCur()) ? "0" : req.getLimitOrigCur().replaceAll(",", "");
-		args[1] = StringUtils.isEmpty(req.getLimitOrigCur())	|| StringUtils.isEmpty(req.getExchRate()) ? "0"	: getDesginationCountry(req.getLimitOrigCur().replaceAll(",", ""), req.getExchRate());
+		args[1] = StringUtils.isEmpty(req.getLimitOrigCur())	|| StringUtils.isEmpty(req.getExchangeRate()) ? "0"	: getDesginationCountry(req.getLimitOrigCur().replaceAll(",", ""), req.getExchangeRate());
 		args[2] = StringUtils.isEmpty(req.getEpi()) ? "0" : req.getEpi();
-		args[3] = StringUtils.isEmpty(req.getEpi()) || StringUtils.isEmpty(req.getExchRate()) ? "0"	: getDesginationCountry(req.getEpi(), req.getExchRate());
+		args[3] = StringUtils.isEmpty(req.getEpi()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0"	: getDesginationCountry(req.getEpi(), req.getExchangeRate());
 		args[4] = StringUtils.isEmpty(req.getShareWritt()) ? "0" : req.getShareWritt();
 		args[5] = StringUtils.isEmpty(req.getSharSign()) ? "0" : req.getSharSign();
 		args[6] = StringUtils.isEmpty(req.getMaxLimitProduct()) ? "0" : req.getMaxLimitProduct();
 		args[7] = StringUtils.isEmpty(req.getSubPremium()) ? "0"	: req.getSubPremium();
-		args[8] = StringUtils.isEmpty(req.getSubPremium()) || StringUtils.isEmpty(req.getExchRate()) ? "0" : getDesginationCountry(req.getSubPremium(), req.getExchRate());
+		args[8] = StringUtils.isEmpty(req.getSubPremium()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0" : getDesginationCountry(req.getSubPremium(), req.getExchangeRate());
 		args[9] = StringUtils.isEmpty(req.getXlPremium()) ? "0"	: req.getXlPremium();
-		args[10] = StringUtils.isEmpty(req.getXlPremium()) || StringUtils.isEmpty(req.getExchRate()) ? "0" : getDesginationCountry(req.getXlPremium(), req.getExchRate());
+		args[10] = StringUtils.isEmpty(req.getXlPremium()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0" : getDesginationCountry(req.getXlPremium(), req.getExchangeRate());
 		args[11] = StringUtils.isEmpty(req.getPortfoloCovered()) ? "0" : req.getPortfoloCovered();
 		args[12] = StringUtils.isEmpty(req.getDeduchunPercent()) ? "0" : req.getDeduchunPercent();
-		args[13] = StringUtils.isEmpty(req.getDeduchunPercent()) || StringUtils.isEmpty(req.getExchRate()) ? "0" : getDesginationCountry(req.getDeduchunPercent(),req.getExchRate());
+		args[13] = StringUtils.isEmpty(req.getDeduchunPercent()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0" : getDesginationCountry(req.getDeduchunPercent(),req.getExchangeRate());
 		args[14] = StringUtils.isEmpty(req.getMdPremium()) ? "0" : req.getMdPremium();
-		args[15] = StringUtils.isEmpty(req.getMdPremium()) || StringUtils.isEmpty(req.getExchRate()) ? "0" : getDesginationCountry(req.getMdPremium(), req.getExchRate());
+		args[15] = StringUtils.isEmpty(req.getMdPremium()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0" : getDesginationCountry(req.getMdPremium(), req.getExchangeRate());
 		args[16] = StringUtils.isEmpty(req.getAdjRate()) ? "0" : req.getAdjRate();
 		args[17] = StringUtils.isEmpty(req.getSpRetro()) ? "" : req.getSpRetro();
 		args[18] = StringUtils.isEmpty(req.getNoInsurer()) ? "0" : req.getNoInsurer();
 		args[19] =StringUtils.isEmpty(req.getLimitOurShare()) ? "0" : req.getLimitOurShare();
-		args[20] = StringUtils.isEmpty(req.getLimitOurShare()) || StringUtils.isEmpty(req.getExchRate()) ? "0" : getDesginationCountry(req.getLimitOurShare(), req.getExchRate());
+		args[20] = StringUtils.isEmpty(req.getLimitOurShare()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0" : getDesginationCountry(req.getLimitOurShare(), req.getExchangeRate());
 		args[21] =StringUtils.isEmpty(req.getEpiAsPerOffer()) ? "0"	: req.getEpiAsPerOffer();
-		args[22] = StringUtils.isEmpty(req.getEpiAsPerOffer()) || StringUtils.isEmpty(req.getExchRate()) ? "0" : getDesginationCountry(req.getEpiAsPerOffer(), req.getExchRate());
+		args[22] = StringUtils.isEmpty(req.getEpiAsPerOffer()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0" : getDesginationCountry(req.getEpiAsPerOffer(), req.getExchangeRate());
 		args[23] =StringUtils.isEmpty(req.getMdpremiumourservice()) ? "0"	: req.getMdpremiumourservice();
-		args[24] = StringUtils.isEmpty(req.getMdpremiumourservice()) || StringUtils.isEmpty(req.getExchRate()) ? "0" : getDesginationCountry(req.getMdpremiumourservice(), req.getExchRate());
+		args[24] = StringUtils.isEmpty(req.getMdpremiumourservice()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0" : getDesginationCountry(req.getMdpremiumourservice(), req.getExchangeRate());
 		args[25] =StringUtils.isEmpty(req.getLimitPerVesselOC()) ? "0" : req.getLimitPerVesselOC();
-		args[26] = StringUtils.isEmpty(req.getLimitPerVesselOC()) || StringUtils.isEmpty(req.getExchRate()) ? "0" : getDesginationCountry(req.getLimitPerVesselOC(), req.getExchRate());
+		args[26] = StringUtils.isEmpty(req.getLimitPerVesselOC()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0" : getDesginationCountry(req.getLimitPerVesselOC(), req.getExchangeRate());
 		args[27] =StringUtils.isEmpty(req.getLimitPerLocationOC()) ? "0" : req.getLimitPerLocationOC();
-		args[28] = StringUtils.isEmpty(req.getLimitPerLocationOC()) || StringUtils.isEmpty(req.getExchRate()) ? "0" : getDesginationCountry(req.getLimitPerLocationOC(), req.getExchRate());
+		args[28] = StringUtils.isEmpty(req.getLimitPerLocationOC()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0" : getDesginationCountry(req.getLimitPerLocationOC(), req.getExchangeRate());
 		args[29] =StringUtils.isEmpty(req.getEgnpiOffer()) ? "0"	: req.getEgnpiOffer();
-		args[31] = StringUtils.isEmpty(req.getEgnpiOffer()) || StringUtils.isEmpty(req.getExchRate()) ? "0" : getDesginationCountry(req.getEgnpiOffer(), req.getExchRate());
+		args[31] = StringUtils.isEmpty(req.getEgnpiOffer()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0" : getDesginationCountry(req.getEgnpiOffer(), req.getExchangeRate());
 		args[30] =StringUtils.isEmpty(req.getOurAssessment()) ? "0"	: req.getOurAssessment();
 		args[32] = req.getLoginId();
 		args[33] = req.getBranchCode();
@@ -2913,27 +2913,27 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		String[] args= new String[55];
 		try {
 			args[0] = StringUtils.isEmpty(req.getEventlimit()) ? "": req.getEventlimit();
-			args[1] = StringUtils.isEmpty(req.getEventlimit())	|| StringUtils.isEmpty(req.getExchRate()) ? "0"	: getDesginationCountry(req.getEventlimit(), req.getExchRate());
+			args[1] = StringUtils.isEmpty(req.getEventlimit())	|| StringUtils.isEmpty(req.getExchangeRate()) ? "0"	: getDesginationCountry(req.getEventlimit(), req.getExchangeRate());
 			args[2] = StringUtils.isEmpty(req.getEventLimitOurShare()) ? "0" : req.getEventLimitOurShare();
-			args[3] = StringUtils.isEmpty(req.getEventLimitOurShare()) || StringUtils.isEmpty(req.getExchRate()) ? "0" : getDesginationCountry(req.getEventLimitOurShare(), req.getExchRate());
+			args[3] = StringUtils.isEmpty(req.getEventLimitOurShare()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0" : getDesginationCountry(req.getEventLimitOurShare(), req.getExchangeRate());
 			
 			args[4] = StringUtils.isEmpty(req.getCoverLimitXL()) ? "": req.getCoverLimitXL();
-			args[5] = StringUtils.isEmpty(req.getCoverLimitXL())	|| StringUtils.isEmpty(req.getExchRate()) ? "0"	: getDesginationCountry(req.getCoverLimitXL(), req.getExchRate());
+			args[5] = StringUtils.isEmpty(req.getCoverLimitXL())	|| StringUtils.isEmpty(req.getExchangeRate()) ? "0"	: getDesginationCountry(req.getCoverLimitXL(), req.getExchangeRate());
 			args[6] = StringUtils.isEmpty(req.getCoverLimitXLOurShare()) ? "0" : req.getCoverLimitXLOurShare();
-			args[7] = StringUtils.isEmpty(req.getCoverLimitXLOurShare()) || StringUtils.isEmpty(req.getExchRate()) ? "0" : getDesginationCountry(req.getCoverLimitXLOurShare(), req.getExchRate());
+			args[7] = StringUtils.isEmpty(req.getCoverLimitXLOurShare()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0" : getDesginationCountry(req.getCoverLimitXLOurShare(), req.getExchangeRate());
 			
 			args[8] = StringUtils.isEmpty(req.getDeductLimitXL()) ? "": req.getDeductLimitXL();
-			args[9] = StringUtils.isEmpty(req.getDeductLimitXL())	|| StringUtils.isEmpty(req.getExchRate()) ? "0"	: getDesginationCountry(req.getDeductLimitXL(), req.getExchRate());
+			args[9] = StringUtils.isEmpty(req.getDeductLimitXL())	|| StringUtils.isEmpty(req.getExchangeRate()) ? "0"	: getDesginationCountry(req.getDeductLimitXL(), req.getExchangeRate());
 			args[10] = StringUtils.isEmpty(req.getDeductLimitXLOurShare()) ? "0" : req.getDeductLimitXLOurShare();
-			args[11] = StringUtils.isEmpty(req.getDeductLimitXLOurShare()) || StringUtils.isEmpty(req.getExchRate()) ? "0" : getDesginationCountry(req.getDeductLimitXLOurShare(), req.getExchRate());
+			args[11] = StringUtils.isEmpty(req.getDeductLimitXLOurShare()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0" : getDesginationCountry(req.getDeductLimitXLOurShare(), req.getExchangeRate());
 			
 			args[12] = StringUtils.isEmpty(req.getPml()) ? "" : req.getPml();
 			args[13] = StringUtils.isEmpty(req.getPmlPercent()) ? "0" : req.getPmlPercent();
 			
 			args[14] = StringUtils.isEmpty(req.getEgnpipml()) ? "": req.getEgnpipml();
-			args[15] = StringUtils.isEmpty(req.getEgnpipml())	|| StringUtils.isEmpty(req.getExchRate()) ? "0"	: getDesginationCountry(req.getEgnpipml(), req.getExchRate());
+			args[15] = StringUtils.isEmpty(req.getEgnpipml())	|| StringUtils.isEmpty(req.getExchangeRate()) ? "0"	: getDesginationCountry(req.getEgnpipml(), req.getExchangeRate());
 			args[16] = StringUtils.isEmpty(req.getEgnpipmlOurShare()) ? "0" : req.getEgnpipmlOurShare();
-			args[17] = StringUtils.isEmpty(req.getEgnpipmlOurShare()) || StringUtils.isEmpty(req.getExchRate()) ? "0" : getDesginationCountry(req.getEgnpipmlOurShare(), req.getExchRate());
+			args[17] = StringUtils.isEmpty(req.getEgnpipmlOurShare()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0" : getDesginationCountry(req.getEgnpipmlOurShare(), req.getExchangeRate());
 			
 			args[18] = StringUtils.isEmpty(req.getPremiumbasis()) ? "" : req.getPremiumbasis();
 			args[19] = StringUtils.isEmpty(req.getMinimumRate()) ? "0" : req.getMinimumRate();
@@ -2941,23 +2941,23 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			args[21] = StringUtils.isEmpty(req.getBurningCostLF()) ? "0" : req.getBurningCostLF();
 			
 			args[22] = StringUtils.isEmpty(req.getMinPremium()) ? "": req.getMinPremium();
-			args[23] = StringUtils.isEmpty(req.getMinPremium())	|| StringUtils.isEmpty(req.getExchRate()) ? "0"	: getDesginationCountry(req.getMinPremium(), req.getExchRate());
+			args[23] = StringUtils.isEmpty(req.getMinPremium())	|| StringUtils.isEmpty(req.getExchangeRate()) ? "0"	: getDesginationCountry(req.getMinPremium(), req.getExchangeRate());
 			args[24] = StringUtils.isEmpty(req.getMinPremiumOurShare()) ? "0" : req.getMinPremiumOurShare();
-			args[25] = StringUtils.isEmpty(req.getMinPremiumOurShare()) || StringUtils.isEmpty(req.getExchRate()) ? "0" : getDesginationCountry(req.getMinPremiumOurShare(), req.getExchRate());
+			args[25] = StringUtils.isEmpty(req.getMinPremiumOurShare()) || StringUtils.isEmpty(req.getExchangeRate()) ? "0" : getDesginationCountry(req.getMinPremiumOurShare(), req.getExchangeRate());
 			args[26] = StringUtils.isEmpty(req.getPaymentDuedays()) ? "0" : req.getPaymentDuedays();
 			
 			args[27] =StringUtils.isEmpty(req.getLimitOrigCurPml()) ? "0": req.getLimitOrigCurPml();
-			args[28] = StringUtils.isEmpty(req.getLimitOrigCurPml())|| StringUtils.isEmpty(req.getExchRate()) ? "0": getDesginationCountry(req.getLimitOrigCurPml(), req.getExchRate());
+			args[28] = StringUtils.isEmpty(req.getLimitOrigCurPml())|| StringUtils.isEmpty(req.getExchangeRate()) ? "0": getDesginationCountry(req.getLimitOrigCurPml(), req.getExchangeRate());
 			args[29] =StringUtils.isEmpty(req.getLimitOrigCurPmlOS()) ? "0": req.getLimitOrigCurPmlOS();
-			args[30] = StringUtils.isEmpty(req.getLimitOrigCurPmlOS())|| StringUtils.isEmpty(req.getExchRate()) ? "0": getDesginationCountry(req.getLimitOrigCurPmlOS(), req.getExchRate());
+			args[30] = StringUtils.isEmpty(req.getLimitOrigCurPmlOS())|| StringUtils.isEmpty(req.getExchangeRate()) ? "0": getDesginationCountry(req.getLimitOrigCurPmlOS(), req.getExchangeRate());
 			args[31] =StringUtils.isEmpty(req.getTreatyLimitsurplusOCPml()) ? "0": req.getTreatyLimitsurplusOCPml();
-			args[32] = StringUtils.isEmpty(req.getTreatyLimitsurplusOCPml())|| StringUtils.isEmpty(req.getExchRate()) ? "0": getDesginationCountry(req.getTreatyLimitsurplusOCPml(), req.getExchRate());
+			args[32] = StringUtils.isEmpty(req.getTreatyLimitsurplusOCPml())|| StringUtils.isEmpty(req.getExchangeRate()) ? "0": getDesginationCountry(req.getTreatyLimitsurplusOCPml(), req.getExchangeRate());
 			args[33] =StringUtils.isEmpty(req.getTreatyLimitsurplusOCPmlOS()) ? "0": req.getTreatyLimitsurplusOCPmlOS();
-			args[34] = StringUtils.isEmpty(req.getTreatyLimitsurplusOCPmlOS())|| StringUtils.isEmpty(req.getExchRate()) ? "0": getDesginationCountry(req.getTreatyLimitsurplusOCPmlOS(), req.getExchRate());
+			args[34] = StringUtils.isEmpty(req.getTreatyLimitsurplusOCPmlOS())|| StringUtils.isEmpty(req.getExchangeRate()) ? "0": getDesginationCountry(req.getTreatyLimitsurplusOCPmlOS(), req.getExchangeRate());
 			args[35] =StringUtils.isEmpty(req.getEpipml()) ? "0": req.getEpipml();
-			args[36] = StringUtils.isEmpty(req.getEpipml())|| StringUtils.isEmpty(req.getExchRate()) ? "0": getDesginationCountry(req.getEpipml(), req.getExchRate());
+			args[36] = StringUtils.isEmpty(req.getEpipml())|| StringUtils.isEmpty(req.getExchangeRate()) ? "0": getDesginationCountry(req.getEpipml(), req.getExchangeRate());
 			args[37] =StringUtils.isEmpty(req.getEpipmlOS()) ? "0": req.getEpipmlOS();
-			args[38] = StringUtils.isEmpty(req.getEpipmlOS())|| StringUtils.isEmpty(req.getExchRate()) ? "0": getDesginationCountry(req.getEpipmlOS(), req.getExchRate());
+			args[38] = StringUtils.isEmpty(req.getEpipmlOS())|| StringUtils.isEmpty(req.getExchangeRate()) ? "0": getDesginationCountry(req.getEpipmlOS(), req.getExchangeRate());
 			args[39]=req.getRiskdetailYN();
 			args[40]=req.getBrokerdetYN();
 			args[41]=StringUtils.isBlank(req.getCoverdetYN())? "":req.getCoverdetYN();
@@ -3014,7 +3014,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		
 		String[] args=null;
 		args = new String[55];//ri
-		args[0] = StringUtils.isEmpty(req.getDepartId()) ? "0" : req.getDepartId();
+		args[0] = StringUtils.isEmpty(req.getDepartmentId()) ? "0" : req.getDepartmentId();
 		args[1] = StringUtils.isEmpty(req.getProfitCenter()) ? "0" : req.getProfitCenter();
 		args[2] = StringUtils.isEmpty(req.getSubProfitcenter()) ? "0" : req.getSubProfitcenter();
 		args[3] = StringUtils.isEmpty(req.getPolicyBranch()) ? "0" : req.getPolicyBranch();
@@ -3028,7 +3028,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		args[11] = StringUtils.isEmpty(req.getExpDate()) ? "" : req.getExpDate();
 		args[12] = StringUtils.isEmpty(req.getAccDate()) ? "" : req.getAccDate();
 		args[13] = StringUtils.isEmpty(req.getOrginalCurrency()) ? "0" : req.getOrginalCurrency();
-		args[14] = StringUtils.isEmpty(req.getExchRate()) ? "0" : req.getExchRate();
+		args[14] = StringUtils.isEmpty(req.getExchangeRate()) ? "0" : req.getExchangeRate();
 		args[15] = StringUtils.isEmpty(req.getBasis()) ? "0" : req.getBasis();
 		args[16] = StringUtils.isEmpty(req.getPnoc()) ? "" : req.getPnoc();
 		args[17] = StringUtils.isEmpty(req.getRiskCovered()) ? "" : req.getRiskCovered();
@@ -3168,7 +3168,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		if(StringUtils.isBlank(req.getAmendId())){
 			req.setAmendId("0");
 		}
-	  //  deleteMainTable(bean);
+		deleteMainTable(req.getProposalNo(),req.getAmendId(),req.getBranchCode(),req.getReferenceNo());
 		if(StringUtils.isBlank(req.getProposalNo()) && StringUtils.isBlank(req.getReferenceNo())) { //ri
         	String referenceNo="";
         	
@@ -4593,7 +4593,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			updateTotalReinstatement(beanObj);
 		}
 		else{
-			deleteMainTable(beanObj.getProposalNo(),beanObj.getAmendId(),beanObj.getBranchCode(),beanObj.getReferenceNo());
+			//deleteMainTable(beanObj.getProposalNo(),beanObj.getAmendId(),beanObj.getBranchCode(),beanObj.getReferenceNo());
 			MoveReinstatementEmptyData(beanObj);
 		}
 		updateContractNumber(beanObj);
@@ -4862,7 +4862,7 @@ private boolean checkEditSaveModeMethod(final insertProportionalTreatyReq req) {
 			if(StringUtils.isBlank(bean.getContNo())) {
 			
 				obj= new String[2];
-				if("Y".equals(bean.getContractMode())) {
+				if("Y".equals(bean.getContractMode())  && StringUtils.isNotBlank(bean.getBaseLayer())) {
 					obj[0]=bean.getBaseLayer();
 					obj[1]=bean.getBaseLayer();
 				}else {
@@ -4874,7 +4874,7 @@ private boolean checkEditSaveModeMethod(final insertProportionalTreatyReq req) {
 			}else {
 				
 				obj= new String[2];
-				if("Y".equals(bean.getContractMode())) {
+				if("Y".equals(bean.getContractMode())  && StringUtils.isNotBlank(bean.getBaseLayer())) {
 					obj[0]=bean.getBaseLayer();
 					obj[1]=bean.getBaseLayer();
 				}else {

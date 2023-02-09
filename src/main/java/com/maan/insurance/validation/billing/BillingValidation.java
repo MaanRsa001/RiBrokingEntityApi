@@ -96,6 +96,10 @@ public List<ErrorCheck> insertBillingInfoVali(InsertBillingInfoReq req) {
 	}
 	if (CollectionUtils.isEmpty(req.getTransContractListReq())) {
 		list.add(new ErrorCheck("Please Enter TransContractListReq", "TransContractListReq", "12"));
+	}else {
+		if(StringUtils.isBlank(req.getTransContractListReq().get(0).getTransactionNo())) {
+			list.add(new ErrorCheck("Please Select  Atleast one Tranasction", "TransContractListReq", "12"));
+		}
 	}
 	return list;
 }
