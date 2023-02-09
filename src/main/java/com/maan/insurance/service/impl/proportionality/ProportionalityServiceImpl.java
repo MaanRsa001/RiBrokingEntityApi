@@ -99,7 +99,6 @@ import com.maan.insurance.model.req.proportionality.RetroSaveReq;
 import com.maan.insurance.model.req.proportionality.RiskDetailsEditModeReq;
 import com.maan.insurance.model.req.proportionality.ScaleCommissionInsertReq;
 import com.maan.insurance.model.req.proportionality.ScaleList;
-import com.maan.insurance.model.req.proportionality.SecondpageSaveReq;
 import com.maan.insurance.model.req.proportionality.ShowRetroContractsReq;
 import com.maan.insurance.model.req.proportionality.ShowSecondPageDataReq;
 import com.maan.insurance.model.req.proportionality.ShowSecondpageEditItemsReq;
@@ -5925,7 +5924,6 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 		try {
 			try {
 				String[] args=null;
-				String[] obj=null,obj1=null;
 				int chkSecPageMode = checkSecondPageMode(beanObj.getProposalNo()); //commission table count 0 mode=1 else 2
 				int ContractEditMode = contractEditMode(beanObj.getProposalNo()); // get contract no from risk details if empty mode=1 else 2
 				if (ContractEditMode == 1) {
@@ -6009,7 +6007,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 								proportionalityCustomRepository.riskUpdateHomeContNo(args);
 						
 								res.setContNo(maxContarctNo);
-								if("".equals(beanObj.getRenewalContractNo())||"0".equals(beanObj.getRenewalContractNo())||"NEWCONTNO".equals(beanObj.getRenewalFlag())){
+								if( StringUtils.isBlank(beanObj.getRenewalContractNo())||"0".equals(beanObj.getRenewalContractNo())||"NEWCONTNO".equals(beanObj.getRenewalFlag())){
 									res.setContractGendration("Your Proposal is converted to Contract with Proposal No : "+beanObj.getProposalNo() +" and Contract No : "+maxContarctNo+".");
 								}else{
 									res.setContractGendration("Your Proposal is Renewaled with Proposal No : "+beanObj.getProposalNo() +", Old Contract No:"+maxContarctNo+" and New Contract No : "+maxContarctNo+".");
@@ -6052,7 +6050,26 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 							}
 						}
 					}
-				}/*else if (ContractEditMode == 2) {
+					beanObj.setContNo(res.getContNo());
+					
+					InsertPlacement(beanObj);
+					insertRiDetails(beanObj);
+					updateRiContractStatus(beanObj);
+					
+					res.setProductId(beanObj.getProductId());
+					
+					updateRetentionContractNo(beanObj.getContNo(),beanObj.getProductId(),beanObj.getProposalNo(),beanObj.getDepartmentId());						
+					updateContractNumber(beanObj.getProposalNo(),beanObj.getContNo(),beanObj.getBranchCode(),beanObj.getLayerNo(),beanObj.getAmendId());		
+					updateShareSign(beanObj.getProposalNo());
+					dropDowmImpl.updatepositionMasterEndtStatus(beanObj.getProposalNo(),beanObj.getEndorsementDate(),beanObj.getCeaseStatus());
+					if(StringUtils.isNotBlank(res.getContNo())){
+					//	dropDowmImpl.getSOATableInsert(beanObj.getProposalNo(), res.getContNo(),beanObj.getBranchCode());
+					}
+				}else {
+					res.setContractGendration("Contract already converted")	;
+				}
+				
+				/*else if (ContractEditMode == 2) {
 					String endtNo= "";
 					//risk.select.endo
 					TtrnRiskProposal rp = ttrnRiskProposalRepository.findTop1ByRskProposalNumberOrderByRskEndorsementNoDesc(beanObj.getProposalNo());
@@ -6078,19 +6095,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 
 					res.setProStatus("A");
 				}*/
-				InsertPlacement(beanObj);
-				insertRiDetails(beanObj);
-				updateRiContractStatus(beanObj);
-				
-				res.setProductId(beanObj.getProductId());
-				
-				updateRetentionContractNo(beanObj.getContNo(),beanObj.getProductId(),beanObj.getProposalNo(),beanObj.getDepartmentId());						
-				updateContractNumber(beanObj.getProposalNo(),beanObj.getContNo(),beanObj.getBranchCode(),beanObj.getLayerNo(),beanObj.getAmendId());		
-				updateShareSign(beanObj.getProposalNo());
-				dropDowmImpl.updatepositionMasterEndtStatus(beanObj.getProposalNo(),beanObj.getEndorsementDate(),beanObj.getCeaseStatus());
-				if(StringUtils.isNotBlank(res.getContNo())){
-					dropDowmImpl.getSOATableInsert(beanObj.getProposalNo(), res.getContNo(),beanObj.getBranchCode());
-				}
+			
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -6373,7 +6378,6 @@ try{
 			sharesigned.where(a1);
 			update.set("rskShareSigned", sharesigned);
 			
-			
 			Predicate n1 = cb.equal(m.get("rskProposalNumber"),proposalNo);
 			update.where(n1 );
 			em.createQuery(update).executeUpdate();
@@ -6391,7 +6395,7 @@ try{
 			Root<TtrnRip> m = update.from(TtrnRip.class);
 			
 			update.set("contractNo", contNo)
-			.set("layerNo", StringUtils.isBlank(layerNo)?"0":layerNo)
+			.set("layerNo", fm.formatBigDecimal(StringUtils.isBlank(layerNo)?"0":layerNo)) 
 			;
 			
 			Predicate n1 = cb.equal(m.get("proposalNo"),proposalNo);

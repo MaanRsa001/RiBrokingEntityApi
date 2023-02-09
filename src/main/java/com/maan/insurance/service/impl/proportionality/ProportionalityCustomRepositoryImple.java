@@ -2018,10 +2018,10 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 		try {
 			//GET_COUNT_RETENTION
 			CriteriaBuilder cb = em.getCriteriaBuilder(); 
-			CriteriaQuery<Integer> query1 = cb.createQuery(Integer.class); 
+			CriteriaQuery<Tuple> query1 = cb.createQuery(Tuple.class); 
 			Root<TtrnCedentRet> pm = query1.from(TtrnCedentRet.class);
 			
-			query1.multiselect(cb.count(pm)); 
+			query1.multiselect(cb.count(pm).alias("count")); 
 			
 			Subquery<Long> amend = query1.subquery(Long.class); 
 			Root<TtrnCedentRet> rcs = amend.from(TtrnCedentRet.class);
@@ -2034,11 +2034,11 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 			Predicate n3 = cb.equal(pm.get("amendId"), amend); 
 			query1.where(n1,n2,n3);
 	
-			TypedQuery<Integer> result = em.createQuery(query1);
-			List<Integer> list = result.getResultList();
+			TypedQuery<Tuple> result = em.createQuery(query1);
+			List<Tuple> list = result.getResultList();
 			
 			if(list!=null) {
-				count = list.get(0)==null?0:list.get(0);
+				count = list.get(0)==null?0:Integer.valueOf(list.get(0).get("count").toString());
 				}
 			
 			}catch(Exception e) {
@@ -2636,14 +2636,17 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 			
 		if(args != null) {
 			CriteriaBuilder cb = em.getCriteriaBuilder(); 
-			CriteriaQuery<BigDecimal> query1 = cb.createQuery(BigDecimal.class); 
+			CriteriaQuery<Tuple> query1 = cb.createQuery(Tuple.class); 
 			Root<TtrnRi> rd = query1.from(TtrnRi.class);
-			query1.multiselect(cb.max(rd.get("riNo"))); 
+			query1.multiselect(cb.max(rd.get("riNo")).alias("riNo")); 
 			//amendId
 			
-			TypedQuery<BigDecimal> result = em.createQuery(query1);
-			BigDecimal riNo = result.getResultList().get(0);
-			int a = riNo==null?1:(riNo.intValue()+1);
+			TypedQuery<Tuple> result = em.createQuery(query1);
+			List<Tuple> riNo = result.getResultList();
+			int a = 1;
+			if(riNo != null) 
+				a =	Integer.valueOf(riNo.get(0).get("riNo").toString())+1;
+			
 			
 			ttrnRi.setRiNo(fm.formatBigDecimal(String.valueOf(a)));
 			ttrnRi.setStatusNo(fm.formatBigDecimal(args[0]));

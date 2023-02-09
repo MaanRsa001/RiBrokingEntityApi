@@ -109,6 +109,7 @@ import com.maan.insurance.model.repository.TtrnRetroCessionaryRepository;
 import com.maan.insurance.model.repository.TtrnRetroClaimDetailsRepository;
 import com.maan.insurance.model.repository.TtrnRiPlacementRepository;
 import com.maan.insurance.model.repository.TtrnRiskCommissionRepository;
+import com.maan.insurance.model.repository.TtrnRiskDetailsRepository;
 import com.maan.insurance.model.repository.TtrnSoaDueRepository;
 import com.maan.insurance.model.repository.UnderwritterCapacityMasterRepository;
 import com.maan.insurance.model.repository.UnderwritterMasterRepository;
@@ -164,6 +165,7 @@ import com.maan.insurance.validation.Formatters;
 @Service
 public class DropDownServiceImple implements DropDownService{
 	private Logger log = LogManager.getLogger(DropDownServiceImple.class);
+	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy") ;
 
 	@Autowired
 	private QueryImplemention queryImpl;
@@ -190,9 +192,13 @@ public class DropDownServiceImple implements DropDownService{
 	private  TmasCrestaMasterRepository cresRepo;
 	@Autowired
 	private  TtrnSoaDueRepository ttrnSoaDueRepository;
+	@Autowired
+	private PositionMasterRepository positionMasterRepository;
+	@Autowired
+	private TtrnRiskDetailsRepository ttrnRiskDetailsRepository;
+	@Autowired
+	private DropDownCustomRepository dropDownCustomRepository;
 	
-	
-	SimpleDateFormat sdf=new SimpleDateFormat("dd/MM/yyyy");
 //	@Autowired
 //	private DropDownValidation dropDownValidation;
 
@@ -2064,6 +2070,7 @@ public class DropDownServiceImple implements DropDownService{
 		try {
 			//common.select.getTerritoryList
 			//List<TerritoryMaster> list = tmRepo.findDistinctByBranchCodeAndTerritoryStatusOrderByTerritoryDescrAsc(branchCode,"Y");
+			
 			CriteriaBuilder cb = em.getCriteriaBuilder();
 			CriteriaQuery<Tuple> cq = cb.createQuery(Tuple.class);
 			Root<TerritoryMaster> Root = cq.from(TerritoryMaster.class);
@@ -2121,12 +2128,7 @@ public class DropDownServiceImple implements DropDownService{
 			CriteriaBuilder cb = em.getCriteriaBuilder(); 
 			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
 			Root<PositionMaster> pm = query.from(PositionMaster.class);
-			query.multiselect(
-					pm.get("cedingCompanyId").alias("CEDING_COMPANY_ID"),
-					pm.get("inceptionDate").alias("INCEPTION_DATE"),
-					pm.get("expiryDate").alias("EXPIRY_DATE"),
-					pm.get("uwYear").alias("UW_YEAR"),
-					pm.get("uwYearTo").alias("UW_YEAR_TO"));
+			query.multiselect(pm.alias("PositionMaster"));
 			
 			Subquery<Long> prop = query.subquery(Long.class); 
 			Root<PositionMaster> pms = prop.from(PositionMaster.class);
@@ -2136,7 +2138,7 @@ public class DropDownServiceImple implements DropDownService{
 			
 			Subquery<Long> amend = query.subquery(Long.class); 
 			Root<PositionMaster> pm1 = amend.from(PositionMaster.class);
-			amend.select(pm1.get("proposalNo")).distinct(true);
+			amend.select(cb.max(pm1.get("amendId")));
 			Predicate b1 = cb.equal(pm.get("proposalNo"), pm1.get("proposalNo"));
 			amend.where(b1);
 			
@@ -2146,38 +2148,114 @@ public class DropDownServiceImple implements DropDownService{
 			query.where(n1,n2);
 	
 			TypedQuery<Tuple> res1 = em.createQuery(query);
-			List<Tuple> list = res1.getResultList();
+			List<Tuple> list = res1.getResultList(); //loop
+			
+		
 			
 			//UPDATE_SUB_LAYER_INFO subquery
-			query.multiselect(
-					pm.get("cedingCompanyId").alias("CEDING_COMPANY_ID"),
-					pm.get("inceptionDate").alias("INCEPTION_DATE"),
-					pm.get("expiryDate").alias("EXPIRY_DATE"),
-					pm.get("uwYear").alias("UW_YEAR"),
-					pm.get("uwYearTo").alias("UW_YEAR_TO"));
+			CriteriaQuery<Tuple> query1 = cb.createQuery(Tuple.class); 
+			Root<PositionMaster> rd = query1.from(PositionMaster.class);
+			query1.multiselect(
+					rd.get("cedingCompanyId").alias("CEDING_COMPANY_ID"),
+					rd.get("inceptionDate").alias("INCEPTION_DATE"),
+					rd.get("expiryDate").alias("EXPIRY_DATE"),
+					rd.get("uwYear").alias("UW_YEAR"),
+					rd.get("uwYearTo").alias("UW_YEAR_TO"));
 		
-			Subquery<Long> amen = query.subquery(Long.class); 
+			Subquery<Long> amen = query1.subquery(Long.class); 
 			Root<PositionMaster> pms1 = amen.from(PositionMaster.class);
-			amen.select(cb.max(pm.get("amendId")));
-			Predicate c1 = cb.equal(pms1.get("proposalNo"), pm.get("proposalNo"));
+			amen.select(cb.max(pms1.get("amendId")));
+			Predicate c1 = cb.equal(pms1.get("proposalNo"), rd.get("proposalNo"));
 			amen.where(c1);
 			
 			
-			Predicate m1 =cb.equal(pm.get("proposalNo"), proposalNo);
-			Predicate m2 = cb.equal(pm.get("amendId"), amen);
-			query.where(m1,m2);
+			Predicate m1 =cb.equal(rd.get("proposalNo"), proposalNo);
+			Predicate m2 = cb.equal(rd.get("amendId"), amen);
+			query1.where(m1,m2);
 	
-			TypedQuery<Tuple> res = em.createQuery(query);
+			TypedQuery<Tuple> res = em.createQuery(query1);
 			List<Tuple> list1 = res.getResultList();
 			
+			String cedingid = list1.get(0).get("CEDING_COMPANY_ID")==null?"":	list1.get(0).get("CEDING_COMPANY_ID").toString();
+			String incepDate = list1.get(0).get("INCEPTION_DATE")==null?"":	sdf.format(list1.get(0).get("INCEPTION_DATE"));
+			String expdate = list1.get(0).get("EXPIRY_DATE")==null?"":	sdf.format(list1.get(0).get("EXPIRY_DATE"));
+			String uwYear = list1.get(0).get("UW_YEAR")==null?"":	list1.get(0).get("UW_YEAR").toString();
+			String uwYearTo = list1.get(0).get("UW_YEAR_TO")==null?"":	list1.get(0).get("UW_YEAR_TO").toString();
 			
+			
+			for(int i=0;i<list.size();i++) {
+				PositionMaster entity= (PositionMaster) list.get(i).get("PositionMaster");
+				entity.setCedingCompanyId(cedingid);	
+				entity.setInceptionDate(sdf.parse(incepDate));	
+				entity.setExpiryDate(sdf.parse(expdate));	
+				entity.setUwYear(uwYear);
+				entity.setUwYearTo(fm.formatBigDecimal(uwYearTo));
+				positionMasterRepository.saveAndFlush(entity);
+				}
+					
+					
+//			UPDATE_SUB_LAYER_RISK
+			CriteriaQuery<Tuple> query2 = cb.createQuery(Tuple.class); 
+			Root<TtrnRiskDetails> rk = query2.from(TtrnRiskDetails.class);
+			query2.multiselect(rk.alias("TtrnRiskDetails"));
+			
+			Subquery<Long> rskProp = query2.subquery(Long.class); 
+			Root<PositionMaster> pm2 = rskProp.from(PositionMaster.class);
+			rskProp.select(pm2.get("proposalNo")).distinct(true);
+			Predicate h1 = cb.equal(pm2.get("baseLayer"), type);
+			rskProp.where(h1);
+			
+			Subquery<Long> endo = query2.subquery(Long.class); 
+			Root<TtrnRiskDetails> trs = endo.from(TtrnRiskDetails.class);
+			endo.select(cb.max(trs.get("rskEndorsementNo")));
+			Predicate l1 = cb.equal(trs.get("rskProposalNumber"), rk.get("rskProposalNumber"));
+			endo.where(l1);
+			
+			Expression<String> e1 = rk.get("rskProposalNumber");
+			Predicate k1 = e1.in(rskProp);
+			Predicate k2 = cb.equal(rk.get("rskEndorsementNo"), endo);
+			query2.where(k1,k2);
+	
+			TypedQuery<Tuple> result = em.createQuery(query2);
+			List<Tuple> list2 = result.getResultList(); //loop
+			
+			//UPDATE_SUB_LAYER_RISK subquery
+			CriteriaQuery<Tuple> query3 = cb.createQuery(Tuple.class); 
+			Root<TtrnRiskDetails> rd1 = query3.from(TtrnRiskDetails.class);
+			query3.multiselect(
+					rd1.get("rskCedingid").alias("RSK_CEDINGID"),
+					rd1.get("rskInceptionDate").alias("RSK_INCEPTION_DATE"),
+					rd1.get("rskExpiryDate").alias("RSK_EXPIRY_DATE"),
+					rd1.get("rskUwyear").alias("RSK_UWYEAR"));
 		
-//			int result = queryImpl.updateQuery(query,new String[]{proposalNo,proposalNo});
-//			query = "UPDATE_SUB_LAYER_RISK";
-//			result = queryImpl.updateQuery(query,new String[]{proposalNo,proposalNo});
-//			
-//			System.out.println(result);
-
+			Subquery<Long> end = query3.subquery(Long.class); 
+			Root<TtrnRiskDetails> pms2 = end.from(TtrnRiskDetails.class);
+			end.select(cb.max(pms2.get("rskEndorsementNo")));
+			Predicate d1 = cb.equal(pms2.get("rskProposalNumber"), rd1.get("rskProposalNumber"));
+			end.where(d1);
+			
+			
+			Predicate p1 =cb.equal(rd1.get("rskProposalNumber"), proposalNo);
+			Predicate p2 = cb.equal(rd1.get("rskEndorsementNo"), end);
+			query3.where(p1,p2);
+	
+			TypedQuery<Tuple> result1 = em.createQuery(query3);
+			List<Tuple> list3 = result1.getResultList();
+			
+			
+			String rskCedingid = list3.get(0).get("RSK_CEDINGID")==null?"":	list3.get(0).get("RSK_CEDINGID").toString();
+			String rskInceptionDate = list3.get(0).get("RSK_INCEPTION_DATE")==null?"":	sdf.format(list3.get(0).get("RSK_INCEPTION_DATE"));
+			String rskExpiryDate = list3.get(0).get("RSK_EXPIRY_DATE")==null?"":	sdf.format(list3.get(0).get("RSK_EXPIRY_DATE"));
+			String rskUwyear = list3.get(0).get("RSK_UWYEAR")==null?"":	list3.get(0).get("RSK_UWYEAR").toString();
+			
+			for(int i=0;i<list2.size();i++) {
+				TtrnRiskDetails entity= (TtrnRiskDetails) list2.get(i).get("TtrnRiskDetails");
+				entity.setRskCedingid(fm.formatBigDecimal(rskCedingid));	
+				entity.setRskInceptionDate(sdf.parse(rskInceptionDate));	
+				entity.setRskExpiryDate(sdf.parse(rskExpiryDate));	
+				entity.setRskUwyear(fm.formatBigDecimal(rskUwyear));
+				ttrnRiskDetailsRepository.saveAndFlush(entity);
+				}
 			response.setMessage("Success");
 			response.setIsError(false);
 			}catch(Exception e){
@@ -2640,7 +2718,7 @@ public class DropDownServiceImple implements DropDownService{
 				if(!cedingCompany.matches("^[0-9]+$")){
 					cedingCompany="";
 				}
-				if("1".equalsIgnoreCase(productId)){
+				if("1".equalsIgnoreCase(productId)){ //with   e1 
 					query="FAC_CONTRACT_LIST";
 					 args = new String[10];
 						args[0] = cedingCompany;
@@ -2727,10 +2805,8 @@ public class DropDownServiceImple implements DropDownService{
 					}
 				}
 		
-				
 				ContractList =queryImpl.selectList(query,args);
 			
-		
 					 for(int i=0 ; i<ContractList.size() ; i++) {
 						 GetContractValidationRes res = new GetContractValidationRes();
 							Map<String,Object> tempMap = (Map<String,Object>) ContractList.get(i);
@@ -3240,11 +3316,18 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 			Predicate a1 = cb.equal(m.get("proposalNo"), pms.get("proposalNo"));
 			amend.where(a1);
 			
+//			Expression<Object> e0 = cb.selectCase().when(cb.equal(m.get("proposalStatus"),"A"), "A")
+//					.otherwise(m.get("contractStatus"));
+//			
+//			String temp = e0==null?"":String.valueOf(e0);
+			
 			update.set("endtStatus", "Y");
 			update.set("contractStatus", cb.selectCase().when(cb.equal(m.get("proposalStatus"),"A"), "A")
-					.otherwise(m.get("contractStatus")));
-			update.set("endorsementDate", sdf.parse(endtDate));
+					.otherwise(m.get("contractStatus")) ==null?"":
+						"A");
+			update.set("endorsementDate", endtDate==null?null:sdf.parse(endtDate));
 			update.set("ceaseStatus", ceaseStatus);
+			
 			Predicate n1 = cb.equal(m.get("proposalNo"), proposalNo);
 			Predicate n2 = cb.equal(m.get("amendId"), amend);
 			update.where(n1,n2);
@@ -3468,7 +3551,7 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 		String query="";
 		try{
 			if("17".equalsIgnoreCase(departId) || "18".equalsIgnoreCase(departId) ||"19".equalsIgnoreCase(departId) ){
-				query="GET_COVER_DEPT_LIST";
+				query="GET_COVER_DEPT_LIST"; //connect by regexp_substr
 				list = queryImpl.selectList(query,new String[]{departId,branchCode,pid});
 			}else{
 				 list=getDepartmentDropDown(branchCode,pid,"Y","","","","","");
@@ -3500,7 +3583,7 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 		String query="";
 		try{
 
-			if (productCode.equalsIgnoreCase("")) {
+			if (productCode.equalsIgnoreCase("")) { //criteria done
 				query = "common.select.departlist.premium";
 				list = queryImpl.selectList(query, new String[] { branchCode, status });
 			} else if(!StringUtils.isBlank(baseLayer) ) { 
@@ -3529,9 +3612,7 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 				}
 			
 			}catch(Exception e){
-				log.error(e);
 				e.printStackTrace();
-				
 		}
 
 		return list;
@@ -4433,7 +4514,7 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 				if(!req.getCedingCo().matches("^[0-9]+$")){
 					req.setCedingCo("");
 				}
-				if("1".equalsIgnoreCase(req.getProductId())){
+				if("1".equalsIgnoreCase(req.getProductId())){  //with   e1 
 					query="FAC_CONTRACT_LIST";
 					 args = new String[10];
 						args[0] = req.getCedingCo();
@@ -4675,26 +4756,22 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 	public GetCommonDropDownRes getDeptName(String branchCode) {
 		GetCommonDropDownRes response = new GetCommonDropDownRes();
 		List<CommonResDropDown> relist = new ArrayList<CommonResDropDown>();
-		List<Map<String,Object>> list=new ArrayList<Map<String,Object>>();
 		try{
-			String query="common.select.deptName";
-			String args [] = new String [1];
-			args[0] = branchCode;
-			list =queryImpl.selectList(query, args);
+			//common.select.deptName
+			List<TmasDepartmentMaster> list = deptRepo.findByBranchCodeAndTmasProductIdAndTmasStatus(branchCode,
+					new BigDecimal(4),"H");
 			
 			for(int i=0 ; i<list.size() ; i++) {
-			
-				 CommonResDropDown res = new CommonResDropDown();
-					Map<String,Object> tempMap = (Map<String,Object>) list.get(i);
-					res.setCode(tempMap.get("TMAS_DEPARTMENT_ID")==null?"":tempMap.get("TMAS_DEPARTMENT_ID").toString());
-					res.setCodeDescription(tempMap.get("TMAS_DEPARTMENT_NAME")==null?"":tempMap.get("TMAS_DEPARTMENT_NAME").toString());
+					CommonResDropDown res = new CommonResDropDown();
+					TmasDepartmentMaster tempMap =list.get(i);
+					res.setCode(tempMap.getTmasDepartmentId()==null?"":tempMap.getTmasDepartmentId().toString());
+					res.setCodeDescription(tempMap.getTmasDepartmentName()==null?"":tempMap.getTmasDepartmentName().toString());
 					relist.add(res);
 				}
-			response.setCommonResponse(relist);
-			response.setMessage("Success");
-			response.setIsError(false);
+				response.setCommonResponse(relist);
+				response.setMessage("Success");
+				response.setIsError(false);
 			}catch(Exception e){
-				log.error(e);
 				e.printStackTrace();
 				response.setMessage("Failed");
 				response.setIsError(true);
@@ -4975,15 +5052,15 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 	public GetBouquetExistingListRes getBouquetExistingList(String branchCode, String bouquetNo, String bouquetYN) {
 		GetBouquetExistingListRes response = new GetBouquetExistingListRes();
 		List<GetBouquetExistingListRes1> resList = new ArrayList<GetBouquetExistingListRes1>();
-		List<Map<String,Object>> list=new ArrayList<Map<String,Object>>();
 		try{
-			if(StringUtils.isNotBlank(bouquetNo) && "Y".equals(bouquetYN)) {
-			list= queryImpl.selectList("GET_EXISTING_BOUQUET",new String[]{branchCode,bouquetNo});
+			if(StringUtils.isNotBlank(bouquetNo) && "Y".equals(bouquetYN)) {//select RTRIM(XMLAGG(XMLELEMENT(E,TMAS_SPFC_NAME,',')).EXTRACT('//text()'),',') 
+			//GET_EXISTING_BOUQUET
+			List<Tuple> list = dropDownCustomRepository.getExistingBouquet(branchCode,bouquetNo);
 			if(list.size()>0) {
-				for(Map<String,Object> data: list) {
+				for(Tuple data: list) {
 					GetBouquetExistingListRes1 res = new GetBouquetExistingListRes1();
-					res.setInsDate(data.get("INS_DATE")==null?"":data.get("INS_DATE").toString()); 
-					res.setExpDate(data.get("EXP_DATE")==null?"":data.get("EXP_DATE").toString()); 
+					res.setInsDate(data.get("INS_DATE")==null?"":sdf.format(data.get("INS_DATE"))); 
+					res.setExpDate(data.get("EXP_DATE")==null?"":sdf.format(data.get("EXP_DATE"))); 
 					res.setCompanyName(data.get("COMPANY_NAME")==null?"":data.get("COMPANY_NAME").toString()); 
 					res.setUwYear(data.get("UW_YEAR")==null?"":data.get("UW_YEAR").toString()); 
 					res.setUwYearTo(data.get("UW_YEAR_TO")==null?"":data.get("UW_YEAR_TO").toString()); 
@@ -4994,12 +5071,13 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 					res.setTreatytype(data.get("TREATY_TYPE")==null?"":data.get("TREATY_TYPE").toString()); 
 					res.setRskTreatyid(data.get("RSK_TREATYID")==null?"":data.get("RSK_TREATYID").toString()); 
 					res.setPolicyStatus(data.get("POLICY_STATUS")==null?"":data.get("POLICY_STATUS").toString()); 
-					res.setExistingShare(data.get("EXISTING_SHARE")==null?"":data.get("EXISTING_SHARE").toString()); 
+					res.setExistingShare(""); //''EXISTING_SHARE 
 					res.setBaseLayer(data.get("BASE_LAYER")==null?"":data.get("BASE_LAYER").toString()); 
 					res.setSectionNo(data.get("SECTION_NO")==null?"":data.get("SECTION_NO").toString()); 
 					res.setLayerNo(data.get("LAYER_NO")==null?"":data.get("LAYER_NO").toString());
 					res.setTmasDepartmentName(data.get("TMAS_DEPARTMENT_NAME")==null?"":data.get("TMAS_DEPARTMENT_NAME").toString()); 
-					res.setSubClass(data.get("SUB_CLASS")==null?"":data.get("SUB_CLASS").toString());
+					//SUB_CLASS pending
+					//res.setSubClass(data.get("SUB_CLASS")==null?"":data.get("SUB_CLASS").toString());
 					res.setOfferNo(data.get("OFFER_NO")==null?"":data.get("OFFER_NO").toString());
 					resList.add(res);
 					}
@@ -5009,7 +5087,6 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 			response.setMessage("Success");
 			response.setIsError(false);
 		}catch(Exception e){
-				log.error(e);
 				e.printStackTrace();
 				response.setMessage("Failed");
 				response.setIsError(true);
@@ -5433,11 +5510,11 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 	public GetBouquetExistingListRes getBaseLayerExistingList(String branchCode, String baseProposalNo) {
 		GetBouquetExistingListRes response = new GetBouquetExistingListRes();
 		List<GetBouquetExistingListRes1> resList = new ArrayList<GetBouquetExistingListRes1>();
-		List<Map<String,Object>> list=new ArrayList<Map<String,Object>>();
 		try{
-			list= queryImpl.selectList("GET_EXISTING_BASELAYER",new String[]{branchCode,baseProposalNo});
-			if(list.size()>0) {
-				for(Map<String,Object> data: list) {
+			//GET_EXISTING_BASELAYER
+			List<Tuple> list = dropDownCustomRepository.getExistingBaselayer(branchCode,baseProposalNo);
+			if(list.size()>0) { //select RTRIM(XMLAGG(XMLELEMENT(E,TMAS_SPFC_NAME,',')).EXTRACT('//text()'),','
+				for(Tuple data: list) {
 					GetBouquetExistingListRes1 res = new GetBouquetExistingListRes1();
 					res.setInsDate(data.get("INS_DATE")==null?"":data.get("INS_DATE").toString());  
 					res.setExpDate(data.get("EXP_DATE")==null?"":data.get("EXP_DATE").toString());  
@@ -5455,8 +5532,9 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 					res.setBaseLayer(data.get("BASE_LAYER")==null?"":data.get("BASE_LAYER").toString());  
 					res.setSectionNo(data.get("SECTION_NO")==null?"":data.get("SECTION_NO").toString());  
 					res.setLayerNo(data.get("LAYER_NO")==null?"":data.get("LAYER_NO").toString());  
-					res.setTmasDepartmentName(data.get("TMAS_DEPARTMENT_NAME")==null?"":data.get("TMAS_DEPARTMENT_NAME").toString());  
-					res.setSubClass(data.get("SUB_CLASS")==null?"":data.get("SUB_CLASS").toString());  
+					res.setTmasDepartmentName(data.get("TMAS_DEPARTMENT_NAME")==null?"":data.get("TMAS_DEPARTMENT_NAME").toString()); 
+					// SUB_CLASS pending
+				//  res.setSubClass(data.get("SUB_CLASS")==null?"":data.get("SUB_CLASS").toString());  
 					res.setOfferNo(data.get("OFFER_NO")==null?"":data.get("OFFER_NO").toString());  
 					resList.add(res);
 				}
@@ -5465,7 +5543,6 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 		response.setMessage("Success");
 		response.setIsError(false);
 	}catch(Exception e){
-			log.error(e);
 			e.printStackTrace();
 			response.setMessage("Failed");
 			response.setIsError(true);
