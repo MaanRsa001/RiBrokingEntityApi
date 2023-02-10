@@ -469,8 +469,6 @@ public class PlacementServiceImple implements PlacementService {
 		List<GetBouquetExistingListRes1> list = null;
 		try {
 			GetPlacementNoRes1 res1 = 	placementCustomRepository.getPlacementNo(bean).getCommonResponse();
-			bean.setPlacementNo(res1.getPlacementNo());
-			bean.setStatusNo(res1.getStatusNo());
 			
 			if("C".equalsIgnoreCase(bean.getPlacementMode())) {
 				if(StringUtils.isNotBlank(bean.getBouquetNo())) {
@@ -479,13 +477,11 @@ public class PlacementServiceImple implements PlacementService {
 					list = dropDownImple.getBaseLayerExistingList(bean.getBranchCode(),bean.getBaseProposalNo()).getCommonResponse();
 				}
 				for(int i=0;i<list.size();i++) {
-					SavePlacingRes res = new SavePlacingRes();
-					res.setEproposalNo(list.get(i).getProposalNo()==null?"":list.get(i).getProposalNo().toString());
-					resList.add(res);
-					insertPlacing(bean);
+					bean.setEproposalNo(list.get(i).getProposalNo()==null?"":list.get(i).getProposalNo().toString());
+					insertPlacing(bean,res1);
 				}
 			}else {
-				insertPlacing(bean);
+				insertPlacing(bean,res1);
 			}
 			response.setResponse(resList);
 			response.setMessage("Success");
@@ -500,8 +496,8 @@ public class PlacementServiceImple implements PlacementService {
 	}
 
 	
-	@Override
-	public InsertPlacingRes insertPlacing(SavePlacingReq bean) {
+	//@Override
+	public InsertPlacingRes insertPlacing(SavePlacingReq bean, GetPlacementNoRes1 res1) {
 		InsertPlacingRes response = new InsertPlacingRes();
 		String plamendId="0",currentStatus="O";
 		Tuple result=null;
@@ -512,7 +508,8 @@ public class PlacementServiceImple implements PlacementService {
 			req1.setBranchCode(bean.getBranchCode());
 			req1.setProposalNo(bean.getProposalNo());
 			req1.setEProposalNo(bean.getEproposalNo());
-			proposalInfo(req1);
+			ProposalInfoRes resp=proposalInfo(req1);
+			ProposalInfoRes1 resp1=resp.getCommonResponse();
 			//DeletePlacement(bean);
 			//INSERT_PLACEMENT_INFO
 			for(int i=0;i<bean.getReinsListReq().size();i++) {
@@ -520,36 +517,34 @@ public class PlacementServiceImple implements PlacementService {
 				ReinsListReq req =	bean.getReinsListReq().get(i);
 				res.setReinsurerId(req.getReinsureName());
 				res.setBrokerId(req.getPlacingBroker());
-				bean.setEproposalNo(bean.getProposalNo());
+				//bean.setEproposalNo(bean.getProposalNo());
 				plamendId=placementCustomRepository.getMaxAmendId(bean.getBranchCode(),bean.getEproposalNo(),res.getReinsurerId(),res.getBrokerId());
 				if(StringUtils.isBlank(plamendId) || "null".equalsIgnoreCase(plamendId)) {
-					bean.setPlacementamendId("0");
-				}else {
-				bean.setPlacementamendId(plamendId);
+					plamendId="0";
 				}
-				result=placementCustomRepository.getPlacementDetails(bean.getEproposalNo(),bean.getReinsurerId(),bean.getBrokerId(),bean.getBranchCode());
+				result=placementCustomRepository.getPlacementDetails(bean.getEproposalNo(),res.getReinsurerId(),res.getBrokerId(),bean.getBranchCode());
 				if(result!=null) {
 					currentStatus=result.get("STATUS")==null?"O":result.get("STATUS").toString();
 				}
-				entity.setPlacementNo(new BigDecimal(bean.getPlacementNo()));
+				entity.setPlacementNo(new BigDecimal(res1.getPlacementNo()));
 				entity.setSno(new BigDecimal(req.getReinsSNo()));
-				entity.setBouquetNo(StringUtils.isBlank(bean.getBouquetNo())? BigDecimal.ZERO :new BigDecimal(bean.getBouquetNo()));
-				entity.setBaseProposalNo(bean.getBaseProposalNo()==null?BigDecimal.ZERO :new BigDecimal(bean.getBaseProposalNo()));
+				entity.setBouquetNo(StringUtils.isBlank(resp1.getBouquetNo())? BigDecimal.ZERO :new BigDecimal(resp1.getBouquetNo()));
+				entity.setBaseProposalNo(resp1.getBaseProposalNo()==null?BigDecimal.ZERO :new BigDecimal(resp1.getBaseProposalNo()));
 				entity.setProposalNo(bean.getEproposalNo()==null?BigDecimal.ZERO :new BigDecimal(bean.getEproposalNo()));
-				entity.setContractNo(StringUtils.isBlank(bean.getContractNo())? BigDecimal.ZERO :new BigDecimal(bean.getContractNo()));
-				entity.setLayerNo(StringUtils.isBlank(bean.getLayerNo())? BigDecimal.ZERO :new BigDecimal(bean.getLayerNo()));
-				entity.setSectionNo(StringUtils.isBlank(bean.getSectionNo())? BigDecimal.ZERO :new BigDecimal(bean.getSectionNo()));
-				entity.setAmendId(StringUtils.isBlank(bean.getAmendId())? BigDecimal.ZERO :new BigDecimal(bean.getAmendId()));
+				entity.setContractNo(StringUtils.isBlank(resp1.getContractNo())? BigDecimal.ZERO :new BigDecimal(resp1.getContractNo()));
+				entity.setLayerNo(StringUtils.isBlank(resp1.getLayerNo())? BigDecimal.ZERO :new BigDecimal(resp1.getLayerNo()));
+				entity.setSectionNo(StringUtils.isBlank(resp1.getSectionNo())? BigDecimal.ZERO :new BigDecimal(resp1.getSectionNo()));
+				entity.setAmendId(StringUtils.isBlank(resp1.getAmendId())? BigDecimal.ZERO :new BigDecimal(resp1.getAmendId()));
 				entity.setReinsurerId(req.getReinsureName()==null?"":req.getReinsureName());
 				entity.setBrokerId(req.getPlacingBroker()==null?"":req.getPlacingBroker());
 				entity.setShareOffered(req.getShareOffer()==null?BigDecimal.ZERO :new BigDecimal(req.getShareOffer()));
 				entity.setBranchCode(bean.getBranchCode()==null?"":bean.getBranchCode());
 				entity.setSysDate(new Date());
-				entity.setCedingCompanyId(StringUtils.isBlank(bean.getCedingCompany())?"":bean.getCedingCompany());
+				entity.setCedingCompanyId(StringUtils.isBlank(resp1.getCedingCompany())?"":resp1.getCedingCompany());
 				entity.setPlacementMode(bean.getPlacementMode()==null?"":bean.getPlacementMode());
 				entity.setStatus(currentStatus==null?"":currentStatus);
-				entity.setPlacementAmendId(StringUtils.isBlank(bean.getPlacementamendId())? BigDecimal.ZERO  :new BigDecimal(bean.getPlacementamendId()));
-				entity.setStatusNo(bean.getStatusNo()==null?BigDecimal.ZERO :new BigDecimal(bean.getStatusNo()));
+				entity.setPlacementAmendId(StringUtils.isBlank(plamendId)? BigDecimal.ZERO  :new BigDecimal(plamendId));
+				entity.setStatusNo(res1.getStatusNo()==null?BigDecimal.ZERO :new BigDecimal(res1.getStatusNo()));
 				entity.setApproveStatus("Y");
 				entity.setUserId(bean.getUserId()==null?"":bean.getUserId());
 				ripRepo.saveAndFlush(entity);		

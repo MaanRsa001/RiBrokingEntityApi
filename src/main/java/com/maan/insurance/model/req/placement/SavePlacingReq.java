@@ -16,42 +16,20 @@ public class SavePlacingReq {
 	private String baseProposalNo;
 	@JsonProperty("EproposalNo")
 	private String eproposalNo;
+	@JsonProperty("UserId")
+	private String userId;
 	@JsonProperty("PlacementMode")
-	private String placementMode; 
+	private String placementMode;
+	@JsonProperty("NotplacedProposal")
+	private String NotplacedProposal;
+	@JsonProperty("PlacedProposal")
+	private String placedProposal;
 	
 	@JsonProperty("BouquetModeYN")
 	private String bouquetModeYN;
 	@JsonProperty("ProposalNo")
 	private String proposalNo;
-	@JsonProperty("EProposalNo")
-	private String eProposalNo;
 	@JsonProperty("ReinsListReq")
 	private List<ReinsListReq> reinsListReq;
-	@JsonProperty("ReinsurerId")
-	private String reinsurerId; 
-	@JsonProperty("BrokerId")
-	private String brokerId;
-	@JsonProperty("PlacementNo")
-	private String placementNo;
-	@JsonProperty("ContractNo")
-	private String contractNo;
-	@JsonProperty("LayerNo")
-	private String layerNo;
-	@JsonProperty("SectionNo")
-	private String sectionNo; 
-	
-	@JsonProperty("AmendId")
-	private String amendId;
-	@JsonProperty("CedingCompany")
-	private String cedingCompany;
-	@JsonProperty("PlacementamendId")
-	private String placementamendId; 
-	@JsonProperty("StatusNo")
-	private String statusNo; 
-	@JsonProperty("UserId")
-	private String userId;  
-	@JsonProperty("NotplacedProposal")
-	private String notplacedProposal; 
-	@JsonProperty("PlacedProposal")
-	private String placedProposal;  
+ 
 }

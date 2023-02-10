@@ -64,7 +64,7 @@ public interface PlacementService {
 
 	GetPlacementNoRes getPlacementNo(SavePlacingReq req);
 
-	InsertPlacingRes insertPlacing(SavePlacingReq req);
+	/* InsertPlacingRes insertPlacing(SavePlacingReq req); */
 
 	GetPlacingInfoRes getPlacingInfo(GetPlacingInfoReq req);
 

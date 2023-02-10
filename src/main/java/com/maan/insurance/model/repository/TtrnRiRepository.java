@@ -10,6 +10,6 @@ import com.maan.insurance.model.entity.TtrnRiId;
 
 public interface TtrnRiRepository extends JpaRepository<TtrnRi,TtrnRiId > , JpaSpecificationExecutor<TtrnRi> {
 
-	List<TtrnRi> findAllOrderByRiNoDesc();
+	//List<TtrnRi> findAllOrderByRiNoDesc();
 
 }

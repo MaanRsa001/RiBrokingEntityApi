@@ -134,14 +134,14 @@ Gson gson = new Gson();
 		}
 			return serv.getPlacementNo(req);
 	} 
-	@PostMapping("/insertPlacing")
-	public InsertPlacingRes insertPlacing(@RequestBody SavePlacingReq req) throws CommonValidationException {
-		List<ErrorCheck> error= val.validatePlacing(req);
-		if(error!=null && error.size()>0) {
-			 throw new CommonValidationException("error",error);
-	}
-		return serv.insertPlacing(req);
-	} 	
+
+	/*
+	 * @PostMapping("/insertPlacing") public InsertPlacingRes
+	 * insertPlacing(@RequestBody SavePlacingReq req) throws
+	 * CommonValidationException { List<ErrorCheck> error= val.validatePlacing(req);
+	 * if(error!=null && error.size()>0) { throw new
+	 * CommonValidationException("error",error); } return serv.insertPlacing(req); }
+	 */	
 	@PostMapping("/getPlacingInfo")
 	public GetPlacingInfoRes getPlacingInfo(@RequestBody GetPlacingInfoReq req) throws CommonValidationException {
 		List<ErrorCheck> error= val.getPlacingInfoVali(req);

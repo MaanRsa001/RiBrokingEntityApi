@@ -58,4 +58,7 @@ public interface TmasDepartmentMasterRepository  extends JpaRepository<TmasDepar
 	List<TmasDepartmentMaster> findDistinctByBranchCodeAndTmasProductIdAndTmasStatusOrderByTmasDepartmentNameAsc(
 			String branchCode, BigDecimal bigDecimal, String status);
 
+	List<TmasDepartmentMaster> findByBranchCodeAndTmasProductIdAndTmasStatus(String branchCode, BigDecimal bigDecimal,
+			String string);
+
 }

@@ -5924,12 +5924,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 		try {
 			try {
 				String[] args=null;
-				int chkSecPageMode = checkSecondPageMode(beanObj.getProposalNo()); //commission table count 0 mode=1 else 2
-				int ContractEditMode = contractEditMode(beanObj.getProposalNo()); // get contract no from risk details if empty mode=1 else 2
-				if (ContractEditMode == 1) {
-					if (chkSecPageMode == 2) {
 
-						//risk.select.chechProposalStatus
 						List<Tuple> result = proportionalityCustomRepository.riskSelectChechProposalStatus(beanObj.getProposalNo());
 						
 						Tuple resMap = null;
@@ -5958,9 +5953,9 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 								
 									maxContarctNo = beanObj.getContractno();
 								}
-								else if(StringUtils.isNotBlank(beanObj.getBaseLayerYN())){
+								else if(StringUtils.isNotBlank(res.getBaseLayerYN())){
 									//GET_BASE_LAYER_DETAILS
-									res1 = proportionalityCustomRepository.getBaseLayerDetails(beanObj.getProductId(),beanObj.getBranchCode(),beanObj.getBaseLayerYN());
+									res1 = proportionalityCustomRepository.getBaseLayerDetails(beanObj.getProductId(),beanObj.getBranchCode(),beanObj.getProposalNo());
 								
 									
 									resMap1 = null;
@@ -6013,45 +6008,15 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 									res.setContractGendration("Your Proposal is Renewaled with Proposal No : "+beanObj.getProposalNo() +", Old Contract No:"+maxContarctNo+" and New Contract No : "+maxContarctNo+".");
 								}
 								proportionalityCustomRepository.UpdateInstallmentContNo(beanObj.getProposalNo(),maxContarctNo);
-								//risk.update.mndInstallments
-								/*
-								 * TtrnMndInstallments list4 =
-								 * ttrnMndInstallmentsRepository.findByProposalNo(beanObj.getProposalNo());
-								 * if(list4!=null) { list4.setContractNo(maxContarctNo);
-								 * ttrnMndInstallmentsRepository.saveAndFlush(list4); }
-								 */
 								
-							} else {
-								args = new String[4];
-								args[0] = res.getContNo();
-								args[1] = getproposalStatus(beanObj
-										.getProposalNo());
-								args[2] = args[1];
-								if (args != null) {
-
-									if (((String) args[1]).equalsIgnoreCase("P")) {
-										res.setContractGendration("Your Proposal is saved in Pending Stage with Proposal No : "+ beanObj.getProposalNo());
-									}	if (((String) args[1]).equalsIgnoreCase("N")) {
-										res.setContractGendration("Your Proposal is saved in Not Taken Up Stage with Proposal No : "+ beanObj.getProposalNo());
-									}  else if (((String) args[1]).equalsIgnoreCase("A")) {
-										res.setContractGendration("Your Contract is updated with Proposal No : "+beanObj.getProposalNo()+" and Contract No : "+res.getContNo()+".");
-									} else if (((String) args[1]).equalsIgnoreCase("R")) {
-										res.setContractGendration("Your Proposal is saved in Rejected Stage with Proposal No : "+ beanObj.getProposalNo());
-									}
-								}
-								args[3] = beanObj.getProposalNo();
 								
-								if("3".equalsIgnoreCase(beanObj.getProductId()) || "5".equalsIgnoreCase(beanObj.getProductId())){
-									UpdateContractLimit(beanObj.getContNo(),beanObj.getProposalNo());
-								}
-								
-								proportionalityCustomRepository.riskUpdateHomeContNo(args);
-
-							}
-						}
-					}
-					beanObj.setContNo(res.getContNo());
+							} 
+						
 					
+					beanObj.setContNo(res.getContNo());
+					if("3".equalsIgnoreCase(beanObj.getProductId()) || "5".equalsIgnoreCase(beanObj.getProductId())){
+						UpdateContractLimit(beanObj.getContNo(),beanObj.getProposalNo());
+					}
 					InsertPlacement(beanObj);
 					insertRiDetails(beanObj);
 					updateRiContractStatus(beanObj);
@@ -6065,37 +6030,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 					if(StringUtils.isNotBlank(res.getContNo())){
 					//	dropDowmImpl.getSOATableInsert(beanObj.getProposalNo(), res.getContNo(),beanObj.getBranchCode());
 					}
-				}else {
-					res.setContractGendration("Contract already converted")	;
 				}
-				
-				/*else if (ContractEditMode == 2) {
-					String endtNo= "";
-					//risk.select.endo
-					TtrnRiskProposal rp = ttrnRiskProposalRepository.findTop1ByRskProposalNumberOrderByRskEndorsementNoDesc(beanObj.getProposalNo());
-					if(rp!=null) {
-						endtNo = rp.getRskEndorsementNo()==null?"":	rp.getRskEndorsementNo().toString();
-						}
-
-					obj = updateContractRiskDetailsSecondForm(beanObj,beanObj.getProductId(),endtNo);
-					//risk.update.pro24ContSecPage
-					TtrnRiskProposal update2 = proportionalityCustomRepository.riskUpdatePro24ContSecPage(obj);
-					if(update2!=null) {
-						ttrnRiskProposalRepository.saveAndFlush(update2);	
-					}
-						res.setContractGendration("Your Contract is updated with Proposal No : "+beanObj.getProposalNo()+", Contract No : "+res.getContNo()+".");
-
-					obj1 = updateRiskDetailsSecondFormSecondTable(beanObj, beanObj.getProductId(), getMaxAmednId(beanObj.getProposalNo()));
-				
-					//risk.update.pro2SecComm
-					TtrnRiskCommission update1 = proportionalityCustomRepository.ttrnRiskCommissionSecondPageUpdate(obj1);
-					if(update1!=null) {
-						ttrnRiskCommissionRepository.saveAndFlush(update1);	
-					}
-
-					res.setProStatus("A");
-				}*/
-			
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

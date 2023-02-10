@@ -60,7 +60,7 @@ public class PlacementValidation {
 public List<ErrorCheck> getMailToListVali(GetMailToListReq req) {
 	List<ErrorCheck> list = new ArrayList<ErrorCheck>();
 	if (StringUtils.isBlank(req.getBrokerId())) {
-		list.add(new ErrorCheck("Please Enter BrokerCompany", "BrokerCompany", "1"));
+		//list.add(new ErrorCheck("Please Enter BrokerCompany", "BrokerCompany", "1"));
 	}
 	if (StringUtils.isBlank(req.getCedingId())) {
 		//list.add(new ErrorCheck("Please Enter CedingCompany", "CedingCompany", "3"));
