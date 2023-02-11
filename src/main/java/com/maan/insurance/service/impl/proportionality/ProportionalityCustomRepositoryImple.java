@@ -32,6 +32,7 @@ import org.springframework.stereotype.Repository;
 
 import com.maan.insurance.jpa.entity.propPremium.TtrnInsurerDetails;
 import com.maan.insurance.jpa.entity.xolpremium.TtrnMndInstallments;
+import com.maan.insurance.model.entity.MailNotificationDetail;
 import com.maan.insurance.model.entity.PersonalInfo;
 import com.maan.insurance.model.entity.PositionMaster;
 import com.maan.insurance.model.entity.TmasDepartmentMaster;
@@ -41,6 +42,7 @@ import com.maan.insurance.model.entity.TtrnCommissionDetails;
 import com.maan.insurance.model.entity.TtrnCrestazoneDetails;
 import com.maan.insurance.model.entity.TtrnPttySection;
 import com.maan.insurance.model.entity.TtrnRi;
+import com.maan.insurance.model.entity.TtrnRiPlacement;
 import com.maan.insurance.model.entity.TtrnRip;
 import com.maan.insurance.model.entity.TtrnRiskCommission;
 import com.maan.insurance.model.entity.TtrnRiskDetails;
@@ -52,6 +54,7 @@ import com.maan.insurance.model.repository.TtrnRiRepository;
 import com.maan.insurance.model.repository.TtrnRiskCommissionRepository;
 import com.maan.insurance.model.repository.TtrnRiskDetailsRepository;
 import com.maan.insurance.model.repository.TtrnRiskProposalRepository;
+import com.maan.insurance.model.req.proportionality.ConvertPolicyReq;
 import com.maan.insurance.validation.Formatters;
 
 @Repository
@@ -2836,6 +2839,59 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	
+
+	
+	@Override
+	@Transactional
+	public void updateRiContractNo(String proposalNo, String reinsurerIds, String brokerIds, String branchCode,
+			BigDecimal statusNo, BigDecimal contractNo, BigDecimal amendId) {
+		try {
+			CriteriaBuilder cb = this.em.getCriteriaBuilder();
+			CriteriaUpdate<TtrnRiPlacement> update = cb.createCriteriaUpdate(TtrnRiPlacement.class);
+			Root<TtrnRiPlacement> m = update.from(TtrnRiPlacement.class);
+		
+			update.set("contractNo", contractNo)
+			.set("amendId", amendId);
+			Predicate n1 = cb.equal(m.get("proposalNo"), proposalNo);
+			Predicate n2 = cb.equal(m.get("reinsurerId"), reinsurerIds);
+			Predicate n3 = cb.equal(m.get("brokerId"), brokerIds);
+			Predicate n4 = cb.equal(m.get("branchCode"), branchCode);
+			Predicate n5 = cb.equal(m.get("statusNo"), statusNo);
+			update.where(n1,n2,n3,n4,n5);
+			em.createQuery(update).executeUpdate();
+
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	
+
+	@Override
+	@Transactional
+	public void updateMailContractNo(BigDecimal proposalNo, String reinsurerIds, String brokerIds,
+			String branchCode, String statusNo, String contNo) {
+		try {
+			CriteriaBuilder cb = this.em.getCriteriaBuilder();
+			CriteriaUpdate<MailNotificationDetail> update = cb.createCriteriaUpdate(MailNotificationDetail.class);
+			Root<MailNotificationDetail> m = update.from(MailNotificationDetail.class);
+		
+			update.set("contractNo",new BigDecimal(contNo));
+			Predicate n1 = cb.equal(m.get("proposalNo"), proposalNo);
+			Predicate n2 = cb.equal(m.get("reinsurerId"), reinsurerIds);
+			Predicate n3 = cb.equal(m.get("brokerId"), brokerIds);
+			Predicate n4 = cb.equal(m.get("branchCode"), branchCode);
+			Predicate n5 = cb.equal(m.get("statusNo"), statusNo);
+			update.where(n1,n2,n3,n4,n5);
+			em.createQuery(update).executeUpdate();
+
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		
 	}
 		
 	}

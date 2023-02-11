@@ -33,6 +33,8 @@ public class SendMailReq {
 	private String brokerId; 
 	@JsonProperty("CorresId")
 	private String corresId; 
+	@JsonProperty("StatusNo")
+	private String statusNo;
 	@JsonProperty("UserId")
 	private String userId; 
 	@JsonProperty("PlacementMode")

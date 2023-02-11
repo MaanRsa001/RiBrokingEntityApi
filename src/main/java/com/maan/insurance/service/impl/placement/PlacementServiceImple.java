@@ -113,6 +113,8 @@ import com.maan.insurance.model.res.placement.ProposalInfoRes;
 import com.maan.insurance.model.res.placement.ProposalInfoRes1;
 import com.maan.insurance.model.res.placement.SavePlacingRes;
 import com.maan.insurance.model.res.placement.SendMailRes;
+import com.maan.insurance.model.res.placement.UpdatePlacementRes;
+import com.maan.insurance.model.res.placement.UpdatePlacementRes1;
 import com.maan.insurance.model.res.placement.UploadDocumentRes;
 import com.maan.insurance.model.res.placement.UploadDocumentRes1;
 import com.maan.insurance.model.res.retro.CommonResponse;
@@ -529,7 +531,7 @@ public class PlacementServiceImple implements PlacementService {
 				entity.setPlacementNo(new BigDecimal(res1.getPlacementNo()));
 				entity.setSno(new BigDecimal(req.getReinsSNo()));
 				entity.setBouquetNo(StringUtils.isBlank(resp1.getBouquetNo())? BigDecimal.ZERO :new BigDecimal(resp1.getBouquetNo()));
-				entity.setBaseProposalNo(resp1.getBaseProposalNo()==null?BigDecimal.ZERO :new BigDecimal(resp1.getBaseProposalNo()));
+				entity.setBaseProposalNo(StringUtils.isBlank(resp1.getBaseProposalNo())?BigDecimal.ZERO :new BigDecimal(resp1.getBaseProposalNo()));
 				entity.setProposalNo(bean.getEproposalNo()==null?BigDecimal.ZERO :new BigDecimal(bean.getEproposalNo()));
 				entity.setContractNo(StringUtils.isBlank(resp1.getContractNo())? BigDecimal.ZERO :new BigDecimal(resp1.getContractNo()));
 				entity.setLayerNo(StringUtils.isBlank(resp1.getLayerNo())? BigDecimal.ZERO :new BigDecimal(resp1.getLayerNo()));
@@ -703,8 +705,9 @@ public class PlacementServiceImple implements PlacementService {
 	
 	
 	@Override
-	public CommonResponse updatePlacement(UpdatePlacementReq bean) {
-		CommonResponse response = new CommonResponse();
+	public UpdatePlacementRes1 updatePlacement(UpdatePlacementReq bean) {
+		UpdatePlacementRes res=new UpdatePlacementRes();
+		UpdatePlacementRes1 response = new UpdatePlacementRes1();
 		String plamendId="",statusNo="";
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 		try {
@@ -763,7 +766,10 @@ public class PlacementServiceImple implements PlacementService {
 				ripRepo.saveAndFlush(entity);
 			}
 			updateStatus(bean);
-			response.setMessage(bean.getCorresId());
+			res.setCorrespondentId(bean.getCorresId());
+			res.setStatusNo(statusNo);
+			response.setCommonResponse(res);
+			response.setMessage("Success");
 			response.setIsError(false);
 		}catch(Exception e){
 				log.error(e);
@@ -1051,6 +1057,7 @@ public class PlacementServiceImple implements PlacementService {
 			UpdatePlacementReq req=new UpdatePlacementReq();
 			req.setBranchCode(bean.getBranchCode());
 			req.setCorresId(bean.getCorresId());
+			req.setStatusNo(bean.getStatusNo());
 			List<UpdatePlacementListReq> placementListReq=new ArrayList<UpdatePlacementListReq>();
 			List<InsertMailDetailsRes1> resp=res.getCommonResponse();
 			for(int i=0;i<resp.size();i++) {

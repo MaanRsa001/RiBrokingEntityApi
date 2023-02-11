@@ -6052,9 +6052,9 @@ try{
 			CriteriaUpdate<TtrnRskClassLimits> update = cb.createCriteriaUpdate(TtrnRskClassLimits.class);
 			Root<TtrnRskClassLimits> m = update.from(TtrnRskClassLimits.class);
 			
-			update.set("contractNo", contNo);
+			update.set("rskContractNo", new BigDecimal(contNo));
 			
-			Predicate n1 = cb.equal(m.get("proposalNo"),proposalNo);
+			Predicate n1 = cb.equal(m.get("rskProposalNumber"),new BigDecimal(proposalNo));
 		
 			update.where(n1);
 			em.createQuery(update).executeUpdate();
@@ -6238,7 +6238,7 @@ try{
 				if("CSL".equalsIgnoreCase(req.getCurrentStatus()) || "CSL".equalsIgnoreCase(req.getNewStatus())) {
 					String subcontract=bean.getContNo()+(StringUtils.isBlank(bean.getLayerNo())?bean.getSectionNo():bean.getLayerNo())+req.getSnos();
 					String obj[]=new String[23];
-					obj[0]=req.getStatusNo();
+					obj[0]=bean.getStatusNo();
 					obj[1]=req.getSnos();
 					obj[2]=req.getBouquetNos();
 					obj[3]=req.getBaseproposalNos();
@@ -6273,24 +6273,9 @@ try{
 			for(int i=0;i<bean.getConvertPolicyReq1().size();i++) {
 				ConvertPolicyReq1 req = bean.getConvertPolicyReq1().get(i);
 				if("CSL".equalsIgnoreCase(req.getCurrentStatus())|| "CSL".equalsIgnoreCase(req.getNewStatus())) {
+					proportionalityCustomRepository.updateRiContractNo(bean.getProposalNo(),req.getReinsurerIds(),req.getBrokerIds(),bean.getBranchCode(),fm.formatBigDecimal(bean.getStatusNo()),fm.formatBigDecimal(bean.getContNo()),fm.formatBigDecimal(bean.getAmendId()));
+					proportionalityCustomRepository.updateMailContractNo(fm.formatBigDecimal(bean.getProposalNo()),req.getReinsurerIds(),req.getBrokerIds(),bean.getBranchCode(),bean.getStatusNo(),bean.getContNo());
 					
-					//UPDATE_RI_CONTRACT
-					TtrnRiPlacement list = ttrnRiPlacementRepository.findByProposalNoAndReinsurerIdAndBrokerIdAndBranchCodeAndStatusNo(
-						fm.formatBigDecimal(bean.getProposalNo()),req.getReinsurerIds(),req.getBrokerIds(),bean.getBranchCode(),fm.formatBigDecimal(req.getStatusNo()));
-				if(list!=null) {
-					list.setContractNo(fm.formatBigDecimal(bean.getContNo()));	
-					list.setAmendId(fm.formatBigDecimal(bean.getAmendId()));
-					ttrnRiPlacementRepository.saveAndFlush(list);
-					}
-					
-					//UPDATE_MAIL_CONTRACT
-					
-					MailNotificationDetail list1 = mailNotificationDetailRepository.findByProposalNoAndReinsurerIdAndBrokerIdAndBranchCodeAndStatusNo(
-							fm.formatBigDecimal(bean.getProposalNo()),req.getReinsurerIds(),req.getBrokerIds(),bean.getBranchCode(),req.getStatusNo());
-					if(list1!=null) {
-						list1.setContractNo(fm.formatBigDecimal(bean.getContNo()));	
-						mailNotificationDetailRepository.saveAndFlush(list1);
-						}
 				}
 			}
 			

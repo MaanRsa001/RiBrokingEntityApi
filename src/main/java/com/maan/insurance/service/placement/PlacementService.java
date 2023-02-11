@@ -14,11 +14,9 @@ import com.maan.insurance.model.req.placement.GetPlacementViewListReq;
 import com.maan.insurance.model.req.placement.GetPlacementViewReq;
 import com.maan.insurance.model.req.placement.GetPlacingInfoReq;
 import com.maan.insurance.model.req.placement.GetReinsurerInfoReq;
-import com.maan.insurance.model.req.placement.InsertMailDetailsReq;
 import com.maan.insurance.model.req.placement.PlacementSummaryReq;
 import com.maan.insurance.model.req.placement.SavePlacingReq;
 import com.maan.insurance.model.req.placement.SendMailReq;
-import com.maan.insurance.model.req.placement.UpdateMailDetailsReq;
 import com.maan.insurance.model.req.placement.UpdatePlacementReq;
 import com.maan.insurance.model.req.placement.UploadDocumentReq;
 import com.maan.insurance.model.req.placement.proposalInfoReq;
@@ -34,11 +32,10 @@ import com.maan.insurance.model.res.placement.GetPlacementViewListRes;
 import com.maan.insurance.model.res.placement.GetPlacementViewRes;
 import com.maan.insurance.model.res.placement.GetPlacingInfoRes;
 import com.maan.insurance.model.res.placement.GetReinsurerInfoRes;
-import com.maan.insurance.model.res.placement.InsertMailDetailsRes;
-import com.maan.insurance.model.res.placement.InsertPlacingRes;
 import com.maan.insurance.model.res.placement.PlacementSummaryRes;
 import com.maan.insurance.model.res.placement.ProposalInfoRes;
 import com.maan.insurance.model.res.placement.SendMailRes;
+import com.maan.insurance.model.res.placement.UpdatePlacementRes1;
 import com.maan.insurance.model.res.placement.UploadDocumentRes;
 import com.maan.insurance.model.res.retro.CommonResponse;
 import com.maan.insurance.model.res.xolPremium.CommonSaveRes;
@@ -70,7 +67,7 @@ public interface PlacementService {
 
 	EditPlacingDetailsRes editPlacingDetails(EditPlacingDetailsReq req);
 
-	CommonResponse updatePlacement(UpdatePlacementReq req);
+	UpdatePlacementRes1 updatePlacement(UpdatePlacementReq req);
 
 	UploadDocumentRes uploadDocument(UploadDocumentReq req);
 

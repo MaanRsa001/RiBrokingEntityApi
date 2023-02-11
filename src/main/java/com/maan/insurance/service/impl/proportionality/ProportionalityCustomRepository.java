@@ -1,5 +1,6 @@
 package com.maan.insurance.service.impl.proportionality;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,8 @@ import com.maan.insurance.model.entity.TtrnRiskDetails;
 import com.maan.insurance.model.entity.TtrnRiskProposal;
 import com.maan.insurance.model.entity.TtrnRiskRemarks;
 import com.maan.insurance.model.req.premium.GetPremiumedListReq;
+import com.maan.insurance.model.req.proportionality.ConvertPolicyReq;
+import com.maan.insurance.model.req.proportionality.ConvertPolicyReq1;
 
 public interface ProportionalityCustomRepository {
 
@@ -140,6 +143,12 @@ public interface ProportionalityCustomRepository {
 			String contractNo);
 
 	void UpdateInstallmentContNo(String proposalNo, String maxContarctNo);
+
+	void updateRiContractNo(String proposalNo, String reinsurerIds, String brokerIds, String branchCode,
+			BigDecimal formatBigDecimal, BigDecimal formatBigDecimal2, BigDecimal formatBigDecimal3);
+
+	void updateMailContractNo(BigDecimal formatBigDecimal, String reinsurerIds, String brokerIds, String branchCode,
+			String statusNo, String contNo);
 
 
 }

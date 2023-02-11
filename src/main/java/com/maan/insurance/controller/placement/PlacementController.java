@@ -41,10 +41,10 @@ import com.maan.insurance.model.res.placement.GetPlacementViewListRes;
 import com.maan.insurance.model.res.placement.GetPlacementViewRes;
 import com.maan.insurance.model.res.placement.GetPlacingInfoRes;
 import com.maan.insurance.model.res.placement.GetReinsurerInfoRes;
-import com.maan.insurance.model.res.placement.InsertPlacingRes;
 import com.maan.insurance.model.res.placement.PlacementSummaryRes;
 import com.maan.insurance.model.res.placement.ProposalInfoRes;
 import com.maan.insurance.model.res.placement.SendMailRes;
+import com.maan.insurance.model.res.placement.UpdatePlacementRes1;
 import com.maan.insurance.model.res.placement.UploadDocumentRes;
 import com.maan.insurance.model.res.retro.CommonResponse;
 import com.maan.insurance.model.res.xolPremium.CommonSaveRes;
@@ -159,7 +159,7 @@ Gson gson = new Gson();
 		return serv.editPlacingDetails(req);
 	} 
 	@PostMapping("/updatePlacement")
-	public CommonResponse updatePlacement(@RequestBody UpdatePlacementReq req) throws CommonValidationException {
+	public UpdatePlacementRes1 updatePlacement(@RequestBody UpdatePlacementReq req) throws CommonValidationException {
 		List<ErrorCheck> error= val.validationStatus(req);
 		if(error!=null && error.size()>0) {
 			 throw new CommonValidationException("error",error);
