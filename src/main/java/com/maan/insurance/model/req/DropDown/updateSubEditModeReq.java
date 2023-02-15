@@ -16,6 +16,4 @@ public class updateSubEditModeReq {
 	@JsonProperty("UpdateProposalNo")
 	private String updateProposalNo;
 	
-	
-
 }

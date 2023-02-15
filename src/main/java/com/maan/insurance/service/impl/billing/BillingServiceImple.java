@@ -201,7 +201,7 @@ public class BillingServiceImple implements  BillingService {
 			List<GetTransContractListReq> filterTrack = req.getTransContractListReq().stream().filter( o -> form.getTransactionNo().equalsIgnoreCase(o.getTransactionNo()) ).collect(Collectors.toList());
 			if(!CollectionUtils.isEmpty(filterTrack)) {
 		
-			 args=new String[17];
+			 args=new String[20];
 			 args[0]=billsnNo;	
 			 args[1]=form.getContractNo();
 			 args[2]=StringUtils.isBlank(form.getMode())?"0":form.getMode();
@@ -263,6 +263,11 @@ public class BillingServiceImple implements  BillingService {
 			args[13]=form.getSubClass();
 			args[14]=req.getLoginId();
 			args[15]=req.getBranchCode();
+			args[16]=req.getGrossAmount();
+			args[17] = req.getWhtPremium();
+			args[18] = req.getWhtBrokerage();
+			args[19] = req.getNetAmount();
+ 					
 			
 			TtrnBillingTransaction ttrnBillingTransaction = ttrnAllocatedTransactionMapper.toEntityBilling(args);
 			ttrnBillingTransactionRepository.saveAndFlush(ttrnBillingTransaction);
@@ -321,7 +326,7 @@ public class BillingServiceImple implements  BillingService {
 			List<GetTransContractListReq> filterTrack = req.getTransContractListReq().stream().filter( o -> form.getTransactionNo().equalsIgnoreCase(o.getTransactionNo()) ).collect(Collectors.toList());
 			if(!CollectionUtils.isEmpty(filterTrack)) {
 		
-			 args=new String[17];
+			 args=new String[20];
 			 args[0]=billsnNo;	
 			 args[1]=form.getContractNo();
 			 args[2]=StringUtils.isBlank(form.getMode())?"0":form.getMode();
@@ -383,10 +388,13 @@ public class BillingServiceImple implements  BillingService {
 			args[13]=form.getSubClass();
 			args[14]=req.getLoginId();
 			args[15]=req.getBranchCode();
+			args[16]=req.getGrossAmount();
+			args[17] = req.getWhtPremium();
+			args[18] = req.getWhtBrokerage();
+			args[19] = req.getNetAmount();
 			
 			TtrnBillingTransaction ttrnBillingTransaction = ttrnAllocatedTransactionMapper.toEntityBilling(args);
 			ttrnBillingTransactionRepository.saveAndFlush(ttrnBillingTransaction);
-			
 			}
 			}
 		
@@ -587,6 +595,12 @@ public class BillingServiceImple implements  BillingService {
 					res.setStatus(data.getStatus()==null?"":data.getStatus().toString());
 					res.setTransactionNo(data.getTransactionNo()==null?"":data.getTransactionNo().toString());
 					res.setType(data.getType()==null?"":data.getType().toString());
+				
+					res.setGrossAmount(data.getGrossAmount()==null?"":data.getGrossAmount().toString());
+					res.setWhtPremium(data.getWhtPremium()==null?"":data.getWhtPremium().toString());
+					res.setWhtBrokerage(data.getWhtBrokerage()==null?"":data.getWhtBrokerage().toString());
+					res.setNetAmount(data.getNetAmount()==null?"":data.getNetAmount().toString());
+					
 					response.add(res);
 					}
 			}

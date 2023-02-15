@@ -31,4 +31,13 @@ public class EditBillingTransactionRes {
 	@JsonProperty("ContractNo")
 	private String contractNo;
 	
+	@JsonProperty("GrossAmount")
+	private String grossAmount;
+	@JsonProperty("WhtPremium")
+	private String whtPremium; 
+	@JsonProperty("WhtBrokerage")
+	private String whtBrokerage; 
+	@JsonProperty("NetAmount")
+	private String netAmount;
+	
 }

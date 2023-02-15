@@ -6,10 +6,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.nio.file.Files;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -34,11 +36,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.Tuple;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.query.internal.NativeQueryImpl;
-import org.hibernate.transform.AliasToEntityMapResultTransformer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -129,6 +130,7 @@ import com.maan.insurance.validation.Formatters;
 @Service
 public class PlacementServiceImple implements PlacementService {
 	private Logger log = LogManager.getLogger(PlacementServiceImple.class);
+	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 	
 	String commonPath = (PlacementServiceImple.class).getProtectionDomain().getCodeSource().getLocation().getPath().replaceAll("%20", " ");
 	@Autowired
@@ -332,30 +334,87 @@ public class PlacementServiceImple implements PlacementService {
 
 	
 
+//	@Override
+//	public GetReinsurerInfoRes getReinsurerInfo(GetReinsurerInfoReq bean) {
+//		GetReinsurerInfoRes response = new GetReinsurerInfoRes();
+//		List<GetReinsurerInfoRes1> resList = new ArrayList<GetReinsurerInfoRes1>();
+//		GetReinsurerInfoResponse res1 = new GetReinsurerInfoResponse();
+//		List<Map<String,Object>>list=null;
+//		int mailcount=0;
+//		
+//		try {
+//			//GET_REINSURER_INFO_NOTIN --LEFT JOIN--
+//			list = queryImpl.selectList("GET_REINSURER_INFO_NOTIN",new String[] {bean.getBranchCode(),bean.getEproposalNo()});
+//			if(!CollectionUtils.isEmpty(list)) {
+//				res1.setPlacementMode(list.get(0).get("PLACEMENT_MODE")==null?"":list.get(0).get("PLACEMENT_MODE").toString());
+//				res1.setPlacementDisabled("Y");
+//			}
+//			//GET_PROPOSAL_MAIL_COUNT
+//			mailcount = ripRepo.countByBranchCodeAndProposalNoAndStatusNot(bean.getBranchCode(),new BigDecimal(bean.getEproposalNo()),"0");
+//			if(StringUtils.isNotBlank(bean.getBouquetNo()) && "C".equals(res1.getPlacementMode())) {	
+//				//get_Reinsurer_Info_Bouquet_Notin --LEFT JOIN--
+//				list=queryImpl.selectList("GET_REINSURER_INFO_BOUQUET_NOTIN",new String[] {bean.getBranchCode(),bean.getBouquetNo()});
+//				//GET_BOUQUET_MAIL_COUNT
+//				mailcount=ripRepo.countByBranchCodeAndBouquetNoAndStatusNot(bean.getBranchCode(),new BigDecimal(bean.getBouquetNo()),"0");
+//			}
+//			if(!CollectionUtils.isEmpty(list)) {
+//				for(int i=0;i<list.size();i++) {
+//					Map<String,Object>map=list.get(i);
+//					GetReinsurerInfoRes1 res = new GetReinsurerInfoRes1();
+//					res.setMailStatus(map.get("MAIL_STATUS")==null?"":map.get("MAIL_STATUS").toString());
+//					res.setPlacingBroker(map.get("BROKER_ID")==null?"":map.get("BROKER_ID").toString());
+//					res.setProposalNos(map.get("PROPOSAL_NO")==null?"":map.get("PROPOSAL_NO").toString());
+//					res.setReinsSNo(map.get("SNO")==null?"":map.get("SNO").toString());
+//					res.setReinsureName(map.get("REINSURER_ID")==null?"":map.get("REINSURER_ID").toString());
+//					res.setShareOffer(map.get("SHARE_OFFERED")==null?"":fm.formattereight(map.get("SHARE_OFFERED").toString()));;
+//		
+//					if(mailcount>0) {
+//						res.setDeleteStatus("N");
+//					}else {
+//						res.setDeleteStatus("N");
+//					}
+//					res.setChangeStatus("N");
+//					resList.add(res);
+//					}
+//				res1.setReinsurerInfoList(resList);
+//			}
+//			response.setCommonResponse(res1);	
+//			response.setMessage("Success");
+//			response.setIsError(false);
+//		}catch(Exception e){
+//				log.error(e);
+//				e.printStackTrace();
+//				response.setMessage("Failed");
+//				response.setIsError(true);
+//			}
+//		return response;
+//	}
 	@Override
 	public GetReinsurerInfoRes getReinsurerInfo(GetReinsurerInfoReq bean) {
 		GetReinsurerInfoRes response = new GetReinsurerInfoRes();
 		List<GetReinsurerInfoRes1> resList = new ArrayList<GetReinsurerInfoRes1>();
 		GetReinsurerInfoResponse res1 = new GetReinsurerInfoResponse();
-		List<Map<String,Object>>list=null;
+		List<Tuple> list = new ArrayList<>();
 		int mailcount=0;
 		
 		try {
-			list = queryImpl.selectList("GET_REINSURER_INFO_NOTIN",new String[] {bean.getBranchCode(),bean.getEproposalNo()});
+			//GET_REINSURER_INFO_NOTIN --LEFT JOIN
+			list = placementCustomRepository.getReinsurerInfoNotin(bean.getBranchCode(),bean.getEproposalNo());
 			if(!CollectionUtils.isEmpty(list)) {
 				res1.setPlacementMode(list.get(0).get("PLACEMENT_MODE")==null?"":list.get(0).get("PLACEMENT_MODE").toString());
 				res1.setPlacementDisabled("Y");
 			}
 			//GET_PROPOSAL_MAIL_COUNT
 			mailcount = ripRepo.countByBranchCodeAndProposalNoAndStatusNot(bean.getBranchCode(),new BigDecimal(bean.getEproposalNo()),"0");
-			if(StringUtils.isNotBlank(bean.getBouquetNo()) && "C".equals(res1.getPlacementMode())) {
-				list=queryImpl.selectList("GET_REINSURER_INFO_BOUQUET_NOTIN",new String[] {bean.getBranchCode(),bean.getBouquetNo()});
+			if(StringUtils.isNotBlank(bean.getBouquetNo()) && "C".equals(res1.getPlacementMode())) {	
+				//get_Reinsurer_Info_Bouquet_Notin --LEFT JOIN 
+				list=placementCustomRepository.getReinsurerInfoBouquetNotin(bean.getBranchCode(),bean.getBouquetNo());
 				//GET_BOUQUET_MAIL_COUNT
 				mailcount=ripRepo.countByBranchCodeAndBouquetNoAndStatusNot(bean.getBranchCode(),new BigDecimal(bean.getBouquetNo()),"0");
 			}
 			if(!CollectionUtils.isEmpty(list)) {
 				for(int i=0;i<list.size();i++) {
-					Map<String,Object>map=list.get(i);
+					Tuple map=list.get(i);
 					GetReinsurerInfoRes1 res = new GetReinsurerInfoRes1();
 					res.setMailStatus(map.get("MAIL_STATUS")==null?"":map.get("MAIL_STATUS").toString());
 					res.setPlacingBroker(map.get("BROKER_ID")==null?"":map.get("BROKER_ID").toString());
@@ -372,7 +431,7 @@ public class PlacementServiceImple implements PlacementService {
 					res.setChangeStatus("N");
 					resList.add(res);
 					}
-				res1.setReinsurerInfoList(resList);;
+				res1.setReinsurerInfoList(resList);
 			}
 			response.setCommonResponse(res1);	
 			response.setMessage("Success");
@@ -386,46 +445,106 @@ public class PlacementServiceImple implements PlacementService {
 		return response;
 	}
 
+//	@Override
+//	public GetPlacementInfoListRes getPlacementInfoList(GetPlacementInfoListReq bean) {
+//		GetPlacementInfoListRes response = new GetPlacementInfoListRes();
+//		List<Map<String,Object>>list=null;
+//		String query="";
+//		String qutext ="";
+//		List<GetPlacementInfoListRes1> resList = new ArrayList<GetPlacementInfoListRes1>();
+//		try {
+//			String[] obj=new String[2];
+//			if(StringUtils.isNotBlank(bean.getBouquetNo())) {
+//				query="GET_PLACEMENT_BOUQUET_LIST"; //LEFT JOIN
+//				  qutext = prop.getProperty(query);
+//				obj[0]=bean.getBranchCode();
+//				obj[1]=bean.getBouquetNo();
+//			}else if(StringUtils.isNotBlank(bean.getBaseProposalNo())) {
+//				query="GET_PLACEMENT_BASE_LIST";
+//				 qutext = prop.getProperty(query);
+//				obj[0]=bean.getBranchCode();
+//				obj[1]=bean.getBaseProposalNo();
+//			}else {
+//				query="GET_PLACEMENT_LIST";
+//				 qutext = prop.getProperty(query);
+//				obj[0]=bean.getBranchCode();
+//				obj[1]=StringUtils.isBlank(bean.getEproposalNo())?bean.getProposalNo():bean.getEproposalNo();
+//			}
+//			if(StringUtils.isNotBlank(bean.getSearchType())) {
+//				qutext=qutext+" AND P.REINSURER_ID='"+bean.getSearchReinsurerId()+"' AND P.BROKER_ID='"+bean.getSearchBrokerId()+"' AND P.STATUS='"+bean.getSearchStatus()+"'";
+//			}
+//			qutext=qutext+" ORDER BY OFFER_NO,P.BASE_PROPOSAL_NO,P.PROPOSAL_NO,P.SNO";
+//			query1 =queryImpl.setQueryProp(qutext, obj);
+//    		query1.unwrap(NativeQueryImpl.class).setResultTransformer(AliasToEntityMapResultTransformer.INSTANCE);
+//    		try {
+//    			 list = query1.getResultList();
+//    		} catch(Exception e) {
+//    			e.printStackTrace();
+//    		} 
+//			
+//			if(list.size()>0) {
+//				for(int i=0;i<list.size();i++) {
+//					Map<String,Object>map=list.get(i);
+//					GetPlacementInfoListRes1 res = new GetPlacementInfoListRes1();
+//					res.setSno(map.get("SNO")==null?"":map.get("SNO").toString()); 
+//					res.setBouquetNo(map.get("BOUQUET_NO")==null?"":map.get("BOUQUET_NO").toString()); 
+//					res.setBaseProposalNo(map.get("BASE_PROPOSAL_NO")==null?"":map.get("BASE_PROPOSAL_NO").toString()); 
+//					res.setProposalNo(map.get("PROPOSAL_NO")==null?"":map.get("PROPOSAL_NO").toString()); 
+//					res.setCedingCompanyId(map.get("CEDING_COMPANY_ID")==null?"":map.get("CEDING_COMPANY_ID").toString()); 
+//					res.setReinsurerId(map.get("REINSURER_ID")==null?"":map.get("REINSURER_ID").toString()); 
+//					res.setBrokerId(map.get("BROKER_ID")==null?"":map.get("BROKER_ID").toString()); 
+//					res.setReinsurerName(map.get("REINSURER_NAME")==null?"":map.get("REINSURER_NAME").toString()); 
+//					res.setBrokerName(map.get("BROKER_NAME")==null?"":map.get("BROKER_NAME").toString()); 
+//					res.setShareOffered(map.get("SHARE_OFFERED")==null?"":map.get("SHARE_OFFERED").toString()); 
+//					res.setShareWritten(map.get("SHARE_WRITTEN")==null?"":map.get("SHARE_WRITTEN").toString()); 
+//					res.setShareProposalWritten(map.get("SHARE_PROPOSAL_WRITTEN")==null?"":map.get("SHARE_PROPOSAL_WRITTEN").toString()); 
+//					res.setShareSigned(map.get("SHARE_SIGNED")==null?"":map.get("SHARE_SIGNED").toString()); 
+//					res.setBrokeragePer(map.get("BROKERAGE_PER")==null?"":map.get("BROKERAGE_PER").toString()); 
+//					res.setStatus(map.get("STATUS")==null?"":map.get("STATUS").toString()); 
+//					res.setWrittenLineValidity(map.get("WRITTEN_LINE_VALIDITY")==null?"":map.get("WRITTEN_LINE_VALIDITY").toString()); 
+//					res.setWrittenLineRemarks(map.get("WRITTEN_LINE_REMARKS")==null?"":map.get("WRITTEN_LINE_REMARKS").toString()); 
+//					res.setShareLineValidity(map.get("SHARE_LINE_VALIDITY")==null?"":map.get("SHARE_LINE_VALIDITY").toString()); 
+//					res.setShareLineRemarks(map.get("SHARE_LINE_REMARKS")==null?"":map.get("SHARE_LINE_REMARKS").toString()); 
+//					res.setShareProposedSigned(map.get("SHARE_PROPOSED_SIGNED")==null?"":map.get("SHARE_PROPOSED_SIGNED").toString()); 
+//					res.setMailStatus(map.get("MAIL_STATUS")==null?"":map.get("MAIL_STATUS").toString()); 
+//					res.setOfferNo(map.get("OFFER_NO")==null?"":map.get("OFFER_NO").toString());
+//					resList.add(res);
+//					}
+//			}
+//			response.setCommonResponse(resList);	
+//			response.setMessage("Success");
+//			response.setIsError(false);
+//		}catch(Exception e){
+//				log.error(e);
+//				e.printStackTrace();
+//				response.setMessage("Failed");
+//				response.setIsError(true);
+//			}
+//		return response;
+//	}
 	@Override
 	public GetPlacementInfoListRes getPlacementInfoList(GetPlacementInfoListReq bean) {
 		GetPlacementInfoListRes response = new GetPlacementInfoListRes();
-		List<Map<String,Object>>list=null;
-		String query="";
-		String qutext ="";
+		List<Tuple> list=new ArrayList<>();
 		List<GetPlacementInfoListRes1> resList = new ArrayList<GetPlacementInfoListRes1>();
 		try {
-			String[] obj=new String[2];
 			if(StringUtils.isNotBlank(bean.getBouquetNo())) {
-				query="GET_PLACEMENT_BOUQUET_LIST";
-				  qutext = prop.getProperty(query);
-				obj[0]=bean.getBranchCode();
-				obj[1]=bean.getBouquetNo();
+				//GET_PLACEMENT_BOUQUET_LIST--LEFT JOIN
+				list = placementCustomRepository.getPlacementBouquetList(bean); 
 			}else if(StringUtils.isNotBlank(bean.getBaseProposalNo())) {
-				query="GET_PLACEMENT_BASE_LIST";
-				 qutext = prop.getProperty(query);
-				obj[0]=bean.getBranchCode();
-				obj[1]=bean.getBaseProposalNo();
+				//GET_PLACEMENT_BASE_LIST--LEFT JOIN
+				list = placementCustomRepository.getPlacementBaseList(bean); 
+				 
 			}else {
-				query="GET_PLACEMENT_LIST";
-				 qutext = prop.getProperty(query);
-				obj[0]=bean.getBranchCode();
-				obj[1]=StringUtils.isBlank(bean.getEproposalNo())?bean.getProposalNo():bean.getEproposalNo();
+				//GET_PLACEMENT_LIST--LEFT JOIN
+				String prop=StringUtils.isBlank(bean.getEproposalNo())?bean.getProposalNo():bean.getEproposalNo();
+				list = placementCustomRepository.getPlacementList(bean, prop); 
 			}
-			if(StringUtils.isNotBlank(bean.getSearchType())) {
-				qutext=qutext+" AND P.REINSURER_ID='"+bean.getSearchReinsurerId()+"' AND P.BROKER_ID='"+bean.getSearchBrokerId()+"' AND P.STATUS='"+bean.getSearchStatus()+"'";
-			}
-			qutext=qutext+" ORDER BY OFFER_NO,P.BASE_PROPOSAL_NO,P.PROPOSAL_NO,P.SNO";
-			query1 =queryImpl.setQueryProp(qutext, obj);
-    		query1.unwrap(NativeQueryImpl.class).setResultTransformer(AliasToEntityMapResultTransformer.INSTANCE);
-    		try {
-    			 list = query1.getResultList();
-    		} catch(Exception e) {
-    			e.printStackTrace();
-    		} 
-			
+
+			DecimalFormat formatter = new DecimalFormat("#0.00000000");     
 			if(list.size()>0) {
 				for(int i=0;i<list.size();i++) {
-					Map<String,Object>map=list.get(i);
+					Tuple map=list.get(i);
 					GetPlacementInfoListRes1 res = new GetPlacementInfoListRes1();
 					res.setSno(map.get("SNO")==null?"":map.get("SNO").toString()); 
 					res.setBouquetNo(map.get("BOUQUET_NO")==null?"":map.get("BOUQUET_NO").toString()); 
@@ -436,22 +555,30 @@ public class PlacementServiceImple implements PlacementService {
 					res.setBrokerId(map.get("BROKER_ID")==null?"":map.get("BROKER_ID").toString()); 
 					res.setReinsurerName(map.get("REINSURER_NAME")==null?"":map.get("REINSURER_NAME").toString()); 
 					res.setBrokerName(map.get("BROKER_NAME")==null?"":map.get("BROKER_NAME").toString()); 
-					res.setShareOffered(map.get("SHARE_OFFERED")==null?"":map.get("SHARE_OFFERED").toString()); 
-					res.setShareWritten(map.get("SHARE_WRITTEN")==null?"":map.get("SHARE_WRITTEN").toString()); 
-					res.setShareProposalWritten(map.get("SHARE_PROPOSAL_WRITTEN")==null?"":map.get("SHARE_PROPOSAL_WRITTEN").toString()); 
-					res.setShareSigned(map.get("SHARE_SIGNED")==null?"":map.get("SHARE_SIGNED").toString()); 
-					res.setBrokeragePer(map.get("BROKERAGE_PER")==null?"":map.get("BROKERAGE_PER").toString()); 
+					res.setShareOffered(map.get("SHARE_OFFERED")==null?"":formatter.format(map.get("SHARE_OFFERED"))); 
+					res.setShareWritten(map.get("SHARE_WRITTEN")==null?"":formatter.format(map.get("SHARE_WRITTEN"))); 
+					res.setShareProposalWritten(map.get("SHARE_PROPOSAL_WRITTEN")==null?"":formatter.format(map.get("SHARE_PROPOSAL_WRITTEN"))); 
+					res.setShareSigned(map.get("SHARE_SIGNED")==null?"":formatter.format(map.get("SHARE_SIGNED"))); 
+					res.setBrokeragePer(map.get("BROKERAGE_PER")==null?"":formatter.format(map.get("BROKERAGE_PER"))); 
 					res.setStatus(map.get("STATUS")==null?"":map.get("STATUS").toString()); 
-					res.setWrittenLineValidity(map.get("WRITTEN_LINE_VALIDITY")==null?"":map.get("WRITTEN_LINE_VALIDITY").toString()); 
+					res.setWrittenLineValidity(map.get("WRITTEN_LINE_VALIDITY")==null?"":sdf.format(map.get("WRITTEN_LINE_VALIDITY"))); 
 					res.setWrittenLineRemarks(map.get("WRITTEN_LINE_REMARKS")==null?"":map.get("WRITTEN_LINE_REMARKS").toString()); 
-					res.setShareLineValidity(map.get("SHARE_LINE_VALIDITY")==null?"":map.get("SHARE_LINE_VALIDITY").toString()); 
+					res.setShareLineValidity(map.get("SHARE_LINE_VALIDITY")==null?"":sdf.format(map.get("SHARE_LINE_VALIDITY"))); 
 					res.setShareLineRemarks(map.get("SHARE_LINE_REMARKS")==null?"":map.get("SHARE_LINE_REMARKS").toString()); 
 					res.setShareProposedSigned(map.get("SHARE_PROPOSED_SIGNED")==null?"":map.get("SHARE_PROPOSED_SIGNED").toString()); 
 					res.setMailStatus(map.get("MAIL_STATUS")==null?"":map.get("MAIL_STATUS").toString()); 
 					res.setOfferNo(map.get("OFFER_NO")==null?"":map.get("OFFER_NO").toString());
 					resList.add(res);
 					}
-			}
+					resList.sort(Comparator.comparing(GetPlacementInfoListRes1 :: getOfferNo)
+							.thenComparing(Comparator.comparing(GetPlacementInfoListRes1 :: getBaseProposalNo))
+							.thenComparing(Comparator.comparing(GetPlacementInfoListRes1 :: getProposalNo)
+							.thenComparing(Comparator.comparing(GetPlacementInfoListRes1 :: getSno)) )); //asc multiple orderby
+							
+			//		resList.sort(Comparator.comparing(GetPlacementInfoListRes1 :: getBaseProposalNo));	
+			//		resList.sort(Comparator.comparing(GetPlacementInfoListRes1 :: getProposalNo));	
+			//		resList.sort(Comparator.comparing(GetPlacementInfoListRes1 :: getSno));//asc single orderby
+				}
 			response.setCommonResponse(resList);	
 			response.setMessage("Success");
 			response.setIsError(false);
@@ -463,6 +590,7 @@ public class PlacementServiceImple implements PlacementService {
 			}
 		return response;
 	}
+	
 
 	@Override
 	public CommonSaveResList savePlacing(SavePlacingReq bean) {
@@ -567,42 +695,26 @@ public class PlacementServiceImple implements PlacementService {
 	@Override
 	public GetPlacingInfoRes getPlacingInfo(GetPlacingInfoReq bean) {
 		GetPlacingInfoRes response = new GetPlacingInfoRes();
-		List<Map<String,Object>>list=null;
-		String query="";
-		String qutext ="";
 		List<GetPlacingInfoRes1> resList = new ArrayList<GetPlacingInfoRes1>();
+		List<Tuple> result = new ArrayList<Tuple>();
 		try {
-			String[] obj=new String[2];
 			if(StringUtils.isNotBlank(bean.getBouquetNo()) && !"0".equals(bean.getBouquetNo())) {
-				query="GET_PLACING_BOUQUET_LIST";
-				  qutext = prop.getProperty(query);
-				obj[0]=bean.getBranchCode();
-				obj[1]=bean.getBouquetNo();
+				//GET_PLACING_BOUQUET_LIST  //left join  
+				result = placementCustomRepository.getPlacingBouquetList(bean);
+				 
 			}else if(StringUtils.isNotBlank(bean.getBaseProposalNo()) && !"0".equals(bean.getBaseProposalNo())) {
-				query="GET_PLACING_BASELAYER_LIST";
-				  qutext = prop.getProperty(query);
-				obj[0]=bean.getBranchCode();
-				obj[1]=bean.getBaseProposalNo();
+				//GET_PLACING_BASELAYER_LIST //left join  
+				result = placementCustomRepository.getPlacingBaselayerList(bean);
+				
 			}else {
-				query="GET_PLACING_LIST";
-				  qutext = prop.getProperty(query);
-				obj[0]=bean.getBranchCode();
-				obj[1]=StringUtils.isBlank(bean.getEproposalNo())?bean.getProposalNo():bean.getEproposalNo();
+				//GET_PLACING_LIST //left join  
+				String prop = StringUtils.isBlank(bean.getEproposalNo())?bean.getProposalNo():bean.getEproposalNo();
+				result = placementCustomRepository.getPlacingList(bean, prop);
 			}
-			if(StringUtils.isNotBlank(bean.getSearchType())) {
-				qutext=qutext+" AND P.REINSURER_ID='"+bean.getSearchReinsurerId()+"' AND P.BROKER_ID='"+bean.getSearchBrokerId()+"' AND P.STATUS='"+bean.getSearchStatus()+"'";
-			}
-			//query=query+" ORDER BY P.BASE_PROPOSAL_NO,P.PROPOSAL_NO,P.SNO";
-			query1 =queryImpl.setQueryProp(qutext, obj);
-    		query1.unwrap(NativeQueryImpl.class).setResultTransformer(AliasToEntityMapResultTransformer.INSTANCE);
-    		try {
-    			 list = query1.getResultList();
-    		} catch(Exception e) {
-    			e.printStackTrace();
-    		} 
-    		if(list.size()>0) {
-				for(int i=0;i<list.size();i++) {
-					Map<String,Object>map=list.get(i);
+			
+    		if(result.size()>0) {
+				for(int i=0;i<result.size();i++) {
+					Tuple map=result.get(i);
 					GetPlacingInfoRes1 res = new GetPlacingInfoRes1();
 					  res.setSno(map.get("SNO")==null?"":map.get("SNO").toString());  
 					  res.setProposalNo(map.get("PROPOSAL_NO")==null?"":map.get("PROPOSAL_NO").toString());  
@@ -611,7 +723,7 @@ public class PlacementServiceImple implements PlacementService {
 					  res.setBrokerId(map.get("BROKER_ID")==null?"":map.get("BROKER_ID").toString());  
 					  res.setReinsurerName(map.get("REINSURER_NAME")==null?"":map.get("REINSURER_NAME").toString());  
 					  res.setBrokerName(map.get("BROKER_NAME")==null?"":map.get("BROKER_NAME").toString());  
-					  res.setShareOffered(map.get("SHARE_OFFERED")==null?"":map.get("SHARE_OFFERED").toString());  
+					  res.setShareOffered(map.get("SHARE_OFFERED")==null?"":fm.formattereight(map.get("SHARE_OFFERED").toString()));  
 					  res.setOfferStatus(map.get("OFFER_STATUS")==null?"":map.get("OFFER_STATUS").toString());
 					  res.setMailStatus(map.get("MAIL_STATUS")==null?"":map.get("MAIL_STATUS").toString()); 
 					  resList.add(res);
@@ -746,6 +858,7 @@ public class PlacementServiceImple implements PlacementService {
 				entity.setReinsurerId(result.get("REINSURER_ID")==null?"":result.get("REINSURER_ID").toString());
 				entity.setBrokerId(result.get("BROKER_ID")==null?"":result.get("BROKER_ID").toString());
 				entity.setPlacementMode(result.get("PLACEMENT_MODE")==null?"":result.get("PLACEMENT_MODE").toString());
+			
 				entity.setStatus(bean.getNewStatus());;
 				
 				if("RO".equalsIgnoreCase(bean.getNewStatus())) {
@@ -763,7 +876,7 @@ public class PlacementServiceImple implements PlacementService {
 					entity.setShareProposedSigned(StringUtils.isBlank(req.getProposedSL())? null :new BigDecimal(req.getProposedSL()));
 					entity.setBrokerage(StringUtils.isBlank(req.getBrokerage())? null :new BigDecimal(req.getBrokerage()));
 				}
-				entity.setPlacementAmendId(StringUtils.isBlank(bean.getPlacementamendId())? null :new BigDecimal(bean.getPlacementamendId()));
+				entity.setPlacementAmendId(StringUtils.isBlank(bean.getPlacementamendId())? BigDecimal.ZERO:new BigDecimal(bean.getPlacementamendId()));
 				entity.setStatusNo(StringUtils.isBlank(bean.getStatusNo())? null: new BigDecimal(bean.getStatusNo()));
 				entity.setApproveStatus("Y");
 				entity.setUserId(bean.getUserId());
@@ -1032,7 +1145,6 @@ public class PlacementServiceImple implements PlacementService {
 			
 		}
 	}
-
 	
 
 	@Override
@@ -1437,65 +1549,106 @@ public class PlacementServiceImple implements PlacementService {
 		return response;
 	}
 
+//	@Override
+//	public PlacementSummaryRes placementSummary(PlacementSummaryReq bean) {
+//		PlacementSummaryRes response = new PlacementSummaryRes();
+//		List<Map<String,Object>>list=null;
+//		String query="";
+//		try {
+//			String[] obj=new String[2];
+//			query= "NEW_CONTRACT_PL_SUMMARY"; //left outer join
+//			 String qutext = prop.getProperty(query);
+//			obj[0]=bean.getBranchCode();
+//			obj[1]=bean.getProposalNo();
+//			
+//			if(StringUtils.isNotBlank(bean.getSearchType()) && null !=bean.getSearchType()){
+//            	
+//        		if(StringUtils.isNotBlank(bean.getCompanyNameSearch())){
+//            		obj = dropDownImple.getIncObjectArray(obj, new String[]{("%" + bean.getCompanyNameSearch() + "%")});
+//            		qutext += " " + " AND UPPER((SELECT CASE WHEN PI.CUSTOMER_TYPE = 'C' THEN PI.COMPANY_NAME ELSE PI.FIRST_NAME || ' ' || PI.LAST_NAME END NAME FROM PERSONAL_INFO PI WHERE CUSTOMER_TYPE='R'  AND CUSTOMER_ID=TRP.REINSURER_ID AND BRANCH_CODE=TRP.BRANCH_CODE  AND AMEND_ID=(SELECT MAX(AMEND_ID) FROM PERSONAL_INFO WHERE CUSTOMER_ID=PI.CUSTOMER_ID))) LIKE UPPER(?)";
+//            	}
+//        		if(StringUtils.isNotBlank(bean.getBrokerNameSearch())){
+//            		obj = dropDownImple.getIncObjectArray(obj, new String[]{("%" + bean.getBrokerNameSearch() + "%")});
+//            		qutext += " " + " AND UPPER((SELECT CASE WHEN PI.CUSTOMER_TYPE = 'C' THEN PI.COMPANY_NAME ELSE PI.FIRST_NAME || ' ' || PI.LAST_NAME END NAME FROM PERSONAL_INFO PI WHERE CUSTOMER_TYPE='B'  AND CUSTOMER_ID=TRP.BROKER_ID AND BRANCH_CODE=TRP.BRANCH_CODE AND AMEND_ID=(SELECT MAX(AMEND_ID) FROM PERSONAL_INFO WHERE CUSTOMER_ID=PI.CUSTOMER_ID))) LIKE UPPER(?)";
+//            	}
+//            	if(StringUtils.isNotBlank(bean.getUwYearSearch())){
+//            		obj = dropDownImple.getIncObjectArray(obj, new String[]{("%" + bean.getUwYearSearch() + "%")});
+//            		qutext += " " +" AND UPPER(UW_YEAR) LIKE UPPER(?)";
+//            	}
+//            	if(StringUtils.isNotBlank(bean.getUwYearToSearch())){
+//            		obj = dropDownImple.getIncObjectArray(obj, new String[]{("%" + bean.getUwYearToSearch() + "%")});
+//            		qutext += " " +" AND UPPER(UW_YEAR_TO) LIKE UPPER(?)";
+//            	}
+//            	if(StringUtils.isNotBlank(bean.getIncepDateSearch())){
+//            		obj = dropDownImple.getIncObjectArray(obj, new String[]{("%" + bean.getIncepDateSearch() + "%")});
+//            		qutext += " "  +" AND TO_CHAR(INCEPTION_DATE,'DD/MM/YYYY') LIKE ?";;
+//            	}
+//            	if(StringUtils.isNotBlank(bean.getExpDateSearch())){
+//            		obj = dropDownImple.getIncObjectArray(obj, new String[]{("%" + bean.getExpDateSearch() + "%")});
+//            		qutext += " " +" AND TO_CHAR(EXPIRY_DATE,'DD/MM/YYYY') LIKE ?";;
+//            	}
+//            	qutext += " " + "ORDER BY PM.PROPOSAL_NO, TRP.SNO";
+//            	
+//            }else{
+////            	bean.setCompanyNameSearch("");
+////            	bean.setBrokerNameSearch("");
+////            	bean.setUwYearSearch("");
+////            	bean.setUwYearToSearch("");
+////            	bean.setIncepDateSearch("");
+////            	bean.setExpDateSearch("");
+//            }
+//	        	query1 =queryImpl.setQueryProp(qutext, obj);
+//	    		query1.unwrap(NativeQueryImpl.class).setResultTransformer(AliasToEntityMapResultTransformer.INSTANCE);
+//	    		try {
+//	    			 list = query1.getResultList();
+//	    		} catch(Exception e) {
+//	    			e.printStackTrace();
+//	    		} 
+//	    		 List<PlacementSummaryRes1> resList =new ArrayList<PlacementSummaryRes1>();
+//	             if(list!=null && list.size()>0){
+//	             for (int i = 0; i < list.size(); i++) {
+//	                 Map<String, Object> tempMap = list.get(i);
+//	                 PlacementSummaryRes1 tempBean = new PlacementSummaryRes1();
+//	                 tempBean.setOfferNo(tempMap.get("OFFER_NO") == null ? "" : tempMap.get("OFFER_NO").toString()); 
+//	                 tempBean.setBaseProposal(tempMap.get("BASE_PROPOSAL") == null ? "" : tempMap.get("BASE_PROPOSAL").toString()); 
+//	                 tempBean.setProposalNo(tempMap.get("PROPOSAL_NO") == null ? "" : tempMap.get("PROPOSAL_NO").toString()); 
+//	                 tempBean.setRskTreatyid(tempMap.get("TREATY_NAME") == null ? "" : tempMap.get("TREATY_NAME").toString()); 
+//	                 tempBean.setLayerSection(tempMap.get("LAYER_SECTION") == null ? "" : tempMap.get("LAYER_SECTION").toString()); 
+//	                 tempBean.setSno(tempMap.get("SNO") == null ? "" : tempMap.get("SNO").toString()); 
+//	                 tempBean.setReinsurerName(tempMap.get("REINSURER_NAME") == null ? "" : tempMap.get("REINSURER_NAME").toString()); 
+//	                 tempBean.setBrokerName(tempMap.get("BROKER_NAME") == null ? "" : tempMap.get("BROKER_NAME").toString()); 
+//	                 tempBean.setCurrency(tempMap.get("CURRENCY") == null ? "" : tempMap.get("CURRENCY").toString()); 
+//	                 tempBean.setEpi100Oc(tempMap.get("EPI_100_OC") == null ? "" : fm.formatter(tempMap.get("EPI_100_OC").toString())); 
+//	                 tempBean.setEpi100Dc(tempMap.get("EPI_100_DC") == null ? "" : fm.formatter(tempMap.get("EPI_100_DC").toString())); 
+//	                 tempBean.setPlacingStatus(tempMap.get("PLACING_STATUS") == null ? "" : tempMap.get("PLACING_STATUS").toString()); 
+//	                 tempBean.setShareSigned(tempMap.get("SHARE_SIGNED") == null ? "" : fm.formattereight(tempMap.get("SHARE_SIGNED").toString())); 
+//	                tempBean.setBrokerage(tempMap.get("BROKERAGE") == null ? "" : fm.formattereight(tempMap.get("BROKERAGE").toString())); 
+//	                tempBean.setBrokerageAmt(tempMap.get("BROKERAGE_AMT") == null ? "" :  fm.formatter(tempMap.get("BROKERAGE_AMT").toString()));
+//	                resList.add(tempBean);
+//	             }
+//	             }
+//	 			 response.setCommonResponse(resList);
+//	 			 response.setMessage("Success");
+//	 			 response.setIsError(false);
+//	 			}catch(Exception e){
+//	 					log.error(e);
+//	 					e.printStackTrace();
+//	 					response.setMessage("Failed");
+//	 					response.setIsError(true);
+//	 				}
+//	 			return response;
+//	}
 	@Override
 	public PlacementSummaryRes placementSummary(PlacementSummaryReq bean) {
 		PlacementSummaryRes response = new PlacementSummaryRes();
-		List<Map<String,Object>>list=null;
-		String query="";
 		try {
-			String[] obj=new String[2];
-			query= "NEW_CONTRACT_PL_SUMMARY";
-			 String qutext = prop.getProperty(query);
-			obj[0]=bean.getBranchCode();
-			obj[1]=bean.getProposalNo();
+			//NEW_CONTRACT_PL_SUMMARY
+			List<Tuple> list = placementCustomRepository.newContractPlSummary(bean); //need to check query single row
 			
-			if(StringUtils.isNotBlank(bean.getSearchType()) && null !=bean.getSearchType()){
-            	
-        		if(StringUtils.isNotBlank(bean.getCompanyNameSearch())){
-            		obj = dropDownImple.getIncObjectArray(obj, new String[]{("%" + bean.getCompanyNameSearch() + "%")});
-            		qutext += " " + " AND UPPER((SELECT CASE WHEN PI.CUSTOMER_TYPE = 'C' THEN PI.COMPANY_NAME ELSE PI.FIRST_NAME || ' ' || PI.LAST_NAME END NAME FROM PERSONAL_INFO PI WHERE CUSTOMER_TYPE='R'  AND CUSTOMER_ID=TRP.REINSURER_ID AND BRANCH_CODE=TRP.BRANCH_CODE  AND AMEND_ID=(SELECT MAX(AMEND_ID) FROM PERSONAL_INFO WHERE CUSTOMER_ID=PI.CUSTOMER_ID))) LIKE UPPER(?)";
-            	}
-        		if(StringUtils.isNotBlank(bean.getBrokerNameSearch())){
-            		obj = dropDownImple.getIncObjectArray(obj, new String[]{("%" + bean.getBrokerNameSearch() + "%")});
-            		qutext += " " + " AND UPPER((SELECT CASE WHEN PI.CUSTOMER_TYPE = 'C' THEN PI.COMPANY_NAME ELSE PI.FIRST_NAME || ' ' || PI.LAST_NAME END NAME FROM PERSONAL_INFO PI WHERE CUSTOMER_TYPE='B'  AND CUSTOMER_ID=TRP.BROKER_ID AND BRANCH_CODE=TRP.BRANCH_CODE AND AMEND_ID=(SELECT MAX(AMEND_ID) FROM PERSONAL_INFO WHERE CUSTOMER_ID=PI.CUSTOMER_ID))) LIKE UPPER(?)";
-            	}
-            	if(StringUtils.isNotBlank(bean.getUwYearSearch())){
-            		obj = dropDownImple.getIncObjectArray(obj, new String[]{("%" + bean.getUwYearSearch() + "%")});
-            		qutext += " " +" AND UPPER(UW_YEAR) LIKE UPPER(?)";
-            	}
-            	if(StringUtils.isNotBlank(bean.getUwYearToSearch())){
-            		obj = dropDownImple.getIncObjectArray(obj, new String[]{("%" + bean.getUwYearToSearch() + "%")});
-            		qutext += " " +" AND UPPER(UW_YEAR_TO) LIKE UPPER(?)";
-            	}
-            	if(StringUtils.isNotBlank(bean.getIncepDateSearch())){
-            		obj = dropDownImple.getIncObjectArray(obj, new String[]{("%" + bean.getIncepDateSearch() + "%")});
-            		qutext += " "  +" AND TO_CHAR(INCEPTION_DATE,'DD/MM/YYYY') LIKE ?";;
-            	}
-            	if(StringUtils.isNotBlank(bean.getExpDateSearch())){
-            		obj = dropDownImple.getIncObjectArray(obj, new String[]{("%" + bean.getExpDateSearch() + "%")});
-            		qutext += " " +" AND TO_CHAR(EXPIRY_DATE,'DD/MM/YYYY') LIKE ?";;
-            	}
-            	qutext += " " + "ORDER BY PM.PROPOSAL_NO, TRP.SNO";
-            	
-            }else{
-//            	bean.setCompanyNameSearch("");
-//            	bean.setBrokerNameSearch("");
-//            	bean.setUwYearSearch("");
-//            	bean.setUwYearToSearch("");
-//            	bean.setIncepDateSearch("");
-//            	bean.setExpDateSearch("");
-            }
-	        	query1 =queryImpl.setQueryProp(qutext, obj);
-	    		query1.unwrap(NativeQueryImpl.class).setResultTransformer(AliasToEntityMapResultTransformer.INSTANCE);
-	    		try {
-	    			 list = query1.getResultList();
-	    		} catch(Exception e) {
-	    			e.printStackTrace();
-	    		} 
 	    		 List<PlacementSummaryRes1> resList =new ArrayList<PlacementSummaryRes1>();
 	             if(list!=null && list.size()>0){
 	             for (int i = 0; i < list.size(); i++) {
-	                 Map<String, Object> tempMap = list.get(i);
+	            	 Tuple tempMap = list.get(i);
 	                 PlacementSummaryRes1 tempBean = new PlacementSummaryRes1();
 	                 tempBean.setOfferNo(tempMap.get("OFFER_NO") == null ? "" : tempMap.get("OFFER_NO").toString()); 
 	                 tempBean.setBaseProposal(tempMap.get("BASE_PROPOSAL") == null ? "" : tempMap.get("BASE_PROPOSAL").toString()); 
@@ -1510,8 +1663,18 @@ public class PlacementServiceImple implements PlacementService {
 	                 tempBean.setEpi100Dc(tempMap.get("EPI_100_DC") == null ? "" : fm.formatter(tempMap.get("EPI_100_DC").toString())); 
 	                 tempBean.setPlacingStatus(tempMap.get("PLACING_STATUS") == null ? "" : tempMap.get("PLACING_STATUS").toString()); 
 	                 tempBean.setShareSigned(tempMap.get("SHARE_SIGNED") == null ? "" : fm.formattereight(tempMap.get("SHARE_SIGNED").toString())); 
-	                tempBean.setBrokerage(tempMap.get("BROKERAGE") == null ? "" : fm.formattereight(tempMap.get("BROKERAGE").toString())); 
-	                tempBean.setBrokerageAmt(tempMap.get("BROKERAGE_AMT") == null ? "" :  fm.formatter(tempMap.get("BROKERAGE_AMT").toString()));
+	                 tempBean.setBrokerage(tempMap.get("BROKERAGE") == null ? "" : fm.formattereight(tempMap.get("BROKERAGE").toString())); 
+	                
+	                 DecimalFormat decfor = new DecimalFormat("0.00");
+					  //(EPI_100_DC)*(BROKERAGE/100)*(SHARE_SIGNED/100) = BROKERAGE_AMT
+					  String epi100Dc = tempMap.get("EPI_100_DC")==null?"0": tempMap.get("EPI_100_DC").toString();
+					  String brokerage = tempMap.get("BROKERAGE").toString();
+					  String sharesigned = decfor.format(tempMap.get("SHARE_SIGNED"));
+					 
+					  double brokerageAmt = Math.round(Double.valueOf(epi100Dc) * (Double.valueOf(brokerage)/100) * (Double.valueOf(sharesigned)/100));
+					  
+					  tempBean.setBrokerageAmt(String.valueOf(brokerageAmt)); 
+	                
 	                resList.add(tempBean);
 	             }
 	             }

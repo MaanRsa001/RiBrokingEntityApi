@@ -10,6 +10,7 @@ import java.util.Properties;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -35,12 +36,15 @@ import com.maan.insurance.model.req.placement.UpdatePlacementListReq;
 import com.maan.insurance.model.req.placement.UpdatePlacementReq;
 import com.maan.insurance.model.req.placement.UploadDocumentReq;
 import com.maan.insurance.model.req.placement.proposalInfoReq;
+import com.maan.insurance.service.impl.placement.PlacementCustomRepository;
 import com.maan.insurance.model.req.placement.PlacementSummaryReq;
 
 @Service
 public class PlacementValidation {
 	private Logger log = LogManager.getLogger(PlacementValidation.class);
 	private Properties prop = new Properties();
+	@Autowired
+	private PlacementCustomRepository placementCustomRepository;
 
 	
  public PlacementValidation() {
@@ -194,10 +198,10 @@ public List<ErrorCheck> validatePlacing(SavePlacingReq bean) {
 	for(int i=0;i<bean.getReinsListReq().size();i++) {
 		ReinsListReq req =bean.getReinsListReq().get(i);
 		if(StringUtils.isBlank(req.getReinsureName())) {
-			list.add(new ErrorCheck(prop.getProperty("error.reinsuere.required")+" "+(i+1),"reinsuere","01"));
+			list.add(new ErrorCheck(prop.getProperty("error.reinsuere.required")+" "+String.valueOf(i+1),"reinsuere","01"));
 		}
 		if(StringUtils.isBlank(req.getPlacingBroker())) {
-			list.add(new ErrorCheck(prop.getProperty("error.placingbroker.required")+" "+(i+1),"placingbroker","01"));
+			list.add(new ErrorCheck(prop.getProperty("error.placingbroker.required")+" "+String.valueOf(i+1),"placingbroker","01"));
 		}
 		
 		if(StringUtils.isNotBlank(req.getReinsureName()) && StringUtils.isNotBlank(req.getPlacingBroker())) {
@@ -319,62 +323,70 @@ public List<ErrorCheck> validationStatus(UpdatePlacementReq bean) {
 				UpdatePlacementListReq req =bean.getPlacementListReq().get(i);
 				if("P".equals(bean.getNewStatus())) {
 					if(StringUtils.isBlank(req.getShareOffered())) {
-						list.add(new ErrorCheck(prop.getProperty(("error.shareoffer.required")+" "+(i+1)),"shareoffer","01"));
+						list.add(new ErrorCheck(prop.getProperty("error.shareoffer.required")+" "+String.valueOf(i+1),"shareoffer","01"));
 					}
 				}else if("A".equals(bean.getNewStatus())) {
 					if(StringUtils.isBlank(req.getWrittenLine())) {
-						list.add(new ErrorCheck(prop.getProperty(("error.writtenLine.required")+" "+(i+1)),"writtenLine","01"));
+						list.add(new ErrorCheck(prop.getProperty("error.writtenLine.required")+" "+String.valueOf(i+1),"writtenLine","01"));
 					}if(StringUtils.isBlank(req.getWrittenvaliditydate())) {
-						list.add(new ErrorCheck(prop.getProperty(("error.writtenvaliditydate.required")+" "+(i+1)),"writtenvaliditydate","01"));
+						list.add(new ErrorCheck(prop.getProperty("error.writtenvaliditydate.required")+" "+String.valueOf(i+1),"writtenvaliditydate","01"));
 					}if(StringUtils.isBlank(req.getWrittenvalidityRemarks())) {
-						list.add(new ErrorCheck(prop.getProperty(("error.writtenvalidityRemarks.required")+" "+(i+1)),"writtenvalidityRemarks","01"));
+						list.add(new ErrorCheck(prop.getProperty("error.writtenvalidityRemarks.required")+" "+String.valueOf(i+1),"writtenvalidityRemarks","01"));
 					}if(StringUtils.isBlank(req.getBrokerage())) {
-						list.add(new ErrorCheck(prop.getProperty(("error.brokeragep.required")+" "+(i+1)),"brokeragep","01"));
+						list.add(new ErrorCheck(prop.getProperty("error.brokeragep.required")+" "+String.valueOf(i+1),"brokeragep","01"));
 					}
 				}else if("RO".equals(bean.getNewStatus())) {
 					if(StringUtils.isBlank(req.getReoffer())) {
-						list.add(new ErrorCheck(prop.getProperty(("error.reoffer.required")+" "+(i+1)),"reoffer","01"));
+						list.add(new ErrorCheck(prop.getProperty("error.reoffer.required")+" "+String.valueOf(i+1),"reoffer","01"));
 					}
 				}else if("PWL".equals(bean.getNewStatus())) {
 					if(StringUtils.isBlank(req.getProposedWL())) {
-						list.add(new ErrorCheck(prop.getProperty(("error.proposedWL.required")+" "+(i+1)),"proposedWL","01"));
+						list.add(new ErrorCheck(prop.getProperty("error.proposedWL.required")+" "+String.valueOf(i+1),"proposedWL","01"));
 					}else {
 						if(StringUtils.isNotBlank(req.getWrittenLine())) {
 							if(Double.parseDouble(req.getProposedWL())>Double.parseDouble(req.getWrittenLine())) {
-								list.add(new ErrorCheck(prop.getProperty(("error.proposedWL.valid")+" "+(i+1)),"proposedWL","01"));	
+								list.add(new ErrorCheck(prop.getProperty("error.proposedWL.valid")+" "+String.valueOf(i+1),"proposedWL","01"));	
 							}
 						}
 					}
 				}else if("SL".equals(bean.getNewStatus())) {
 					if(StringUtils.isBlank(req.getSignedLine())) {
-						list.add(new ErrorCheck(prop.getProperty(("error.signedLine.required")+" "+(i+1)),"signedLine","01"));
+						list.add(new ErrorCheck(prop.getProperty("error.signedLine.required")+" "+String.valueOf(i+1),"signedLine","01"));
 					}else {
 						if(StringUtils.isNotBlank(req.getWrittenLine())) {
 							if(Double.parseDouble(req.getSignedLine())>Double.parseDouble(req.getWrittenLine())) {
-								list.add(new ErrorCheck(prop.getProperty(("error.signedLine.valid")+" "+(i+1)),"signedLine","01"));	
+								list.add(new ErrorCheck(prop.getProperty("error.signedLine.valid")+" "+String.valueOf(i+1),"signedLine","01"));	
 							}
 						}
 					}if(StringUtils.isBlank(req.getSignedLineValidity())) {
-						list.add(new ErrorCheck(prop.getProperty(("error.signedLineValidity.required")+" "+(i+1)),"signedLineValidity","01"));
+						list.add(new ErrorCheck(prop.getProperty("error.signedLineValidity.required")+" "+String.valueOf(i+1),"signedLineValidity","01"));
 					}if(StringUtils.isBlank(req.getSignedLineRemarks())) {
-						list.add(new ErrorCheck(prop.getProperty(("error.signedLineRemarks.required")+" "+(i+1)),"signedLineRemarks","01"));
+						list.add(new ErrorCheck(prop.getProperty("error.signedLineRemarks.required")+" "+String.valueOf(i+1),"signedLineRemarks","01"));
 					}
 				}else if("PSL".equals(bean.getNewStatus())) {
 					if(StringUtils.isBlank(req.getProposedSL())) {
-						list.add(new ErrorCheck(prop.getProperty(("error.proposedSL.required")+" "+(i+1)),"proposedSL","01"));
+						list.add(new ErrorCheck(prop.getProperty("error.proposedSL.required")+" "+String.valueOf(i+1),"proposedSL","01"));
 					}
 				}else if("CSL".equals(bean.getNewStatus())) {
 					if(StringUtils.isBlank(req.getSignedLine())) {
-						list.add(new ErrorCheck(prop.getProperty(("error.signedLine.required")+" "+(i+1)),"signedLine","01"));
+						list.add(new ErrorCheck(prop.getProperty("error.signedLine.required")+" "+String.valueOf(i+1),"signedLine","01"));
 					}if(StringUtils.isNotBlank(req.getPsignedLine())) {
 						if(Double.parseDouble(req.getSignedLine())>Double.parseDouble(req.getPsignedLine())) {
-							list.add(new ErrorCheck(prop.getProperty(("error.psignedLine.valid")+" "+(i+1)),"psignedLine","01"));	
+							list.add(new ErrorCheck(prop.getProperty("error.psignedLine.valid")+" "+String.valueOf(i+1),"psignedLine","01"));
+						
 						}
 					}
+					double sumOfShareSign = placementCustomRepository.sumOfShareSigned(req.getProposalNo());
+					if(sumOfShareSign + Double.parseDouble(req.getSignedLine())>100) {
+						list.add(new ErrorCheck("Confirmed signed line cannot exceed 100% for this proposal "+req.getProposalNo(), "SignedLine", "01"));
+					}
 				}
-		}
+	
+			}
 	}
 	}
+	
+	
 	}catch(Exception e) {
 		e.printStackTrace();
 		}

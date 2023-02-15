@@ -1,9 +1,11 @@
 package com.maan.insurance.service.impl.placement;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
 import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
@@ -15,6 +17,7 @@ import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -22,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import com.maan.insurance.model.entity.ConstantDetail;
+import com.maan.insurance.model.entity.CurrencyMaster;
 import com.maan.insurance.model.entity.MailNotificationDetail;
 import com.maan.insurance.model.entity.NotificationAttachmentDetail;
 import com.maan.insurance.model.entity.PersonalInfo;
@@ -40,21 +44,22 @@ import com.maan.insurance.model.req.placement.GetExistingAttachListReq;
 import com.maan.insurance.model.req.placement.GetExistingReinsurerListReq;
 import com.maan.insurance.model.req.placement.GetMailTemplateReq;
 import com.maan.insurance.model.req.placement.GetMailToListReq;
+import com.maan.insurance.model.req.placement.GetPlacementInfoListReq;
 import com.maan.insurance.model.req.placement.GetPlacementViewListReq;
 import com.maan.insurance.model.req.placement.GetPlacementViewReq;
+import com.maan.insurance.model.req.placement.GetPlacingInfoReq;
+import com.maan.insurance.model.req.placement.PlacementSummaryReq;
 import com.maan.insurance.model.req.placement.SavePlacingReq;
 import com.maan.insurance.model.req.placement.SendMailReq;
 import com.maan.insurance.model.req.placement.UpdatePlacementListReq;
 import com.maan.insurance.model.req.placement.UpdatePlacementReq;
-import com.maan.insurance.model.res.DropDown.GetCommonDropDownRes;
-import com.maan.insurance.model.res.placement.GetExistingAttachListRes1;
 import com.maan.insurance.model.res.placement.GetPlacementNoRes;
 import com.maan.insurance.model.res.placement.GetPlacementNoRes1;
 import com.maan.insurance.validation.Formatters;
 
 @Repository
 public class PlacementCustomRepositoryImple implements PlacementCustomRepository {
-
+	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy") ;
 	@Autowired
 	EntityManager em;
 	@Autowired
@@ -1315,7 +1320,1098 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 		return list;
 	}
 
+	@Override
+	public List<Tuple> getReinsurerInfoNotin(String branchCode, String eproposalNo) {
+		List<Tuple> list=new ArrayList<>();
+		try {
+			//GET_REINSURER_INFO_NOTIN left join
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			Root<TtrnRiPlacement> p = query.from(TtrnRiPlacement.class);
 
+			// AmendId
+			Subquery<Long> amendId = query.subquery(Long.class);
+			Root<TtrnRiPlacement> ocpm1 = amendId.from(TtrnRiPlacement.class);
+			amendId.select( cb.max(ocpm1.get("placementAmendId")));
+			Predicate a1 = cb.equal(ocpm1.get("proposalNo"), p.get("proposalNo"));
+			Predicate a2 = cb.equal(ocpm1.get("reinsurerId"), p.get("reinsurerId"));
+			Predicate a3 = cb.equal(ocpm1.get("brokerId"), p.get("brokerId"));
+			Predicate a7 = cb.equal(ocpm1.get("branchCode"), p.get("branchCode"));
+			amendId.where(a1,a2,a3,a7);
 
+			// Mail Status
+			Subquery<String> mailStatus = query.subquery(String.class);
+			Root<MailNotificationDetail> ocpm2 = mailStatus.from(MailNotificationDetail.class);
+			mailStatus.select(ocpm2.get("mailStatus"));
+			Predicate a4 = cb.equal(ocpm2.get("proposalNo"), p.get("proposalNo"));
+			Predicate a5 = cb.equal(ocpm2.get("reinsurerId"), p.get("reinsurerId"));
+			Predicate a6 = cb.equal(ocpm2.get("brokerId"), p.get("brokerId"));
+			mailStatus.where(a4,a5,a6);
+
+			query.multiselect(
+				 p.get("sno").alias("SNO"), 
+				 p.get("reinsurerId").alias("REINSURER_ID"),
+				 p.get("brokerId").alias("BROKER_ID"),
+				 p.get("shareOffered").alias("SHARE_OFFERED") ,
+				 cb.coalesce(mailStatus, "Pending").alias("MAIL_STATUS"),
+				 p.get("proposalNo").alias("PROPOSAL_NO") ,
+				 p.get("bouquetNo").alias("BOUQUET_NO") ,
+				 p.get("placementMode").alias("PLACEMENT_MODE")
+				).distinct(true);
+
+			Predicate n1 = cb.equal(p.get("branchCode"), branchCode);
+			Predicate n2 = cb.equal(p.get("proposalNo"),eproposalNo);
+			Predicate n3 = cb.equal(p.get("placementAmendId"), amendId);
+
+			List<Order> orderList = new ArrayList<Order>();
+			orderList.add(cb.asc(p.get("sno")));
+			orderList.add(cb.asc(p.get("bouquetNo")));
+			orderList.add(cb.asc(p.get("proposalNo")));
+				
+			query.where(n1,n2,n3).orderBy(orderList);
+
+			TypedQuery<Tuple> result = em.createQuery(query);
+			list = result.getResultList();
+			
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return list;
+	}
+
+	@Override
+	public List<Tuple> getReinsurerInfoBouquetNotin(String branchCode, String bouquetNo) {
+		List<Tuple> list=new ArrayList<>();
+		try {
+			
+			//get_Reinsurer_Info_Bouquet_Notin left join
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			Root<TtrnRiPlacement> p = query.from(TtrnRiPlacement.class);
+			
+			// Mail Status
+			Subquery<String> mailStatus = query.subquery(String.class);
+			Root<MailNotificationDetail> ocpm2 = mailStatus.from(MailNotificationDetail.class);
+			mailStatus.select(ocpm2.get("mailStatus"));
+			Predicate a4 = cb.equal(ocpm2.get("proposalNo"), p.get("proposalNo"));
+			Predicate a5 = cb.equal(ocpm2.get("reinsurerId"), p.get("reinsurerId"));
+			Predicate a6 = cb.equal(ocpm2.get("brokerId"), p.get("brokerId"));
+			mailStatus.where(a4,a5,a6);
+
+			query.multiselect( 
+					p.get("sno").alias("SNO"), 
+					 p.get("reinsurerId").alias("REINSURER_ID"),
+					 p.get("brokerId").alias("BROKER_ID"),
+					 p.get("shareOffered").alias("SHARE_OFFERED") ,
+					 cb.coalesce(mailStatus, "Pending").alias("MAIL_STATUS"),
+					 p.get("bouquetNo").alias("BOUQUET_NO") ,
+					 p.get("proposalNo").alias("PROPOSAL_NO") ,
+					 p.get("placementMode").alias("PLACEMENT_MODE")).distinct(true);
+			// AmendId
+			Subquery<Long> amendId = query.subquery(Long.class);
+			Root<TtrnRiPlacement> ocpm1 = amendId.from(TtrnRiPlacement.class);
+			amendId.select( cb.max(ocpm1.get("placementAmendId")));
+			Predicate a1 = cb.equal(ocpm1.get("proposalNo"), p.get("proposalNo"));
+			Predicate a2 = cb.equal(ocpm1.get("reinsurerId"), p.get("reinsurerId"));
+			Predicate a3 = cb.equal(ocpm1.get("brokerId"), p.get("brokerId"));
+			Predicate a7 = cb.equal(ocpm1.get("branchCode"), p.get("branchCode"));
+			amendId.where(a1,a2,a3,a7);			
+
+			Predicate n1 = cb.equal(p.get("branchCode"), branchCode);
+			Predicate n2 = cb.equal(p.get("bouquetNo"),bouquetNo);
+			Predicate n3 = cb.equal(p.get("placementAmendId"), amendId);
+
+			List<Order> orderList = new ArrayList<Order>();
+			orderList.add(cb.asc(p.get("sno")));
+			orderList.add(cb.asc(p.get("bouquetNo")));
+				
+			query.where(n1,n2,n3).orderBy(orderList);
+
+			TypedQuery<Tuple> result = em.createQuery(query);
+			list = result.getResultList();
+			
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return list;
+	}
+
+	@Override
+	public List<Tuple> getPlacementBouquetList(GetPlacementInfoListReq req) {
+		List<Tuple> list=new ArrayList<>();
+		try {  
+			//GET_PLACEMENT_BOUQUET_LIST--LEFT JOIN
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			Root<TtrnRiPlacement> p = query.from(TtrnRiPlacement.class);
+
+			// Mail Status
+			Subquery<String> mailStatus = query.subquery(String.class);
+			Root<MailNotificationDetail> m = mailStatus.from(MailNotificationDetail.class);
+			mailStatus.select(m.get("mailStatus"));
+			Predicate b1 = cb.equal(m.get("proposalNo"), p.get("proposalNo"));
+			Predicate b2 = cb.equal(m.get("reinsurerId"), p.get("reinsurerId"));
+			Predicate b3 = cb.equal(m.get("brokerId"), p.get("brokerId"));
+			Predicate b4 = cb.equal(m.get("mailType"), p.get("status"));
+			mailStatus.where(b1,b2,b3,b4);
+			
+			//companyName
+			Subquery<String> companyName = query.subquery(String.class); 
+			Root<PersonalInfo> pms = companyName.from(PersonalInfo.class);
+			companyName.select(pms.get("companyName"));
+			Predicate c1 = cb.equal( p.get("cedingCompanyId"), pms.get("customerId"));
+			Predicate c2 = cb.equal( pms.get("customerType"), "C");
+			Predicate c3 = cb.equal( p.get("branchCode"), pms.get("branchCode"));
+			companyName.where(c1,c2,c3);
+			
+			//reinsurerName
+			Subquery<String> reInsurerName = query.subquery(String.class); 
+			Root<PersonalInfo> pi = reInsurerName.from(PersonalInfo.class);
+			Expression<String> firstName1 = cb.concat(pi.get("firstName"), " ");
+			reInsurerName.select(cb.concat(firstName1, pi.get("lastName")));
+			//maxAmend
+			Subquery<Long> maxAmend = query.subquery(Long.class); 
+			Root<PersonalInfo> pis = maxAmend.from(PersonalInfo.class);
+			maxAmend.select(cb.max(pis.get("amendId")));
+			Predicate e1 = cb.equal( pis.get("customerId"), pi.get("customerId"));
+			maxAmend.where(e1);
+			Predicate d1 = cb.equal( pi.get("customerType"), "R");
+			Predicate d2 = cb.equal( pi.get("customerId"), p.get("reinsurerId"));
+			Predicate d3 = cb.equal( pi.get("branchCode"), p.get("branchCode"));
+			Predicate d4 = cb.equal( pi.get("amendId"), maxAmend);
+			reInsurerName.where(d1,d2,d3,d4);
+			
+			//brokerName
+			Subquery<String> brokerName = query.subquery(String.class); 
+			Root<PersonalInfo> bpi = brokerName.from(PersonalInfo.class);
+			Expression<String> e0 = cb.concat(bpi.get("firstName"), " ");
+			brokerName.select(cb.concat(e0, bpi.get("lastName")));
+			//maxAmend
+			Subquery<Long> maxAmend1 = query.subquery(Long.class); 
+			Root<PersonalInfo> pinfo = maxAmend1.from(PersonalInfo.class);
+			maxAmend1.select(cb.max(pinfo.get("amendId")));
+			Predicate g1 = cb.equal( pinfo.get("customerId"), bpi.get("customerId"));
+			maxAmend1.where(g1);
+			Predicate a1 = cb.equal( bpi.get("customerType"), "B");
+			Predicate a2 = cb.equal( bpi.get("customerId"), p.get("brokerId"));
+			Predicate a3 = cb.equal( bpi.get("branchCode"), p.get("branchCode"));
+			Predicate a4 = cb.equal( bpi.get("amendId"), maxAmend1);
+			brokerName.where(a1,a2,a3,a4);
+			
+			//status
+			Subquery<String> status = query.subquery(String.class); 
+			Root<StatusMaster> sm = status.from(StatusMaster.class);
+			status.select(sm.get("statusName"));
+			Predicate h1 = cb.equal(sm.get("statusCode"), p.get("status"));
+			Predicate h2 = cb.equal(sm.get("branchCode"), p.get("branchCode"));
+			status.where(h1,h2);
+			
+			//offerNo
+			Subquery<String> offer = query.subquery(String.class); 
+			Root<PositionMaster> pm = offer.from(PositionMaster.class);
+			offer.select(pm.get("offerNo"));
+			Predicate i1 = cb.equal(pm.get("proposalNo"), p.get("proposalNo"));
+			Predicate i2 = cb.equal(pm.get("branchCode"), p.get("branchCode"));
+			offer.where(i1,i2);
+
+			query.multiselect( 
+					 p.get("sno").alias("SNO"), 
+					 p.get("bouquetNo").alias("BOUQUET_NO"),
+					 p.get("baseProposalNo").alias("BASE_PROPOSAL_NO"),
+					 p.get("proposalNo").alias("PROPOSAL_NO") ,
+					 companyName.alias("CEDING_COMPANY_ID"),
+					 p.get("reinsurerId").alias("REINSURER_ID"),
+					 p.get("brokerId").alias("BROKER_ID"),
+					 reInsurerName.alias("REINSURER_NAME"),
+					 brokerName.alias("BROKER_NAME"),
+					 p.get("shareOffered").alias("SHARE_OFFERED"), 
+					 p.get("shareWritten").alias("SHARE_WRITTEN"), 
+					 p.get("shareProposalWritten").alias("SHARE_PROPOSAL_WRITTEN"), 
+					 p.get("shareSigned").alias("SHARE_SIGNED"), 
+					 p.get("brokerage").alias("BROKERAGE_PER"), 
+					 status.alias("STATUS"),
+					 p.get("writtenLineValidity").alias("WRITTEN_LINE_VALIDITY"), 
+					 p.get("writtenLineRemarks").alias("WRITTEN_LINE_REMARKS"), 
+					 p.get("shareLineValidity").alias("SHARE_LINE_VALIDITY"), 
+					 p.get("shareLineRemarks").alias("SHARE_LINE_REMARKS"), 
+					 p.get("shareProposedSigned").alias("SHARE_PROPOSED_SIGNED"), 
+					 offer.alias("OFFER_NO"),
+					 cb.coalesce(mailStatus, "Pending").alias("MAIL_STATUS")
+				//	 mailStatus.alias("MAIL_STATUS")
+					 );
+			// AmendId
+			Subquery<Long> amendId = query.subquery(Long.class);
+			Root<TtrnRiPlacement> ocpm1 = amendId.from(TtrnRiPlacement.class);
+			amendId.select( cb.max(ocpm1.get("placementAmendId")));
+			Predicate j1 = cb.equal(ocpm1.get("proposalNo"), p.get("proposalNo"));
+			Predicate j2 = cb.equal(ocpm1.get("reinsurerId"), p.get("reinsurerId"));
+			Predicate j3 = cb.equal(ocpm1.get("brokerId"), p.get("brokerId"));
+			Predicate j4 = cb.equal(ocpm1.get("branchCode"), p.get("branchCode"));
+			amendId.where(j1,j2,j3,j4);
+					
+			List<Predicate> predicates = new ArrayList<Predicate>();
+			predicates.add(cb.equal(p.get("branchCode"), req.getBranchCode()));
+			predicates.add(cb.equal(p.get("bouquetNo"),req.getBouquetNo()));
+			predicates.add(cb.equal(p.get("placementAmendId"), amendId));
+			
 	
+			if(StringUtils.isNotBlank(req.getSearchType())) {
+				predicates.add(cb.equal(p.get("reinsurerId"), req.getSearchReinsurerId()));
+				predicates.add(cb.equal(p.get("brokerId"), req.getSearchBrokerId()));
+				predicates.add(cb.equal(p.get("status"), req.getSearchStatus()));
+			}
+			
+//			List<Order> orderList = new ArrayList<Order>();
+//			orderList.add(cb.asc(offer));
+//			orderList.add(cb.asc(p.get("baseProposalNo")));
+//			orderList.add(cb.asc(p.get("proposalNo")));
+//			orderList.add(cb.asc(p.get("sno")));
+				
+			query.where(predicates.toArray(new Predicate[0]));
+
+			TypedQuery<Tuple> result = em.createQuery(query);
+			list = result.getResultList();
+			
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return list;
+	}
+
+	@Override
+	public List<Tuple> getPlacementBaseList(GetPlacementInfoListReq req) {
+		List<Tuple> list=new ArrayList<>();
+		try {  
+			//GET_PLACEMENT_BASE_LIST--LEFT JOIN
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			Root<TtrnRiPlacement> p = query.from(TtrnRiPlacement.class);
+
+			// Mail Status
+			Subquery<String> mailStatus = query.subquery(String.class);
+			Root<MailNotificationDetail> m = mailStatus.from(MailNotificationDetail.class);
+			mailStatus.select(m.get("mailStatus"));
+			Predicate b1 = cb.equal(m.get("proposalNo"), p.get("proposalNo"));
+			Predicate b2 = cb.equal(m.get("reinsurerId"), p.get("reinsurerId"));
+			Predicate b3 = cb.equal(m.get("brokerId"), p.get("brokerId"));
+			Predicate b4 = cb.equal(m.get("mailType"), p.get("status"));
+			mailStatus.where(b1,b2,b3,b4);
+			
+			//companyName
+			Subquery<String> companyName = query.subquery(String.class); 
+			Root<PersonalInfo> pms = companyName.from(PersonalInfo.class);
+			companyName.select(pms.get("companyName"));
+			Predicate c1 = cb.equal( p.get("cedingCompanyId"), pms.get("customerId"));
+			Predicate c2 = cb.equal( pms.get("customerType"), "C");
+			Predicate c3 = cb.equal( p.get("branchCode"), pms.get("branchCode"));
+			companyName.where(c1,c2,c3);
+			
+			//reinsurerName
+			Subquery<String> reInsurerName = query.subquery(String.class); 
+			Root<PersonalInfo> pi = reInsurerName.from(PersonalInfo.class);
+			Expression<String> firstName1 = cb.concat(pi.get("firstName"), " ");
+			reInsurerName.select(cb.concat(firstName1, pi.get("lastName")));
+			//maxAmend
+			Subquery<Long> maxAmend = query.subquery(Long.class); 
+			Root<PersonalInfo> pis = maxAmend.from(PersonalInfo.class);
+			maxAmend.select(cb.max(pis.get("amendId")));
+			Predicate e1 = cb.equal( pis.get("customerId"), pi.get("customerId"));
+			maxAmend.where(e1);
+			Predicate d1 = cb.equal( pi.get("customerType"), "R");
+			Predicate d2 = cb.equal( pi.get("customerId"), p.get("reinsurerId"));
+			Predicate d3 = cb.equal( pi.get("branchCode"), p.get("branchCode"));
+			Predicate d4 = cb.equal( pi.get("amendId"), maxAmend);
+			reInsurerName.where(d1,d2,d3,d4);
+			
+			//brokerName
+			Subquery<String> brokerName = query.subquery(String.class); 
+			Root<PersonalInfo> bpi = brokerName.from(PersonalInfo.class);
+			Expression<String> e0 = cb.concat(bpi.get("firstName"), " ");
+			brokerName.select(cb.concat(e0, bpi.get("lastName")));
+			//maxAmend
+			Subquery<Long> maxAmend1 = query.subquery(Long.class); 
+			Root<PersonalInfo> pinfo = maxAmend1.from(PersonalInfo.class);
+			maxAmend1.select(cb.max(pinfo.get("amendId")));
+			Predicate g1 = cb.equal( pinfo.get("customerId"), bpi.get("customerId"));
+			maxAmend1.where(g1);
+			Predicate a1 = cb.equal( bpi.get("customerType"), "B");
+			Predicate a2 = cb.equal( bpi.get("customerId"), p.get("brokerId"));
+			Predicate a3 = cb.equal( bpi.get("branchCode"), p.get("branchCode"));
+			Predicate a4 = cb.equal( bpi.get("amendId"), maxAmend1);
+			brokerName.where(a1,a2,a3,a4);
+			
+			//status
+			Subquery<String> status = query.subquery(String.class); 
+			Root<StatusMaster> sm = status.from(StatusMaster.class);
+			status.select(sm.get("statusName"));
+			Predicate h1 = cb.equal(sm.get("statusCode"), p.get("status"));
+			Predicate h2 = cb.equal(sm.get("branchCode"), p.get("branchCode"));
+			status.where(h1,h2);
+			
+			//offerNo
+			Subquery<String> offer = query.subquery(String.class); 
+			Root<PositionMaster> pm = offer.from(PositionMaster.class);
+			offer.select(pm.get("offerNo"));
+			Predicate i1 = cb.equal(pm.get("proposalNo"), p.get("proposalNo"));
+			Predicate i2 = cb.equal(pm.get("branchCode"), p.get("branchCode"));
+			offer.where(i1,i2);
+
+			query.multiselect( 
+					 p.get("sno").alias("SNO"), 
+					 p.get("bouquetNo").alias("BOUQUET_NO"),
+					 p.get("baseProposalNo").alias("BASE_PROPOSAL_NO"),
+					 p.get("proposalNo").alias("PROPOSAL_NO") ,
+					 companyName.alias("CEDING_COMPANY_ID"),
+					 p.get("reinsurerId").alias("REINSURER_ID"),
+					 p.get("brokerId").alias("BROKER_ID"),
+					 reInsurerName.alias("REINSURER_NAME"),
+					 brokerName.alias("BROKER_NAME"),
+					 p.get("shareOffered").alias("SHARE_OFFERED"), 
+					 p.get("shareWritten").alias("SHARE_WRITTEN"), 
+					 p.get("shareProposalWritten").alias("SHARE_PROPOSAL_WRITTEN"), 
+					 p.get("shareSigned").alias("SHARE_SIGNED"), 
+					 p.get("brokerage").alias("BROKERAGE_PER"), 
+					 status.alias("STATUS"),
+					 p.get("writtenLineValidity").alias("WRITTEN_LINE_VALIDITY"), 
+					 p.get("writtenLineRemarks").alias("WRITTEN_LINE_REMARKS"), 
+					 p.get("shareLineValidity").alias("SHARE_LINE_VALIDITY"), 
+					 p.get("shareLineRemarks").alias("SHARE_LINE_REMARKS"), 
+					 p.get("shareProposedSigned").alias("SHARE_PROPOSED_SIGNED"), 
+					 offer.alias("OFFER_NO"),
+					 cb.coalesce(mailStatus, "Pending").alias("MAIL_STATUS")
+					 );
+			// AmendId
+			Subquery<Long> amendId = query.subquery(Long.class);
+			Root<TtrnRiPlacement> ocpm1 = amendId.from(TtrnRiPlacement.class);
+			amendId.select( cb.max(ocpm1.get("placementAmendId")));
+			Predicate j1 = cb.equal(ocpm1.get("proposalNo"), p.get("proposalNo"));
+			Predicate j2 = cb.equal(ocpm1.get("reinsurerId"), p.get("reinsurerId"));
+			Predicate j3 = cb.equal(ocpm1.get("brokerId"), p.get("brokerId"));
+			Predicate j4 = cb.equal(ocpm1.get("branchCode"), p.get("branchCode"));
+			amendId.where(j1,j2,j3,j4);
+					
+			List<Predicate> predicates = new ArrayList<Predicate>();
+			predicates.add(cb.equal(p.get("branchCode"), req.getBranchCode()));
+			predicates.add(cb.equal(p.get("baseProposalNo"),req.getBaseProposalNo()));
+			predicates.add(cb.equal(p.get("placementAmendId"), amendId));
+			
+	
+			if(StringUtils.isNotBlank(req.getSearchType())) {
+				predicates.add(cb.equal(p.get("reinsurerId"), req.getSearchReinsurerId()));
+				predicates.add(cb.equal(p.get("brokerId"), req.getSearchBrokerId()));
+				predicates.add(cb.equal(p.get("status"), req.getSearchStatus()));
+			}
+			
+//			List<Order> orderList = new ArrayList<Order>();
+//			orderList.add(cb.asc(offer));
+//			orderList.add(cb.asc(p.get("baseProposalNo")));
+//			orderList.add(cb.asc(p.get("proposalNo")));
+//			orderList.add(cb.asc(p.get("sno")));
+				
+			query.where(predicates.toArray(new Predicate[0]));
+
+			TypedQuery<Tuple> result = em.createQuery(query);
+			list = result.getResultList();
+			
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return list;
+	}
+
+	@Override
+	public List<Tuple> getPlacementList(GetPlacementInfoListReq req, String prop) {
+		List<Tuple> list=new ArrayList<>();
+		try {  
+			//GET_PLACEMENT_LIST--LEFT JOIN
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			Root<TtrnRiPlacement> p = query.from(TtrnRiPlacement.class);
+
+			
+			//companyName
+			Subquery<String> companyName = query.subquery(String.class); 
+			Root<PersonalInfo> pms = companyName.from(PersonalInfo.class);
+			companyName.select(pms.get("companyName"));
+			Predicate c1 = cb.equal( p.get("cedingCompanyId"), pms.get("customerId"));
+			Predicate c2 = cb.equal( pms.get("customerType"), "C");
+			Predicate c3 = cb.equal( p.get("branchCode"), pms.get("branchCode"));
+			companyName.where(c1,c2,c3);
+			
+			//reinsurerName
+			Subquery<String> reInsurerName = query.subquery(String.class); 
+			Root<PersonalInfo> pi = reInsurerName.from(PersonalInfo.class);
+			Expression<String> firstName1 = cb.concat(pi.get("firstName"), " ");
+			reInsurerName.select(cb.concat(firstName1, pi.get("lastName")));
+			//maxAmend
+			Subquery<Long> maxAmend = query.subquery(Long.class); 
+			Root<PersonalInfo> pis = maxAmend.from(PersonalInfo.class);
+			maxAmend.select(cb.max(pis.get("amendId")));
+			Predicate e1 = cb.equal( pis.get("customerId"), pi.get("customerId"));
+			maxAmend.where(e1);
+			Predicate d1 = cb.equal( pi.get("customerType"), "R");
+			Predicate d2 = cb.equal( pi.get("customerId"), p.get("reinsurerId"));
+			Predicate d3 = cb.equal( pi.get("branchCode"), p.get("branchCode"));
+			Predicate d4 = cb.equal( pi.get("amendId"), maxAmend);
+			reInsurerName.where(d1,d2,d3,d4);
+			
+			//brokerName
+			Subquery<String> brokerName = query.subquery(String.class); 
+			Root<PersonalInfo> bpi = brokerName.from(PersonalInfo.class);
+			Expression<String> e0 = cb.concat(bpi.get("firstName"), " ");
+			brokerName.select(cb.concat(e0, bpi.get("lastName")));
+			//maxAmend
+			Subquery<Long> maxAmend1 = query.subquery(Long.class); 
+			Root<PersonalInfo> pinfo = maxAmend1.from(PersonalInfo.class);
+			maxAmend1.select(cb.max(pinfo.get("amendId")));
+			Predicate g1 = cb.equal( pinfo.get("customerId"), bpi.get("customerId"));
+			maxAmend1.where(g1);
+			Predicate a1 = cb.equal( bpi.get("customerType"), "B");
+			Predicate a2 = cb.equal( bpi.get("customerId"), p.get("brokerId"));
+			Predicate a3 = cb.equal( bpi.get("branchCode"), p.get("branchCode"));
+			Predicate a4 = cb.equal( bpi.get("amendId"), maxAmend1);
+			brokerName.where(a1,a2,a3,a4);
+			
+			//status
+			Subquery<String> status = query.subquery(String.class); 
+			Root<StatusMaster> sm = status.from(StatusMaster.class);
+			status.select(sm.get("statusName"));
+			Predicate h1 = cb.equal(sm.get("statusCode"), p.get("status"));
+			Predicate h2 = cb.equal(sm.get("branchCode"), p.get("branchCode"));
+			status.where(h1,h2);
+			
+			// Mail Status
+			Subquery<String> mailStatus = query.subquery(String.class);
+			Root<MailNotificationDetail> m = mailStatus.from(MailNotificationDetail.class);
+			mailStatus.select(m.get("mailStatus"));
+			Predicate b1 = cb.equal(m.get("proposalNo"), p.get("proposalNo"));
+			Predicate b2 = cb.equal(m.get("reinsurerId"), p.get("reinsurerId"));
+			Predicate b3 = cb.equal(m.get("brokerId"), p.get("brokerId"));
+			Predicate b4 = cb.equal(m.get("mailType"), p.get("status"));
+			mailStatus.where(b1,b2,b3,b4);				
+
+			//offerNo
+			Subquery<String> offer = query.subquery(String.class); 
+			Root<PositionMaster> pm = offer.from(PositionMaster.class);
+			offer.select(pm.get("offerNo"));
+			Predicate i1 = cb.equal(pm.get("proposalNo"), p.get("proposalNo"));
+			Predicate i2 = cb.equal(pm.get("branchCode"), p.get("branchCode"));
+			offer.where(i1,i2);
+			
+			query.multiselect( 
+					 p.get("sno").alias("SNO"), 
+					 p.get("bouquetNo").alias("BOUQUET_NO"),
+					 p.get("baseProposalNo").alias("BASE_PROPOSAL_NO"),
+					 p.get("proposalNo").alias("PROPOSAL_NO") ,
+					 companyName.alias("CEDING_COMPANY_ID"),
+					 p.get("reinsurerId").alias("REINSURER_ID"),
+					 p.get("brokerId").alias("BROKER_ID"),
+					 reInsurerName.alias("REINSURER_NAME"),
+					 brokerName.alias("BROKER_NAME"),
+					 p.get("shareOffered").alias("SHARE_OFFERED"), 
+					 p.get("shareWritten").alias("SHARE_WRITTEN"), 
+					 p.get("shareProposalWritten").alias("SHARE_PROPOSAL_WRITTEN"), 
+					 p.get("shareSigned").alias("SHARE_SIGNED"), 
+					 p.get("brokerage").alias("BROKERAGE_PER"), 
+					 status.alias("STATUS"),
+					 p.get("writtenLineValidity").alias("WRITTEN_LINE_VALIDITY"), 
+					 p.get("writtenLineRemarks").alias("WRITTEN_LINE_REMARKS"), 
+					 p.get("shareLineValidity").alias("SHARE_LINE_VALIDITY"), 
+					 p.get("shareLineRemarks").alias("SHARE_LINE_REMARKS"), 
+					 p.get("shareProposedSigned").alias("SHARE_PROPOSED_SIGNED"), 
+					 offer.alias("OFFER_NO"),
+					 cb.coalesce(mailStatus, "Pending").alias("MAIL_STATUS")
+					 );
+			// AmendId
+			Subquery<Long> amendId = query.subquery(Long.class);
+			Root<TtrnRiPlacement> ocpm1 = amendId.from(TtrnRiPlacement.class);
+			amendId.select( cb.max(ocpm1.get("placementAmendId")));
+			Predicate j1 = cb.equal(ocpm1.get("proposalNo"), p.get("proposalNo"));
+			Predicate j2 = cb.equal(ocpm1.get("reinsurerId"), p.get("reinsurerId"));
+			Predicate j3 = cb.equal(ocpm1.get("brokerId"), p.get("brokerId"));
+			Predicate j4 = cb.equal(ocpm1.get("branchCode"), p.get("branchCode"));
+			amendId.where(j1,j2,j3,j4);
+					
+			List<Predicate> predicates = new ArrayList<Predicate>();
+			predicates.add(cb.equal(p.get("branchCode"), req.getBranchCode()));
+			predicates.add(cb.equal(p.get("proposalNo"), prop));
+			predicates.add(cb.equal(p.get("placementAmendId"), amendId));
+			
+	
+			if(StringUtils.isNotBlank(req.getSearchType())) {
+				predicates.add(cb.equal(p.get("reinsurerId"), req.getSearchReinsurerId()));
+				predicates.add(cb.equal(p.get("brokerId"), req.getSearchBrokerId()));
+				predicates.add(cb.equal(p.get("status"), req.getSearchStatus()));
+			}
+			
+//			List<Order> orderList = new ArrayList<Order>();
+//			orderList.add(cb.asc(offer));
+//			orderList.add(cb.asc(p.get("baseProposalNo")));
+//			orderList.add(cb.asc(p.get("proposalNo")));
+//			orderList.add(cb.asc(p.get("sno")));
+				
+			query.where(predicates.toArray(new Predicate[0]));
+
+			TypedQuery<Tuple> result = em.createQuery(query);
+			list = result.getResultList();
+			
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return list;
+	}
+
+	@Override
+	public List<Tuple> getPlacingBouquetList(GetPlacingInfoReq req) {
+		List<Tuple> list=new ArrayList<>();
+		try {  
+			//GET_PLACING_BOUQUET_LIST  //left join  
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			Root<TtrnRiPlacement> p = query.from(TtrnRiPlacement.class);
+			
+			//reinsurerName
+			Subquery<String> reInsurerName = query.subquery(String.class); 
+			Root<PersonalInfo> pi = reInsurerName.from(PersonalInfo.class);
+			Expression<String> firstName1 = cb.concat(pi.get("firstName"), " ");
+			reInsurerName.select(cb.concat(firstName1, pi.get("lastName")));
+			//maxAmend
+			Subquery<Long> maxAmend = query.subquery(Long.class); 
+			Root<PersonalInfo> pis = maxAmend.from(PersonalInfo.class);
+			maxAmend.select(cb.max(pis.get("amendId")));
+			Predicate e1 = cb.equal( pis.get("customerId"), pi.get("customerId"));
+			maxAmend.where(e1);
+			Predicate d1 = cb.equal( pi.get("customerType"), "R");
+			Predicate d2 = cb.equal( pi.get("customerId"), p.get("reinsurerId"));
+			Predicate d3 = cb.equal( pi.get("branchCode"), p.get("branchCode"));
+			Predicate d4 = cb.equal( pi.get("amendId"), maxAmend);
+			reInsurerName.where(d1,d2,d3,d4);
+			
+			//brokerName
+			Subquery<String> brokerName = query.subquery(String.class); 
+			Root<PersonalInfo> bpi = brokerName.from(PersonalInfo.class);
+			Expression<String> e0 = cb.concat(bpi.get("firstName"), " ");
+			brokerName.select(cb.concat(e0, bpi.get("lastName")));
+			//maxAmend
+			Subquery<Long> maxAmend1 = query.subquery(Long.class); 
+			Root<PersonalInfo> pinfo = maxAmend1.from(PersonalInfo.class);
+			maxAmend1.select(cb.max(pinfo.get("amendId")));
+			Predicate g1 = cb.equal( pinfo.get("customerId"), bpi.get("customerId"));
+			maxAmend1.where(g1);
+			Predicate a1 = cb.equal( bpi.get("customerType"), "B");
+			Predicate a2 = cb.equal( bpi.get("customerId"), p.get("brokerId"));
+			Predicate a3 = cb.equal( bpi.get("branchCode"), p.get("branchCode"));
+			Predicate a4 = cb.equal( bpi.get("amendId"), maxAmend1);
+			brokerName.where(a1,a2,a3,a4);
+			
+			// Mail Status
+			Subquery<String> mailStatus = query.subquery(String.class);
+			Root<MailNotificationDetail> m = mailStatus.from(MailNotificationDetail.class);
+			mailStatus.select(m.get("mailStatus"));
+			Predicate b1 = cb.equal(m.get("proposalNo"), p.get("proposalNo"));
+			Predicate b2 = cb.equal(m.get("reinsurerId"), p.get("reinsurerId"));
+			Predicate b3 = cb.equal(m.get("brokerId"), p.get("brokerId"));
+			mailStatus.where(b1,b2,b3);				
+
+			//offerStatus
+			Subquery<Integer> offerStatus = query.subquery(Integer.class); 
+			Root<TtrnRiPlacement> pm = offerStatus.from(TtrnRiPlacement.class);
+			offerStatus.select(cb.count(pm).as(Integer.class));
+			Predicate i1 = cb.equal(pm.get("proposalNo"), p.get("proposalNo"));
+			Predicate i2 = cb.equal(pm.get("reinsurerId"), p.get("reinsurerId"));
+			Predicate i3 = cb.equal(pm.get("brokerId"), p.get("brokerId"));
+			Predicate i4 = cb.equal(pm.get("status"), "O");
+			offerStatus.where(i1,i2,i3,i4);
+			
+			query.multiselect( 
+					 p.get("sno").alias("SNO"), 
+					 p.get("bouquetNo").alias("BOUQUET_NO"),
+					 p.get("reinsurerId").alias("REINSURER_ID"),
+					 p.get("proposalNo").alias("PROPOSAL_NO"),
+					 p.get("brokerId").alias("BROKER_ID"),
+					 reInsurerName.alias("REINSURER_NAME"),
+					 brokerName.alias("BROKER_NAME"),
+					 p.get("shareOffered").alias("SHARE_OFFERED"), 
+					 cb.coalesce(mailStatus, "Pending").alias("MAIL_STATUS"), 
+					 cb.selectCase().when(cb.greaterThan(offerStatus, 0), "N").otherwise("Y").alias("OFFER_STATUS")
+					 ).distinct(true);
+		
+			// AmendId
+			Subquery<Long> amendId = query.subquery(Long.class);
+			Root<TtrnRiPlacement> ocpm1 = amendId.from(TtrnRiPlacement.class);
+			amendId.select( cb.max(ocpm1.get("placementAmendId")));
+			Predicate j1 = cb.equal(ocpm1.get("proposalNo"), p.get("proposalNo"));
+			Predicate j2 = cb.equal(ocpm1.get("reinsurerId"), p.get("reinsurerId"));
+			Predicate j3 = cb.equal(ocpm1.get("brokerId"), p.get("brokerId"));
+			Predicate j4 = cb.equal(ocpm1.get("branchCode"), p.get("branchCode"));
+			amendId.where(j1,j2,j3,j4);
+					
+			List<Predicate> predicates = new ArrayList<Predicate>();
+			predicates.add(cb.equal(p.get("branchCode"), req.getBranchCode()));
+			predicates.add(cb.equal(p.get("bouquetNo"), req.getBouquetNo()));
+			predicates.add(cb.equal(p.get("placementAmendId"), amendId));
+	
+			if(StringUtils.isNotBlank(req.getSearchType())) {
+				predicates.add(cb.equal(p.get("reinsurerId"), req.getSearchReinsurerId()));
+				predicates.add(cb.equal(p.get("brokerId"), req.getSearchBrokerId()));
+				predicates.add(cb.equal(p.get("status"), req.getSearchStatus()));
+			}
+			
+			List<Order> orderList = new ArrayList<Order>();
+			orderList.add(cb.asc(p.get("sno")));
+				
+			query.where(predicates.toArray(new Predicate[0])).orderBy(orderList);
+
+			TypedQuery<Tuple> result = em.createQuery(query);
+			list = result.getResultList();
+			
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return list;
+	}
+
+	@Override
+	public List<Tuple> getPlacingBaselayerList(GetPlacingInfoReq req) {
+		List<Tuple> list=new ArrayList<>();
+		try {  
+			//GET_PLACING_BASELAYER_LIST  //left join  
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			Root<TtrnRiPlacement> p = query.from(TtrnRiPlacement.class);
+			
+			//reinsurerName
+			Subquery<String> reInsurerName = query.subquery(String.class); 
+			Root<PersonalInfo> pi = reInsurerName.from(PersonalInfo.class);
+			Expression<String> firstName1 = cb.concat(pi.get("firstName"), " ");
+			reInsurerName.select(cb.concat(firstName1, pi.get("lastName")));
+			//maxAmend
+			Subquery<Long> maxAmend = query.subquery(Long.class); 
+			Root<PersonalInfo> pis = maxAmend.from(PersonalInfo.class);
+			maxAmend.select(cb.max(pis.get("amendId")));
+			Predicate e1 = cb.equal( pis.get("customerId"), pi.get("customerId"));
+			maxAmend.where(e1);
+			Predicate d1 = cb.equal( pi.get("customerType"), "R");
+			Predicate d2 = cb.equal( pi.get("customerId"), p.get("reinsurerId"));
+			Predicate d3 = cb.equal( pi.get("branchCode"), p.get("branchCode"));
+			Predicate d4 = cb.equal( pi.get("amendId"), maxAmend);
+			reInsurerName.where(d1,d2,d3,d4);
+			
+			//brokerName
+			Subquery<String> brokerName = query.subquery(String.class); 
+			Root<PersonalInfo> bpi = brokerName.from(PersonalInfo.class);
+			Expression<String> e0 = cb.concat(bpi.get("firstName"), " ");
+			brokerName.select(cb.concat(e0, bpi.get("lastName")));
+			//maxAmend
+			Subquery<Long> maxAmend1 = query.subquery(Long.class); 
+			Root<PersonalInfo> pinfo = maxAmend1.from(PersonalInfo.class);
+			maxAmend1.select(cb.max(pinfo.get("amendId")));
+			Predicate g1 = cb.equal( pinfo.get("customerId"), bpi.get("customerId"));
+			maxAmend1.where(g1);
+			Predicate a1 = cb.equal( bpi.get("customerType"), "B");
+			Predicate a2 = cb.equal( bpi.get("customerId"), p.get("brokerId"));
+			Predicate a3 = cb.equal( bpi.get("branchCode"), p.get("branchCode"));
+			Predicate a4 = cb.equal( bpi.get("amendId"), maxAmend1);
+			brokerName.where(a1,a2,a3,a4);
+			
+			// Mail Status
+			Subquery<String> mailStatus = query.subquery(String.class);
+			Root<MailNotificationDetail> m = mailStatus.from(MailNotificationDetail.class);
+			mailStatus.select(m.get("mailStatus"));
+			Predicate b1 = cb.equal(m.get("proposalNo"), p.get("proposalNo"));
+			Predicate b2 = cb.equal(m.get("reinsurerId"), p.get("reinsurerId"));
+			Predicate b3 = cb.equal(m.get("brokerId"), p.get("brokerId"));
+			mailStatus.where(b1,b2,b3);				
+
+			//offerStatus
+			Subquery<Integer> offerStatus = query.subquery(Integer.class); 
+			Root<TtrnRiPlacement> pm = offerStatus.from(TtrnRiPlacement.class);
+			offerStatus.select(cb.count(pm).as(Integer.class));
+			Predicate i1 = cb.equal(pm.get("proposalNo"), p.get("proposalNo"));
+			Predicate i2 = cb.equal(pm.get("reinsurerId"), p.get("reinsurerId"));
+			Predicate i3 = cb.equal(pm.get("brokerId"), p.get("brokerId"));
+			Predicate i4 = cb.equal(pm.get("status"), "O");
+			offerStatus.where(i1,i2,i3,i4);
+			
+			query.multiselect( 
+					 p.get("sno").alias("SNO"), 
+					 p.get("bouquetNo").alias("BOUQUET_NO"),
+					 p.get("reinsurerId").alias("REINSURER_ID"),
+					 p.get("proposalNo").alias("PROPOSAL_NO"),
+					 p.get("brokerId").alias("BROKER_ID"),
+					 reInsurerName.alias("REINSURER_NAME"),
+					 brokerName.alias("BROKER_NAME"),
+					 p.get("shareOffered").alias("SHARE_OFFERED"), 
+					 cb.coalesce(mailStatus, "Pending").alias("MAIL_STATUS"), 
+					 cb.selectCase().when(cb.greaterThan(offerStatus, 0), "N").otherwise("Y").alias("OFFER_STATUS")
+					 ).distinct(true);
+		
+			// AmendId
+			Subquery<Long> amendId = query.subquery(Long.class);
+			Root<TtrnRiPlacement> ocpm1 = amendId.from(TtrnRiPlacement.class);
+			amendId.select( cb.max(ocpm1.get("placementAmendId")));
+			Predicate j1 = cb.equal(ocpm1.get("proposalNo"), p.get("proposalNo"));
+			Predicate j2 = cb.equal(ocpm1.get("reinsurerId"), p.get("reinsurerId"));
+			Predicate j3 = cb.equal(ocpm1.get("brokerId"), p.get("brokerId"));
+			Predicate j4 = cb.equal(ocpm1.get("branchCode"), p.get("branchCode"));
+			amendId.where(j1,j2,j3,j4);
+					
+			List<Predicate> predicates = new ArrayList<Predicate>();
+			predicates.add(cb.equal(p.get("branchCode"), req.getBranchCode()));
+			predicates.add(cb.equal(p.get("baseProposalNo"), req.getBaseProposalNo()));
+			predicates.add(cb.equal(p.get("placementAmendId"), amendId));
+	
+			if(StringUtils.isNotBlank(req.getSearchType())) {
+				predicates.add(cb.equal(p.get("reinsurerId"), req.getSearchReinsurerId()));
+				predicates.add(cb.equal(p.get("brokerId"), req.getSearchBrokerId()));
+				predicates.add(cb.equal(p.get("status"), req.getSearchStatus()));
+			}
+			
+			List<Order> orderList = new ArrayList<Order>();
+			orderList.add(cb.asc(p.get("sno")));
+				
+			query.where(predicates.toArray(new Predicate[0])).orderBy(orderList);
+
+			TypedQuery<Tuple> result = em.createQuery(query);
+			list = result.getResultList();
+			
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return list;
+	}
+
+	@Override
+	public List<Tuple> getPlacingList(GetPlacingInfoReq req, String prop) {
+		List<Tuple> list=new ArrayList<>();
+		try {  
+			//GET_PLACING_LIST //left join  
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			Root<TtrnRiPlacement> p = query.from(TtrnRiPlacement.class);
+			
+			//reinsurerName
+			Subquery<String> reInsurerName = query.subquery(String.class); 
+			Root<PersonalInfo> pi = reInsurerName.from(PersonalInfo.class);
+			Expression<String> firstName1 = cb.concat(pi.get("firstName"), " ");
+			reInsurerName.select(cb.concat(firstName1, pi.get("lastName")));
+			//maxAmend
+			Subquery<Long> maxAmend = query.subquery(Long.class); 
+			Root<PersonalInfo> pis = maxAmend.from(PersonalInfo.class);
+			maxAmend.select(cb.max(pis.get("amendId")));
+			Predicate e1 = cb.equal( pis.get("customerId"), pi.get("customerId"));
+			maxAmend.where(e1);
+			Predicate d1 = cb.equal( pi.get("customerType"), "R");
+			Predicate d2 = cb.equal( pi.get("customerId"), p.get("reinsurerId"));
+			Predicate d3 = cb.equal( pi.get("branchCode"), p.get("branchCode"));
+			Predicate d4 = cb.equal( pi.get("amendId"), maxAmend);
+			reInsurerName.where(d1,d2,d3,d4);
+			
+			//brokerName
+			Subquery<String> brokerName = query.subquery(String.class); 
+			Root<PersonalInfo> bpi = brokerName.from(PersonalInfo.class);
+			Expression<String> e0 = cb.concat(bpi.get("firstName"), " ");
+			brokerName.select(cb.concat(e0, bpi.get("lastName")));
+			//maxAmend
+			Subquery<Long> maxAmend1 = query.subquery(Long.class); 
+			Root<PersonalInfo> pinfo = maxAmend1.from(PersonalInfo.class);
+			maxAmend1.select(cb.max(pinfo.get("amendId")));
+			Predicate g1 = cb.equal( pinfo.get("customerId"), bpi.get("customerId"));
+			maxAmend1.where(g1);
+			Predicate a1 = cb.equal( bpi.get("customerType"), "B");
+			Predicate a2 = cb.equal( bpi.get("customerId"), p.get("brokerId"));
+			Predicate a3 = cb.equal( bpi.get("branchCode"), p.get("branchCode"));
+			Predicate a4 = cb.equal( bpi.get("amendId"), maxAmend1);
+			brokerName.where(a1,a2,a3,a4);
+			
+			// Mail Status
+			Subquery<String> mailStatus = query.subquery(String.class);
+			Root<MailNotificationDetail> m = mailStatus.from(MailNotificationDetail.class);
+			mailStatus.select(m.get("mailStatus"));
+			Predicate b1 = cb.equal(m.get("proposalNo"), p.get("proposalNo"));
+			Predicate b2 = cb.equal(m.get("reinsurerId"), p.get("reinsurerId"));
+			Predicate b3 = cb.equal(m.get("brokerId"), p.get("brokerId"));
+			mailStatus.where(b1,b2,b3);				
+
+			//offerStatus
+			Subquery<Integer> offerStatus = query.subquery(Integer.class); 
+			Root<TtrnRiPlacement> pm = offerStatus.from(TtrnRiPlacement.class);
+			offerStatus.select(cb.count(pm).as(Integer.class));
+			Predicate i1 = cb.equal(pm.get("proposalNo"), p.get("proposalNo"));
+			Predicate i2 = cb.equal(pm.get("reinsurerId"), p.get("reinsurerId"));
+			Predicate i3 = cb.equal(pm.get("brokerId"), p.get("brokerId"));
+			Predicate i4 = cb.equal(pm.get("status"), "O");
+			offerStatus.where(i1,i2,i3,i4);
+			
+			query.multiselect( 
+					 p.get("sno").alias("SNO"), 
+					 p.get("bouquetNo").alias("BOUQUET_NO"),
+					 p.get("reinsurerId").alias("REINSURER_ID"),
+					 p.get("proposalNo").alias("PROPOSAL_NO"),
+					 p.get("brokerId").alias("BROKER_ID"),
+					 reInsurerName.alias("REINSURER_NAME"),
+					 brokerName.alias("BROKER_NAME"),
+					 p.get("shareOffered").alias("SHARE_OFFERED"), 
+					 cb.coalesce(mailStatus, "Pending").alias("MAIL_STATUS"), 
+					 cb.selectCase().when(cb.greaterThan(offerStatus, 0), "N").otherwise("Y").alias("OFFER_STATUS")
+					 ).distinct(true);
+		
+			// AmendId
+			Subquery<Long> amendId = query.subquery(Long.class);
+			Root<TtrnRiPlacement> ocpm1 = amendId.from(TtrnRiPlacement.class);
+			amendId.select( cb.max(ocpm1.get("placementAmendId")));
+			Predicate j1 = cb.equal(ocpm1.get("proposalNo"), p.get("proposalNo"));
+			Predicate j2 = cb.equal(ocpm1.get("reinsurerId"), p.get("reinsurerId"));
+			Predicate j3 = cb.equal(ocpm1.get("brokerId"), p.get("brokerId"));
+			Predicate j4 = cb.equal(ocpm1.get("branchCode"), p.get("branchCode"));
+			amendId.where(j1,j2,j3,j4);
+					
+			List<Predicate> predicates = new ArrayList<Predicate>();
+			predicates.add(cb.equal(p.get("branchCode"), req.getBranchCode()));
+			predicates.add(cb.equal(p.get("proposalNo"), prop));
+			predicates.add(cb.equal(p.get("placementAmendId"), amendId));
+	
+			if(StringUtils.isNotBlank(req.getSearchType())) {
+				predicates.add(cb.equal(p.get("reinsurerId"), req.getSearchReinsurerId()));
+				predicates.add(cb.equal(p.get("brokerId"), req.getSearchBrokerId()));
+				predicates.add(cb.equal(p.get("status"), req.getSearchStatus()));
+			}
+			
+			List<Order> orderList = new ArrayList<Order>();
+			orderList.add(cb.asc(p.get("sno")));
+				
+			query.where(predicates.toArray(new Predicate[0])).orderBy(orderList);
+
+			TypedQuery<Tuple> result = em.createQuery(query);
+			list = result.getResultList();
+			
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return list;
+	}
+
+	@Override
+	public List<Tuple> newContractPlSummary(PlacementSummaryReq bean) {
+		List<Tuple> list = new ArrayList<>(); 
+		try {//need to check query single row
+			//NEW_CONTRACT_PL_SUMMARY
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			
+			Root<TtrnRiskDetails> trd = query.from(TtrnRiskDetails.class);
+			Root<PositionMaster> pm = query.from(PositionMaster.class);
+			Root<TtrnRiPlacement> trp = query.from(TtrnRiPlacement.class);
+			Root<TtrnRiPlacementStatus> trps = query.from(TtrnRiPlacementStatus.class);
+			Root<TtrnRiskProposal> tr = query.from(TtrnRiskProposal.class);
+		
+			//reinsurerName
+			Subquery<String> reinsurerName = query.subquery(String.class); 
+			Root<PersonalInfo> pi = reinsurerName.from(PersonalInfo.class);
+			Expression<String> e0 = cb.concat(pi.get("firstName"), " ");
+			Expression<String> e1 = cb.concat(e0, pi.get("lastName"));
+			reinsurerName.select(e1);
+			Subquery<Long> amen = query.subquery(Long.class); 
+			Root<PersonalInfo> pis = amen.from(PersonalInfo.class);
+			amen.select(cb.max(pis.get("amendId")));
+			Predicate q1 = cb.equal( pi.get("customerId"), pis.get("customerId"));
+			amen.where(q1);
+			Predicate a1 = cb.equal( pi.get("customerType"), "R");
+			Predicate a2 = cb.equal( pi.get("customerId"), trp.get("reinsurerId"));
+			Predicate a3 = cb.equal( pi.get("branchCode"), trp.get("branchCode"));
+			Predicate a4 = cb.equal( pi.get("amendId"), amen);
+			reinsurerName.where(a1,a2,a3,a4);
+			
+			//brokerName
+			Subquery<String> brokerName = query.subquery(String.class); 
+			Root<PersonalInfo> pib = brokerName.from(PersonalInfo.class);
+			Expression<String> e2 = cb.concat(pib.get("firstName"), " ");
+			Expression<String> e3 = cb.concat(e2, pib.get("lastName"));
+			brokerName.select(e3);
+			Subquery<Long> amenb = query.subquery(Long.class); 
+			Root<PersonalInfo> pibs = amenb.from(PersonalInfo.class);
+			amenb.select(cb.max(pibs.get("amendId")));
+			Predicate s1 = cb.equal( pibs.get("customerId"), pib.get("customerId"));
+			amenb.where(s1);
+			Predicate d1 = cb.equal( pib.get("customerType"), "B");
+			Predicate d2 = cb.equal( pib.get("customerId"), trp.get("brokerId"));
+			Predicate d3 = cb.equal( pib.get("branchCode"), trp.get("branchCode"));
+			Predicate d4 = cb.equal( pib.get("amendId"), amenb);
+			brokerName.where(d1,d2,d3,d4);
+			
+			//shortName
+      		Subquery<String> shortName = query.subquery(String.class); 
+      		Root<CurrencyMaster> cm = shortName.from(CurrencyMaster.class);
+      		shortName.select(cm.get("shortName"));
+      		Subquery<Long> amendA = query.subquery(Long.class); 
+      		Root<CurrencyMaster> m = amendA.from(CurrencyMaster.class);
+      		amendA.select(cb.max(m.get("amendId")));
+      		Predicate b1 = cb.equal( cm.get("currencyId"), m.get("currencyId"));
+      		Predicate b2 = cb.equal( cm.get("branchCode"), m.get("branchCode"));
+      		amendA.where(b1,b2);
+      		Predicate x1 = cb.equal(trd.get("rskOriginalCurr"), cm.get("currencyId"));
+      		Predicate x2 = cb.equal( pm.get("branchCode"), cm.get("branchCode"));
+      		Predicate x3 =cm.get("amendId").in(amendA==null?null:amendA);
+      		shortName.where(x3,x1,x2);
+			
+			
+			query.multiselect( //Math.round
+							pm.get("offerNo").alias("OFFER_NO"),
+							cb.coalesce(pm.get("baseLayer"), pm.get("proposalNo")).alias("BASE_PROPOSAL"),		
+							pm.get("proposalNo").alias("PROPOSAL_NO"),
+							trd.get("rskTreatyid").alias("TREATY_NAME"),
+							cb.selectCase().when(cb.equal(pm.get("productId"), "2"), pm.get("sectionNo")).otherwise(pm.get("layerNo")).alias("LAYER_SECTION"),
+							trp.get("sno").alias("SNO"),
+							reinsurerName.alias("REINSURER_NAME"),
+							brokerName.alias("BROKER_NAME"),
+							shortName.alias("CURRENCY"),
+							cb.selectCase().when(cb.equal(pm.get("productId"), "2"), tr.get("rskEpiEstOc")).otherwise(cb.selectCase().when(cb.equal(pm.get("productId"), "3"), tr.get("rskSubjPremiumOc"))).alias("EPI_100_OC"),
+							cb.selectCase().when(cb.equal(pm.get("productId"), "2"), tr.get("rskEpiEstDc")).otherwise(cb.selectCase().when(cb.equal(pm.get("productId"), "3"), tr.get("rskSubjPremiumDc"))).alias("EPI_100_DC"),
+							cb.coalesce(trps.get("newStatus"), trp.get("status")).alias("PLACING_STATUS"),
+							cb.coalesce(trp.get("shareSigned"), "0").alias("SHARE_SIGNED"),
+							cb.coalesce(trp.get("brokerage"), "0").alias("BROKERAGE") //(EPI_100_DC)*(BROKERAGE/100)*(SHARE_SIGNED/100) = BROKERAGE_AMT
+							).distinct(true); 
+	
+			List<Order> orderList = new ArrayList<Order>();
+			orderList.add(cb.asc(pm.get("proposalNo")));
+			orderList.add(cb.asc(trp.get("sno")));
+			
+			//amend
+			Subquery<Long> amend = query.subquery(Long.class); 
+			Root<PositionMaster> pm1 = amend.from(PositionMaster.class);
+			amend.select(cb.max(pm1.get("amendId")));
+			Predicate r1 = cb.equal( pm.get("proposalNo"), pm1.get("proposalNo"));
+			Predicate r2 = cb.equal( pm1.get("branchCode"),  pm.get("branchCode"));
+			amend.where(r1,r2);
+			//status
+			Subquery<Long> status = query.subquery(Long.class); 
+			Root<TtrnRiPlacement> trp1 = status.from(TtrnRiPlacement.class);
+			status.select(cb.max(trp1.get("statusNo")));
+			Predicate p1 = cb.equal( trp.get("proposalNo"), trp1.get("proposalNo"));
+			Predicate p2 = cb.equal( trp1.get("branchCode"),  trp.get("branchCode"));
+			Predicate p3 = cb.equal( trp1.get("sno"),  trp.get("sno"));
+			status.where(p1,p2,p3);
+			
+			List<Predicate> predicList = new ArrayList<Predicate>();
+			predicList.add(pm.get("amendId").in(amend==null?null:amend));
+			predicList.add(cb.equal(pm.get("branchCode"), trp.get("branchCode")));
+			predicList.add(cb.equal(pm.get("proposalNo"), trp.get("proposalNo")));
+			predicList.add(trp.get("statusNo").in(status==null?null:status));
+			predicList.add(cb.equal(pm.get("proposalNo"), trps.get("proposalNo")));
+			predicList.add(cb.equal( trps.get("sno"),  trp.get("sno")));
+			predicList.add(cb.equal( trps.get("statusNo"),  trp.get("statusNo")));
+			predicList.add(cb.equal(pm.get("branchCode"), trd.get("branchCode")));
+			predicList.add(cb.equal(pm.get("proposalNo"), trd.get("rskProposalNumber")));
+			predicList.add(cb.equal(pm.get("amendId"), trd.get("rskEndorsementNo")));
+			predicList.add(cb.equal(pm.get("branchCode"), tr.get("branchCode")));
+			predicList.add(cb.equal(pm.get("proposalNo"), tr.get("rskProposalNumber")));
+			predicList.add(cb.equal(pm.get("amendId"), tr.get("rskEndorsementNo")));
+			predicList.add(cb.equal(pm.get("branchCode"), bean.getBranchCode()));
+			predicList.add(cb.equal(pm.get("proposalNo"), bean.getProposalNo()));
+			
+			//getCompanyNameSearch
+			Subquery<String> company = query.subquery(String.class); 
+			Root<PersonalInfo> pic = company.from(PersonalInfo.class);
+			Expression<String> e4 = cb.concat(pic.get("firstName"), " ");
+			Expression<String> e5 = cb.concat(e4, pic.get("lastName"));
+			company.select(e5);
+			Subquery<Long> amenc = query.subquery(Long.class); 
+			Root<PersonalInfo> pic1 = amenc.from(PersonalInfo.class);
+			amenc.select(cb.max(pic1.get("amendId")));
+			Predicate j1 = cb.equal( pic.get("customerId"), pic1.get("customerId"));
+			amenc.where(j1);
+			Predicate i1 = cb.equal( pic.get("customerType"), "R");
+			Predicate i2 = cb.equal( pic.get("customerId"), trp.get("reinsurerId"));
+			Predicate i3 = cb.equal( pic.get("branchCode"), trp.get("branchCode"));
+			Predicate i4 = cb.equal( pic.get("amendId"), amenc);
+			company.where(i1,i2,i3,i4);
+			
+			//getBrokerNameSearch
+			Subquery<String> broker = query.subquery(String.class); 
+			Root<PersonalInfo> pibn = broker.from(PersonalInfo.class);
+			Expression<String> e6 = cb.concat(pibn.get("firstName"), " ");
+			Expression<String> e7 = cb.concat(e6, pibn.get("lastName"));
+			broker.select(e7);
+			Subquery<Long> amenbn = query.subquery(Long.class); 
+			Root<PersonalInfo> pibns = amenbn.from(PersonalInfo.class);
+			amenbn.select(cb.max(pibns.get("amendId")));
+			Predicate m1 = cb.equal( pibns.get("customerId"), pibn.get("customerId"));
+			amenbn.where(m1);
+			Predicate l1 = cb.equal( pibn.get("customerType"), "B");
+			Predicate l2 = cb.equal( pibn.get("customerId"), trp.get("brokerId"));
+			Predicate l3 = cb.equal( pibn.get("branchCode"), trp.get("branchCode"));
+			Predicate l4 = cb.equal( pibn.get("amendId"), amenbn);
+			broker.where(l1,l2,l3,l4);
+			
+			if(StringUtils.isNotBlank(bean.getSearchType()) && null !=bean.getSearchType()){
+            	
+        		if(StringUtils.isNotBlank(bean.getCompanyNameSearch())){
+        			predicList.add(cb.like(cb.upper(company), "%" + bean.getCompanyNameSearch() + "%".toUpperCase()));
+            	}
+        		if(StringUtils.isNotBlank(bean.getBrokerNameSearch())){
+        			predicList.add(cb.like(cb.upper(broker), "%" + bean.getBrokerNameSearch() + "%".toUpperCase()));
+            	}
+            	if(StringUtils.isNotBlank(bean.getUwYearSearch())){
+            		predicList.add(cb.like(cb.upper(pm.get("uwYear")), "%" + bean.getUwYearSearch() + "%".toUpperCase()));
+            	}
+            	if(StringUtils.isNotBlank(bean.getUwYearToSearch())){
+            		predicList.add(cb.like(cb.upper(pm.get("uwYearTo")), "%" + bean.getUwYearToSearch() + "%".toUpperCase()));
+            	}
+            	if(StringUtils.isNotBlank(bean.getIncepDateSearch())){//doubt
+            		//AND TO_CHAR(INCEPTION_DATE,'DD/MM/YYYY') LIKE ?
+            	
+            	//	Expression<String> exp = sdf.format(pm.get("inceptionDate"));
+            		predicList.add(cb.like(pm.get("inceptionDate"), "%" + bean.getIncepDateSearch() + "%"));
+            	}
+            	if(StringUtils.isNotBlank(bean.getExpDateSearch())){//doubt
+            		//AND TO_CHAR(EXPIRY_DATE,'DD/MM/YYYY') LIKE ?
+            		predicList.add(cb.like(pm.get("expiryDate"), "%" + bean.getExpDateSearch() + "%"));
+            	}
+            }
+			
+			query.where(predicList.toArray(new Predicate[0])).orderBy(orderList);
+	
+			TypedQuery<Tuple> result = em.createQuery(query);
+			list = result.getResultList();
+			
+		}catch(Exception e) {
+				e.printStackTrace();
+			}
+			return list;
+	}
+
+	@Override
+	public double sumOfShareSigned(String proposalNo) {
+		double sum = 0;
+		try{
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			Root<TtrnRiPlacement> pm = query.from(TtrnRiPlacement.class);
+
+			query.multiselect(cb.sum(pm.get("shareSigned")).alias("shareSigned")); 
+
+			Subquery<Long> amendId = query.subquery(Long.class); 
+			Root<TtrnRiPlacement> pms = amendId.from(TtrnRiPlacement.class);
+			amendId.select(cb.max(pms.get("amendId")));
+			Predicate a1 = cb.equal( pm.get("statusNo"), pms.get("statusNo"));
+			amendId.where(a1);
+
+			Predicate n1 = cb.equal(pm.get("proposalNo"), proposalNo);
+			Predicate n2 = cb.equal(pm.get("status"), "CSL");
+			Predicate n3 = pm.get("amendId").in(amendId==null?null:amendId);
+			query.where(n1,n2,n3).groupBy(pm.get("baseProposalNo"),pm.get("proposalNo"));
+			
+			TypedQuery<Tuple> res = em.createQuery(query);
+			List<Tuple> list = res.getResultList();
+			
+			if(list.size()>0) {
+				sum = list.get(0).get("shareSigned")==null?0l :Double.parseDouble(list.get(0).get("shareSigned").toString());
+			}
+		
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return sum;
+		}
+
 }

@@ -9,8 +9,11 @@ import com.maan.insurance.model.req.placement.GetExistingAttachListReq;
 import com.maan.insurance.model.req.placement.GetExistingReinsurerListReq;
 import com.maan.insurance.model.req.placement.GetMailTemplateReq;
 import com.maan.insurance.model.req.placement.GetMailToListReq;
+import com.maan.insurance.model.req.placement.GetPlacementInfoListReq;
 import com.maan.insurance.model.req.placement.GetPlacementViewListReq;
 import com.maan.insurance.model.req.placement.GetPlacementViewReq;
+import com.maan.insurance.model.req.placement.GetPlacingInfoReq;
+import com.maan.insurance.model.req.placement.PlacementSummaryReq;
 import com.maan.insurance.model.req.placement.SavePlacingReq;
 import com.maan.insurance.model.req.placement.SendMailReq;
 import com.maan.insurance.model.req.placement.UpdatePlacementListReq;
@@ -61,6 +64,26 @@ public interface PlacementCustomRepository {
 	List<Tuple> MailproposalInfo(GetMailTemplateReq bean);
 
 	List<Tuple> getMailAttachList(SendMailReq bean);
+
+	List<Tuple> getReinsurerInfoNotin(String branchCode, String eproposalNo);
+
+	List<Tuple> getReinsurerInfoBouquetNotin(String branchCode, String bouquetNo);
+
+	List<Tuple> getPlacementBouquetList(GetPlacementInfoListReq req);
+
+	List<Tuple> getPlacementBaseList(GetPlacementInfoListReq bean);
+
+	List<Tuple> getPlacementList(GetPlacementInfoListReq bean, String prop);
+
+	List<Tuple> getPlacingBouquetList(GetPlacingInfoReq bean);
+
+	List<Tuple> getPlacingBaselayerList(GetPlacingInfoReq bean);
+
+	List<Tuple> getPlacingList(GetPlacingInfoReq bean, String prop);
+
+	List<Tuple> newContractPlSummary(PlacementSummaryReq bean);
+
+	double sumOfShareSigned(String proposalNo);
 
 	
 }
