@@ -123,7 +123,7 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 				cb.<Double>selectCase().when(cb.isNull(rRoot.<Double>get("allocatedTillDate")), 0.0)
 						.otherwise(rRoot.<Double>get("allocatedTillDate")));
 
-		Expression<Double> exp2 = cb.diff(exp,wht);
+		Expression<Double> exp2 = cb.diff(exp,cb.coalesce(wht, cb.literal("0.0").as(Double.class)));
 		
 		Subquery<String> sq = cq.subquery(String.class);
 		Root<PersonalInfo> subRoot = sq.from(PersonalInfo.class);
@@ -147,7 +147,7 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 				cb.literal("P").alias("BUSINESS_TYPE"),
 				sq.alias("CEDING_COMPANY_NAME"), 
 				pRoot.get("deptId").as(String.class),
-				pRoot.get("proposalNo").as(String.class),exp.alias("AMOUNT"),cb.nullLiteral(Double.class).alias("premiumWhtOc")).distinct(true);
+				pRoot.get("proposalNo").as(String.class),exp.alias("AMOUNT"),wht.alias("premiumWhtOc")).distinct(true);
 
 		Subquery<Integer> pSq = cq.subquery(Integer.class);
 		Root<PositionMaster> pSubRoot = pSq.from(PositionMaster.class);

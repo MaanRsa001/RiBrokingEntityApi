@@ -133,15 +133,15 @@ public class BillingServiceImple implements  BillingService {
 				res.setProductName(tempMap.get(3)==null?"":tempMap.get(3).toString());
 				res.setTransactionNo(tempMap.get(0)==null?"":tempMap.get(0).toString());
 				res.setInceptiobDate(tempMap.get(4)==null?"":new SimpleDateFormat("dd/MM/yyyy").format(tempMap.get(4)).toString());
-				res.setNetDue(tempMap.get(5)==null?"":tempMap.get(5).toString());
-				res.setPayAmount(tempMap.get(6)==null?"":tempMap.get(6).toString());
+				res.setNetDue(tempMap.get(5)==null?"":fm.formatter(tempMap.get(5).toString()));
+				res.setPayAmount(tempMap.get(6)==null?"":fm.formatter(tempMap.get(6).toString()));
 				res.setAccPremium(tempMap.get(7)==null?"":tempMap.get(7).toString());
 				res.setAccClaim(tempMap.get(8)==null?"":tempMap.get(8).toString());
 				res.setCheckYN(tempMap.get(9)==null?"":tempMap.get(9).toString());
 				res.setCheckPC(tempMap.get(10)==null?"":tempMap.get(10).toString());
 				res.setCedingCompanyName(tempMap.get(11)==null?"":tempMap.get(11).toString());
-				res.setAmount(tempMap.get(14)==null?"":tempMap.get(14).toString());
-				res.setWithholdingTax(tempMap.get(15)==null?"0":tempMap.get(15).toString());
+				res.setAmount(tempMap.get(14)==null?"":fm.formatter(tempMap.get(14).toString()));
+				res.setWithholdingTax(tempMap.get(15)==null?"0":fm.formatter(tempMap.get(15).toString()));
 //				res.setAllocType(req.getAllocType());
 //				if(!CollectionUtils.isEmpty(req.getTransContractListReq())) {
 //					List<GetTransContractListReq> filterTrack = req.getTransContractListReq().stream().filter( o -> res.getTransactionNo().equalsIgnoreCase(o.getTransactionNo()) ).collect(Collectors.toList());
@@ -478,15 +478,15 @@ public class BillingServiceImple implements  BillingService {
 				res.setProductName(tempMap.get(3)==null?"":tempMap.get(3).toString());
 				res.setTransactionNo(tempMap.get(0)==null?"":tempMap.get(0).toString());
 				res.setInceptiobDate(tempMap.get(4)==null?"":new SimpleDateFormat("dd/MM/yyyy").format(tempMap.get(4)).toString());
-				res.setNetDue(tempMap.get(5)==null?"":tempMap.get(5).toString());
-				res.setPayAmount(tempMap.get(6)==null?"":tempMap.get(6).toString());
+				res.setNetDue(tempMap.get(5)==null?"":fm.formatter(tempMap.get(5).toString()));
+				res.setPayAmount(tempMap.get(6)==null?"":fm.formatter(tempMap.get(6).toString()));
 				res.setAccPremium(tempMap.get(7)==null?"":tempMap.get(7).toString());
 				res.setAccClaim(tempMap.get(8)==null?"":tempMap.get(8).toString());
 				res.setCheckYN(tempMap.get(9)==null?"":tempMap.get(9).toString());
 				res.setCheckPC(tempMap.get(10)==null?"":tempMap.get(10).toString());
 				res.setCedingCompanyName(tempMap.get(11)==null?"":tempMap.get(11).toString());
-				res.setAmount(tempMap.get(14)==null?"":tempMap.get(14).toString());
-				res.setWithholdingTax(tempMap.get(15)==null?"0":tempMap.get(15).toString());
+				res.setAmount(tempMap.get(14)==null?"":fm.formatter(tempMap.get(14).toString()));
+				res.setWithholdingTax(tempMap.get(15)==null?"0":fm.formatter(tempMap.get(15).toString()));
 //				res.setAllocType(req.getAllocType());
 //				if(!CollectionUtils.isEmpty(req.getTransContractListReq())) {
 //					List<GetTransContractListReq> filterTrack = req.getTransContractListReq().stream().filter( o -> res.getTransactionNo().equalsIgnoreCase(o.getTransactionNo()) ).collect(Collectors.toList());

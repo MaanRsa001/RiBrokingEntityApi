@@ -34,6 +34,7 @@ import com.maan.insurance.model.entity.TmasProductMaster;
 import com.maan.insurance.model.entity.TtrnRiPlacement;
 import com.maan.insurance.model.entity.TtrnRiPlacementStatus;
 import com.maan.insurance.model.entity.TtrnRiskDetails;
+import com.maan.insurance.model.entity.TtrnRiskProposal;
 import com.maan.insurance.model.req.placement.EditPlacingDetailsReq;
 import com.maan.insurance.model.req.placement.GetExistingAttachListReq;
 import com.maan.insurance.model.req.placement.GetExistingReinsurerListReq;
@@ -500,9 +501,18 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
 			
 			Root<TtrnRiPlacement> pm = query.from(TtrnRiPlacement.class);
-			
+			Root<TtrnRiskProposal> pr = query.from(TtrnRiskProposal.class);
+			Root<TtrnRiskDetails> de = query.from(TtrnRiskDetails.class);
 			//cedingCompanyName
+			Subquery<Long> endPr = query.subquery(Long.class); 
+			Root<TtrnRiskProposal> b = endPr.from(TtrnRiskProposal.class);
+			endPr.select(cb.max(b.get("rskEndorsementNo")));
+			endPr.where(cb.equal( b.get("rskProposalNumber"),pr.get("rskProposalNumber")));
 			
+			Subquery<Long> endDe = query.subquery(Long.class); 
+			Root<TtrnRiskDetails> des = endDe.from(TtrnRiskDetails.class);
+			endDe.select(cb.max(des.get("rskEndorsementNo")));
+			endDe.where(cb.equal( des.get("rskProposalNumber"),de.get("rskProposalNumber")));
 			
 			Subquery<String> cedingCompanyName = query.subquery(String.class); 
 			Root<PersonalInfo> personal = cedingCompanyName.from(PersonalInfo.class);
@@ -581,7 +591,7 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 					pm.get("shareProposedSigned").alias("SHARE_PROPOSED_SIGNED"),mailStatus.alias("MAIL_STATUS"),
 					pm.get("placementAmendId").alias("PLACEMENT_AMEND_ID"),
 					pm.get("contractNo").alias("CONTRACT_NO"),pm.get("layerNo").alias("LAYER_NO"),
-					pm.get("sectionNo").alias("SECTION_NO")); 
+					pm.get("sectionNo").alias("SECTION_NO"),pr.get("rskEpiEstOc").alias("EPI_AMOUNT"),de.get("rskExchangeRate").alias("EXCAHNGE_RATE")); 
 
 			// MAXAmend ID
 			Subquery<Long> amend = query.subquery(Long.class); 
@@ -598,7 +608,11 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 			Predicate n3 = cb.equal(pm.get("reinsurerId"), reinsurerId);
 			Predicate n4 = cb.equal(pm.get("brokerId"), brokerId);
 			Predicate n5 = cb.equal(pm.get("placementAmendId"), amend);
-			query.where(n1,n2,n3,n4,n5);
+			Predicate n6 = cb.equal(pr.get("rskProposalNumber"), pm.get("proposalNo"));
+			Predicate n7 = cb.equal(pr.get("rskEndorsementNo"), endPr);
+			Predicate n8 = cb.equal(de.get("rskProposalNumber"), pr.get("rskProposalNumber"));
+			Predicate n9 = cb.equal(de.get("rskEndorsementNo"), endDe);
+			query.where(n1,n2,n3,n4,n5,n6,n7,n8,n9);
 			
 			TypedQuery<Tuple> res = em.createQuery(query);
 			 list = res.getResultList();

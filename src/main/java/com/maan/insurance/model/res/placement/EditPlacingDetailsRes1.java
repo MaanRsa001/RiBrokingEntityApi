@@ -60,4 +60,6 @@ public class EditPlacingDetailsRes1 {
 	private String emailStatus; 
 	@JsonProperty("PsignedLine")
 	private String psignedLine ;
+	@JsonProperty("Epi")
+	private String epi ;
 }

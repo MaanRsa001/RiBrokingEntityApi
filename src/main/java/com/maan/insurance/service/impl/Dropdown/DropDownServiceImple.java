@@ -5136,7 +5136,8 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
       			for(SubStatusMaster data: list) {
       				CommonResDropDown res = new CommonResDropDown();
       				res.setCode(data.getSubStatusCode()==null?"":data.getSubStatusCode().toString());
-      				res.setCodeDescription(data.getSubStatusName()==null?"": data.getSubStatusName().toString());;
+      				res.setCodeDescription(data.getSubStatusName()==null?"": data.getSubStatusName().toString());
+      				res.setCodeValue(data.getSubStatusDescripton()==null?"": data.getSubStatusDescripton().toString());
       				resList.add(res);
       			}
       		}

@@ -101,6 +101,8 @@ public List<ErrorCheck> insertBillingInfoVali(InsertBillingInfoReq req) {
 			list.add(new ErrorCheck("Please Select  Atleast one Tranasction", "TransContractListReq", "12"));
 		}
 	}
+	req.setUtilizedTillDate(req.getUtilizedTillDate().replaceAll(",", ""));
+	req.setRoundingAmount(req.getRoundingAmount().replaceAll(",", ""));
 	return list;
 }
 

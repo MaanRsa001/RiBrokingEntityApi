@@ -12,7 +12,8 @@ public class CommonResDropDown
 	@JsonProperty("CodeDescription")
 	private String codeDescription;
 
-
+	@JsonProperty("CodeValue")
+	private String codeValue;
 
 
 }

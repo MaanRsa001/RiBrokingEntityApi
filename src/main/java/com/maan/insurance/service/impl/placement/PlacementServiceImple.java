@@ -665,8 +665,13 @@ public class PlacementServiceImple implements PlacementService {
 					res.setSignedLine(map.get("SHARE_SIGNED")==null?"":fm.formattereight(map.get("SHARE_SIGNED").toString()));
 					res.setProposedSL(map.get("SHARE_PROPOSED_SIGNED")==null?"":fm.formattereight(map.get("SHARE_PROPOSED_SIGNED").toString()));
 					res.setReoffer(map.get("SHARE_OFFERED")==null?"":fm.formattereight(map.get("SHARE_OFFERED").toString()));
-					// doubt not in table TQR_BROKERAGE_AMT
-					//	res.setTqrBrokerageAmt(map.get("TQR_BROKERAGE_AMT")==null?"":dropDownImple.formattereight(map.get("TQR_BROKERAGE_AMT").toString()));
+					Double epi=map.get("EPI_AMOUNT")==null?0d:Double.parseDouble(map.get("EPI_AMOUNT").toString());
+					Double exRate=map.get("EXCAHNGE_RATE")==null?0d:Double.parseDouble(map.get("EXCAHNGE_RATE").toString());
+					res.setEpi(fm.formatter(String.valueOf(epi/exRate)));
+					if("CSL".equalsIgnoreCase(bean.getNewStatus())) {
+						res.setTqrBrokerageAmt(fm.formatter(String.valueOf((epi/exRate)*Double.parseDouble(res.getSignedLine())/100*Double.parseDouble(res.getBrokerage())/100)));
+					}
+					
 					res.setSignedLineValidity(map.get("SHARE_LINE_VALIDITY")==null?"":formatdate(map.get("SHARE_LINE_VALIDITY")));
 					res.setSignedLineRemarks(map.get("SHARE_LINE_REMARKS")==null?"":map.get("SHARE_LINE_REMARKS").toString());
 					res.setEmailStatus(map.get("MAIL_STATUS")==null?"":map.get("MAIL_STATUS").toString());
@@ -690,6 +695,7 @@ public class PlacementServiceImple implements PlacementService {
 			}else {
 				res1.setCurrentStatus(StringUtils.isBlank(bean.getSearchStatus())?"O":bean.getSearchStatus());
 			}
+			res1.setStatusUpdateDate(formatdate(new Date()));
 			response.setCommonResponse(res1);	
 			response.setMessage("Success");
 			response.setIsError(false);
