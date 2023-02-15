@@ -39,4 +39,7 @@ public class GetReversalInfoReq {
 	
 	@JsonProperty("BranchCode")
 	private String BranchCode;
+	
+	@JsonProperty("TransactionDate")
+	private String transactionDate;
 }

@@ -46,7 +46,7 @@ import com.maan.insurance.model.res.retro.CommonSaveRes;
 
 public interface TreasuryService {
 
-	CommonResponse savepaymentReciept(PaymentRecieptReq req);
+	CommonSaveRes savepaymentReciept(PaymentRecieptReq req);
 
 	ReverseInsertRes savereverseInsert(ReverseInsertReq req);
 

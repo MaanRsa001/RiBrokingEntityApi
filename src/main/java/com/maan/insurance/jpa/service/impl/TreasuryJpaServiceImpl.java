@@ -151,8 +151,8 @@ public class TreasuryJpaServiceImpl  implements TreasuryService  {
 	private EntityManager em;
 
 	// savepaymentReciept
-	public CommonResponse savepaymentReciept(PaymentRecieptReq req) {
-		CommonResponse res = new CommonResponse();
+	public CommonSaveRes savepaymentReciept(PaymentRecieptReq req) {
+		CommonSaveRes res = new CommonSaveRes();
 		try {
 			if (StringUtils.isBlank(req.getSerialno())) {
 				String refno = queryImpl.getSequenceNo(
@@ -163,7 +163,7 @@ public class TreasuryJpaServiceImpl  implements TreasuryService  {
 			TtrnPaymentReceipt entity = ttrnPaymentReceiptMapper.toEntity(req);
 			ttrnPaymentReceiptRepository.save(entity);
 			generationInsert(req);
-			res.setMessage(req.getSerialno());
+			res.setResponse(req.getSerialno());
 			res.setMessage("Success");
 
 		} catch (Exception e) {
@@ -1819,9 +1819,14 @@ public class TreasuryJpaServiceImpl  implements TreasuryService  {
 	public GetReversalInfoRes1 getReversalInfo(GetReversalInfoReq req) {
 		GetReversalInfoRes1 response = new GetReversalInfoRes1();
 		List<GetReversalInfoRes> finalList = new ArrayList<GetReversalInfoRes>();
-		String[] args= new String[12];
+		String[] args= null;
 		List<Map<String,Object>> list;
 			try {
+				
+				
+			if(StringUtils.isNotBlank(req.getPayRecNo()))
+			{
+				 args= new String[10];
 				args[0]=("PT".equalsIgnoreCase(req.getTransType())?"RT":"PT");
 				args[1]=req.getPaymentAmount().replaceAll(",", "");
 				if(!"VIEW".equalsIgnoreCase(req.getFlag()) && StringUtils.isEmpty(req.getCurrencyValue())){
@@ -1834,20 +1839,32 @@ public class TreasuryJpaServiceImpl  implements TreasuryService  {
 				args[4]=req.getBranchCode();
 				args[5]=req.getBranchCode();
 				args[6]=req.getBranchCode();
-				
-			if(StringUtils.isNotBlank(req.getPayRecNo()))
-			{
-				args[7]=req.getPayRecNo();
-				args[8]="R";
+				args[7]=req.getTransactionDate();
+				args[8]=req.getPayRecNo();
+				args[9]="R";
 				list = treasuryCustomRepository.getReversalInfo(args);
 				
 			}else
 			{
-				args[7]=req.getBroker();
-				args[8]=StringUtils.isBlank(req.getCedingCo() ) ?"0":req.getCedingCo();
-				args[9]=StringUtils.isBlank(req.getCedingCo() )?"0":req.getCedingCo();
+				args=new String[13];
+				args[0]=("PT".equalsIgnoreCase(req.getTransType())?"RT":"PT");
+				args[1]=req.getPaymentAmount().replaceAll(",", "");
+				if(!"VIEW".equalsIgnoreCase(req.getFlag()) && StringUtils.isEmpty(req.getCurrencyValue())){
+					args[2]=req.getCurrency();
+				}
+				else{
+				args[2]=req.getCurrencyValue();
+				}
+				args[3]=req.getBranchCode();
+				args[4]=req.getBranchCode();
+				args[5]=req.getBranchCode();
+				args[6]=req.getBranchCode();
+				args[7]=req.getTransactionDate();
+				args[8]=req.getBroker();
+				args[9]=StringUtils.isBlank(req.getCedingCo() ) ?"0":req.getCedingCo();
 				args[10]=StringUtils.isBlank(req.getCedingCo() )?"0":req.getCedingCo();
-				args[11]="Y";
+				args[11]=StringUtils.isBlank(req.getCedingCo() )?"0":req.getCedingCo();
+				args[12]="Y";
 				list = treasuryCustomRepository.getReversalInfoTreasury(args);
 			}
 		

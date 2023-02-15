@@ -136,6 +136,7 @@ import com.maan.insurance.model.res.nonproportionality.insertProportionalTreatyR
 import com.maan.insurance.model.res.xolPremium.GetClassLimitDetailsResponse;
 import com.maan.insurance.service.impl.QueryImplemention;
 import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
+import com.maan.insurance.service.impl.proportionality.ProportionalityCustomRepository;
 import com.maan.insurance.service.impl.proportionality.ProportionalityServiceImpl;
 import com.maan.insurance.service.nonproportionality.NonProportionalityService;
 import com.maan.insurance.validation.Formatters;
@@ -155,7 +156,8 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 
 	@Autowired
 	private Formatters fm;
-	
+	@Autowired
+	private ProportionalityCustomRepository proportionalityCustomRepository;
 	@Autowired
 	private NonProportionalityCustomRepository nonProportCustomRepository;
 	@Autowired
@@ -644,7 +646,10 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			response = insertRiskProposal(req,ChkSavFlg);
 			SaveSecondPageRes secRes = 	saveSecondPage(req);
 			instalMentPremium(req);
-			
+			if(StringUtils.isNotBlank(req.getRequestNumber()) && !"0".equals(req.getRequestNumber())) {
+				proportionalityCustomRepository.updateBonus(req.getRequestNumber(),req.getProposalNo());
+				proportionalityCustomRepository.updateRip(req.getRequestNumber(),req.getProposalNo());
+			}
 			response.setContractGendration(secRes.getCommonResponse().getContractGendration());
 			response.setMessage("Success");
 			response.setIsError(false);

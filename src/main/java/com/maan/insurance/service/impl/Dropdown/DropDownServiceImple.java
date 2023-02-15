@@ -196,8 +196,8 @@ public class DropDownServiceImple implements DropDownService{
 	private PositionMasterRepository positionMasterRepository;
 	@Autowired
 	private TtrnRiskDetailsRepository ttrnRiskDetailsRepository;
-	@Autowired
-	private DropDownCustomRepository dropDownCustomRepository;
+	//@Autowired
+	//private DropDownCustomRepository dropDownCustomRepository;
 	
 //	@Autowired
 //	private DropDownValidation dropDownValidation;
@@ -764,11 +764,11 @@ public class DropDownServiceImple implements DropDownService{
 			Root<PositionMaster> pms = amend.from(PositionMaster.class);
 			amend.select(cb.max(pms.get("amendId")));
 			Predicate a1 = cb.equal( pm.get("contractNo"), pms.get("contractNo"));
-			Predicate a2 = cb.equal( pm.get("getLayerNo"), pms.get("getLayerNo"));
+			Predicate a2 = cb.equal( pm.get("layerNo"), pms.get("layerNo"));
 			amend.where(a1,a2);
 
 			Predicate n1 = cb.equal(pm.get("contractNo"),req.getContractNo());
-			Predicate n2 = cb.equal(pm.get("getLayerNo"),req.getLayerNo()==null?0:req.getLayerNo());
+			Predicate n2 = cb.equal(pm.get("layerNo"),req.getLayerNo()==null?0:req.getLayerNo());
 			Predicate n3 = cb.equal(pm.get("amendId"), amend);
 			query.where(n1,n2,n3);
 			
@@ -1208,6 +1208,7 @@ public class DropDownServiceImple implements DropDownService{
 		String exRate="";
 		String startDtOfMonth="";
 		try{
+			if(StringUtils.isNotBlank(location) && StringUtils.isNotBlank(date) && StringUtils.isNotBlank(countryid) && StringUtils.isNotBlank(branchCode)) {
 			//common.select.getStartDTOfMonth
 			Date date1 = sdf.parse(date);
 			LocalDate localDate = date1.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
@@ -1253,6 +1254,7 @@ public class DropDownServiceImple implements DropDownService{
 					exRate=val.get(0)==null?"":val.get(0).toString();
 						}
 			  }
+			}
 			response.setCommonResponse(exRate);
 			response.setMessage("Success");
 			response.setIsError(false);
@@ -5052,15 +5054,15 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 	public GetBouquetExistingListRes getBouquetExistingList(String branchCode, String bouquetNo, String bouquetYN) {
 		GetBouquetExistingListRes response = new GetBouquetExistingListRes();
 		List<GetBouquetExistingListRes1> resList = new ArrayList<GetBouquetExistingListRes1>();
+		List<Map<String,Object>> list=new ArrayList<Map<String,Object>>();
 		try{
-			if(StringUtils.isNotBlank(bouquetNo) && "Y".equals(bouquetYN)) {//select RTRIM(XMLAGG(XMLELEMENT(E,TMAS_SPFC_NAME,',')).EXTRACT('//text()'),',') 
-			//GET_EXISTING_BOUQUET
-			List<Tuple> list = dropDownCustomRepository.getExistingBouquet(branchCode,bouquetNo);
+			if(StringUtils.isNotBlank(bouquetNo) && "Y".equals(bouquetYN)) {
+			list= queryImpl.selectList("GET_EXISTING_BOUQUET",new String[]{branchCode,bouquetNo});
 			if(list.size()>0) {
-				for(Tuple data: list) {
+				for(Map<String,Object> data: list) {
 					GetBouquetExistingListRes1 res = new GetBouquetExistingListRes1();
-					res.setInsDate(data.get("INS_DATE")==null?"":sdf.format(data.get("INS_DATE"))); 
-					res.setExpDate(data.get("EXP_DATE")==null?"":sdf.format(data.get("EXP_DATE"))); 
+					res.setInsDate(data.get("INS_DATE")==null?"":data.get("INS_DATE").toString()); 
+					res.setExpDate(data.get("EXP_DATE")==null?"":data.get("EXP_DATE").toString());
 					res.setCompanyName(data.get("COMPANY_NAME")==null?"":data.get("COMPANY_NAME").toString()); 
 					res.setUwYear(data.get("UW_YEAR")==null?"":data.get("UW_YEAR").toString()); 
 					res.setUwYearTo(data.get("UW_YEAR_TO")==null?"":data.get("UW_YEAR_TO").toString()); 
@@ -5510,11 +5512,11 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 	public GetBouquetExistingListRes getBaseLayerExistingList(String branchCode, String baseProposalNo) {
 		GetBouquetExistingListRes response = new GetBouquetExistingListRes();
 		List<GetBouquetExistingListRes1> resList = new ArrayList<GetBouquetExistingListRes1>();
+		List<Map<String,Object>> list=new ArrayList<Map<String,Object>>();
 		try{
-			//GET_EXISTING_BASELAYER
-			List<Tuple> list = dropDownCustomRepository.getExistingBaselayer(branchCode,baseProposalNo);
-			if(list.size()>0) { //select RTRIM(XMLAGG(XMLELEMENT(E,TMAS_SPFC_NAME,',')).EXTRACT('//text()'),','
-				for(Tuple data: list) {
+			list= queryImpl.selectList("GET_EXISTING_BASELAYER",new String[]{branchCode,baseProposalNo});
+			if(list.size()>0) {
+				for(Map<String,Object> data: list) {
 					GetBouquetExistingListRes1 res = new GetBouquetExistingListRes1();
 					res.setInsDate(data.get("INS_DATE")==null?"":data.get("INS_DATE").toString());  
 					res.setExpDate(data.get("EXP_DATE")==null?"":data.get("EXP_DATE").toString());  

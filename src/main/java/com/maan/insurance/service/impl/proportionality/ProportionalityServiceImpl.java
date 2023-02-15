@@ -608,8 +608,10 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 					} else {
 						proposalno = beanObj.getProposalNo();
 					}
-					proportionalityCustomRepository.updateBonus(beanObj.getRequestNumber(),beanObj.getProposalNo());
-					proportionalityCustomRepository.updateRip(beanObj.getRequestNumber(),beanObj.getProposalNo());
+					if(StringUtils.isNotBlank(beanObj.getRequestNumber()) && !"0".equals(beanObj.getRequestNumber())) {
+						proportionalityCustomRepository.updateBonus(beanObj.getRequestNumber(),beanObj.getProposalNo());
+						proportionalityCustomRepository.updateRip(beanObj.getRequestNumber(),beanObj.getProposalNo());
+					}
 					//this.showSecondpageEditItems(beanObj, pid, proposalno);
 				}
 			}

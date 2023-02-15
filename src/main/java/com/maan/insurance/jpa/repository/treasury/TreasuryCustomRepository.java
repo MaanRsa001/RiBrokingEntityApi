@@ -1,6 +1,7 @@
 package com.maan.insurance.jpa.repository.treasury;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +41,7 @@ public interface TreasuryCustomRepository {
 
 	public Integer getMaxAmendIdSq(Integer receiptNo, Integer receiptSlNo);
 
-	public Integer updateReversalPayment(PaymentRecieptReq req, String type);
+	public Integer updateReversalPayment(PaymentRecieptReq req, String type) throws ParseException;
 
 	public Integer updateReversalPaymentDetails(PaymentRecieptReq req, boolean isSerial);
 

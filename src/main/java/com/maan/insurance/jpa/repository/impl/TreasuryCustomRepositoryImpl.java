@@ -36,6 +36,7 @@ import com.maan.insurance.jpa.entity.treasury.TtrnAllocatedTransaction;
 import com.maan.insurance.jpa.entity.treasury.TtrnPaymentReceipt;
 import com.maan.insurance.jpa.entity.treasury.TtrnPaymentReceiptDetails;
 import com.maan.insurance.jpa.entity.treasury.TtrnRetroSoa;
+import com.maan.insurance.jpa.mapper.TtrnPaymentReceiptDetailsMapper;
 import com.maan.insurance.jpa.repository.treasury.TreasuryCustomRepository;
 import com.maan.insurance.model.entity.CurrencyMaster;
 import com.maan.insurance.model.entity.JournelFormat;
@@ -72,7 +73,8 @@ public class TreasuryCustomRepositoryImpl implements TreasuryCustomRepository {
 	EntityManager em;
 	@Autowired
 	private QueryImplemention queryImpl;
-	
+	@Autowired
+	private TtrnPaymentReceiptDetailsMapper ttrnPaymentReceiptDetailsMapper;
 	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 	// getSecondPageInfo(SecondPageInfoReq req) -- STARTS
 	@Override
@@ -228,14 +230,14 @@ public class TreasuryCustomRepositoryImpl implements TreasuryCustomRepository {
 
 	@Override
 	@Transactional
-	public Integer updateReversalPayment(PaymentRecieptReq req, String type) {
+	public Integer updateReversalPayment(PaymentRecieptReq req, String type) throws ParseException {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaUpdate<TtrnPaymentReceipt> update = cb.createCriteriaUpdate(TtrnPaymentReceipt.class);
 		Root<TtrnPaymentReceipt> root = update.from(TtrnPaymentReceipt.class);
 		update.set(root.get("status"), "R").set(root.get("revtransalType"), type)
 				.set(root.get("reversalLoginId"), req.getLoginId()).set(root.get("loginId"), req.getLoginId())
 				.set(root.get("branchCode"), req.getBranchCode())
-				.set(root.get("reversalDate"), new java.sql.Date(Calendar.getInstance().getTime().getTime()))
+				.set(root.get("reversalDate"), ttrnPaymentReceiptDetailsMapper.getTimestamp(req.getTransactionDate()))
 				.set(root.get("sysDate"), new java.util.Date(Calendar.getInstance().getTime().getTime()));
 
 		if (type.equals("RT"))
@@ -2171,7 +2173,7 @@ public class TreasuryCustomRepositoryImpl implements TreasuryCustomRepository {
 				+ " CM.SHORT_NAME CURRENCY_NAME,AB.EXCHANGE_RATE,AB.PAYMENT_RECEIPT_NO,"
 				+ " AB.PAID_AMT, Ab.CEDING_ID, AB.STATUS From  (Select A.Amend_id,A.STATUS,A.BRANCH_CODE,"
 				+ "A.EXCHANGE_RATE, A.PAYMENT_RECEIPT_NO,A.CEDING_ID,A.BROKER_ID,A.PAID_AMT,A.TRANS_TYPE,"
-				+ "A.CURRENCY_ID from TTRN_PAYMENT_RECEIPT A LEFT OUTER JOIN(  SELECT   RECEIPT_SL_NO,"
+				+ "A.CURRENCY_ID,A.TRANS_DATE from TTRN_PAYMENT_RECEIPT A LEFT OUTER JOIN(  SELECT   RECEIPT_SL_NO,"
 				+ " NVL (SUM (ALLOCATED_TILL_DATE), '0') ALLOCATED_TILL_DATE FROM   TTRN_PAYMENT_RECEIPT_DETAILS "
 				+ "GROUP BY   RECEIPT_SL_NO) B ON A.PAYMENT_RECEIPT_NO = b.RECEIPT_SL_NO AND B.ALLOCATED_TILL_DATE = 0"
 				+ " Where  A.AMEND_ID =(SELECT   MAX (AMEND_ID) FROM   TTRN_PAYMENT_RECEIPT WHERE "
@@ -2182,7 +2184,7 @@ public class TreasuryCustomRepositoryImpl implements TreasuryCustomRepository {
 				+ " PIB.AMEND_ID =(SELECT   MAX (AMEND_ID) FROM   PERSONAL_INFO WHERE   CUSTOMER_ID = PIB.CUSTOMER_ID"
 				+ " AND BRANCH_CODE = PIB.BRANCH_CODE) JOIN CURRENCY_MASTER CM ON CM.CURRENCY_ID = AB.CURRENCY_ID "
 				+ "WHERE AB.TRANS_TYPE = ? AND AB.PAID_AMT = ? AND AB.CURRENCY_ID = ? AND AB.BRANCH_CODE = ? AND "
-				+ "PI.BRANCH_CODE = ? AND PIB.BRANCH_CODE = ? AND CM.BRANCH_CODE = ?  AND CM.STATUS = 'Y' AND "
+				+ "PI.BRANCH_CODE = ? AND PIB.BRANCH_CODE = ? AND CM.BRANCH_CODE = ? AND AB.TRANS_DATE<=TO_DATE(?,'DD/MM/YYYY') AND CM.STATUS = 'Y' AND "
 				+ "TRUNC (CM.EFFECTIVE_DATE) <= TRUNC (SYSDATE) AND CM.AMEND_ID =(SELECT   MAX (AMEND_ID) FROM"
 				+ "   CURRENCY_MASTER WHERE CURRENCY_ID = CM.CURRENCY_ID AND BRANCH_CODE = CM.BRANCH_CODE AND "
 				+ "STATUS = 'Y' AND TRUNC (EFFECTIVE_DATE) <= TRUNC (SYSDATE)) AND AB.PAYMENT_RECEIPT_NO =? AND "
@@ -2204,7 +2206,7 @@ public class TreasuryCustomRepositoryImpl implements TreasuryCustomRepository {
 				+ " PIB.FIRST_NAME || ' ' || PIB.LAST_NAME broker, AB.BROKER_ID, CM.SHORT_NAME CURRENCY_NAME,"
 				+ "AB.EXCHANGE_RATE,AB.PAYMENT_RECEIPT_NO, AB.PAID_AMT, Ab.CEDING_ID, AB.STATUS From  "
 				+ "(Select A.Amend_id,A.STATUS,A.BRANCH_CODE,A.EXCHANGE_RATE, A.PAYMENT_RECEIPT_NO,A.CEDING_ID,"
-				+ "A.BROKER_ID,A.PAID_AMT,A.TRANS_TYPE,A.CURRENCY_ID from TTRN_PAYMENT_RECEIPT A LEFT OUTER"
+				+ "A.BROKER_ID,A.PAID_AMT,A.TRANS_TYPE,A.CURRENCY_ID,TRANS_DATE from TTRN_PAYMENT_RECEIPT A LEFT OUTER"
 				+ " JOIN(  SELECT   RECEIPT_SL_NO, NVL (SUM (ALLOCATED_TILL_DATE), '0') ALLOCATED_TILL_DATE FROM   "
 				+ "TTRN_PAYMENT_RECEIPT_DETAILS GROUP BY   RECEIPT_SL_NO) B ON A.PAYMENT_RECEIPT_NO = b.RECEIPT_SL_NO"
 				+ " AND B.ALLOCATED_TILL_DATE = 0 Where  A.AMEND_ID =(SELECT   MAX (AMEND_ID) FROM "
@@ -2216,7 +2218,7 @@ public class TreasuryCustomRepositoryImpl implements TreasuryCustomRepository {
 				+ "  PERSONAL_INFO WHERE   CUSTOMER_ID = PIB.CUSTOMER_ID AND BRANCH_CODE = PIB.BRANCH_CODE) JOIN"
 				+ " CURRENCY_MASTER CM ON CM.CURRENCY_ID = AB.CURRENCY_ID WHERE AB.TRANS_TYPE = ? AND AB.PAID_AMT = ? "
 				+ "AND AB.CURRENCY_ID = ? AND AB.BRANCH_CODE = ? AND PI.BRANCH_CODE = ? AND PIB.BRANCH_CODE = ? AND"
-				+ " CM.BRANCH_CODE = ? AND AB.BROKER_ID = ? And Decode(?,'-1','A', AB.CEDING_ID)=Decode(?,'-1','A',?)"
+				+ " CM.BRANCH_CODE = ? AND AB.TRANS_DATE<=TO_DATE(?,'DD/MM/YYYY') AND AB.BROKER_ID = ? And Decode(?,'-1','A', AB.CEDING_ID)=Decode(?,'-1','A',?)"
 				+ " AND CM.STATUS = 'Y' AND TRUNC (CM.EFFECTIVE_DATE) <= TRUNC (SYSDATE) AND CM.AMEND_ID =(SELECT  "
 				+ " MAX (AMEND_ID) FROM   CURRENCY_MASTER WHERE CURRENCY_ID = CM.CURRENCY_ID AND BRANCH_CODE = "
 				+ "CM.BRANCH_CODE AND STATUS = 'Y' AND TRUNC (EFFECTIVE_DATE) <= TRUNC (SYSDATE)) AND AB.STATUS =?");

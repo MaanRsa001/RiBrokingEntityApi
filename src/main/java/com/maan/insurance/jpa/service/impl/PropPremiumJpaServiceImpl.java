@@ -2271,21 +2271,12 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 		premiumUpdateMethodRes1 res = new premiumUpdateMethodRes1();
 		
 		try {
+			
+			propPremiumCustomRepository.premiumarchive(beanObj.getContNo(),(StringUtils.isBlank(beanObj.getLayerno())?"0":beanObj.getLayerno()),beanObj.getTransactionNo(),beanObj.getCurrencyId(),beanObj.getExchRate(),"0",beanObj.getDepartmentId(),beanObj.getProductId());
 			updateAruguments(beanObj);
-			String netDueOc="0";
-			
-			if("Temp".equalsIgnoreCase(beanObj.getTableType())){
-				RskPremiumDetailsTemp entity = pdTempRepo.findByContractNoAndRequestNo(new BigDecimal(beanObj.getContNo()),new BigDecimal(beanObj.getRequestNo()));
-				 netDueOc= entity.getNetdueOc()==null?"0":entity.getNetdueOc().toString();
-			}else{
-				RskPremiumDetails entity =  pdRepo.findByContractNoAndTransactionNo(new BigDecimal(beanObj.getContNo()),new BigDecimal(beanObj.getTransactionNo()));
-				 netDueOc= entity.getNetdueOc()==null?"0":entity.getNetdueOc().toString();
-			}
-			
-			
-			if("Submit".equalsIgnoreCase(beanObj.getButtonStatus()) && "Temp".equalsIgnoreCase(beanObj.getTableType())){
+			//if("Submit".equalsIgnoreCase(beanObj.getButtonStatus()) && "Temp".equalsIgnoreCase(beanObj.getTableType())){
 				
-				beanObj.setTransactionNo(fm.getSequence("Premium",beanObj.getProductId(),beanObj.getDepartmentId(), beanObj.getBranchCode(),"",beanObj.getTransaction()));
+				//beanObj.setTransactionNo(fm.getSequence("Premium",beanObj.getProductId(),beanObj.getDepartmentId(), beanObj.getBranchCode(),"",beanObj.getTransaction()));
 				propPremiumCustomRepository.facTempStatusUpdate(beanObj);
 		 		getTempToMainMove(beanObj);
 		 		
@@ -2297,41 +2288,11 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 		 	
 			 	propPremiumCustomRepository.updateCashLossStatus(beanObj.getContNo(),beanObj.getRequestNo(),beanObj.getTransactionNo(),"A");
 			 	
-				GetCassLossCreditReq req = new GetCassLossCreditReq();
-			 	List<GetCashLossCreditReq1> reqList = new ArrayList<GetCashLossCreditReq1>();
-			 	req.setBranchCode(beanObj.getBranchCode());
-			 	req.setClaimPayNo(beanObj.getClaimPayNo());
-			 	req.setContNo(beanObj.getContNo());
-			 	req.setCurrencyId(beanObj.getCurrencyId());
-			 	req.setDepartmentId(beanObj.getDepartmentId());
-			 	req.setMode(beanObj.getMode());
-			 	for(int i=0; i<beanObj.getGetCashLossCreditReq1().size();i++) {
-			 		GetCashLossCreditReq1 req1 = beanObj.getGetCashLossCreditReq1().get(i);
-			 		GetCashLossCreditReq1 res1 = new GetCashLossCreditReq1();
-			 		res1.setCLCsettlementRatelist(req1.getCLCsettlementRatelist());
-			 		res1.setChkbox(req1.getChkbox());
-			 		res1.setCreditAmountCLClist(req1.getCreditAmountCLClist());
-			 		res1.setCreditAmountCLDlist(req1.getCreditAmountCLDlist());
-			 		res1.setMainclaimPaymentNos(req1.getMainclaimPaymentNos());
-			 		res1.setMainCLCsettlementRatelist(req1.getMainCLCsettlementRatelist());
-			 		res1.setMaincreditAmountCLClist(req1.getMaincreditAmountCLClist());
-			 		res1.setMaincreditAmountCLDlist(req1.getMaincreditAmountCLDlist());
-			 		reqList.add(res1);			 	
-			 	}		 					 	
-			 	req.setGetCashLossCreditReq1(reqList);	
+			 	updatecashLoss(beanObj);
+				
 			 	
-			 	GetCashLossCreditRes cash = getCassLossCredit(req);
-			 	
-			 	
-			 	//GetCashLossCreditRes cash = getCassLossCredit(beanObj);
-			 	 List<GetCashLossCreditRes1> cashLossList=cash.getCommonResponse();
-			 	 for(int i=0;i<cashLossList.size();i++){
-			 		GetCashLossCreditRes1 form= cashLossList.get(0);
-			 		propPremiumCustomRepository.updateClaimPayment(form.getContNo(),beanObj.getBranchCode(),beanObj.getRequestNo(),"A",form.getClaimNumber(),form.getClaimPaymentNo(),form.getContNo(),form.getClaimNumber(),form.getClaimPaymentNo());
-			 	 }
-			 	propPremiumCustomRepository.premiumarchive(beanObj.getContNo(),(StringUtils.isBlank(beanObj.getLayerno())?"0":beanObj.getLayerno()),beanObj.getTransactionNo(),beanObj.getCurrencyId(),beanObj.getExchRate(),netDueOc,beanObj.getDepartmentId(),beanObj.getProductId());
 		
-			}
+		//	}
 		 res.setRequestNo(beanObj.getRequestNo());
 		 res.setTransactionNo(beanObj.getTransactionNo());
 		 response.setResponse(res);
@@ -2345,6 +2306,40 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 			response.setIsError(true);
 		}
 		return response;
+	}
+	private void updatecashLoss(InsertPremiumReq beanObj) {
+		GetCassLossCreditReq req = new GetCassLossCreditReq();
+	 	List<GetCashLossCreditReq1> reqList = new ArrayList<GetCashLossCreditReq1>();
+	 	req.setBranchCode(beanObj.getBranchCode());
+	 	req.setClaimPayNo(beanObj.getClaimPayNo());
+	 	req.setContNo(beanObj.getContNo());
+	 	req.setCurrencyId(beanObj.getCurrencyId());
+	 	req.setDepartmentId(beanObj.getDepartmentId());
+	 	req.setMode(beanObj.getMode());
+	 	for(int i=0; i<beanObj.getGetCashLossCreditReq1().size();i++) {
+	 		GetCashLossCreditReq1 req1 = beanObj.getGetCashLossCreditReq1().get(i);
+	 		GetCashLossCreditReq1 res1 = new GetCashLossCreditReq1();
+	 		res1.setCLCsettlementRatelist(req1.getCLCsettlementRatelist());
+	 		res1.setChkbox(req1.getChkbox());
+	 		res1.setCreditAmountCLClist(req1.getCreditAmountCLClist());
+	 		res1.setCreditAmountCLDlist(req1.getCreditAmountCLDlist());
+	 		res1.setMainclaimPaymentNos(req1.getMainclaimPaymentNos());
+	 		res1.setMainCLCsettlementRatelist(req1.getMainCLCsettlementRatelist());
+	 		res1.setMaincreditAmountCLClist(req1.getMaincreditAmountCLClist());
+	 		res1.setMaincreditAmountCLDlist(req1.getMaincreditAmountCLDlist());
+	 		reqList.add(res1);			 	
+	 	}		 					 	
+	 	req.setGetCashLossCreditReq1(reqList);	
+	 	
+	 	GetCashLossCreditRes cash = getCassLossCredit(req);
+	 	
+	 	
+	 	//GetCashLossCreditRes cash = getCassLossCredit(beanObj);
+	 	 List<GetCashLossCreditRes1> cashLossList=cash.getCommonResponse();
+	 	 for(int i=0;i<cashLossList.size();i++){
+	 		GetCashLossCreditRes1 form= cashLossList.get(0);
+	 		propPremiumCustomRepository.updateClaimPayment(form.getContNo(),beanObj.getBranchCode(),beanObj.getRequestNo(),"A",form.getClaimNumber(),form.getClaimPaymentNo(),form.getContNo(),form.getClaimNumber(),form.getClaimPaymentNo());
+	 	 }
 	}
 	@Transactional
 	public void updateAruguments(InsertPremiumReq beanObj) throws ParseException {

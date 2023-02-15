@@ -103,9 +103,12 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 		Root<PositionMaster> pRoot = cq.from(PositionMaster.class);
 		Root<RskPremiumDetails> rRoot = cq.from(RskPremiumDetails.class);
 		String input = null;
-
-//		Expression<String> funct = cb.function("FN_GET_NAME", String.class, cb.literal("P"), pRoot.get("productId"),
-//				pRoot.get("branchCode"));
+		
+		Subquery<Double> wht = cq.subquery(Double.class); 
+		Root<RskPremiumDetailsRi> rirds = wht.from(RskPremiumDetailsRi.class);
+		wht.select(cb.sum(rirds.<Double> get("premiumWhtOc")));
+		wht.where(cb.equal( rirds.get("transactionNo"),rRoot.get("transactionNo")));
+		
 		
 		Subquery<String> funct = cq.subquery(String.class); 
 		Root<TmasProductMaster> rds = funct.from(TmasProductMaster.class);
@@ -114,12 +117,14 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 		Predicate a2 = cb.equal( rds.get("branchCode"), pRoot.get("branchCode"));
 		funct.where(a1,a2);
 
-		Expression<String> exp = cb.diff(
+		Expression<Double> exp = cb.diff(
 				cb.<Double>selectCase().when(cb.isNull(rRoot.<Double>get("netdueOc")), 0.0)
 						.otherwise(rRoot.<Double>get("netdueOc")),
 				cb.<Double>selectCase().when(cb.isNull(rRoot.<Double>get("allocatedTillDate")), 0.0)
-						.otherwise(rRoot.<Double>get("allocatedTillDate"))).as(String.class);
+						.otherwise(rRoot.<Double>get("allocatedTillDate")));
 
+		Expression<Double> exp2 = cb.diff(exp,wht);
+		
 		Subquery<String> sq = cq.subquery(String.class);
 		Root<PersonalInfo> subRoot = sq.from(PersonalInfo.class);
 
@@ -135,14 +140,14 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 
 		cq.multiselect(rRoot.get("transactionNo").as(String.class), pRoot.get("contractNo").as(String.class),
 				pRoot.get("layerNo").as(String.class),
-				funct.alias("PRODUCT_NAME"), rRoot.get("entryDateTime"), exp.alias("NETDUE"),
+				funct.alias("PRODUCT_NAME"), rRoot.get("entryDateTime"), exp2.alias("NETDUE"),
 				cb.nullLiteral(Double.class).alias("PAID_AMOUNT_OC"), rRoot.get("accPremium").as(String.class),
 				cb.nullLiteral(Double.class).alias("ACC_CLAIM"),
 				cb.selectCase().when(cb.isNull(rRoot.get("checkyn")), "N").as(String.class),
 				cb.literal("P").alias("BUSINESS_TYPE"),
 				sq.alias("CEDING_COMPANY_NAME"), 
 				pRoot.get("deptId").as(String.class),
-				pRoot.get("proposalNo").as(String.class)).distinct(true);
+				pRoot.get("proposalNo").as(String.class),exp.alias("AMOUNT"),cb.nullLiteral(Double.class).alias("premiumWhtOc")).distinct(true);
 
 		Subquery<Integer> pSq = cq.subquery(Integer.class);
 		Root<PositionMaster> pSubRoot = pSq.from(PositionMaster.class);
@@ -191,11 +196,7 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 		Root<TtrnClaimDetails> tcdRoot = cq.from(TtrnClaimDetails.class);
 		Root<TtrnClaimPayment> tcpRoot = cq.from(TtrnClaimPayment.class);
 		String input = null;
-		
-//		Expression<String> funct = cb.function("FN_GET_NAME", String.class,
-//     		   cb.literal("P"),
-//     		  pRoot.get("productId"),
-//     		 pRoot.get("branchCode"));
+
 		Subquery<String> funct = cq.subquery(String.class); 
 		Root<TmasProductMaster> rds = funct.from(TmasProductMaster.class);
 		funct.select(rds.get("tmasProductName"));
@@ -204,10 +205,11 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 		funct.where(a1,a2);
 
 		
-		Expression<String> exp = cb.diff(cb.<Double>selectCase().when(cb.isNull(tcpRoot.<Double>get("paidAmountOc")), 0.0)
+		Expression<Double> exp = cb.diff(cb.<Double>selectCase().when(cb.isNull(tcpRoot.<Double>get("paidAmountOc")), 0.0)
 				.otherwise(tcpRoot.<Double>get("paidAmountOc")),
 			cb.<Double>selectCase().when(cb.isNull(tcpRoot.<Double>get("allocatedTillDate")), 0.0)
-				.otherwise(tcpRoot.<Double>get("allocatedTillDate"))).as(String.class);
+				.otherwise(tcpRoot.<Double>get("allocatedTillDate")));
+		Expression<Double> exp2 = cb.diff(exp,cb.literal("0.0").as(Double.class));
 		
 		Subquery<String> sq = cq.subquery(String.class);
 		Root<PersonalInfo> subRoot = sq.from(PersonalInfo.class);
@@ -230,14 +232,14 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 				funct.alias("PRODUCT_NAME"),
 				tcpRoot.get("inceptionDate"),
 				cb.nullLiteral(Double.class).alias("NETDUE_OC"),
-				exp.alias("PAID_AMOUNT"),
+				exp2.alias("PAID_AMOUNT"),
 				cb.nullLiteral(Double.class).alias("ACC_PREMIUM"),
 				tcpRoot.get("accClaim").as(String.class),
 				cb.selectCase().when(cb.isNull(tcpRoot.get("checkyn")), "N").as(String.class),
 				cb.literal("C").alias("BUSINESS_TYPE"),
 				sq.alias("CEDING_COMPANY_NAME"),
 				pRoot.get("deptId"),
-				pRoot.get("proposalNo")).distinct(true);
+				pRoot.get("proposalNo"),exp.alias("AMOUNT"),cb.nullLiteral(Double.class).alias("premiumWhtOc")).distinct(true);
  		
 		Subquery<Integer> pSq = cq.subquery(Integer.class);
 		Root<PositionMaster> pSubRoot = pSq.from(PositionMaster.class);
@@ -360,10 +362,6 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 		Root<TtrnClaimPaymentRi> tcpRoot = cq.from(TtrnClaimPaymentRi.class);
 		String input = null;
 		
-//		Expression<String> funct = cb.function("FN_GET_NAME", String.class,
-//     		   cb.literal("P"),
-//     		  pRoot.get("productId"),
-//     		 pRoot.get("branchCode"));
 		Subquery<String> funct = cq.subquery(String.class); 
 		Root<TmasProductMaster> rds = funct.from(TmasProductMaster.class);
 		funct.select(rds.get("tmasProductName"));
@@ -372,10 +370,12 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 		funct.where(a1,a2);
 
 		
-		Expression<String> exp = cb.diff(cb.<Double>selectCase().when(cb.isNull(tcpRoot.<Double>get("paidAmountOc")), 0.0)
+		Expression<Double> exp = cb.diff(cb.<Double>selectCase().when(cb.isNull(tcpRoot.<Double>get("paidAmountOc")), 0.0)
 				.otherwise(tcpRoot.<Double>get("paidAmountOc")),
 			cb.<Double>selectCase().when(cb.isNull(tcpRoot.<Double>get("allocatedTillDate")), 0.0)
-				.otherwise(tcpRoot.<Double>get("allocatedTillDate"))).as(String.class);
+				.otherwise(tcpRoot.<Double>get("allocatedTillDate")));
+		
+		Expression<Double> exp2 = cb.diff(exp,cb.literal("0.0").as(Double.class));
 		
 		Subquery<String> sq = cq.subquery(String.class);
 		Root<PersonalInfo> subRoot = sq.from(PersonalInfo.class);
@@ -398,14 +398,14 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 				funct.alias("PRODUCT_NAME"),
 				tcpRoot.get("inceptionDate"),
 				cb.nullLiteral(Double.class).alias("NETDUE_OC"),
-				exp.alias("PAID_AMOUNT"),
+				exp2.alias("PAID_AMOUNT"),
 				cb.nullLiteral(Double.class).alias("ACC_PREMIUM"),
 				tcpRoot.get("accClaim").as(String.class),
 				cb.selectCase().when(cb.isNull(tcpRoot.get("checkyn")), "N").as(String.class),
 				cb.literal("C").alias("BUSINESS_TYPE"),
 				sq.alias("CEDING_COMPANY_NAME"),
 				pRoot.get("deptId"),
-				pRoot.get("proposalNo")).distinct(true);
+				pRoot.get("proposalNo"),exp.alias("AMOUNT"),cb.nullLiteral(Double.class).alias("premiumWhtOc")).distinct(true);
  		
 		Subquery<Integer> pSq = cq.subquery(Integer.class);
 		Root<PositionMaster> pSubRoot = pSq.from(PositionMaster.class);
@@ -457,9 +457,7 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 		Root<RskPremiumDetailsRi> rRoot = cq.from(RskPremiumDetailsRi.class);
 		String input = null;
 
-//		Expression<String> funct = cb.function("FN_GET_NAME", String.class, cb.literal("P"), pRoot.get("productId"),
-//				pRoot.get("branchCode"));
-		
+
 		Subquery<String> funct = cq.subquery(String.class); 
 		Root<TmasProductMaster> rds = funct.from(TmasProductMaster.class);
 		funct.select(rds.get("tmasProductName"));
@@ -467,12 +465,15 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 		Predicate a2 = cb.equal( rds.get("branchCode"), pRoot.get("branchCode"));
 		funct.where(a1,a2);
 
-		Expression<String> exp = cb.diff(
+		Expression<Double> exp = cb.diff(
 				cb.<Double>selectCase().when(cb.isNull(rRoot.<Double>get("netdueOc")), 0.0)
 						.otherwise(rRoot.<Double>get("netdueOc")),
 				cb.<Double>selectCase().when(cb.isNull(rRoot.<Double>get("allocatedTillDate")), 0.0)
-						.otherwise(rRoot.<Double>get("allocatedTillDate"))).as(String.class);
-
+						.otherwise(rRoot.<Double>get("allocatedTillDate")));
+		
+		Expression<Double> exp2 = cb.diff(exp,cb.<Double>selectCase().when(cb.isNull(rRoot.<Double>get("premiumWhtOc")), 0.0)
+				.otherwise(rRoot.<Double>get("premiumWhtOc")));
+		
 		Subquery<String> sq = cq.subquery(String.class);
 		Root<PersonalInfo> subRoot = sq.from(PersonalInfo.class);
 
@@ -488,14 +489,14 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 
 		cq.multiselect(rRoot.get("ritransactionNo").as(String.class), pRoot.get("contractNo").as(String.class),
 				pRoot.get("layerNo").as(String.class),
-				funct.alias("PRODUCT_NAME"), rRoot.get("entryDateTime"), exp.alias("NETDUE"),
+				funct.alias("PRODUCT_NAME"), rRoot.get("entryDateTime"), exp2.alias("NETDUE"),
 				cb.nullLiteral(Double.class).alias("PAID_AMOUNT_OC"), rRoot.get("accPremium").as(String.class),
 				cb.nullLiteral(Double.class).alias("ACC_CLAIM"),
 				cb.selectCase().when(cb.isNull(rRoot.get("checkyn")), "N").as(String.class),
 				cb.literal("P").alias("BUSINESS_TYPE"),
 				sq.alias("CEDING_COMPANY_NAME"), 
 				pRoot.get("deptId").as(String.class),
-				pRoot.get("proposalNo").as(String.class)).distinct(true);
+				pRoot.get("proposalNo").as(String.class),exp.alias("AMOUNT"),rRoot.get("premiumWhtOc")).distinct(true);
 
 		Subquery<Integer> pSq = cq.subquery(Integer.class);
 		Root<PositionMaster> pSubRoot = pSq.from(PositionMaster.class);

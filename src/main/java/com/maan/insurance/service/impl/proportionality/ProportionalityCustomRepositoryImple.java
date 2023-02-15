@@ -2686,6 +2686,7 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 
 
 	@Override
+	@Transactional
 	public int updateBonus(String requestNumber, String proposalNo) {
 		CriteriaBuilder cb = this.em.getCriteriaBuilder();
 		CriteriaUpdate<TtrnBonus> update = cb.createCriteriaUpdate(TtrnBonus.class);
@@ -2699,6 +2700,7 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 	}
 
 	@Override
+	@Transactional
 	public int updateRip(String requestNumber, String proposalNo) {
 		CriteriaBuilder cb = this.em.getCriteriaBuilder();
 		CriteriaUpdate<TtrnRip> update = cb.createCriteriaUpdate(TtrnRip.class);
@@ -2711,6 +2713,7 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 		return em.createQuery(update).executeUpdate();
 	}
 	@Override
+	@Transactional
 	public void riskUpdateHomeContNo(String[] args) {
 		try {
 			//GET_RETRO_CON_UPDATE

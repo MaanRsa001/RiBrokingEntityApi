@@ -75,7 +75,7 @@ public class TreasuryController {
 	private TreasuryService treasuryService;
 	
 	@PostMapping("/receipt/save")
-	public CommonResponse savepaymentReciept(@RequestBody PaymentRecieptReq req) throws CommonValidationException {
+	public CommonSaveRes savepaymentReciept(@RequestBody PaymentRecieptReq req) throws CommonValidationException {
 		List<ErrorCheck> error=treasuryValidation.PaymentRecieptvalidate(req);
 		if(error!=null && error.size()>0) {
 			throw new CommonValidationException("error",error);

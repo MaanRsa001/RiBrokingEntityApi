@@ -1111,6 +1111,8 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 		try {
 			String[] args = updateAruguments(beanObj);
 			String netDueOc = "0";
+			netDueOc = args[12];
+			xolPremiumCustomRepository.premiumDetailArchive(beanObj, netDueOc);
 			if ("Temp".equalsIgnoreCase(beanObj.getTableType()) && "3".equalsIgnoreCase(beanObj.getProductId())) {
 				xolPremiumCustomRepository.xolPremiumUpdateUpdateTemp(args);
 				beanObj.setRequestNo(args[47]);
@@ -1122,17 +1124,17 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 				}
 				beanObj.setTransactionNo(args[47]);
 			}
-			netDueOc = args[12];
-			if ("Submit".equalsIgnoreCase(beanObj.getButtonStatus()) && "Temp".equalsIgnoreCase(beanObj.getTableType())	&& "3".equalsIgnoreCase(beanObj.getProductId())) {
+			
+			//if ("Submit".equalsIgnoreCase(beanObj.getButtonStatus()) && "Temp".equalsIgnoreCase(beanObj.getTableType())	&& "3".equalsIgnoreCase(beanObj.getProductId())) {
 				if ("3".equalsIgnoreCase(beanObj.getProductId())) {
-					beanObj.setTransactionNo(fm.getSequence("Premium", beanObj.getProductId(),beanObj.getDepartmentId(), beanObj.getBranchCode(), "", beanObj.getTransaction()));
+					//beanObj.setTransactionNo(fm.getSequence("Premium", beanObj.getProductId(),beanObj.getDepartmentId(), beanObj.getBranchCode(), "", beanObj.getTransaction()));
 					xolPremiumCustomRepository.facTempStatusUpdate(beanObj);
 					getTempToMainMove(beanObj, netDueOc);
 				}
-				xolPremiumCustomRepository.premiumDetailArchive(beanObj, netDueOc);
+				
 
 				xolPremiumCustomRepository.facTempStatusUpdate(beanObj);
-			}
+			//}
 			res.setRequestNo(beanObj.getRequestNo());
 			res.setTransactionNo(beanObj.getTransactionNo());
 			response.setInsertRes(res);

@@ -71,5 +71,11 @@ public class GetTransContractRes1Ri {
 	
 	@JsonProperty("ProposalNo")
     private String proposalNo;
+	
+	@JsonProperty("Amount")
+    private String amount;
+	
+	@JsonProperty("WithholdingTax")
+    private String withholdingTax;
 
 }

@@ -455,7 +455,33 @@ public class RskPremiumDetailsRi implements Serializable {
 	    private BigDecimal ritransactionNo ;
 	    //--- ENTITY LINKS ( RELATIONSHIP )
 
-
+	    @Column(name="OUR_BROKERAGE_OC")
+	    private BigDecimal ourBrokerageOc ;
+	    
+	    @Column(name="OUR_BROKERAGE_DC")
+	    private BigDecimal ourBrokerageDc ;
+	    
+	    @Column(name="OUR_BROKERAGE_VAT_OC")
+	    private BigDecimal ourBrokerageVatOc ;
+	    
+	    
+	    @Column(name="OUR_BROKERAGE_VAT_DC")
+	    private BigDecimal ourBrokerageVatDc ;
+	    
+	    
+	    @Column(name="PREMIUM_WHT_OC")
+	    private BigDecimal premiumWhtOc ;
+	    
+	    
+	    @Column(name="PREMIUM_WHT_DC")
+	    private BigDecimal premiumWhtDc ;
+	    
+	    @Column(name="BROKERAGE_WHT_OC")
+	    private BigDecimal brokerageWhtOc ;
+	    
+	    @Column(name="BROKERAGE_WHT_DC")
+	    private BigDecimal brokerageWhtDc ;
+	    
 	}
 
 

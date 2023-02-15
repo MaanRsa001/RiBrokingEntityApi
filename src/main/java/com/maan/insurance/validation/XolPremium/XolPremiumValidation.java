@@ -400,7 +400,7 @@ public class XolPremiumValidation {
 							 }	
 						 }
 				        
-					 if("RI02".equalsIgnoreCase(bean.getSourceId())){
+					// if("RI02".equalsIgnoreCase(bean.getSourceId())){
 						 if(StringUtils.isBlank(bean.getVatPremium())){
 							 list.add(new ErrorCheck(prop.getProperty("vatpremium.empty"),"servicetax","01")); 
 						 }
@@ -423,7 +423,7 @@ public class XolPremiumValidation {
 								  list.add(new ErrorCheck(prop.getProperty("error.brokeragevat.number"),"servicetax","01"));
 							 }
 						 }
-						}
+						//}
 				        if(StringUtils.isBlank(bean.getTaxDedectSource())){
 							list.add(new ErrorCheck(prop.getProperty("taxdedct.source.invalid"),"TaxDedectSource","01")); 
 						 }
