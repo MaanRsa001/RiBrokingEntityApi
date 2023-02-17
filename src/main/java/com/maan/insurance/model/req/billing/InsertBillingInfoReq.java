@@ -38,17 +38,6 @@ public class InsertBillingInfoReq {
 	private String billDate; 
 	@JsonProperty("GetTransContractListReq")
 	private List<GetTransContractListReq> transContractListReq;
-	
-	
-	@JsonProperty("GrossAmount")
-	private String grossAmount;
-	@JsonProperty("WhtPremium")
-	private String whtPremium; 
-	@JsonProperty("WhtBrokerage")
-	private String whtBrokerage; 
-	@JsonProperty("NetAmount")
-	private String netAmount;
-
 
 	/*
 	 * @JsonProperty("Reversaltransno") private String reversaltransno;

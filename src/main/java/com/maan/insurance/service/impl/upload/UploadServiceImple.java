@@ -1,10 +1,13 @@
 package com.maan.insurance.service.impl.upload;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -12,7 +15,6 @@ import java.util.Properties;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -23,16 +25,12 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.google.common.io.Files;
 import com.maan.insurance.model.entity.ConstantDetail;
 import com.maan.insurance.model.entity.PositionMaster;
 import com.maan.insurance.model.entity.TmasDocTypeMaster;
@@ -40,6 +38,7 @@ import com.maan.insurance.model.entity.TtrnDocUploadDetails;
 import com.maan.insurance.model.repository.ConstantDetailRepository;
 import com.maan.insurance.model.repository.TtrnDocUploadDetailsRepository;
 import com.maan.insurance.model.req.DoUploadReq;
+import com.maan.insurance.model.req.placement.InsertDocdetailsReq;
 import com.maan.insurance.model.req.upload.DoDeleteDocDetailsReq;
 import com.maan.insurance.model.req.upload.GetDocListReq;
 import com.maan.insurance.model.res.DropDown.CommonResDropDown;
@@ -52,22 +51,23 @@ import com.maan.insurance.model.res.upload.GetDocListRes;
 import com.maan.insurance.model.res.upload.GetDocListRes1;
 import com.maan.insurance.model.res.upload.GetDocTypeRes;
 import com.maan.insurance.model.res.upload.GetDocTypeRes1;
-import com.maan.insurance.service.impl.QueryImplemention;
 import com.maan.insurance.service.upload.UploadService;
+import com.maan.insurance.validation.Formatters;
 
 @Service
 public class UploadServiceImple  implements UploadService{
 	private Logger log = LogManager.getLogger(UploadServiceImple.class);
-
+	String commonPath = (UploadServiceImple.class).getProtectionDomain().getCodeSource().getLocation().getPath().replaceAll("%20", " ");
 	@Autowired
 	private ConstantDetailRepository cdRepo;
 	@Autowired
 	private TtrnDocUploadDetailsRepository udRepo;
+	@Autowired
+	private Formatters fm;
 	
 	@PersistenceContext
 	private EntityManager em;
 	private Properties prop = new Properties();
-	private Query query1 = null;
 
 	public UploadServiceImple() {
 		try {
@@ -400,55 +400,47 @@ public class UploadServiceImple  implements UploadService{
 	}
 	@Transactional
 	@Override
-	public CommonSaveRes doUpload(DoUploadReq bean, MultipartFile file) {
+	public CommonSaveRes doUpload(DoUploadReq bean) {
 		CommonSaveRes response = new CommonSaveRes();
 		String result="";
 		try{
 			List<String[]> list = new ArrayList<String[]>();
 			String args[]=new String[5];
-			String filePath=bean.getFilePath();
-			if("RDS".equalsIgnoreCase(bean.getModuleType())||"PR".equalsIgnoreCase(bean.getModuleType())||"CL".equalsIgnoreCase(bean.getModuleType()))
+			String filePath=commonPath+"documents/"+bean.getModuleType()+"/";
+			/*if("RDS".equalsIgnoreCase(bean.getModuleType())||"PR".equalsIgnoreCase(bean.getModuleType())||"CL".equalsIgnoreCase(bean.getModuleType()))
 			{
 				filePath += bean.getModuleType()+"/"+bean.getContractNo()+"/";
 			}
 			else {
 				filePath += bean.getModuleType()+"/"+bean.getTranNo()+"/";
 			}
-			File tmpFile = new File(filePath);
-			if(!tmpFile.exists()){
-				tmpFile.mkdir();
-			}
-			if("PR".equalsIgnoreCase(bean.getModuleType())||"CL".equalsIgnoreCase(bean.getModuleType())){
-				filePath +=bean.getTranNo()+"/";
-				tmpFile = new File(filePath);
-				if(!tmpFile.exists())
-					tmpFile.mkdir();
-			}
-//			List<String> docId= bean.getDocId();
-//			List<String> docType= bean.getDocTypeId();
-			//List<File> doc = bean.getUpload();
-//			List<String> docName = bean.getUploadFileName();
-//			List<String> docDesc= bean.getDocDesc();
-			for(int i=(Integer.parseInt(bean.getStartIndex()));i<Integer.parseInt(bean.getEndIndex());i++)
-			{
-				final String orgFileName=bean.getUploadFileName();
+			
+			 * File tmpFile = new File(filePath); if(!tmpFile.exists()){ tmpFile.mkdir(); }
+			 * if("PR".equalsIgnoreCase(bean.getModuleType())||"CL".equalsIgnoreCase(bean.
+			 * getModuleType())){ filePath +=bean.getTranNo()+"/"; tmpFile = new
+			 * File(filePath); if(!tmpFile.exists()) tmpFile.mkdir(); }
+			 */
+
+			for(int i=0;i<bean.getInsertDocdetailsReq().size();i++) {
+				InsertDocdetailsReq req =  bean.getInsertDocdetailsReq().get(i);
+				final String orgFileName=req.getUploadFileName();
 				Calendar cal = Calendar.getInstance();
 				String time = cal.get(Calendar.DATE)+"-"+(cal.get(Calendar.MONTH)+1)+"-"
 				+cal.get(Calendar.YEAR)+"_"+cal.get(Calendar.HOUR)+cal.get(Calendar.MINUTE)+cal.get(Calendar.SECOND);
 				String ext = orgFileName.substring(orgFileName.lastIndexOf("."));
-				String fileName = (bean.getDocId())+"_"+orgFileName.substring(0, orgFileName.lastIndexOf("."))+"_"+time;
+				String fileName = orgFileName.substring(0, orgFileName.lastIndexOf("."))+"_"+time;
 				fileName = fileName + ext;
 				final File copyFile = new File(filePath+fileName);
-			//	Files.copy(file.getInputStream(),destination1.resolve(newfilename1));
-			//	Files.copy(file, copyFile);
-				
-			//	FileUtils.copyFile(doc.get(i), copyFile);
-				FileUtils.copyToFile(file.getInputStream(), copyFile);
-
+				encodeBase64ToFile( req.getUpload(),copyFile);
+				TtrnDocUploadDetails dlist = udRepo.findTop1ByOrderByDocIdDesc();
+				String docId="";
+				if(dlist!=null) {
+					docId =	dlist.getDocId()==null?"0":String.valueOf(dlist.getDocId().intValue()+1);
+				}
 				final String[] obj = new String[14];
-				obj[0] =  bean.getDocId();
-				obj[1] = bean.getDocTypeId();
-				obj[2] = bean.getDocDesc();
+				obj[0] =  docId;
+				obj[1] = req.getDocTypeId();
+				obj[2] = req.getDocDesc();
 				obj[3] = orgFileName;
 				obj[4] = fileName;
 				obj[5] = filePath;
@@ -496,18 +488,19 @@ public class UploadServiceImple  implements UploadService{
 				entity.setOurFileName(obj[4]);
 				entity.setFileLocation(obj[5]);
 				entity.setModuleType(obj[6]);
-				entity.setProposalNo(new BigDecimal(obj[7]));
-				entity.setContractNo(new BigDecimal(obj[8]));
-				entity.setLayerNo(new BigDecimal(obj[9]));
-				entity.setTranNo(new BigDecimal(obj[10]));
+				entity.setProposalNo(fm.formatBigDecimal(obj[7]));
+				entity.setContractNo(fm.formatBigDecimal(obj[8]));
+				entity.setLayerNo(fm.formatBigDecimal(obj[9]));
+				entity.setTranNo(fm.formatBigDecimal(obj[10]));
 				entity.setProductId(new BigDecimal(obj[11]));
 				entity.setBranchCode(obj[12]);
 				entity.setLoginId(obj[13]);
 				entity.setEffDate(new Date());
 				entity.setStatus("Y");
 				entity.setEndorsementNo(BigDecimal.ZERO);
-				udRepo.save(entity);
+				udRepo.saveAndFlush(entity);
 			}
+			if(StringUtils.isNotBlank(args[0])) {
 			//DOC_CON_UPDATE
 			CriteriaBuilder cb = this.em.getCriteriaBuilder();
 			CriteriaUpdate<TtrnDocUploadDetails> update = cb.createCriteriaUpdate(TtrnDocUploadDetails.class);
@@ -539,13 +532,26 @@ public class UploadServiceImple  implements UploadService{
 		
 			update.where(n1,n2);
 			em.createQuery(update).executeUpdate();
-			
+			}
 		}catch(Exception e){
 			result = e.getMessage();
+			e.printStackTrace();
 		}
 		return result;
 	}
 
+	private void  encodeBase64ToFile(String file, File copyFile) {
+		byte[] data = Base64.getDecoder().decode(file);
 
+		try( OutputStream stream = new FileOutputStream(copyFile) ) 
+		{
+		   stream.write(data);
+		}
+		catch (Exception e) 
+		{
+		   System.err.println("Couldn't write to file...");
+		   e.printStackTrace();
+		}
+	}
 }
 

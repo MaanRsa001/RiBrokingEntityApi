@@ -405,7 +405,7 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 				cb.literal("C").alias("BUSINESS_TYPE"),
 				sq.alias("CEDING_COMPANY_NAME"),
 				pRoot.get("deptId"),
-				pRoot.get("proposalNo"),exp.alias("AMOUNT"),cb.nullLiteral(Double.class).alias("premiumWhtOc")).distinct(true);
+				pRoot.get("proposalNo"),exp.alias("AMOUNT"),cb.nullLiteral(Double.class).alias("premiumWhtOc"),cb.nullLiteral(Double.class).alias("brokerageWhtOc")).distinct(true);
  		
 		Subquery<Integer> pSq = cq.subquery(Integer.class);
 		Root<PositionMaster> pSubRoot = pSq.from(PositionMaster.class);
@@ -474,6 +474,9 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 		Expression<Double> exp2 = cb.diff(exp,cb.<Double>selectCase().when(cb.isNull(rRoot.<Double>get("premiumWhtOc")), 0.0)
 				.otherwise(rRoot.<Double>get("premiumWhtOc")));
 		
+		Expression<Double> exp3 = cb.sum(exp2,cb.<Double>selectCase().when(cb.isNull(rRoot.<Double>get("brokerageWhtOc")), 0.0)
+				.otherwise(rRoot.<Double>get("brokerageWhtOc")));
+		
 		Subquery<String> sq = cq.subquery(String.class);
 		Root<PersonalInfo> subRoot = sq.from(PersonalInfo.class);
 
@@ -489,14 +492,14 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 
 		cq.multiselect(rRoot.get("ritransactionNo").as(String.class), pRoot.get("contractNo").as(String.class),
 				pRoot.get("layerNo").as(String.class),
-				funct.alias("PRODUCT_NAME"), rRoot.get("entryDateTime"), exp2.alias("NETDUE"),
+				funct.alias("PRODUCT_NAME"), rRoot.get("entryDateTime"), exp3.alias("NETDUE"),
 				cb.nullLiteral(Double.class).alias("PAID_AMOUNT_OC"), rRoot.get("accPremium").as(String.class),
 				cb.nullLiteral(Double.class).alias("ACC_CLAIM"),
 				cb.selectCase().when(cb.isNull(rRoot.get("checkyn")), "N").as(String.class),
 				cb.literal("P").alias("BUSINESS_TYPE"),
 				sq.alias("CEDING_COMPANY_NAME"), 
 				pRoot.get("deptId").as(String.class),
-				pRoot.get("proposalNo").as(String.class),exp.alias("AMOUNT"),rRoot.get("premiumWhtOc")).distinct(true);
+				pRoot.get("proposalNo").as(String.class),exp.alias("AMOUNT"),rRoot.get("premiumWhtOc"),rRoot.get("brokerageWhtOc")).distinct(true);
 
 		Subquery<Integer> pSq = cq.subquery(Integer.class);
 		Root<PositionMaster> pSubRoot = pSq.from(PositionMaster.class);
@@ -525,7 +528,7 @@ public class BillingCustomRepositoryImple implements BillingCustomRepository {
 				cb.selectCase().when(cb.isNull(rRoot.get("layerNo")), 0).otherwise(rRoot.get("layerNo"))));
 		predicates.add(cb.equal(pRoot.get("deptId"), rRoot.get("subClass")));
 		predicates.add(cb.equal(pRoot.get("branchCode"), branchCode));
-		predicates.add(cb.notEqual(exp, 0));
+		predicates.add(cb.notEqual(exp3, 0));
 		predicates.add(cb.equal(pRoot.get("amendId"), pSq));
 		 if(!"0".equalsIgnoreCase(productId)) {
 			 predicates.add(cb.equal(pRoot.get("productId"), productId));

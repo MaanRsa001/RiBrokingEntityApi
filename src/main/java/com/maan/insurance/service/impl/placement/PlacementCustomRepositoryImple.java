@@ -636,7 +636,18 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
 			
 			Root<TtrnRiPlacement> pm = query.from(TtrnRiPlacement.class);
+			Root<TtrnRiskProposal> pr = query.from(TtrnRiskProposal.class);
+			Root<TtrnRiskDetails> de = query.from(TtrnRiskDetails.class);
 			
+			Subquery<Long> endPr = query.subquery(Long.class); 
+			Root<TtrnRiskProposal> b = endPr.from(TtrnRiskProposal.class);
+			endPr.select(cb.max(b.get("rskEndorsementNo")));
+			endPr.where(cb.equal( b.get("rskProposalNumber"),pr.get("rskProposalNumber")));
+			
+			Subquery<Long> endDe = query.subquery(Long.class); 
+			Root<TtrnRiskDetails> des = endDe.from(TtrnRiskDetails.class);
+			endDe.select(cb.max(des.get("rskEndorsementNo")));
+			endDe.where(cb.equal( des.get("rskProposalNumber"),de.get("rskProposalNumber")));
 			//cedingCompanyName
 			Subquery<String> cedingCompanyName = query.subquery(String.class); 
 			Root<PersonalInfo> personal = cedingCompanyName.from(PersonalInfo.class);
@@ -704,7 +715,7 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 					pm.get("brokerage").alias("BROKERAGE_PER"),pm.get("status").alias("STATUS"),
 					pm.get("writtenLineValidity").alias("WRITTEN_LINE_VALIDITY"),pm.get("writtenLineRemarks").alias("WRITTEN_LINE_REMARKS"),
 					pm.get("shareLineValidity").alias("SHARE_LINE_VALIDITY"),pm.get("shareLineRemarks").alias("SHARE_LINE_REMARKS"),
-					pm.get("shareProposedSigned").alias("SHARE_PROPOSED_SIGNED"),mailStatus.alias("MAIL_STATUS")); 
+					pm.get("shareProposedSigned").alias("SHARE_PROPOSED_SIGNED"),mailStatus.alias("MAIL_STATUS"),pr.get("rskEpiEstOc").alias("EPI_AMOUNT"),de.get("rskExchangeRate").alias("EXCAHNGE_RATE")); 
 					
 			// MAXAmend ID
 			Subquery<Long> amend = query.subquery(Long.class); 
@@ -721,19 +732,23 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 			Predicate n4 = cb.equal(pm.get("brokerId"), bean.getSearchBrokerId());
 			Predicate n5 = cb.equal(pm.get("placementAmendId"), amend);
 			Predicate n6 = cb.equal(pm.get("status"), bean.getSearchStatus());
+			Predicate n7 = cb.equal(pr.get("rskProposalNumber"), pm.get("proposalNo"));
+			Predicate n8 = cb.equal(pr.get("rskEndorsementNo"), endPr);
+			Predicate n9 = cb.equal(de.get("rskProposalNumber"), pr.get("rskProposalNumber"));
+			Predicate n10 = cb.equal(de.get("rskEndorsementNo"), endDe);
 			if(StringUtils.isNotBlank(bean.getBouquetNo())) {
 				//GET_PLACEMENT_SEARCHBQ_EDIT
 				Predicate n2 = cb.equal(pm.get("bouquetNo"), bean.getBouquetNo());
-				query.where(n1,n2,n3,n4,n5,n6);
+				query.where(n1,n2,n3,n4,n5,n6,n7,n8,n9,n10);
 				
 			}else if(StringUtils.isNotBlank(bean.getBaseProposalNo())) {
 				//GET_PLACEMENT_SEARCHBP_EDIT
 				Predicate n2 = cb.equal(pm.get("baseProposalNo"), bean.getBaseProposalNo());
-				query.where(n1,n2,n3,n4,n5,n6);
+				query.where(n1,n2,n3,n4,n5,n6,n7,n8,n9,n10);
 			}else {
 				//GET_PLACEMENT_SEARCH_EDIT
 				Predicate n2 = cb.equal(pm.get("proposalNo"), bean.getEproposalNo());
-				query.where(n1,n2,n3,n4,n5,n6);
+				query.where(n1,n2,n3,n4,n5,n6,n7,n8,n9,n10);
 			}
 			TypedQuery<Tuple> res = em.createQuery(query);
 			list = res.getResultList();

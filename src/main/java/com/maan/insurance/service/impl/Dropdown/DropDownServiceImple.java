@@ -3,6 +3,8 @@ package com.maan.insurance.service.impl.Dropdown;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.io.StringReader;
 import java.math.BigDecimal;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -14,6 +16,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
@@ -51,6 +54,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import com.lowagie.text.Document;
+import com.lowagie.text.html.simpleparser.HTMLWorker;
+import com.lowagie.text.pdf.PdfWriter;
 import com.maan.insurance.jpa.entity.facultative.TtrnFacRiskProposal;
 import com.maan.insurance.jpa.entity.facultative.TtrnFacSi;
 import com.maan.insurance.jpa.entity.treasury.BankMaster;
@@ -131,6 +137,7 @@ import com.maan.insurance.model.req.DropDown.GetSubProfitCentreMultiDropDownReq;
 import com.maan.insurance.model.req.DropDown.GetSubProfitCentreMultiReq;
 import com.maan.insurance.model.req.DropDown.GetTreatyTypeDropDownReq;
 import com.maan.insurance.model.req.DropDown.GetYearToListValueReq;
+import com.maan.insurance.model.req.DropDown.SavehtmltoPdfReq;
 import com.maan.insurance.model.req.DropDown.updateBqEditModeReq;
 import com.maan.insurance.model.req.DropDown.updateSubEditModeReq;
 import com.maan.insurance.model.req.proportionality.ContractReq;
@@ -166,7 +173,7 @@ import com.maan.insurance.validation.Formatters;
 public class DropDownServiceImple implements DropDownService{
 	private Logger log = LogManager.getLogger(DropDownServiceImple.class);
 	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy") ;
-
+	String commonPath = (DropDownServiceImple.class).getProtectionDomain().getCodeSource().getLocation().getPath().replaceAll("%20", " ");
 	@Autowired
 	private QueryImplemention queryImpl;
 
@@ -6225,6 +6232,34 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 			}
 			return setToReturn;
 	}
+
+
+
+		@Override
+		public CommonResponse Savehtmltopdf(SavehtmltoPdfReq req) {
+			CommonResponse response = new CommonResponse();
+			try {
+				byte[] actualByte = Base64.getDecoder().decode(req.getHtmlContent());
+				String actualString = new String(actualByte);
+				String filePath=commonPath+"documents/"+"debit/"+req.getTransactionNo()+"debit.pdf";
+			    OutputStream file = new FileOutputStream(new File(filePath));
+			    Document document = new Document();
+			    PdfWriter.getInstance(document, file);
+			    document.open();
+			    HTMLWorker htmlWorker = new HTMLWorker(document);
+			    htmlWorker.parse(new StringReader(actualString));
+			    document.close();
+			    file.close();
+			    response.setMessage("Success");
+				response.setIsError(false);
+		 }	catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+			return response;
+		}
 		
 
 }

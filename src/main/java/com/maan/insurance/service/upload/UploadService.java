@@ -1,8 +1,6 @@
 package com.maan.insurance.service.upload;
 
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.maan.insurance.model.req.DoUploadReq;
 import com.maan.insurance.model.req.upload.DoDeleteDocDetailsReq;
 import com.maan.insurance.model.req.upload.GetDocListReq;
@@ -26,6 +24,6 @@ public interface UploadService {
 
 	CommonResponse doDeleteDocDetails(DoDeleteDocDetailsReq req);
 
-	CommonSaveRes doUpload(DoUploadReq req, MultipartFile file);
+	CommonSaveRes doUpload(DoUploadReq req);
 
 }

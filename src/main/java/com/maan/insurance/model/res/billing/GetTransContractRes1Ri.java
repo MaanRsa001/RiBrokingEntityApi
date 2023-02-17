@@ -77,5 +77,8 @@ public class GetTransContractRes1Ri {
 	
 	@JsonProperty("WithholdingTax")
     private String withholdingTax;
+	
+	@JsonProperty("WithholdingTaxBrokerage")
+    private String withholdingTaxBrokerage;
 
 }
