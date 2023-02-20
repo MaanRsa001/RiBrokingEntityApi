@@ -5915,7 +5915,8 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 					res.setSignedLine(map.get("SHARE_SIGNED")==null?"":formattereight(map.get("SHARE_SIGNED").toString()));
 					res.setSnos(map.get("SNO")==null?"":map.get("SNO").toString());
 					res.setWrittenLine(map.get("SHARE_WRITTEN")==null?"":formattereight(map.get("SHARE_WRITTEN").toString()));
-					res.setStatusNo(map.get("STATUS_NO")==null?"":map.get("STATUS_NO").toString());				
+					res.setStatusNo(map.get("STATUS_NO")==null?"":map.get("STATUS_NO").toString());	
+					res.setRenewalcontractNo(map.get("REINSURER_CONTRACT_NO")==null?"":map.get("REINSURER_CONTRACT_NO").toString());
 					resList.add(res);
 					} }
 				response.setCommonResponse(resList);

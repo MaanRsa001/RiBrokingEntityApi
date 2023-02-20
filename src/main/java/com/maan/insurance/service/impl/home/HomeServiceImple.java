@@ -165,9 +165,9 @@ public class HomeServiceImple implements HomeService{
 			for(Tuple data: list1) {
 				GetMenuDropDownListRes1 res = new GetMenuDropDownListRes1();
 				res.setMenuKey(data.get("productId") + "~" + data.get("deptId") + "~" + data.get("processId") + "~" + data.get("menuName") + "~" 
-						+ data.get("menuUrl") + "~" + data.get("productName") + "~" + data.get("deptName") + "~" + data.get("processName") + "~" 
+						+ data.get("menuUrl") + "~" + data.get("productName") + "~" + (data.get("deptName")==null?"":data.get("deptName")) + "~" + data.get("processName") + "~" 
 						+ data.get("menuId"));
-				res.setMenuList(data.get("productName") + ">" + data.get("deptName") + ">" + data.get("processName") + ">" 
+				res.setMenuList(data.get("productName") + ">" + (data.get("deptName")==null?"":data.get("deptName")) + ">" + data.get("processName") + ">" 
 						+data.get("menuName"));
 				resList.add(res);
 				}

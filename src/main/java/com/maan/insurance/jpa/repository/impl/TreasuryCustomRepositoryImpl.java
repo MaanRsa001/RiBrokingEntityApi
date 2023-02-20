@@ -1474,7 +1474,7 @@ public class TreasuryCustomRepositoryImpl implements TreasuryCustomRepository {
 	public List<Tuple> getTranContDtls(GetTransContractReq req) {
 		List<Tuple> resultList = getTranContDtlsForRsk(req.getBrokerId(), req.getCedingId(), 
 				req.getAlloccurrencyId(), req.getBranchCode());
-		List<Tuple> resultList1 = getTranContDtlsForRsk(req.getBrokerId(), req.getCedingId(), 
+		List<Tuple> resultList1 = getTranContDtlsForClaim(req.getBrokerId(), req.getCedingId(), 
 				req.getAlloccurrencyId(), req.getBranchCode());
 		List<Tuple> resultList2 = getTranContDtlsForBill(req.getBrokerId(), req.getCedingId(), 
 				req.getAlloccurrencyId(), req.getBranchCode());
@@ -1518,12 +1518,12 @@ public class TreasuryCustomRepositoryImpl implements TreasuryCustomRepository {
 		sq.select(subRoot.get("companyName")).where(cb.equal(subRoot.get("customerId"), rRoot.get("cedingId")),
 				cb.equal(subRoot.get("branchCode"), rRoot.get("branchCode")), cb.equal(subRoot.get("amendId"), aSq));
 
-		cq.multiselect(rRoot.get("transactionNo").as(String.class),cb.literal("RTRIM").as(String.class),
-				cb.literal("RTRIM").as(String.class),
-				cb.literal("RTRIM"), rRoot.get("sysDate"), exp.alias("NETDUE"),
-				cb.nullLiteral(Double.class).alias("PAID_AMOUNT_OC"), cb.literal("RTRIM").as(String.class),
+		cq.multiselect(rRoot.get("billingNo").as(String.class),cb.literal("").as(String.class),
+				cb.literal("").as(String.class),
+				cb.literal(""), rRoot.get("sysDate"), exp.alias("NETDUE"),
+				cb.nullLiteral(Double.class).alias("PAID_AMOUNT_OC"), cb.literal("").as(String.class),
 				cb.nullLiteral(Double.class).alias("ACC_CLAIM"),
-				cb.literal("RTRIM").as(String.class),
+				cb.literal("").as(String.class),
 				cb.literal("B").alias("BUSINESS_TYPE"),
 				sq.alias("CEDING_COMPANY_NAME"), 
 				cb.literal("RTRIM").as(String.class),

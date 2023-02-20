@@ -1972,7 +1972,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 				beanObj.setRenewalcontractNo(resMap.get("OLD_CONTRACTNO")==null?"":resMap.get("OLD_CONTRACTNO").toString());
 				beanObj.setBaseLoginId(resMap.get("LOGIN_ID")==null?"":resMap.get("LOGIN_ID").toString());
 				beanObj.setPaymentPartner(resMap.get("PAYMENT_PARTNER")==null?"":resMap.get("PAYMENT_PARTNER").toString());
-				beanObj.setRateOnLine(resMap.get("RATE_ON_LINE")==null?"":resMap.get("RATE_ON_LINE").toString());
+				beanObj.setRateOnLine(resMap.get("RATE_ON_LINE")==null?"":fm.formatterfour(resMap.get("RATE_ON_LINE").toString()));
 				beanObj.setRiskdetailYN(resMap.get("RISK_DET_YN")==null?"N":resMap.get("RISK_DET_YN").toString());
 				beanObj.setBrokerdetYN(resMap.get("BROKER_DET_YN")==null?"N":resMap.get("BROKER_DET_YN").toString());
 				beanObj.setPremiumdetailYN(resMap.get("PREMIUM_DET_YN")==null?"N":resMap.get("PREMIUM_DET_YN").toString());

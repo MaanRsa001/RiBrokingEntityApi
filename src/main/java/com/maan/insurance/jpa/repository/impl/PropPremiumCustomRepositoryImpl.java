@@ -2728,19 +2728,36 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		Subquery<String> fNameSq = cq.subquery(String.class);
 		Root<PersonalInfo> fNameSubRoot = fNameSq.from(PersonalInfo.class);
 
+		Subquery<Integer> pibAmendSq = cq.subquery(Integer.class);
+		Root<PersonalInfo> piSubRoot = pibAmendSq.from(PersonalInfo.class);
+
+		pibAmendSq.select(cb.max(piSubRoot.get("amendId")))
+				.where(cb.equal(piSubRoot.get("customerId"), fNameSubRoot.get("customerId")),
+					   cb.equal(piSubRoot.get("branchCode"), fNameSubRoot.get("branchCode")));
+		
 		fNameSq.select(cb.concat(cb.concat(fNameSubRoot.get("firstName"), " "),
 				fNameSubRoot.get("lastName")))
 			   .where( cb.equal(fNameSubRoot.get("customerId"), traRoot.get("brokerId")),
 					   cb.equal(fNameSubRoot.get("customerType"), "B"),
-					   cb.equal(fNameSubRoot.get("branchCode"), traRoot.get("branchCode")));
+					   cb.equal(fNameSubRoot.get("branchCode"), traRoot.get("branchCode")),
+					   cb.equal(fNameSubRoot.get("amendId"),pibAmendSq));
+		
 		
 		Subquery<String> fCNameSq = cq.subquery(String.class);
 		Root<PersonalInfo> fCNameSubRoot = fCNameSq.from(PersonalInfo.class);
+		
+		Subquery<Integer> picAmendSq = cq.subquery(Integer.class);
+		Root<PersonalInfo> picSubRoot = picAmendSq.from(PersonalInfo.class);
+
+		picAmendSq.select(cb.max(picSubRoot.get("amendId")))
+				.where(cb.equal(picSubRoot.get("customerId"), fCNameSubRoot.get("customerId")),
+					   cb.equal(picSubRoot.get("branchCode"), fCNameSubRoot.get("branchCode")));
 
 		fCNameSq.select(fCNameSubRoot.get("companyName"))
 			   .where( cb.equal(fCNameSubRoot.get("customerId"), traRoot.get("reinsurerId")),
 					   cb.equal(fCNameSubRoot.get("customerType"), "R"),
-					   cb.equal(fCNameSubRoot.get("branchCode"), traRoot.get("branchCode")));
+					   cb.equal(fCNameSubRoot.get("branchCode"), traRoot.get("branchCode")),
+					   cb.equal(fCNameSubRoot.get("amendId"),picAmendSq));
 		
 		cq.multiselect(rkRoot.get("rskContractNo").alias("RSK_CONTRACT_NO"),
 				personalRoot.get("companyName").alias("COMPANY_NAME"),

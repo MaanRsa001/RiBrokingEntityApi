@@ -37,5 +37,6 @@ public class GetPlacementInfoListRes1 {
 	private String newStatus;
 	@JsonProperty("StatusNo")
 	private String statusNo;
-
+	@JsonProperty("RenewalcontractNo")
+	private String renewalcontractNo; 
 }

@@ -6211,7 +6211,8 @@ try{
 					req.setSignedLineValidity("");
 					req.setSignedLineRemarks("");
 					req.setProposedSL(req1.getProposedSL());	
-					req.setPsignedLine("");			
+					req.setPsignedLine("");	
+					req.setRenewalcontractNo(req1.getRenewalcontractNo());
 					reqList.add(req);
 				}
 			//	statusNos.add(statusNo);

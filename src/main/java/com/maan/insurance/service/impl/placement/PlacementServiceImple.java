@@ -879,6 +879,7 @@ public class PlacementServiceImple implements PlacementService {
 					entity.setShareLineRemarks(StringUtils.isBlank(req.getSignedLineRemarks())? null :req.getSignedLineRemarks());
 					entity.setShareProposedSigned(StringUtils.isBlank(req.getProposedSL())? null :new BigDecimal(req.getProposedSL()));
 					entity.setBrokerage(StringUtils.isBlank(req.getBrokerage())? null :new BigDecimal(req.getBrokerage()));
+					entity.setReinsurerContractNo(StringUtils.isBlank(req.getRenewalcontractNo())? null :req.getRenewalcontractNo());
 				}
 				entity.setPlacementAmendId(StringUtils.isBlank(bean.getPlacementamendId())? BigDecimal.ZERO:new BigDecimal(bean.getPlacementamendId()));
 				entity.setStatusNo(StringUtils.isBlank(bean.getStatusNo())? null: new BigDecimal(bean.getStatusNo()));

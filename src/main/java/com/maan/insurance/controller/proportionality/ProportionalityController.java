@@ -31,7 +31,6 @@ import com.maan.insurance.model.req.proportionality.RemarksSaveReq;
 import com.maan.insurance.model.req.proportionality.RetroSaveReq;
 import com.maan.insurance.model.req.proportionality.RiskDetailsEditModeReq;
 import com.maan.insurance.model.req.proportionality.ScaleCommissionInsertReq;
-import com.maan.insurance.model.req.proportionality.SecondpageSaveReq;
 import com.maan.insurance.model.req.proportionality.ShowRetroContractsReq;
 import com.maan.insurance.model.req.proportionality.ShowSecondPageDataReq;
 import com.maan.insurance.model.req.proportionality.ShowSecondpageEditItemsReq;

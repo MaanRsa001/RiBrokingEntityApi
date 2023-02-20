@@ -6,10 +6,10 @@ import lombok.Data;
 
 @Data
 public class GetBrokerAndCedingNameRes1 {
-	@JsonProperty("CutomerId")
+	@JsonProperty("Code")
 	private String cutomerId;
-	@JsonProperty("CompanyName")
+	@JsonProperty("CodeDescription")
 	private String companyName;
-	@JsonProperty("Address")
+	@JsonProperty("CodeValue")
 	private String address;
 }

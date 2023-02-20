@@ -20,7 +20,8 @@ public class ConvertPolicyReq1 {
 	private String bouquetNos; 
 	@JsonProperty("BaseproposalNos")
 	private String baseproposalNos; 
-	
+	@JsonProperty("RenewalcontractNo")
+	private String renewalcontractNo;
 	@JsonProperty("ProposalNo")
 	private String proposalNo; 
 	

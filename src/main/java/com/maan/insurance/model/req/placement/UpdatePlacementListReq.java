@@ -34,7 +34,8 @@ public class UpdatePlacementListReq {
 	private String proposedSL; 
 	@JsonProperty("Brokerage")
 	private String brokerage; 
-	
+	@JsonProperty("RenewalcontractNo")
+	private String renewalcontractNo;
 	@JsonProperty("Sno")
 	private String sno; 
 	@JsonProperty("BouquetNo")

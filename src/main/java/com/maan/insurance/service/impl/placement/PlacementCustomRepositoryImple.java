@@ -1935,7 +1935,7 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 			Predicate i1 = cb.equal(pm.get("proposalNo"), p.get("proposalNo"));
 			Predicate i2 = cb.equal(pm.get("reinsurerId"), p.get("reinsurerId"));
 			Predicate i3 = cb.equal(pm.get("brokerId"), p.get("brokerId"));
-			Predicate i4 = cb.equal(pm.get("status"), "O");
+			Predicate i4 = cb.notEqual(pm.get("status"), "O");
 			offerStatus.where(i1,i2,i3,i4);
 			
 			query.multiselect( 
@@ -2045,7 +2045,7 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 			Predicate i1 = cb.equal(pm.get("proposalNo"), p.get("proposalNo"));
 			Predicate i2 = cb.equal(pm.get("reinsurerId"), p.get("reinsurerId"));
 			Predicate i3 = cb.equal(pm.get("brokerId"), p.get("brokerId"));
-			Predicate i4 = cb.equal(pm.get("status"), "O");
+			Predicate i4 = cb.notEqual(pm.get("status"), "O");
 			offerStatus.where(i1,i2,i3,i4);
 			
 			query.multiselect( 
@@ -2155,7 +2155,7 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 			Predicate i1 = cb.equal(pm.get("proposalNo"), p.get("proposalNo"));
 			Predicate i2 = cb.equal(pm.get("reinsurerId"), p.get("reinsurerId"));
 			Predicate i3 = cb.equal(pm.get("brokerId"), p.get("brokerId"));
-			Predicate i4 = cb.equal(pm.get("status"), "O");
+			Predicate i4 = cb.notEqual(pm.get("status"), "O");
 			offerStatus.where(i1,i2,i3,i4);
 			
 			query.multiselect( 
