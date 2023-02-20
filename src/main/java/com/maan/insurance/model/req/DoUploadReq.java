@@ -1,11 +1,9 @@
 package com.maan.insurance.model.req;
 
-import java.io.File;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.maan.insurance.model.req.upload.DoDeleteDocDetailsReq;
-
+import com.maan.insurance.model.req.placement.InsertDocdetailsReq;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -29,28 +27,12 @@ public class DoUploadReq {
 	private String layerNo;
 	@JsonProperty("ProductId")
 	private String productId;
-	@JsonProperty("OurFileName")
-	private String ourFileName; 
 	@JsonProperty("TranNo")
 	private String tranNo; 
-	@JsonProperty("FilePath")
-	private String filePath; 
-	@JsonProperty("StartIndex")
-	private String startIndex; 
-	@JsonProperty("EndIndex")
-	private String endIndex;  
 	@JsonProperty("ProposalNo")
 	private String proposalNo; 
-	@JsonProperty("DocId")
-	private String docId;
-	@JsonProperty("DocTypeId")
-	private String docTypeId; 
-//	@JsonProperty("Upload")
-//	private List<File> upload;  
-	@JsonProperty("UploadFileName")
-	private String uploadFileName;
-	@JsonProperty("DocDesc")
-	private String docDesc; 
+	@JsonProperty("InsertDocdetailsReq")
+	private List<InsertDocdetailsReq> insertDocdetailsReq; 
 	
 
 }

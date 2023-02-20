@@ -8,30 +8,22 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.maan.insurance.error.CommonValidationException;
 import com.maan.insurance.error.ErrorCheck;
 import com.maan.insurance.model.req.DoUploadReq;
-import com.maan.insurance.model.req.home.GetOldProductIdReq;
 import com.maan.insurance.model.req.upload.DoDeleteDocDetailsReq;
 import com.maan.insurance.model.req.upload.GetDocListReq;
 import com.maan.insurance.model.res.DropDown.GetCommonDropDownRes;
-import com.maan.insurance.model.res.home.GetMenuDropDownListRes;
 import com.maan.insurance.model.res.retro.CommonResponse;
 import com.maan.insurance.model.res.retro.CommonSaveRes;
 import com.maan.insurance.model.res.upload.AllmoduleListRes;
 import com.maan.insurance.model.res.upload.GetDocListRes;
 import com.maan.insurance.model.res.upload.GetDocTypeRes;
-import com.maan.insurance.service.home.HomeService;
 import com.maan.insurance.service.upload.UploadService;
-import com.maan.insurance.validation.home.HomeValidation;
 import com.maan.insurance.validation.upload.UploadValidation;
 
 @RestController
@@ -82,12 +74,11 @@ public class UploadController {
 //				return serv.doUpload(req);
 //			} 
 		@PostMapping("/doUpload")
-		public CommonSaveRes doUpload(@RequestParam("File") MultipartFile file, @RequestParam("Req") String jsonString) throws CommonValidationException, JsonMappingException, JsonProcessingException{
-			DoUploadReq req =  new ObjectMapper().readValue(jsonString, DoUploadReq.class); 
-			List<ErrorCheck> error= val.doUploadVali(req, file);
+		public CommonSaveRes doUpload(@RequestBody DoUploadReq req) throws CommonValidationException, JsonMappingException, JsonProcessingException{
+			List<ErrorCheck> error= val.doUploadVali(req);
 			if(error!=null && error.size()>0) {
 				throw new CommonValidationException("error",error);
 			}
-			return serv.doUpload(req,file);
+			return serv.doUpload(req);
 		}
 }

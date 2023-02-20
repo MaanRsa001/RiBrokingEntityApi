@@ -112,7 +112,7 @@ public class UploadValidation {
 
 
 
-	public List<ErrorCheck> doUploadVali(DoUploadReq req, MultipartFile file) {
+	public List<ErrorCheck> doUploadVali(DoUploadReq req) {
 		// TODO Auto-generated method stub
 		return null;
 	}

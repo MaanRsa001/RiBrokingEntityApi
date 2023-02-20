@@ -263,10 +263,11 @@ public class BillingServiceImple implements  BillingService {
 			args[13]=form.getSubClass();
 			args[14]=req.getLoginId();
 			args[15]=req.getBranchCode();
-			args[16]=req.getGrossAmount();
-			args[17] = req.getWhtPremium();
-			args[18] = req.getWhtBrokerage();
-			args[19] = req.getNetAmount();
+			args[16]=form.getAmount().replaceAll(",", "");
+			args[17]=form.getWithholdingTax().replaceAll(",", "");
+			args[18]=form.getWithholdingTaxBrokerage().replaceAll(",", "");
+			args[19]="P".equals(form.getCheckPC())?form.getNetDue().replaceAll(",", ""):form.getPayAmount().replaceAll(",", "");
+			
  					
 			
 			TtrnBillingTransaction ttrnBillingTransaction = ttrnAllocatedTransactionMapper.toEntityBilling(args);
@@ -388,10 +389,10 @@ public class BillingServiceImple implements  BillingService {
 			args[13]=form.getSubClass();
 			args[14]=req.getLoginId();
 			args[15]=req.getBranchCode();
-			args[16]=req.getGrossAmount();
-			args[17] = req.getWhtPremium();
-			args[18] = req.getWhtBrokerage();
-			args[19] = req.getNetAmount();
+			args[16]=form.getAmount().replaceAll(",", "");
+			args[17]=form.getWithholdingTax().replaceAll(",", "");
+			args[18]=form.getWithholdingTaxBrokerage().replaceAll(",", "");
+			args[19]="P".equals(form.getCheckPC())?form.getNetDue().replaceAll(",", ""):form.getPayAmount().replaceAll(",", "");
 			
 			TtrnBillingTransaction ttrnBillingTransaction = ttrnAllocatedTransactionMapper.toEntityBilling(args);
 			ttrnBillingTransactionRepository.saveAndFlush(ttrnBillingTransaction);
@@ -495,6 +496,7 @@ public class BillingServiceImple implements  BillingService {
 				res.setCedingCompanyName(tempMap.get(11)==null?"":tempMap.get(11).toString());
 				res.setAmount(tempMap.get(14)==null?"":fm.formatter(tempMap.get(14).toString()));
 				res.setWithholdingTax(tempMap.get(15)==null?"0":fm.formatter(tempMap.get(15).toString()));
+				res.setWithholdingTaxBrokerage(tempMap.get(16)==null?"0":fm.formatter(tempMap.get(16).toString()));
 //				res.setAllocType(req.getAllocType());
 //				if(!CollectionUtils.isEmpty(req.getTransContractListReq())) {
 //					List<GetTransContractListReq> filterTrack = req.getTransContractListReq().stream().filter( o -> res.getTransactionNo().equalsIgnoreCase(o.getTransactionNo()) ).collect(Collectors.toList());
@@ -547,11 +549,11 @@ public class BillingServiceImple implements  BillingService {
 					//res.setReversalTransno(data.getReversaltransno()==null?"":data.getReversaltransno().toString());					
 					//res.setReverselLoginid(data.getLoginId()==null?"":data.getLoginId().toString());
 					//res.setRevTransalType(data.getTransType()==null?"":data.getTransType().toString());;
-					res.setRoundingAmount(data.getRoundingAmt()==null?"":data.getRoundingAmt().toString());
+					res.setRoundingAmount(data.getRoundingAmt()==null?"":fm.formatter(data.getRoundingAmt().toString()));
 					//res.setStatus(data.getStatus()==null?"":data.getStatus().toString());
 					//res.setTranscationType(data.getTranscationtype()==null?"":data.getTranscationtype().toString());
 					res.setTransType(data.getTransType()==null?"":data.getTransType().toString());
-					res.setUtilizedTillDate(data.getUtilizedTillDate()==null?"":data.getUtilizedTillDate().toString());	
+					res.setUtilizedTillDate(data.getUtilizedTillDate()==null?"":fm.formatter(data.getUtilizedTillDate().toString()));	
 					com.setBillingInfo(res);
 					}
 			
@@ -596,10 +598,10 @@ public class BillingServiceImple implements  BillingService {
 					res.setTransactionNo(data.getTransactionNo()==null?"":data.getTransactionNo().toString());
 					res.setType(data.getType()==null?"":data.getType().toString());
 				
-					res.setGrossAmount(data.getGrossAmount()==null?"":data.getGrossAmount().toString());
-					res.setWhtPremium(data.getWhtPremium()==null?"":data.getWhtPremium().toString());
-					res.setWhtBrokerage(data.getWhtBrokerage()==null?"":data.getWhtBrokerage().toString());
-					res.setNetAmount(data.getNetAmount()==null?"":data.getNetAmount().toString());
+					res.setGrossAmount(data.getGrossAmount()==null?"":fm.formatter(data.getGrossAmount().toString()));
+					res.setWhtPremium(data.getWhtPremium()==null?"":fm.formatter(data.getWhtPremium().toString()));
+					res.setWhtBrokerage(data.getWhtBrokerage()==null?"":fm.formatter(data.getWhtBrokerage().toString()));
+					res.setNetAmount(data.getNetAmount()==null?"":fm.formatter(data.getNetAmount().toString()));
 					
 					response.add(res);
 					}

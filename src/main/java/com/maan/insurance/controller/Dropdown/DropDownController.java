@@ -36,6 +36,7 @@ import com.maan.insurance.model.req.DropDown.GetSubProfitCentreMultiReq;
 import com.maan.insurance.model.req.DropDown.GetTreatyTypeDropDownReq;
 import com.maan.insurance.model.req.DropDown.GetYearListValueReq;
 import com.maan.insurance.model.req.DropDown.GetYearToListValueReq;
+import com.maan.insurance.model.req.DropDown.SavehtmltoPdfReq;
 import com.maan.insurance.model.req.DropDown.UpdatepositionMasterEndtStatusReq;
 import com.maan.insurance.model.req.DropDown.ValidatethreeReq;
 import com.maan.insurance.model.req.DropDown.endorsementModeReq;
@@ -672,7 +673,7 @@ public class DropDownController {
 	public GetCommonDropDownRes getSubStatusDropDown(@PathVariable("branchCode") String branchCode,@PathVariable("statusCode") String statusCode)throws CommonValidationException {
 		return dropDownservice.getSubStatusDropDown(branchCode,statusCode);
 	} 
-	@GetMapping("/updateBqEditMode")
+	@PostMapping("/updateBqEditMode")
 	public CommonResponse updateBqEditMode(@RequestBody updateBqEditModeReq req)throws CommonValidationException {
 		return dropDownservice.updateBqEditMode(req);
 	} 
@@ -724,4 +725,9 @@ public class DropDownController {
 	public GetCompanyInfoRes getCompanyInfo(@PathVariable("branchCode") String branchCode)throws CommonValidationException {
 		return dropDownservice.getCompanyInfo(branchCode);
 	}
+	@PostMapping("/Savehtmltopdf")
+	public CommonResponse Savehtmltopdf(@RequestBody SavehtmltoPdfReq req)throws CommonValidationException {
+		return dropDownservice.Savehtmltopdf(req);
+	} 
+	
 }

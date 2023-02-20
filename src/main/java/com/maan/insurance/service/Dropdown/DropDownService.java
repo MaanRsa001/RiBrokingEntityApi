@@ -24,6 +24,7 @@ import com.maan.insurance.model.req.DropDown.GetSubProfitCentreMultiReq;
 
 import com.maan.insurance.model.req.DropDown.GetTreatyTypeDropDownReq;
 import com.maan.insurance.model.req.DropDown.GetYearToListValueReq;
+import com.maan.insurance.model.req.DropDown.SavehtmltoPdfReq;
 import com.maan.insurance.model.req.DropDown.updateBqEditModeReq;
 import com.maan.insurance.model.req.DropDown.updateSubEditModeReq;
 import com.maan.insurance.model.req.proportionality.ContractReq;
@@ -230,4 +231,6 @@ public interface DropDownService {
 	GetCompanyInfoRes getCompanyInfo(String branchCode);
 
 	GetCommonDropDownRes getProductDropDown(String branchCode);
+
+	CommonResponse Savehtmltopdf(SavehtmltoPdfReq req);
 }

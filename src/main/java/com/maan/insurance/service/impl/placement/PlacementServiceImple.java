@@ -124,6 +124,7 @@ import com.maan.insurance.notification.entity.MailMaster;
 import com.maan.insurance.notification.repo.MailMasterRepository;
 import com.maan.insurance.service.impl.QueryImplemention;
 import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
+import com.maan.insurance.service.impl.upload.UploadCustomRepository;
 import com.maan.insurance.service.placement.PlacementService;
 import com.maan.insurance.validation.Formatters;
 
@@ -157,6 +158,9 @@ public class PlacementServiceImple implements PlacementService {
 	
 	@Autowired
 	private PlacementCustomRepository placementCustomRepository;
+	
+	@Autowired
+	private UploadCustomRepository uploadCustomRepository;
 	
 	@PersistenceContext
 	private EntityManager em;
@@ -1152,6 +1156,7 @@ public class PlacementServiceImple implements PlacementService {
 	public SendMailRes sendMail(SendMailReq bean) {
 		SendMailRes response = new SendMailRes();
 		String status=null;
+		UpdatePlacementReq req=new UpdatePlacementReq();
 		try {
 			MailMaster mapt= getMailDetails("51"); //new CommonDAO()
 			String hostName=mapt.getSmtpHost();
@@ -1171,32 +1176,36 @@ public class PlacementServiceImple implements PlacementService {
 				if(ccAddress!=null && !"".equals(ccAddress)){
 					ccAddresses = (ccAddress.indexOf(",")!=-1)?ccAddress.split(","):new String[]{ccAddress};
 				}
-			InsertMailDetailsRes res=insertMailDetails(bean);
-			UpdatePlacementReq req=new UpdatePlacementReq();
-			req.setBranchCode(bean.getBranchCode());
-			req.setCorresId(bean.getCorresId());
-			req.setStatusNo(bean.getStatusNo());
-			List<UpdatePlacementListReq> placementListReq=new ArrayList<UpdatePlacementListReq>();
-			List<InsertMailDetailsRes1> resp=res.getCommonResponse();
-			for(int i=0;i<resp.size();i++) {
-				UpdatePlacementListReq ureq=new UpdatePlacementListReq();
-				ureq.setSno(resp.get(i).getSno());
-				ureq.setProposalNo(resp.get(i).getEproposalNo());
-				ureq.setBouquetNo(resp.get(i).getBouquetNo());
-				ureq.setReinsurerId(resp.get(i).getReinsurerId());
-				ureq.setBrokerId(resp.get(i).getBrokerId());
-				ureq.setBaseproposalNo(resp.get(i).getBaseProposalNo());
-				placementListReq.add(ureq);
+			if(!"PC".equalsIgnoreCase(bean.getMailType())) {	
+				InsertMailDetailsRes res=insertMailDetails(bean);
+				
+				req.setBranchCode(bean.getBranchCode());
+				req.setCorresId(bean.getCorresId());
+				req.setStatusNo(bean.getStatusNo());
+				List<UpdatePlacementListReq> placementListReq=new ArrayList<UpdatePlacementListReq>();
+				List<InsertMailDetailsRes1> resp=res.getCommonResponse();
+				for(int i=0;i<resp.size();i++) {
+					UpdatePlacementListReq ureq=new UpdatePlacementListReq();
+					ureq.setSno(resp.get(i).getSno());
+					ureq.setProposalNo(resp.get(i).getEproposalNo());
+					ureq.setBouquetNo(resp.get(i).getBouquetNo());
+					ureq.setReinsurerId(resp.get(i).getReinsurerId());
+					ureq.setBrokerId(resp.get(i).getBrokerId());
+					ureq.setBaseproposalNo(resp.get(i).getBaseProposalNo());
+					placementListReq.add(ureq);
+				}
+				req.setPlacementListReq(placementListReq);
 			}
-			req.setPlacementListReq(placementListReq);
 			Multipart multipart=GetMailAttachment(bean);
-			 status=sendResponseMail(hostName, user, pwd, mailform, subject, multipart, toAddresses, ccAddresses, shortAddress,port);
-			if("Success".equals(status) && "P".equals(bean.getMailType())) {
-				req.setStatus("P");
-				updateStatus(req); 
+			status=sendResponseMail(hostName, user, pwd, mailform, subject, multipart, toAddresses, ccAddresses, shortAddress,port);
+			if(!"PC".equalsIgnoreCase(bean.getMailType())) {	
+				if("Success".equals(status) && "P".equals(bean.getMailType())) {
+					req.setStatus("P");
+					updateStatus(req); 
+				}
+				updateMailDetails(req,status,bean.getMailType());
+				} 
 			}
-			updateMailDetails(req,status,bean.getMailType());
-			} 
 			response.setResponse(String.valueOf(status));
 			response.setMessage("Success");
 			response.setIsError(false);
@@ -1235,7 +1244,12 @@ public class PlacementServiceImple implements PlacementService {
 				for(int i=0;i<list.size();i++) {
 					GetExistingAttachListRes1 map=list.get(i);
 					BodyPart messageBodyPart = new MimeBodyPart();
-					String filePath=commonPath+"documents/"+"PL/";
+					String filePath="";
+					if("PC".equalsIgnoreCase(bean.getMailType())) {	
+						filePath=commonPath+"documents/"+"PC/";
+					}else {
+						filePath=commonPath+"documents/"+"PL/";
+					}
 					String fileName=map.getOrgFileName()==null?"":map.getOrgFileName().toString();
 					String orgfileName=map.getOurFileName()==null?"":map.getOurFileName().toString();
 					if(fileName!=null ){
@@ -1256,7 +1270,11 @@ public class PlacementServiceImple implements PlacementService {
 		List<GetExistingAttachListRes1> resList = new ArrayList<GetExistingAttachListRes1>();
 		List<Tuple> list=null;
 		try {
-			list=placementCustomRepository.getMailAttachList(bean);
+			if("PC".equalsIgnoreCase(bean.getMailType())) {	
+				list=uploadCustomRepository.getMailAttachList(bean);
+			}else {
+				list=placementCustomRepository.getMailAttachList(bean);
+			}
 				if(list.size()>0) {
 					for(Tuple data: list) {
 						GetExistingAttachListRes1 res = new GetExistingAttachListRes1();
@@ -1693,9 +1711,9 @@ public class PlacementServiceImple implements PlacementService {
 	public GetMailTemplateRes getMailTemplate(GetMailTemplateReq req) {
 		GetMailTemplateRes response = new GetMailTemplateRes();
 		GetMailTemplateRes1 bean =new GetMailTemplateRes1();
+		Map<String,Object>  values = new HashMap<String,Object>();
 		try {
-			//MailproposalInfo(req);
-			//GET_MAIL_TEMPLATE
+		
 			List<MailTemplateMaster> list = mailTemplateMasterRepository.findByMailType(req.getMailType());
 		
 			if(!CollectionUtils.isEmpty(list)) {
@@ -1706,10 +1724,8 @@ public class PlacementServiceImple implements PlacementService {
 				bean.setMailCC(map.getEmailCc()==null?"":map.getEmailCc().toString());
 				bean.setMailRegards(map.getMailRegards()==null?"":map.getMailRegards().toString());
 			}
-			//GetMailBodyFrame(bean);
 			String mailbody=bean.getMailBody(),mailsub=bean.getMailSubject();
-			
-			//proposalInfo
+			if(!"PC".equalsIgnoreCase(req.getMailType())) {
 			String proposal=StringUtils.isBlank(req.getEproposalNo())?req.getProposalNo():req.getEproposalNo();
 			List<Tuple> list1 = placementCustomRepository.getExistingProposal(proposal, req.getBranchCode(),req.getReinsurerId());
 		
@@ -1724,9 +1740,8 @@ public class PlacementServiceImple implements PlacementService {
 				}else if(StringUtils.isNotBlank(offerNo)) {
 					mailsub=mailsub+" "+offerNo+" ";
 				}
-			//	GetPalcementInfo(bean);
-				 Map<String,Object>  values = new HashMap<String,Object>();
 				 values.put("COMPANY_NAME", map.get("COMPANY_NAME") );
+				 values.put("TransactionNo", req.getTransactionNo());
 				 
 				 if("PWL".equalsIgnoreCase(req.getNewStatus())) {
 					if(mailbody.contains("COMPANY_NAME") == true) {
@@ -1734,19 +1749,25 @@ public class PlacementServiceImple implements PlacementService {
 					}
 				 }
 				
-				for (Map.Entry entry: values.entrySet()) {
-					
-					if(mailbody.contains(entry.getKey().toString()) == true) {
-						mailbody = mailbody.replace("{"+entry.getKey().toString()+"}", entry.getValue()==null?"":entry.getValue().toString());
-					}
-					
-					if(mailsub.contains(entry.getKey().toString()) == true) {
-						mailsub = mailsub.replace("{"+entry.getKey().toString()+"}", entry.getValue()==null?"":entry.getValue().toString());
-					}
+				
+			}
+				mailbody+=BodyTableFrame(req);
+			}else {
+			
+				 values.put("TransactionNo", req.getTransactionNo());
+				 
+			}
+			for (Map.Entry entry: values.entrySet()) {
+				
+				if(mailbody.contains(entry.getKey().toString()) == true) {
+					mailbody = mailbody.replace("{"+entry.getKey().toString()+"}", entry.getValue()==null?"":entry.getValue().toString());
+				}
+				
+				if(mailsub.contains(entry.getKey().toString()) == true) {
+					mailsub = mailsub.replace("{"+entry.getKey().toString()+"}", entry.getValue()==null?"":entry.getValue().toString());
 				}
 			}
 			
-			mailbody+=BodyTableFrame(req);
 			bean.setMailBody(mailbody);
 			bean.setMailSubject(mailsub);
 	
@@ -1929,6 +1950,8 @@ public class PlacementServiceImple implements PlacementService {
 		catch (Exception e) 
 		{
 		   System.err.println("Couldn't write to file...");
+		   e.printStackTrace();
+		   
 		}
 	}
 	private static String encodeFileToBase64(File file) {
