@@ -3,11 +3,14 @@ package com.maan.insurance.model.entity;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -47,11 +50,11 @@ public class TtrnRiPlacement implements Serializable {
 	    private BigDecimal statusNo ;
 	    
 	    @Id
-	    @Column(name="SNO")
+	    @Column(name="SNO", nullable=false)
 	    private BigDecimal sno ;
 	    
 	    @Id
-	    @Column(name="PROPOSAL_NO")
+	    @Column(name="PROPOSAL_NO", nullable=false)
 	    private BigDecimal proposalNo ;
 	    
 	    @Id
@@ -113,7 +116,7 @@ public class TtrnRiPlacement implements Serializable {
 
 	  
 	    @Column(name="SHARE_SIGNED")
-	    private BigDecimal     shareSigned ;
+	    private BigDecimal    shareSigned ;
 
 	    @Column(name="SHARE_LINE_REMARKS")
 	    private String shareLineRemarks ;
@@ -134,7 +137,7 @@ public class TtrnRiPlacement implements Serializable {
 	    private String     placementMode ;
 
 	    @Column(name="PLACEMENT_AMEND_ID")
-	    private BigDecimal     placementAmendId ;
+	    private BigDecimal    placementAmendId ;
 
 	    @Column(name="STATUS")
 	    private String     status ;
@@ -147,10 +150,12 @@ public class TtrnRiPlacement implements Serializable {
 
 	    @Column(name="REMARKS")
 	    private String remarks ;
-
-	 
-	    //--- ENTITY LINKS ( RELATIONSHIP )
-
+	
+	    
+	    //--- ENTITY LINKS (RELATIONSHIP)
+//	    @OneToMany(mappedBy = "ttrnRiPlacement")
+//	    private List<MailNotificationDetail> listOfMailNotificationDetail;
+	    
 
 	}
 

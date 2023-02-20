@@ -32,7 +32,6 @@ public class GetAdjustmentListReq {
 	private String 	mode;
 	@JsonProperty("TransactionType")
 	private String transactionType;
-	
 	@JsonProperty("TransactionNoListReq")
 	private List<TransactionNoListReq> 	transactionNoListReq;
 	@JsonProperty("LoginId")

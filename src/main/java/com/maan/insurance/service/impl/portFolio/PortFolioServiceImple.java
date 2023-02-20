@@ -15,7 +15,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-
 import javax.persistence.StoredProcedureQuery;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
@@ -26,7 +25,6 @@ import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
-
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -49,7 +47,6 @@ import com.maan.insurance.model.repository.TmasDepartmentMasterRepository;
 import com.maan.insurance.model.repository.TtrnClaimDetailsRepository;
 import com.maan.insurance.model.repository.TtrnRiskDetailsRepository;
 import com.maan.insurance.model.repository.UnderwritterMasterRepository;
-
 import com.maan.insurance.model.req.portFolio.GetAutoPendingListReq;
 import com.maan.insurance.model.req.portFolio.GetConfirmedListReq;
 import com.maan.insurance.model.req.portFolio.GetContractsListReq;
@@ -140,7 +137,7 @@ public class PortFolioServiceImple implements PortFolioService{
             obj[1] = beanObj.getBranchCode();
             obj[2] = beanObj.getBranchCode();
             obj[3] = beanObj.getProductId();
-            query = "portfolio.select.ntu";
+            query = "portfolio.select.ntu"; //left outer join
             String qutext = prop.getProperty(query);
             if (beanObj.getFlag() != null && "N".equalsIgnoreCase(beanObj.getFlag())) {
             	qutext += " " +prop.getProperty("portfolio.select.flagn");

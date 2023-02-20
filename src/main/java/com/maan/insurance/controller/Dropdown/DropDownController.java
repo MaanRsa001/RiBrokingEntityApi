@@ -64,7 +64,6 @@ import com.maan.insurance.validation.Dropdown.DropDownValidation;
 @RequestMapping("/Insurance/DropDown")
 public class DropDownController {
 	Gson gson = new Gson();
-	private Logger log = LogManager.getLogger(TreasuryController.class);
 
 	@Autowired
 	private DropDownService dropDownservice;
@@ -254,13 +253,13 @@ public class DropDownController {
 		return dropDownservice.updateSubClass(proposalNo, type);
 	}
 
-	@GetMapping("/updateRenewalEditMode")
+	@PostMapping("/updateRenewalEditMode")
 	public CommonResponse updateRenewalEditMode(@RequestBody updateSubEditModeReq req)
 			throws CommonValidationException {
 		return dropDownservice.updateRenewalEditMode(req);
 	}
 
-	@GetMapping("/updateEditMode")
+	@PostMapping("/updateEditMode")
 	public CommonResponse updateEditMode(@RequestBody updateSubEditModeReq req) throws CommonValidationException {
 		return dropDownservice.updateEditMode(req);
 	}

@@ -90,9 +90,9 @@ public interface DropDownService {
 
 	CommonResponse updateSubClass(String proposalNo, String type);
 
-	CommonResponse updateRenewalEditMode(String proposalNo, String status, String updateProposalNo);
+	//CommonResponse updateRenewalEditMode(String proposalNo, String status, String updateProposalNo);
 
-	CommonResponse updateEditMode(String proposalNo, String status, String updateProposalNo);
+	//CommonResponse updateEditMode(String proposalNo, String status, String updateProposalNo);
 
 	CommonResponse updateSubEditMode(String proposalNo, String status, String updateProposalNo);
 	//GetCommonValueRes editModeStatus(String proposalNo, String layerNo);

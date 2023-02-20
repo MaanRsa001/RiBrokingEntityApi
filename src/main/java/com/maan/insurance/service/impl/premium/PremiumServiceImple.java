@@ -6,13 +6,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -25,8 +23,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.query.internal.NativeQueryImpl;
-import org.hibernate.transform.AliasToEntityMapResultTransformer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -49,27 +45,15 @@ import com.maan.insurance.model.res.premium.ContractidetifierlistRes;
 import com.maan.insurance.model.res.premium.ContractidetifierlistRes1;
 import com.maan.insurance.model.res.premium.PremiumListRes;
 import com.maan.insurance.model.res.premium.PremiumListRes1;
-import com.maan.insurance.service.impl.QueryImplemention;
 import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
-import com.maan.insurance.service.impl.jasper.JasperConfiguration;
 import com.maan.insurance.service.premium.PremiumService;
-import com.maan.insurance.validation.Formatters;
-import com.maan.insurance.validation.Claim.ValidationImple;
 @Service
 public class PremiumServiceImple implements PremiumService{
 	private Logger logger = LogManager.getLogger(PremiumServiceImple.class);
-	@Autowired
-	private QueryImplemention queryImpl;
-	
+
 	@Autowired
 	private DropDownServiceImple dropDowmImpl;
 
-	@Autowired
-	private Formatters fm;
-	
-	@Autowired
-	private ValidationImple vi;
-	
 	
 	@Autowired
 	private TmasOpenPeriodRepository openRepo;
@@ -87,11 +71,9 @@ public class PremiumServiceImple implements PremiumService{
 	
 	@PersistenceContext
 	private EntityManager em;
-	@Autowired
-	private JasperConfiguration config;
 	
 	private Properties prop = new Properties();
-	private Query query1=null;
+
 
 	  public PremiumServiceImple() {
 	        try {

@@ -196,11 +196,13 @@ public class DropDownServiceImple implements DropDownService{
 	private PositionMasterRepository positionMasterRepository;
 	@Autowired
 	private TtrnRiskDetailsRepository ttrnRiskDetailsRepository;
-	//@Autowired
-	//private DropDownCustomRepository dropDownCustomRepository;
+	
 	
 //	@Autowired
 //	private DropDownValidation dropDownValidation;
+	@Autowired
+	private DropDownCustomRepository dropDownCustomRepository;
+
 
 	
 	@Autowired
@@ -2268,7 +2270,7 @@ public class DropDownServiceImple implements DropDownService{
 		return response;
 	}
 
-	@Override
+	
 	public CommonResponse updateRenewalEditMode(String proposalNo, String status, String updateProposalNo) {
 		CommonResponse response = new CommonResponse();
 		String proposal = "";
@@ -2387,8 +2389,7 @@ public class DropDownServiceImple implements DropDownService{
 			}
 		return response;
 	}
-	@Transactional
-	@Override
+	
 		public CommonResponse updateEditMode(String proposalNo, String status,String updateProposalNo) {
 			CommonResponse response = new CommonResponse();
 			try{
@@ -2421,7 +2422,6 @@ public class DropDownServiceImple implements DropDownService{
 				response.setMessage("Success");
 				response.setIsError(false);
 		 }catch(Exception e){
-					log.error(e);
 					e.printStackTrace();
 					response.setMessage("Failed");
 					response.setIsError(true);
@@ -3317,11 +3317,6 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 			amend.select(cb.max(pms.get("amendId")));
 			Predicate a1 = cb.equal(m.get("proposalNo"), pms.get("proposalNo"));
 			amend.where(a1);
-			
-//			Expression<Object> e0 = cb.selectCase().when(cb.equal(m.get("proposalStatus"),"A"), "A")
-//					.otherwise(m.get("contractStatus"));
-//			
-//			String temp = e0==null?"":String.valueOf(e0);
 			
 			update.set("endtStatus", "Y");
 			update.set("contractStatus", cb.selectCase().when(cb.equal(m.get("proposalStatus"),"A"), "A")
@@ -5519,8 +5514,8 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 			if(list.size()>0) {
 				for(Map<String,Object> data: list) {
 					GetBouquetExistingListRes1 res = new GetBouquetExistingListRes1();
-					res.setInsDate(data.get("INS_DATE")==null?"":data.get("INS_DATE").toString());  
-					res.setExpDate(data.get("EXP_DATE")==null?"":data.get("EXP_DATE").toString());  
+					res.setInsDate(data.get("INS_DATE")==null?"":sdf.format(data.get("INS_DATE")));  
+					res.setExpDate(data.get("EXP_DATE")==null?"":sdf.format(data.get("EXP_DATE")));  
 					res.setCompanyName(data.get("COMPANY_NAME")==null?"":data.get("COMPANY_NAME").toString());  
 					res.setUwYear(data.get("UW_YEAR")==null?"":data.get("UW_YEAR").toString());  
 					res.setUwYearTo(data.get("UW_YEAR_TO")==null?"":data.get("UW_YEAR_TO").toString());  
@@ -5531,7 +5526,7 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 					res.setTreatyType1(data.get("TREATY_TYPE")==null?"":data.get("TREATY_TYPE").toString());  
 					res.setRskTreatyid(data.get("RSK_TREATYID")==null?"":data.get("RSK_TREATYID").toString());  
 					res.setPolicyStatus(data.get("POLICY_STATUS")==null?"":data.get("POLICY_STATUS").toString());  
-					res.setExistingShare(data.get("EXISTING_SHARE")==null?"":data.get("EXISTING_SHARE").toString());  
+					res.setExistingShare(""); //''EXISTING_SHARE  
 					res.setBaseLayer(data.get("BASE_LAYER")==null?"":data.get("BASE_LAYER").toString());  
 					res.setSectionNo(data.get("SECTION_NO")==null?"":data.get("SECTION_NO").toString());  
 					res.setLayerNo(data.get("LAYER_NO")==null?"":data.get("LAYER_NO").toString());  
@@ -5843,13 +5838,13 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 	}
 	@Transactional
 	public GetNewContractInfoRes getNewContractInfo(String branchCode, String proposalNo) {
-		List<Map<String,Object>> list=new ArrayList<Map<String,Object>>();
 		GetNewContractInfoRes response = new GetNewContractInfoRes();
 		List<GetNewContractInfoRes1> resList = new ArrayList<GetNewContractInfoRes1>();
 		try{
-			list= queryImpl.selectList("NEW_CONTRACT_SUMMARY", new String[]{branchCode,proposalNo});
+			//NEW_CONTRACT_SUMMARY
+			List<Tuple> list = dropDownCustomRepository.newContractSummary(branchCode,proposalNo); //need to check query single row
 			if(list != null && list.size()>0) {
-				for(Map<String,Object> data: list) {
+				for(Tuple data: list) {
 					GetNewContractInfoRes1 res = new GetNewContractInfoRes1();
 					 res.setOfferNo(data.get("OFFER_NO")==null?"":data.get("OFFER_NO").toString()); 
 					 res.setBaseProposal(data.get("BASE_PROPOSAL")==null?"":data.get("BASE_PROPOSAL").toString()); 
@@ -5865,14 +5860,23 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 					  res.setPlacingStatus(data.get("PLACING_STATUS")==null?"":data.get("PLACING_STATUS").toString()); 
 					  res.setShareSigned(data.get("SHARE_SIGNED")==null?"":data.get("SHARE_SIGNED").toString()); 
 					  res.setBrokerage(data.get("BROKERAGE")==null?"":data.get("BROKERAGE").toString()); 
-					  res.setBrokerageAmt(data.get("BROKERAGE_AMT")==null?"":data.get("BROKERAGE_AMT").toString()); 
-					 resList.add(res);
+					
+					  DecimalFormat decfor = new DecimalFormat("0.00");
+					  //(EPI_100_DC)*(BROKERAGE/100)*(SHARE_SIGNED/100) = BROKERAGE_AMT
+					  String epi100Dc = data.get("EPI_100_DC")==null?"0": data.get("EPI_100_DC").toString();
+					  String brokerage =data.get("BROKERAGE").toString();
+					  String sharesigned = decfor.format(data.get("SHARE_SIGNED"));
+					 
+					  double brokerageAmt = Math.round(Double.valueOf(epi100Dc) * (Double.valueOf(brokerage)/100) * (Double.valueOf(sharesigned)/100));
+					  
+					  res.setBrokerageAmt(String.valueOf(brokerageAmt)); 
+					  resList.add(res);
 					 }
 			}
 			response.setCommonResponse(resList);
 			response.setMessage("Success");
-		response.setIsError(false);
-	}catch(Exception e){
+			response.setIsError(false);
+		}catch(Exception e){
 			log.error(e);
 			e.printStackTrace();
 			response.setMessage("Failed");
@@ -5883,13 +5887,13 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 
 	public GetPlacementInfoListRes getPlacementInfoList(String branchCode, String layerProposalNo) {
 		GetPlacementInfoListRes  response = new GetPlacementInfoListRes();
-		List<Map<String,Object>>list=null;
 		List<GetPlacementInfoListRes1> resList = new ArrayList<GetPlacementInfoListRes1>();
 		try {
-			list= queryImpl.selectList("GET_REINSURER_INFO", new String[]{branchCode,layerProposalNo});
+			//GET_REINSURER_INFO
+			List<Tuple>	list= dropDownCustomRepository.getReinsurerInfo(branchCode,layerProposalNo);
 			if(!CollectionUtils.isEmpty(list)) {
 				for(int i=0;i<list.size();i++) {
-					Map<String,Object>map=list.get(i);
+					Tuple map=list.get(i);
 					GetPlacementInfoListRes1 res = new GetPlacementInfoListRes1();
 					res.setBaseproposalNos(map.get("BASE_PROPOSAL_NO")==null?"":map.get("BASE_PROPOSAL_NO").toString());
 					res.setBouquetNos(map.get("BOUQUET_NO")==null?"":map.get("BOUQUET_NO").toString());
@@ -5909,7 +5913,7 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 					} }
 				response.setCommonResponse(resList);
 				response.setMessage("Success");
-			response.setIsError(false);
+				response.setIsError(false);
 		}catch(Exception e){
 				log.error(e);
 				e.printStackTrace();
@@ -5922,17 +5926,10 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 	@Override
 	public CommonResponse updateRenewalEditMode(updateSubEditModeReq req) {
 		CommonResponse response = new CommonResponse();
-		List<Map<String,Object>> list=new ArrayList<Map<String,Object>>();
 		String proposal  = "";
 		try{
-			String query="GET_BASE_PROPOSAL_NO";
-			String args[] = new String[1];
-			args[0] = req.getProposalNo();
-			list=queryImpl.selectList(query, args);
-			if (!CollectionUtils.isEmpty(list)) {
-				proposal = list.get(0).get("PROPOSAL_NO") == null ? ""
-						: list.get(0).get("PROPOSAL_NO").toString();
-			}
+			//GET_BASE_PROPOSAL_NO
+			proposal = dropDownCustomRepository.getBaseProposalNo(req.getProposalNo());
 			
 			if(!"0".equalsIgnoreCase(proposal)){
 			updateSubEditMode(req);
@@ -5951,19 +5948,54 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 	public CommonResponse updateSubEditMode(updateSubEditModeReq req) {
 		CommonResponse response = new CommonResponse();
 		try{
-			String query="UPDATE_SUB_ENDT_STATUS";
+			//user requested cancel of current operation
+			//UPDATE_SUB_ENDT_STATUS
 			String args[] = new String[2];
 			if(!"N".equalsIgnoreCase(req.getStatus())){
-			args[0] = req.getStatus() +"-"+ req.getUpdateProposalNo();
+				args[0] = req.getStatus() +"-"+ req.getUpdateProposalNo();
 			}
 			else{
 				args[0] = req.getStatus();	
 			}
 			args[1] = req.getProposalNo();
-			queryImpl.updateQuery(query, args);
+			CriteriaBuilder cb = this.em.getCriteriaBuilder();
+			CriteriaUpdate<PositionMaster> update = cb.createCriteriaUpdate(PositionMaster.class);
+			Root<PositionMaster> m = update.from(PositionMaster.class);
+			update.set("editMode", args[0] );
+			
+			//propNo
+			Subquery<Long> propNo = update.subquery(Long.class); 
+			Root<PositionMaster> cs = propNo.from(PositionMaster.class);
+			propNo.select(cs.get("proposalNo"));
+			//amendId
+			Subquery<Long> amendId = update.subquery(Long.class); 
+			Root<PositionMaster> cs1 = amendId.from(PositionMaster.class);
+			amendId.select(cb.max(cs1.get("amendId")));
+			Predicate c1 = cb.equal( cs.get("proposalNo"), cs1.get("proposalNo"));
+			Predicate c2 = cb.notEqual( cs1.get("contractStatus"), "C");
+			amendId.where(c1,c2);
+			
+			Predicate b1 = cb.equal( cs.get("baseLayer"), args[1]);
+			Predicate b2 = cb.equal( cs.get("amendId"), amendId);
+			propNo.where(b1,b2);
+			
+			//amend
+			Subquery<Long> amend = update.subquery(Long.class); 
+			Root<PositionMaster> pms = amend.from(PositionMaster.class);
+			amend.select(cb.max(pms.get("amendId")));
+			Predicate a1 = cb.equal( m.get("proposalNo"), pms.get("proposalNo"));
+			amend.where(a1);
+
+			Expression<String> e0 = m.get("proposalNo");
+			Predicate n1 = e0.in(propNo==null?null:propNo);
+			Expression<String> e1 = m.get("amendId");
+			Predicate n2 = e1.in(amend==null?null:amend);
+			update.where(n1,n2);
+			em.createQuery(update).executeUpdate();
+
 			response.setMessage("Success");
 			response.setIsError(false);
-	 }	catch(Exception e){
+	 }catch(Exception e){
 				log.error(e);
 				e.printStackTrace();
 				response.setMessage("Failed");
@@ -5971,28 +6003,47 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 			}
 		return response;
 	}
+	@Transactional
+	@Override
 		public CommonResponse updateEditMode(updateSubEditModeReq req) {
-			CommonResponse response = new CommonResponse();
-			try{
-				String query="POS_MAS_ED_MODE_UPDT";
-				String args[] = new String[2];
-				if(!"N".equalsIgnoreCase(req.getStatus())){
-					args[0] = req.getStatus() +"-"+ req.getUpdateProposalNo();
+				CommonResponse response = new CommonResponse();
+				try{
+					//POS_MAS_ED_MODE_UPDT
+					String args[] = new String[2];
+					if(!"N".equalsIgnoreCase(req.getStatus())){
+						args[0] = req.getStatus() +"-"+ req.getUpdateProposalNo();
+						}
+						else{
+							args[0] = req.getStatus();	
+						}
+
+					CriteriaBuilder cb = this.em.getCriteriaBuilder();
+					CriteriaUpdate<PositionMaster> update = cb.createCriteriaUpdate(PositionMaster.class);
+					Root<PositionMaster> m = update.from(PositionMaster.class);
+					update.set("editMode", args[0] );
+					
+					//amend
+					Subquery<Long> amend = update.subquery(Long.class); 
+					Root<PositionMaster> pms = amend.from(PositionMaster.class);
+					amend.select(cb.max(pms.get("amendId")));
+					Predicate a1 = cb.equal(m.get("proposalNo"), pms.get("proposalNo"));
+					amend.where(a1);
+
+					Expression<String> e1 = m.get("amendId");
+					Predicate n2 = e1.in(amend==null?null:amend);
+					update.where(n2);
+					em.createQuery(update).executeUpdate();
+					
+					response.setMessage("Success");
+					response.setIsError(false);
+			 }catch(Exception e){
+						log.error(e);
+						e.printStackTrace();
+						response.setMessage("Failed");
+						response.setIsError(true);
 					}
-					else{
-						args[0] = req.getStatus();	
-					}
-				args[1] = req.getProposalNo();
-				queryImpl.updateQuery(query, args);
-				response.setMessage("Success");
-				response.setIsError(false);
-		 }	catch(Exception e){
-					log.error(e);
-					e.printStackTrace();
-					response.setMessage("Failed");
-					response.setIsError(true);
-				}
-			return response;
+				return response;
+			
 		}
 		public void getSOATableInsert(String proposalNo, String contractno,String branchCode) {
 			Connection con = null;

@@ -6,8 +6,13 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -95,11 +100,6 @@ public class MailNotificationDetail implements Serializable {
 	    @Column(name="MAIL_TO")
 	    private String     mailTo ;
 	    
-	    
-	    
-	    
-	    
-	    
 	    @Column(name="REINSURER_ID")
 	    private String reinsurerId ;
 
@@ -115,19 +115,24 @@ public class MailNotificationDetail implements Serializable {
 	    @Column(name="USER_ID")
 	    private String userId ;
 
-
 	    @Temporal(TemporalType.TIMESTAMP)
 	    @Column(name="UPDATE_DATE")
 	    private Date     updateDate ;
 
-	  
-	    
-
 	    @Temporal(TemporalType.TIMESTAMP)
 	    @Column(name="ENTRY_DATE")
 	    private Date       entryDate ;
-
-
+	    
+	    //--- ENTITY LINKS ( RELATIONSHIP )
+	   
+	  //  
+	    
+//	    @ManyToOne //(fetch = FetchType.LAZY)
+//	    @JoinColumns({
+//	    	@JoinColumn(name="REINSURER_ID", referencedColumnName = "REINSURER_ID"),  //, insertable =false, updatable = false
+//	    	@JoinColumn(name="BROKER_ID", referencedColumnName = "BROKER_ID"),
+//	    	@JoinColumn(name="PROPOSAL_NO", referencedColumnName = "PROPOSAL_NO")})
+//	    private TtrnRiPlacement ttrnRiPlacement;
 	}
 
 

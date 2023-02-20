@@ -3828,7 +3828,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 			args[7] = req.getBranchCode();
 			args[8] = req.getProposalNo();
 			args[9] = req.getAmendId();
-			String selectQry="RISK_SELECT_GETCOMMONDATA_PTTY";//LEFT OUTER JOIN
+			String selectQry="RISK_SELECT_GETCOMMONDATA_PTTY";//LEFT OUTER JOIN multi
 			List<Map<String, Object>> list = queryImpl.selectList(selectQry,args); 
 			Map<String, Object> resMap = null;
 			if(list!=null && list.size()>0)
@@ -4105,7 +4105,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 			args[2] = req.getAmendId();
 			args[3] = req.getProposalNo();
 			args[4] = req.getAmendId();
-			selectQry = "risk.select.getThirdPageData"; // LEFT OUTER JOIN 
+			selectQry = "risk.select.getThirdPageData"; // LEFT OUTER JOIN  multi
 			
 			List<Map<String, Object>> res3 = queryImpl.selectList(selectQry,args);
 			

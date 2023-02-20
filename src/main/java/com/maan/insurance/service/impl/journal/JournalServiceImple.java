@@ -846,6 +846,7 @@ public class JournalServiceImple implements JournalService{
 			//UPDATE_USER_STATUS
 			String query = "UPDATE_USER_STATUS";
 			queryImpl.updateQuery(query, new String[] {query, branchCode,loginId});
+		
 //			List<MarinLoginModel> list = loginRepo.findByBranchcodeAndLoginidNotIn(branchCode,loginId);
 //			if(list.size()>0) {
 //				for(MarinLoginModel data: list) {

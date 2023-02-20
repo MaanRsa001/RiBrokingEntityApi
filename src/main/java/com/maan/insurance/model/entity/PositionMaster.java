@@ -61,7 +61,7 @@ private static final long serialVersionUID = 1L;
     private BigDecimal amendId ;
 
 
-    @Column(name="CONTRACT_STATUS", nullable=false, length=5)
+    @Column(name="CONTRACT_STATUS")
     private String     contractStatus ;
 
    

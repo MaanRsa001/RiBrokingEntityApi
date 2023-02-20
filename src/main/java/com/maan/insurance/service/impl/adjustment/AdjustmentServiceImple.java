@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -61,12 +62,11 @@ import com.maan.insurance.service.adjustment.AdjustmentService;
 import com.maan.insurance.service.impl.QueryImplemention;
 import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
 import com.maan.insurance.validation.Formatters;
-import com.maan.insurance.validation.Claim.ValidationImple;
 
 @Service
 public class AdjustmentServiceImple implements AdjustmentService {
 	private Logger log = LogManager.getLogger(AdjustmentServiceImple.class);
-
+	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 	@Autowired
 	private QueryImplemention queryImpl;
 
@@ -76,8 +76,6 @@ public class AdjustmentServiceImple implements AdjustmentService {
 	@Autowired
 	private Formatters fm;
 
-	@Autowired
-	private ValidationImple vi;
 
 	@PersistenceContext
 	private EntityManager em;
@@ -89,6 +87,8 @@ public class AdjustmentServiceImple implements AdjustmentService {
 	private TtrnClaimPaymentRepository cpRepo;
 	@Autowired
 	private TtrnPaymentReceiptDetailsRepository prdRepo;
+	@Autowired
+	private AdjustmentCustomRepository adjustmentCustomRepository;
 
 	private Properties prop = new Properties();
 	private Query query1 = null;
@@ -114,7 +114,7 @@ public class AdjustmentServiceImple implements AdjustmentService {
 			String args[] = new String[1];
 			args[0] = bean.getBranchCode();
 
-			String query = "adjustment.list.allocated";
+			String query = "adjustment.list.allocated"; //FROM TABLE (fn_adjustment_type (?)),XMLTABLE
 			String qutext = prop.getProperty(query);
 			if (bean.getSearchBy() != null) {
 				if ("1".equalsIgnoreCase(bean.getSearchBy())) {
@@ -284,30 +284,132 @@ public class AdjustmentServiceImple implements AdjustmentService {
 		return response;
 	}
 
+//	@Override
+//	public GetAdjustmentListRes getAdjustmentList(GetAdjustmentListReq bean) {
+//		GetAdjustmentListRes response = new GetAdjustmentListRes();
+//		Double a = 0.0, b = 0.0, c = 0.0;
+//		GetAdjustmentListResponse res1 = new GetAdjustmentListResponse();
+//		List<GetAdjustmentListRes1> adjustmentList = new ArrayList<GetAdjustmentListRes1>();
+//		try {
+//			String qutext = "";
+//			String query = "";
+//			String[] obj = null;
+//			if (bean.getTest().equals("ALL")) {
+//				obj = new String[8];
+//				query = "adjutment.list"; //union all
+//				qutext = prop.getProperty(query);
+//				if (bean.getAmountType().equals("1")) {
+//					obj = dropDowmImpl.getIncObjectArray(obj, new String[] { (bean.getAmount()) });
+//					qutext += " where pending_amount=? ORDER BY   CONTRACT_NO, TRANSACTION_NO";
+//				} else if (bean.getAmountType().equals("2")) {
+//					obj = dropDowmImpl.getIncObjectArray(obj, new String[] { (bean.getAmount()) });
+//					qutext += " where pending_amount<=? ORDER BY   CONTRACT_NO, TRANSACTION_NO";
+//				} else if (bean.getAmountType().equals("3")) {
+//					obj = dropDowmImpl.getIncObjectArray(obj, new String[] { (bean.getAmount()) });
+//					qutext += " where pending_amount>=? ORDER BY   CONTRACT_NO, TRANSACTION_NO";
+//				}
+//				obj[0] = bean.getBranchCode();
+//				obj[1] = bean.getCurrencyId();
+//				obj[2] = bean.getBrokerId();
+//				if ("63".equalsIgnoreCase(bean.getBrokerId()))
+//					obj[3] = bean.getCedingId();
+//				else
+//					obj[3] = bean.getBrokerId();
+//				obj[4] = bean.getBranchCode();
+//				obj[5] = bean.getCurrencyId();
+//				obj[6] = bean.getBrokerId();
+//				if ("63".equalsIgnoreCase(bean.getBrokerId()))
+//					obj[7] = bean.getCedingId();
+//				else
+//					obj[7] = bean.getBrokerId();
+//
+//			} else {
+//				obj = new String[4];
+//				query = "adjustment.list.ind.transactionCP"; //select * from table(SPLIT_TEXT_FN(?)
+//				qutext = prop.getProperty(query);
+//				obj[0] = bean.getBranchCode();
+//				obj[1] = bean.getTransactionNo();
+//				obj[2] = bean.getBranchCode();
+//				obj[3] = bean.getTransactionNo();
+//
+//			}
+//			List<Map<String, Object>> list = new ArrayList<>();
+//			query1 = queryImpl.setQueryProp(qutext, obj);
+//			query1.unwrap(NativeQueryImpl.class).setResultTransformer(AliasToEntityMapResultTransformer.INSTANCE);
+//			try {
+//				list = query1.getResultList();
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
+//			for (int i = 0; i < list.size(); i++) {
+//				Map map = (Map) list.get(i);
+//				GetAdjustmentListRes1 bean1 = new GetAdjustmentListRes1();
+//				bean1.setTransactionNo(map.get("TRANSACTION_NO") == null ? "" : map.get("TRANSACTION_NO").toString());
+//				bean1.setTransactionDate(map.get("ADATE") == null ? "" : map.get("ADATE").toString());
+//				bean1.setContractNo(map.get("CONTRACT_NO") == null ? "" : map.get("CONTRACT_NO").toString());
+//				bean1.setLayerNo(map.get("LAYER_NO") == null ? "" : map.get("LAYER_NO").toString());
+//				bean1.setBrokerName(map.get("BROKER_NAME") == null ? "" : map.get("BROKER_NAME").toString());
+//				bean1.setCedingName(
+//						map.get("CEDING_COMPANY_NAME") == null ? "" : map.get("CEDING_COMPANY_NAME").toString());
+//				bean1.setCurrency(map.get("CURRENCY_NAME") == null ? "" : map.get("CURRENCY_NAME").toString());
+//				bean1.setPendingAmount(
+//						map.get("PENDING_AMOUNT") == null ? "" : fm.formatter(map.get("PENDING_AMOUNT").toString()));
+//				bean1.setAdjustAmount(
+//						map.get("PENDING_AMOUNT") == null ? "" : fm.formatter(map.get("PENDING_AMOUNT").toString()));
+//				bean1.setType(map.get("BUSINESS_TYPE") == null ? "" : map.get("BUSINESS_TYPE").toString());
+//				bean1.setProductName(map.get("PRODUCT_NAME") == null ? "" : map.get("PRODUCT_NAME").toString());
+//				bean1.setCurrencyId(map.get("CURRENCY_ID") == null ? "" : map.get("CURRENCY_ID").toString());
+//				bean1.setSubClass(map.get("DEPT_ID") == null ? "" : map.get("DEPT_ID").toString());
+//				bean1.setProposlaNo(map.get("PROPOSAL_NO") == null ? "" : map.get("PROPOSAL_NO").toString());
+//				bean1.setAdjustType(bean.getAdjustType());
+//				if (bean1.getType().equals("Premium")) {
+//					a = a + Double.parseDouble(
+//							map.get("PENDING_AMOUNT") == null ? "0.0" : map.get("PENDING_AMOUNT").toString());
+//
+//				} else {
+//					b = b + Double.parseDouble(
+//							map.get("PENDING_AMOUNT") == null ? "0.0" : map.get("PENDING_AMOUNT").toString());
+//				}
+////				List<TransactionNoListReq> filterTrack = bean.getTransactionNoListReq().stream().filter( o -> bean1.getTransactionNo().equalsIgnoreCase(o.getTransactionNo()) ).collect(Collectors.toList());
+////				if(!CollectionUtils.isEmpty(filterTrack)) {
+////					String string= filterTrack.get(0).getTransactionNo();
+////					String[] st=string.split("~");
+////					bean1.setAdjustType(st[1]);
+////					bean1.setCheck(st[2]);
+////					bean1.setAdjustAmount(fm.formatter(st[0].replace(",", "")));
+////				}
+////				
+////				else if(!receiveAdjustAmountMap.containsKey(bean1.getTransactionNo()) && bean.getMode()!="list") {
+////					bean1.setCheck("false");
+////				}
+//				adjustmentList.add(bean1);
+//			}
+//			res1.setAdjustmentList(adjustmentList);
+//			res1.setUnUtilizedAmt(Double.toString(a - b));
+//			response.setCommonResponse(res1);
+//			response.setMessage("Success");
+//			response.setIsError(false);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			response.setMessage("Failed");
+//			response.setIsError(true);
+//		}
+//		return response;
+//	}
 	@Override
 	public GetAdjustmentListRes getAdjustmentList(GetAdjustmentListReq bean) {
 		GetAdjustmentListRes response = new GetAdjustmentListRes();
 		Double a = 0.0, b = 0.0, c = 0.0;
 		GetAdjustmentListResponse res1 = new GetAdjustmentListResponse();
 		List<GetAdjustmentListRes1> adjustmentList = new ArrayList<GetAdjustmentListRes1>();
+		List<Tuple> comlist = new ArrayList<>();
+		List<Tuple> list1 = new ArrayList<>();
+		List<Tuple> list2 = new ArrayList<>();
 		try {
-			String qutext = "";
-			String query = "";
 			String[] obj = null;
 			if (bean.getTest().equals("ALL")) {
-				obj = new String[8];
-				query = "adjutment.list";
-				qutext = prop.getProperty(query);
-				if (bean.getAmountType().equals("1")) {
-					obj = dropDowmImpl.getIncObjectArray(obj, new String[] { (bean.getAmount()) });
-					qutext += " where pending_amount=? ORDER BY   CONTRACT_NO, TRANSACTION_NO";
-				} else if (bean.getAmountType().equals("2")) {
-					obj = dropDowmImpl.getIncObjectArray(obj, new String[] { (bean.getAmount()) });
-					qutext += " where pending_amount<=? ORDER BY   CONTRACT_NO, TRANSACTION_NO";
-				} else if (bean.getAmountType().equals("3")) {
-					obj = dropDowmImpl.getIncObjectArray(obj, new String[] { (bean.getAmount()) });
-					qutext += " where pending_amount>=? ORDER BY   CONTRACT_NO, TRANSACTION_NO";
-				}
+				obj = new String[4];
+				
 				obj[0] = bean.getBranchCode();
 				obj[1] = bean.getCurrencyId();
 				obj[2] = bean.getBrokerId();
@@ -315,47 +417,56 @@ public class AdjustmentServiceImple implements AdjustmentService {
 					obj[3] = bean.getCedingId();
 				else
 					obj[3] = bean.getBrokerId();
-				obj[4] = bean.getBranchCode();
-				obj[5] = bean.getCurrencyId();
-				obj[6] = bean.getBrokerId();
-				if ("63".equalsIgnoreCase(bean.getBrokerId()))
-					obj[7] = bean.getCedingId();
-				else
-					obj[7] = bean.getBrokerId();
-
+				
+				//adjutment.list union all
+				list1 = adjustmentCustomRepository.adjutmentList(obj,bean);
+				if(list1!=null) {
+					for(Tuple data: list1) {
+						comlist.add(data);
+						}
+				}
+				//adjutment.list
+				list2 = adjustmentCustomRepository.adjutmentListUnion(obj,bean);
+				if(list2!=null) {
+					for(Tuple data: list2) {
+						comlist.add(data);
+						}
+				}
+				
+			
 			} else {
-				obj = new String[4];
-				query = "adjustment.list.ind.transactionCP";
-				qutext = prop.getProperty(query);
-				obj[0] = bean.getBranchCode();
-				obj[1] = bean.getTransactionNo();
-				obj[2] = bean.getBranchCode();
-				obj[3] = bean.getTransactionNo();
-
+				//adjustment.list.ind.transactionCP
+				list1 = adjustmentCustomRepository.adjustmentListIndTransactionCP(bean.getBranchCode(),bean.getTransactionNo());
+				if(list1!=null) {
+					for(Tuple data: list1) {
+						comlist.add(data);
+						}
+				}
+				//adjustment.list.ind.transactionCP
+				list2 = adjustmentCustomRepository.adjustmentListIndTransactionCPUnion(bean.getBranchCode(),bean.getTransactionNo());
+				if(list2!=null) {
+					for(Tuple data: list2) {
+						comlist.add(data);
+						}
+				}
+				
 			}
-			List<Map<String, Object>> list = new ArrayList<>();
-			query1 = queryImpl.setQueryProp(qutext, obj);
-			query1.unwrap(NativeQueryImpl.class).setResultTransformer(AliasToEntityMapResultTransformer.INSTANCE);
-			try {
-				list = query1.getResultList();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			for (int i = 0; i < list.size(); i++) {
-				Map map = (Map) list.get(i);
+			
+			for (int i = 0; i < comlist.size(); i++) {
+				Tuple  map = comlist.get(i);
 				GetAdjustmentListRes1 bean1 = new GetAdjustmentListRes1();
 				bean1.setTransactionNo(map.get("TRANSACTION_NO") == null ? "" : map.get("TRANSACTION_NO").toString());
-				bean1.setTransactionDate(map.get("ADATE") == null ? "" : map.get("ADATE").toString());
+				bean1.setTransactionDate(map.get("ADATE") == null ? "" : sdf.format(map.get("ADATE")));
 				bean1.setContractNo(map.get("CONTRACT_NO") == null ? "" : map.get("CONTRACT_NO").toString());
 				bean1.setLayerNo(map.get("LAYER_NO") == null ? "" : map.get("LAYER_NO").toString());
-				bean1.setBrokerName(map.get("broker_name") == null ? "" : map.get("broker_name").toString());
+				bean1.setBrokerName(map.get("BROKER_NAME") == null ? "" : map.get("BROKER_NAME").toString());
 				bean1.setCedingName(
-						map.get("CEDING_COMPANY_name") == null ? "" : map.get("CEDING_COMPANY_name").toString());
-				bean1.setCurrency(map.get("currency_name") == null ? "" : map.get("currency_name").toString());
+						map.get("CEDING_COMPANY_NAME") == null ? "" : map.get("CEDING_COMPANY_NAME").toString());
+				bean1.setCurrency(map.get("CURRENCY_NAME") == null ? "" : map.get("CURRENCY_NAME").toString());
 				bean1.setPendingAmount(
-						map.get("pending_amount") == null ? "" : fm.formatter(map.get("pending_amount").toString()));
+						map.get("PENDING_AMOUNT") == null ? "" : fm.formatter(map.get("PENDING_AMOUNT").toString()));
 				bean1.setAdjustAmount(
-						map.get("pending_amount") == null ? "" : fm.formatter(map.get("pending_amount").toString()));
+						map.get("PENDING_AMOUNT") == null ? "" : fm.formatter(map.get("PENDING_AMOUNT").toString()));
 				bean1.setType(map.get("BUSINESS_TYPE") == null ? "" : map.get("BUSINESS_TYPE").toString());
 				bean1.setProductName(map.get("PRODUCT_NAME") == null ? "" : map.get("PRODUCT_NAME").toString());
 				bean1.setCurrencyId(map.get("CURRENCY_ID") == null ? "" : map.get("CURRENCY_ID").toString());
@@ -364,11 +475,10 @@ public class AdjustmentServiceImple implements AdjustmentService {
 				bean1.setAdjustType(bean.getAdjustType());
 				if (bean1.getType().equals("Premium")) {
 					a = a + Double.parseDouble(
-							map.get("pending_amount") == null ? "0.0" : map.get("pending_amount").toString());
-
+							map.get("PENDING_AMOUNT") == null ? "0.0" : map.get("PENDING_AMOUNT").toString());
 				} else {
 					b = b + Double.parseDouble(
-							map.get("pending_amount") == null ? "0.0" : map.get("pending_amount").toString());
+							map.get("PENDING_AMOUNT") == null ? "0.0" : map.get("PENDING_AMOUNT").toString());
 				}
 //				List<TransactionNoListReq> filterTrack = bean.getTransactionNoListReq().stream().filter( o -> bean1.getTransactionNo().equalsIgnoreCase(o.getTransactionNo()) ).collect(Collectors.toList());
 //				if(!CollectionUtils.isEmpty(filterTrack)) {
@@ -397,30 +507,124 @@ public class AdjustmentServiceImple implements AdjustmentService {
 		return response;
 	}
 
+//	@Override
+//	public GetAdjustmentPayRecListRes getAdjustmentPayRecList(GetAdjustmentListReq bean) {
+//		GetAdjustmentPayRecListRes response = new GetAdjustmentPayRecListRes();
+//		Double a = 0.0, b = 0.0, c = 0.0;
+//		List<GetAdjustmentPayRecListRes1> adjustmentList = new ArrayList<GetAdjustmentPayRecListRes1>();
+//		GetAdjustmentPayRecListResponse res1 = new GetAdjustmentPayRecListResponse();
+//		try {
+//			String qutext = "";
+//			String query = "";
+//			String[] obj = null;
+//			if (bean.getTest().equals("ALL")) {
+//				obj = new String[4];
+//				query = "adjustment.payrec.list";
+//				qutext = prop.getProperty(query);
+//				if (bean.getAmountType().equals("1")) {
+//					obj = dropDowmImpl.getIncObjectArray(obj, new String[] { (bean.getAmount()) });
+//					qutext += "  and (Nvl (B.Amount, 0) - Nvl (B.Allocated_Till_Date,0))=? order  by B.Receipt_Sl_No";
+//				} else if (bean.getAmountType().equals("2")) {
+//					obj = dropDowmImpl.getIncObjectArray(obj, new String[] { (bean.getAmount()) });
+//					qutext += "  and (Nvl (B.Amount, 0) - Nvl (B.Allocated_Till_Date,0))<=? order  by B.Receipt_Sl_No";
+//				} else if (bean.getAmountType().equals("3")) {
+//					obj = dropDowmImpl.getIncObjectArray(obj, new String[] { (bean.getAmount()) });
+//					qutext += "  and (Nvl (B.Amount, 0) - Nvl (B.Allocated_Till_Date,0))>=? order  by B.Receipt_Sl_No";
+//				}
+//				obj[0] = bean.getBranchCode();
+//				obj[1] = bean.getCurrencyId();
+//				obj[2] = bean.getBrokerId();
+//				if ("63".equalsIgnoreCase(bean.getBrokerId()))
+//					obj[3] = bean.getCedingId();
+//				else
+//					obj[3] = bean.getBrokerId();
+//
+//			} else {
+//				obj = new String[2];
+//				query = "adjustment.list.ind.transactionRP";
+//				qutext = prop.getProperty(query);
+//				obj[0] = bean.getBranchCode();
+//				obj[1] = bean.getTransactionNo();
+//
+//			}
+//			List<Map<String, Object>> list = new ArrayList<>();
+//			query1 = queryImpl.setQueryProp(qutext, obj);
+//			query1.unwrap(NativeQueryImpl.class).setResultTransformer(AliasToEntityMapResultTransformer.INSTANCE);
+//			try {
+//				list = query1.getResultList();
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
+//
+//			for (int i = 0; i < list.size(); i++) {
+//				Map map = (Map) list.get(i);
+//				GetAdjustmentPayRecListRes1 bean1 = new GetAdjustmentPayRecListRes1();
+//				bean1.setTransactionNo(map.get("TRANSACTION_NO") == null ? "" : map.get("TRANSACTION_NO").toString());
+//				bean1.setTransactionDate(map.get("ADATE") == null ? "" : map.get("ADATE").toString());
+//				bean1.setContractNo(map.get("CONTRACT_NO") == null ? "" : map.get("CONTRACT_NO").toString());
+//				bean1.setLayerNo(map.get("LAYER_NO") == null ? "" : map.get("LAYER_NO").toString());
+//				bean1.setBrokerName(map.get("BROKER_NAME") == null ? "" : map.get("BROKER_NAME").toString());
+//				bean1.setCedingName(
+//						map.get("CEDING_COMPANY_NAME") == null ? "" : map.get("CEDING_COMPANY_NAME").toString());
+//				bean1.setCurrency(map.get("CURRENCY_NAME") == null ? "" : map.get("CURRENCY_NAME").toString());
+//				bean1.setPendingAmount(
+//						map.get("PENDING_AMOUNT") == null ? "" : fm.formatter(map.get("PENDING_AMOUNT").toString()));
+//				bean1.setAdjustAmount(
+//						map.get("PENDING_AMOUNT") == null ? "" : fm.formatter(map.get("PENDING_AMOUNT").toString()));
+//				bean1.setType(map.get("BUSINESS_TYPE") == null ? "" : map.get("BUSINESS_TYPE").toString());
+//				bean1.setProductName(map.get("PRODUCT_NAME") == null ? "" : map.get("PRODUCT_NAME").toString());
+//				bean1.setCurrencyId(map.get("CURRENCY_ID") == null ? "" : map.get("CURRENCY_ID").toString());
+//				bean1.setSubClass(map.get("SUB_CLASS") == null ? "" : map.get("SUB_CLASS").toString());
+//				bean1.setProposlaNo(map.get("PROPOSAL_NO") == null ? "" : map.get("PROPOSAL_NO").toString());
+//				if (bean1.getType().equals("Payment")) {
+//					a = a + Double.parseDouble(
+//							map.get("PENDING_AMOUNT") == null ? "0.0" : map.get("PENDING_AMOUNT").toString());
+//				} else {
+//					b = b + Double.parseDouble(
+//							map.get("PENDING_AMOUNT") == null ? "0.0" : map.get("PENDING_AMOUNT").toString());
+//				}
+//				List<TransactionNoListReq> filterTrack = bean.getTransactionNoListReq().stream()
+//						.filter(o -> bean1.getTransactionNo().equalsIgnoreCase(o.getTransactionNo()))
+//						.collect(Collectors.toList());
+//				if (!CollectionUtils.isEmpty(filterTrack)) {
+////					String string=filterTrack.get(0).getTransactionNo();
+////					String[] st=string.split("~");
+////					bean1.setAdjustType(st[1]);
+////					bean1.setCheck(st[2]);
+////					bean1.setAdjustAmount(fm.formatter(st[0].replace(",", "")));
+//					bean1.setAdjustType(filterTrack.get(0).getAdjustType());
+//					bean1.setCheck(filterTrack.get(0).getCheck());
+//					bean1.setAdjustAmount(fm.formatter(filterTrack.get(0).getAdjustAmount().replace(",", "")));
+//				} else if (CollectionUtils.isEmpty(filterTrack) && bean.getMode() != "list") {
+//					bean1.setCheck("false");
+//				}
+//				bean1.setAdjustType(bean.getAdjustType());
+//				adjustmentList.add(bean1);
+//			}
+//			res1.setAdjustmentList(adjustmentList);
+//			res1.setUnUtilizedAmt(Double.toString(a - b));
+//			response.setCommonResponse(res1);
+//			response.setMessage("Success");
+//			response.setIsError(false);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			response.setMessage("Failed");
+//			response.setIsError(true);
+//		}
+//		return response;
+//	}
 	@Override
 	public GetAdjustmentPayRecListRes getAdjustmentPayRecList(GetAdjustmentListReq bean) {
 		GetAdjustmentPayRecListRes response = new GetAdjustmentPayRecListRes();
 		Double a = 0.0, b = 0.0, c = 0.0;
 		List<GetAdjustmentPayRecListRes1> adjustmentList = new ArrayList<GetAdjustmentPayRecListRes1>();
 		GetAdjustmentPayRecListResponse res1 = new GetAdjustmentPayRecListResponse();
+		List<Tuple> list = new ArrayList<>();
 		try {
-			String qutext = "";
-			String query = "";
 			String[] obj = null;
 			if (bean.getTest().equals("ALL")) {
 				obj = new String[4];
-				query = "adjustment.payrec.list";
-				qutext = prop.getProperty(query);
-				if (bean.getAmountType().equals("1")) {
-					obj = dropDowmImpl.getIncObjectArray(obj, new String[] { (bean.getAmount()) });
-					qutext += "  and (Nvl (B.Amount, 0) - Nvl (B.Allocated_Till_Date,0))=? order  by B.Receipt_Sl_No";
-				} else if (bean.getAmountType().equals("2")) {
-					obj = dropDowmImpl.getIncObjectArray(obj, new String[] { (bean.getAmount()) });
-					qutext += "  and (Nvl (B.Amount, 0) - Nvl (B.Allocated_Till_Date,0))<=? order  by B.Receipt_Sl_No";
-				} else if (bean.getAmountType().equals("3")) {
-					obj = dropDowmImpl.getIncObjectArray(obj, new String[] { (bean.getAmount()) });
-					qutext += "  and (Nvl (B.Amount, 0) - Nvl (B.Allocated_Till_Date,0))>=? order  by B.Receipt_Sl_No";
-				}
+				
 				obj[0] = bean.getBranchCode();
 				obj[1] = bean.getCurrencyId();
 				obj[2] = bean.getBrokerId();
@@ -428,31 +632,22 @@ public class AdjustmentServiceImple implements AdjustmentService {
 					obj[3] = bean.getCedingId();
 				else
 					obj[3] = bean.getBrokerId();
+				//adjustment.payrec.list
+				list = adjustmentCustomRepository.adjustmentPayrecList(obj, bean);
 
 			} else {
-				obj = new String[2];
-				query = "adjustment.list.ind.transactionRP";
-				qutext = prop.getProperty(query);
-				obj[0] = bean.getBranchCode();
-				obj[1] = bean.getTransactionNo();
-
+				//adjustment.list.ind.transactionRP
+				list = adjustmentCustomRepository.adjustmentListIndTransactionRP(bean.getBranchCode(),bean.getTransactionNo());
 			}
-			List<Map<String, Object>> list = new ArrayList<>();
-			query1 = queryImpl.setQueryProp(qutext, obj);
-			query1.unwrap(NativeQueryImpl.class).setResultTransformer(AliasToEntityMapResultTransformer.INSTANCE);
-			try {
-				list = query1.getResultList();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			
 
 			for (int i = 0; i < list.size(); i++) {
-				Map map = (Map) list.get(i);
+				Tuple map =  list.get(i);
 				GetAdjustmentPayRecListRes1 bean1 = new GetAdjustmentPayRecListRes1();
 				bean1.setTransactionNo(map.get("TRANSACTION_NO") == null ? "" : map.get("TRANSACTION_NO").toString());
-				bean1.setTransactionDate(map.get("ADATE") == null ? "" : map.get("ADATE").toString());
-				bean1.setContractNo(map.get("CONTRACT_NO") == null ? "" : map.get("CONTRACT_NO").toString());
-				bean1.setLayerNo(map.get("LAYER_NO") == null ? "" : map.get("LAYER_NO").toString());
+				bean1.setTransactionDate(map.get("ADATE") == null ? "" : sdf.format(map.get("ADATE")));
+//				bean1.setContractNo(map.get("CONTRACT_NO") == null ? "" : map.get("CONTRACT_NO").toString());
+//				bean1.setLayerNo(map.get("LAYER_NO") == null ? "" : map.get("LAYER_NO").toString());
 				bean1.setBrokerName(map.get("BROKER_NAME") == null ? "" : map.get("BROKER_NAME").toString());
 				bean1.setCedingName(
 						map.get("CEDING_COMPANY_NAME") == null ? "" : map.get("CEDING_COMPANY_NAME").toString());
@@ -462,10 +657,10 @@ public class AdjustmentServiceImple implements AdjustmentService {
 				bean1.setAdjustAmount(
 						map.get("PENDING_AMOUNT") == null ? "" : fm.formatter(map.get("PENDING_AMOUNT").toString()));
 				bean1.setType(map.get("BUSINESS_TYPE") == null ? "" : map.get("BUSINESS_TYPE").toString());
-				bean1.setProductName(map.get("PRODUCT_NAME") == null ? "" : map.get("PRODUCT_NAME").toString());
+		//		bean1.setProductName(map.get("PRODUCT_NAME") == null ? "" : map.get("PRODUCT_NAME").toString());
 				bean1.setCurrencyId(map.get("CURRENCY_ID") == null ? "" : map.get("CURRENCY_ID").toString());
-				bean1.setSubClass(map.get("SUB_CLASS") == null ? "" : map.get("SUB_CLASS").toString());
-				bean1.setProposlaNo(map.get("PROPOSAL_NO") == null ? "" : map.get("PROPOSAL_NO").toString());
+			//	bean1.setSubClass(map.get("SUB_CLASS") == null ? "" : map.get("SUB_CLASS").toString());
+			//	bean1.setProposlaNo(map.get("PROPOSAL_NO") == null ? "" : map.get("PROPOSAL_NO").toString());
 				if (bean1.getType().equals("Payment")) {
 					a = a + Double.parseDouble(
 							map.get("PENDING_AMOUNT") == null ? "0.0" : map.get("PENDING_AMOUNT").toString());
@@ -503,6 +698,7 @@ public class AdjustmentServiceImple implements AdjustmentService {
 		}
 		return response;
 	}
+
 
 	@Override
 	public CommonResponse addAdjustment(GetAdjustmentListReq req) {
@@ -782,13 +978,10 @@ public class AdjustmentServiceImple implements AdjustmentService {
 						CriteriaBuilder cb = em.getCriteriaBuilder();
 						CriteriaQuery<String> query = cb.createQuery(String.class);
 
-						//  like table name
 						Root<CurrencyMaster> pm = query.from(CurrencyMaster.class);
 
-						//  Select
 						query.select(pm.get("shortName"));
 
-						//  MAXAmend ID
 						Subquery<Long> amend = query.subquery(Long.class);
 						Root<CurrencyMaster> pms = amend.from(CurrencyMaster.class);
 						amend.select(cb.max(pms.get("amendId")));
@@ -796,14 +989,12 @@ public class AdjustmentServiceImple implements AdjustmentService {
 						Predicate a2 = cb.equal(pm.get("branchCode"), pms.get("branchCode"));
 						amend.where(a1, a2);
 
-						//  Where
 						Predicate n1 = cb.equal(pm.get("branchCode"), bean.getBranchCode());
 						Predicate n2 = cb.equal(pm.get("currencyId"),
 								resMap.getCurrencyId() == null ? "" : resMap.getCurrencyId().toString());
 						Predicate n3 = cb.equal(pm.get("amendId"), amend);
 						query.where(n1, n2, n3);
 
-						//  Get Result
 						TypedQuery<String> res = em.createQuery(query);
 						List<String> list1 = res.getResultList();
 						if (list1.size() > 0) {
@@ -906,10 +1097,8 @@ public class AdjustmentServiceImple implements AdjustmentService {
 
 								Root<TtrnPaymentReceiptDetails> rd = query1.from(TtrnPaymentReceiptDetails.class);
 
-								//  Select
 								query1.select(rd);
 
-								//  amend
 								Subquery<Long> mamend = query1.subquery(Long.class);
 								Root<TtrnPaymentReceiptDetails> rds = mamend.from(TtrnPaymentReceiptDetails.class);
 								mamend.select(cb.max(rds.get("amendId")));
@@ -917,14 +1106,12 @@ public class AdjustmentServiceImple implements AdjustmentService {
 								Predicate b2 = cb.equal(rds.get("receiptSlNo"), rd.get("receiptSlNo"));
 								mamend.where(b1, b2);
 
-								//  Where
 								Predicate m1 = cb.equal(rd.get("receiptSlNo"),
 										resMap.getReceiptNo() == null ? "" : resMap.getReceiptNo().toString());
 								Predicate m2 = cb.equal(rd.get("currencyId"), curencyId);
 								Predicate m3 = cb.equal(rd.get("amendId"), mamend);
 								query1.where(m1, m2, m3);
 
-								//  Get Result
 								TypedQuery<TtrnPaymentReceiptDetails> result1 = em.createQuery(query1);
 								List<TtrnPaymentReceiptDetails> list2 = result1.getResultList();
 								if (list2.size() > 0) {

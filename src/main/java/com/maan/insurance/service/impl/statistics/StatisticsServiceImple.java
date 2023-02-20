@@ -37,10 +37,7 @@ import com.maan.insurance.model.res.statistics.GetRenewalStatisticsListRes1;
 import com.maan.insurance.model.res.statistics.SlideScenarioRes;
 import com.maan.insurance.model.res.statistics.SlideScenarioRes1;
 import com.maan.insurance.service.impl.QueryImplemention;
-import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
 import com.maan.insurance.service.statistics.StatisticsService;
-import com.maan.insurance.validation.Formatters;
-import com.maan.insurance.validation.Claim.ValidationImple;
 @Service
 public class StatisticsServiceImple implements StatisticsService{
 	private Logger log = LogManager.getLogger(StatisticsServiceImple.class);
@@ -48,14 +45,7 @@ public class StatisticsServiceImple implements StatisticsService{
 	@Autowired
 	private QueryImplemention queryImpl;
 
-	@Autowired
-	private DropDownServiceImple dropDowmImpl;
 
-	@Autowired
-	private Formatters fm;
-
-	@Autowired
-	private ValidationImple vi;
 
 	@PersistenceContext
 	private EntityManager em;

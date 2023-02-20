@@ -110,5 +110,17 @@ public class TtrnBillingTransaction implements Serializable {
 	    @Temporal(TemporalType.TIMESTAMP)
 	    @Column(name="REVERSAL_DATE")
 	    private Date       reversalDate ;
+	    
+	    @Column(name="GROSS_AMOUNT")
+	    private BigDecimal     grossAmount ;
+	    
+	    @Column(name="WHT_PREMIUM")
+	    private BigDecimal     whtPremium ;
+	    
+	    @Column(name="WHT_BROKERAGE")
+	    private BigDecimal     whtBrokerage ;
+	    
+	    @Column(name="NET_AMOUNT")
+	    private BigDecimal     netAmount ;
 
 }

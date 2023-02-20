@@ -144,7 +144,7 @@ import com.maan.insurance.validation.Formatters;
 
 @Service
 public class NonProportionalityServiceImpl implements NonProportionalityService{
-	private Logger logger = LogManager.getLogger(ProportionalityServiceImpl.class);
+	private Logger logger = LogManager.getLogger(NonProportionalityServiceImpl.class);
 	@PersistenceContext
 	private EntityManager em;
 

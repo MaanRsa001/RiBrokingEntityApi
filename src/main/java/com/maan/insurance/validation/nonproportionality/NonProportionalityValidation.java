@@ -63,7 +63,7 @@ import com.maan.insurance.validation.Validation;
 @Service
 public class NonProportionalityValidation {
 	final static DecimalFormat twoDigit = new DecimalFormat("###0.00");
-	private Logger log = LogManager.getLogger(QueryImplemention.class);
+	private Logger log = LogManager.getLogger(NonProportionalityValidation.class);
 	private Properties prop = new Properties();
 	CommonCalculation calcu = new CommonCalculation();
 	
@@ -72,9 +72,7 @@ public class NonProportionalityValidation {
 	
 	@Autowired
 	private NonProportionalityServiceImpl nonPropImple;
-	
-	@Autowired
-	private ProportionalityServiceImpl propImple;
+
 	
 	@Autowired
 	private Formatters fm;

@@ -118,7 +118,6 @@ import com.maan.insurance.service.impl.QueryImplemention;
 import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
 import com.maan.insurance.service.retro.RetroService;
 import com.maan.insurance.validation.Formatters;
-import com.maan.insurance.validation.Claim.ValidationImple;
 
 @Service
 public class RetroServiceImple implements RetroService {
@@ -131,8 +130,6 @@ public class RetroServiceImple implements RetroService {
 	@Autowired
 	private Formatters fm;
 	
-	@Autowired
-	private ValidationImple vi;
 	
 	@Autowired
 	private TtrnRiskDetailsRepository rdRepo;
@@ -1709,7 +1706,7 @@ public class RetroServiceImple implements RetroService {
 			args[7] = req.getBranchCode();
 			args[8] = req.getProposalNo();
 			args[9] = req.getAmendId();
-			String selectQry = "risk.select.getCommonData";
+			String selectQry = "risk.select.getCommonData"; // within group //LEFT OUTER JOIN multple
 			List<Map<String, Object>> res = queryImpl.selectList(selectQry,args);
 			Map<String, Object> resMap = null;
 			if(res!=null && res.size()>0)
@@ -1955,7 +1952,7 @@ public class RetroServiceImple implements RetroService {
 			args[2] = req.getAmendId();
 			args[3] = req.getProposalNo();
 			args[4] = req.getAmendId();
-			selectQry = "risk.select.getThirdPageData";
+			selectQry = "risk.select.getThirdPageData"; //multiple left outer join
 			List<Map<String, Object>> res3 =  queryImpl.selectList(selectQry,args);
 			Map<String, Object> thirdViewDataMap = null;
 			if(res3!=null && res3.size()>0)
@@ -4244,7 +4241,6 @@ private String getMaxproposalStatus(String proposalNo) {
 		CommonSaveRes response = new CommonSaveRes();
 		boolean savFlg = false;
 		try {
-			String updateQry = "";
 			int updateCount =  getFirstPageSaveModeAruguments(beanObj, beanObj.getProductId(),getMaxAmednId(beanObj.getProposalNo()));
 		
 			if (updateCount > 0) {
