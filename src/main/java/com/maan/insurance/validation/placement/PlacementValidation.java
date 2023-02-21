@@ -328,7 +328,14 @@ public List<ErrorCheck> validationStatus(UpdatePlacementReq bean) {
 				}else if("A".equals(bean.getNewStatus())) {
 					if(StringUtils.isBlank(req.getWrittenLine())) {
 						list.add(new ErrorCheck(prop.getProperty("error.writtenLine.required")+" "+String.valueOf(i+1),"writtenLine","01"));
-					}if(StringUtils.isBlank(req.getWrittenvaliditydate())) {
+					}else {
+						if(StringUtils.isNotBlank(req.getShareOffered())) {
+							if(Double.parseDouble(req.getWrittenLine())>Double.parseDouble(req.getShareOffered())) {
+								list.add(new ErrorCheck(prop.getProperty("error.writtenline.valid")+" "+String.valueOf(i+1),"proposedWL","01"));	
+							}
+						}
+					}
+					if(StringUtils.isBlank(req.getWrittenvaliditydate())) {
 						list.add(new ErrorCheck(prop.getProperty("error.writtenvaliditydate.required")+" "+String.valueOf(i+1),"writtenvaliditydate","01"));
 					}if(StringUtils.isBlank(req.getWrittenvalidityRemarks())) {
 						list.add(new ErrorCheck(prop.getProperty("error.writtenvalidityRemarks.required")+" "+String.valueOf(i+1),"writtenvalidityRemarks","01"));
@@ -366,12 +373,17 @@ public List<ErrorCheck> validationStatus(UpdatePlacementReq bean) {
 				}else if("PSL".equals(bean.getNewStatus())) {
 					if(StringUtils.isBlank(req.getProposedSL())) {
 						list.add(new ErrorCheck(prop.getProperty("error.proposedSL.required")+" "+String.valueOf(i+1),"proposedSL","01"));
+					}if(StringUtils.isNotBlank(req.getSignedLine())) {
+						if(Double.parseDouble(req.getProposedSL())>Double.parseDouble(req.getSignedLine())) {
+							list.add(new ErrorCheck(prop.getProperty("error.signedLinePro.valid")+" "+String.valueOf(i+1),"psignedLine","01"));
+						
+						}
 					}
 				}else if("CSL".equals(bean.getNewStatus())) {
 					if(StringUtils.isBlank(req.getSignedLine())) {
 						list.add(new ErrorCheck(prop.getProperty("error.signedLine.required")+" "+String.valueOf(i+1),"signedLine","01"));
-					}if(StringUtils.isNotBlank(req.getPsignedLine())) {
-						if(Double.parseDouble(req.getSignedLine())>Double.parseDouble(req.getPsignedLine())) {
+					}if(StringUtils.isNotBlank(req.getProposedSL())) {
+						if(Double.parseDouble(req.getSignedLine())>Double.parseDouble(req.getProposedSL())) {
 							list.add(new ErrorCheck(prop.getProperty("error.psignedLine.valid")+" "+String.valueOf(i+1),"psignedLine","01"));
 						
 						}

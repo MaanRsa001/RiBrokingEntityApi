@@ -3861,7 +3861,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 								String coverAmount=insMap.get("RSK_COVER_LIMT")==null?"0.00":insMap.get("RSK_COVER_LIMT").toString();
 								String coverAmount1=insMap.get("RSK_DEDUCTABLE_LIMT")==null?"0.00":insMap.get("RSK_DEDUCTABLE_LIMT").toString();
 								String deducttotal=String.valueOf(Double.parseDouble(coverAmount1)+Double.parseDouble(coverAmount));
-								res.setDeductableLimitAmount(deducttotal);
+								res.setDeductableLimitAmount(fm.formatter(deducttotal));
 								res.setCoverLimitAmount("");
 						}else {
 							res.setDeductableLimitAmount("");

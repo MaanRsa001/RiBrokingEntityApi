@@ -7,6 +7,7 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -30,6 +31,7 @@ import lombok.ToString;
 @DynamicInsert
 @DynamicUpdate
 @Builder
+@IdClass(TtrnRskClassLimitsId.class)
 @Table(name="TTRN_RSK_CLASS_LIMITS")
 public class TtrnRskClassLimits implements Serializable{ 
 	private static final long serialVersionUID = 1L; 
@@ -79,7 +81,7 @@ public class TtrnRskClassLimits implements Serializable{
     @Column(name="STATUS")
     private String     status;
 
-    
+    @Id
     @Column(name="RSK_SNO")
     private BigDecimal     rskSno ;
     

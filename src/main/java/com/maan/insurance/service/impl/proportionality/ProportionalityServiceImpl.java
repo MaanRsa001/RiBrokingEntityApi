@@ -34,7 +34,6 @@ import com.maan.insurance.jpa.entity.propPremium.TtrnInsurerDetails;
 import com.maan.insurance.jpa.entity.xolpremium.TtrnMndInstallments;
 import com.maan.insurance.model.entity.ConstantDetail;
 import com.maan.insurance.model.entity.CurrencyMaster;
-import com.maan.insurance.model.entity.MailNotificationDetail;
 import com.maan.insurance.model.entity.PersonalInfo;
 import com.maan.insurance.model.entity.PositionMaster;
 import com.maan.insurance.model.entity.TmasBranchMaster;
@@ -47,7 +46,6 @@ import com.maan.insurance.model.entity.TtrnCommissionDetails;
 import com.maan.insurance.model.entity.TtrnCrestazoneDetails;
 import com.maan.insurance.model.entity.TtrnPttySection;
 import com.maan.insurance.model.entity.TtrnRi;
-import com.maan.insurance.model.entity.TtrnRiPlacement;
 import com.maan.insurance.model.entity.TtrnRip;
 import com.maan.insurance.model.entity.TtrnRiskCommission;
 import com.maan.insurance.model.entity.TtrnRiskDetails;
@@ -5148,8 +5146,6 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 	
 	public int contractEditMode(String proposalNo) {
 		int mode=0;
-		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
-		String query;
 		String result = null;
 		try {
 			//risk.select.getRskContractNo
@@ -5926,20 +5922,20 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 		try {
 			try {
 				String[] args=null;
-
-						List<Tuple> result = proportionalityCustomRepository.riskSelectChechProposalStatus(beanObj.getProposalNo());
-						
-						Tuple resMap = null;
-						if(result!=null &&result.size()>0)
-							resMap = result.get(0);
-						if(resMap!=null){
-							res.setProStatus(resMap.get("RSK_STATUS")==null?"":resMap.get("RSK_STATUS").toString());
-							res.setSharSign(resMap.get("RSK_SHARE_SIGNED")==null?"":resMap.get("RSK_SHARE_SIGNED").toString());
-							res.setContNo(resMap.get("RSK_CONTRACT_NO")==null?"":resMap.get("RSK_CONTRACT_NO").toString());
+				List<Tuple> result = proportionalityCustomRepository.riskSelectChechProposalStatus(beanObj.getProposalNo());
+				Tuple resMap = null;
+				if(result!=null &&result.size()>0)
+					resMap = result.get(0);
+				if(resMap!=null){
+					res.setProStatus(resMap.get("RSK_STATUS")==null?"":resMap.get("RSK_STATUS").toString());
+					res.setSharSign(resMap.get("RSK_SHARE_SIGNED")==null?"":resMap.get("RSK_SHARE_SIGNED").toString());
+					res.setContNo(resMap.get("RSK_CONTRACT_NO")==null?"":resMap.get("RSK_CONTRACT_NO").toString());
+				}
+				int ContractEditMode = contractEditMode(beanObj.getProposalNo());
+					if (ContractEditMode == 1) {
 							if (res.getProStatus().matches("A") /* && !beanObj.getSharSign().matches("0") */) {
 								String maxContarctNo = null;
 								
-								//GET_BASE_LAYER_DETAILS
 								List<Tuple> 	res1 = proportionalityCustomRepository.getBaseLayerDetails(beanObj.getProductId(),beanObj.getBranchCode(),beanObj.getProposalNo());	
 							
 								Tuple resMap1 = null;
@@ -5987,14 +5983,8 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 									}
 								}
 							
-								
-								//risk.update.contNo
-								List<TtrnRiskDetails> update1 = ttrnRiskDetailsRepository.findByRskProposalNumber(beanObj.getProposalNo());	
-								if(update1.size()>0) {
-									TtrnRiskDetails u =update1.get(0);		
-									u.setRskContractNo(maxContarctNo);				
-									ttrnRiskDetailsRepository.saveAndFlush(u);
-								}		
+								proportionalityCustomRepository.riskdetailUpdateContNo(beanObj.getProposalNo(),maxContarctNo);
+									
 								args=new String[4];
 								args[0]=maxContarctNo;
 								args[1] = "A";
@@ -6014,7 +6004,10 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 								
 							} 
 						
-					
+						}
+					else if (ContractEditMode == 2) {
+						res.setContractGendration("Your Contract is updated with Proposal No : "+beanObj.getProposalNo()+", Contract No : "+res.getContNo()+".");
+					}
 					beanObj.setContNo(res.getContNo());
 					if("3".equalsIgnoreCase(beanObj.getProductId()) || "5".equalsIgnoreCase(beanObj.getProductId())){
 						UpdateContractLimit(beanObj.getContNo(),beanObj.getProposalNo());
@@ -6032,7 +6025,6 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 					if(StringUtils.isNotBlank(res.getContNo())){
 					//	dropDowmImpl.getSOATableInsert(beanObj.getProposalNo(), res.getContNo(),beanObj.getBranchCode());
 					}
-				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

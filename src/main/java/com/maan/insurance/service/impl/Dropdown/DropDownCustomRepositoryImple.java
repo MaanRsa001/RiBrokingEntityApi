@@ -367,6 +367,7 @@ public class DropDownCustomRepositoryImple implements DropDownCustomRepository{
 					p.get("placementAmendId").alias("PLACEMENT_AMEND_ID"),
 					cb.coalesce(ps.get("currentStatus"), p.get("status")).alias("CURRENT_STATUS"),
 					ps.get("newStatus").alias("NEW_STATUS"),
+					p.get("reinsurerContractNo").alias("REINSURER_CONTRACT_NO"),
 					p.get("statusNo").alias("STATUS_NO")); 
 	
 			List<Order> orderList = new ArrayList<Order>();

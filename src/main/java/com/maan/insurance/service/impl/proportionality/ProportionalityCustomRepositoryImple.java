@@ -54,7 +54,6 @@ import com.maan.insurance.model.repository.TtrnRiRepository;
 import com.maan.insurance.model.repository.TtrnRiskCommissionRepository;
 import com.maan.insurance.model.repository.TtrnRiskDetailsRepository;
 import com.maan.insurance.model.repository.TtrnRiskProposalRepository;
-import com.maan.insurance.model.req.proportionality.ConvertPolicyReq;
 import com.maan.insurance.validation.Formatters;
 
 @Repository
@@ -2895,6 +2894,27 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 			e.printStackTrace();
 		}
 		
+	}
+
+	@Override
+	@Transactional
+	public void riskdetailUpdateContNo(String proposalNo, String maxContarctNo) {
+		try {
+			//GET_RETRO_CON_UPDATE
+			CriteriaBuilder cb = this.em.getCriteriaBuilder();
+			CriteriaUpdate<TtrnRiskDetails> update = cb.createCriteriaUpdate(TtrnRiskDetails.class);
+			Root<TtrnRiskDetails> m = update.from(TtrnRiskDetails.class);
+		
+			update.set("rskContractNo", fm.formatBigDecimal(maxContarctNo));
+			
+			
+			Predicate n1 = cb.equal(m.get("rskProposalNumber"), proposalNo);
+			update.where(n1);
+			em.createQuery(update).executeUpdate();
+
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 		
 	}

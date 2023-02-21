@@ -5953,6 +5953,7 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 			}
 		return response;
 	}
+	@Transactional
 	public CommonResponse updateSubEditMode(updateSubEditModeReq req) {
 		CommonResponse response = new CommonResponse();
 		try{

@@ -909,12 +909,12 @@ public class PortFolioServiceImple implements PortFolioService{
     				list.add(map);
     				map=new HashMap<String,Object>();
     			}
-    			if( menuRights.toString().contains("EN") ){//&&"N".equalsIgnoreCase(tempBean.getEditMode())&&!"".equalsIgnoreCase(tempBean.getEditMode())){
-    				map.put("TYPE","E");
-    				map.put("DETAIL_NAME","Edit");
-    				list.add(map);
-    				map=new HashMap<String,Object>();
-    			}
+				/*
+				 * if( menuRights.toString().contains("EN")
+				 * ){//&&"N".equalsIgnoreCase(tempBean.getEditMode())&&!"".equalsIgnoreCase(
+				 * tempBean.getEditMode())){ map.put("TYPE","E"); map.put("DETAIL_NAME","Edit");
+				 * list.add(map); map=new HashMap<String,Object>(); }
+				 */
     			if(!"0".equalsIgnoreCase(tempBean.getAmendId())){
     				map=new HashMap<String,Object>();
     				map.put("TYPE","H");

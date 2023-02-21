@@ -150,5 +150,7 @@ public interface ProportionalityCustomRepository {
 	void updateMailContractNo(BigDecimal formatBigDecimal, String reinsurerIds, String brokerIds, String branchCode,
 			String statusNo, String contNo);
 
+	void riskdetailUpdateContNo(String proposalNo, String maxContarctNo);
+
 
 }
