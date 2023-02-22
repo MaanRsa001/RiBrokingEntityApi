@@ -1420,7 +1420,7 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 					 p.get("shareOffered").alias("SHARE_OFFERED") ,
 					 cb.coalesce(mailStatus, "Pending").alias("MAIL_STATUS"),
 					 p.get("bouquetNo").alias("BOUQUET_NO") ,
-					 p.get("proposalNo").alias("PROPOSAL_NO") ,
+					// p.get("proposalNo").alias("PROPOSAL_NO") ,
 					 p.get("placementMode").alias("PLACEMENT_MODE")).distinct(true);
 			// AmendId
 			Subquery<Long> amendId = query.subquery(Long.class);
@@ -1942,7 +1942,7 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 					 p.get("sno").alias("SNO"), 
 					 p.get("bouquetNo").alias("BOUQUET_NO"),
 					 p.get("reinsurerId").alias("REINSURER_ID"),
-					 p.get("proposalNo").alias("PROPOSAL_NO"),
+					// p.get("proposalNo").alias("PROPOSAL_NO"),
 					 p.get("brokerId").alias("BROKER_ID"),
 					 reInsurerName.alias("REINSURER_NAME"),
 					 brokerName.alias("BROKER_NAME"),
@@ -2052,7 +2052,7 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 					 p.get("sno").alias("SNO"), 
 					 p.get("bouquetNo").alias("BOUQUET_NO"),
 					 p.get("reinsurerId").alias("REINSURER_ID"),
-					 p.get("proposalNo").alias("PROPOSAL_NO"),
+					// p.get("proposalNo").alias("PROPOSAL_NO"),
 					 p.get("brokerId").alias("BROKER_ID"),
 					 reInsurerName.alias("REINSURER_NAME"),
 					 brokerName.alias("BROKER_NAME"),
