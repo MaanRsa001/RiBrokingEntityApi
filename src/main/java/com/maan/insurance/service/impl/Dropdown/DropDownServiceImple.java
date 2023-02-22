@@ -5519,11 +5519,10 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 	public GetBouquetExistingListRes getBaseLayerExistingList(String branchCode, String baseProposalNo) {
 		GetBouquetExistingListRes response = new GetBouquetExistingListRes();
 		List<GetBouquetExistingListRes1> resList = new ArrayList<GetBouquetExistingListRes1>();
-		List<Map<String,Object>> list=new ArrayList<Map<String,Object>>();
 		try{
-			list= queryImpl.selectList("GET_EXISTING_BASELAYER",new String[]{branchCode,baseProposalNo});
+			List<Tuple> list = dropDownCustomRepository.getExistingBaselayer(branchCode, baseProposalNo);
 			if(list.size()>0) {
-				for(Map<String,Object> data: list) {
+				for(Tuple data: list) {
 					GetBouquetExistingListRes1 res = new GetBouquetExistingListRes1();
 					res.setInsDate(data.get("INS_DATE")==null?"":sdf.format(data.get("INS_DATE")));  
 					res.setExpDate(data.get("EXP_DATE")==null?"":sdf.format(data.get("EXP_DATE")));  

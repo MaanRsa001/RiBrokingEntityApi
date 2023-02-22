@@ -422,7 +422,7 @@ public class PlacementServiceImple implements PlacementService {
 					GetReinsurerInfoRes1 res = new GetReinsurerInfoRes1();
 					res.setMailStatus(map.get("MAIL_STATUS")==null?"":map.get("MAIL_STATUS").toString());
 					res.setPlacingBroker(map.get("BROKER_ID")==null?"":map.get("BROKER_ID").toString());
-					res.setProposalNos(map.get("PROPOSAL_NO")==null?"":map.get("PROPOSAL_NO").toString());
+					//res.setProposalNos(map.get("PROPOSAL_NO")==null?"":map.get("PROPOSAL_NO").toString());
 					res.setReinsSNo(map.get("SNO")==null?"":map.get("SNO").toString());
 					res.setReinsureName(map.get("REINSURER_ID")==null?"":map.get("REINSURER_ID").toString());
 					res.setShareOffer(map.get("SHARE_OFFERED")==null?"":fm.formattereight(map.get("SHARE_OFFERED").toString()));;
@@ -722,7 +722,7 @@ public class PlacementServiceImple implements PlacementService {
 					Tuple map=result.get(i);
 					GetPlacingInfoRes1 res = new GetPlacingInfoRes1();
 					  res.setSno(map.get("SNO")==null?"":map.get("SNO").toString());  
-					  res.setProposalNo(map.get("PROPOSAL_NO")==null?"":map.get("PROPOSAL_NO").toString());  
+					 // res.setProposalNo(map.get("PROPOSAL_NO")==null?"":map.get("PROPOSAL_NO").toString());  
 					  res.setBouquetNo(map.get("BOUQUET_NO")==null?"":map.get("BOUQUET_NO").toString());  
 					  res.setReinsurerId(map.get("REINSURER_ID")==null?"":map.get("REINSURER_ID").toString());  
 					  res.setBrokerId(map.get("BROKER_ID")==null?"":map.get("BROKER_ID").toString());  
