@@ -142,8 +142,8 @@ public class TtrnRiPlacement implements Serializable {
 	    @Column(name="STATUS")
 	    private String     status ;
 
-	    @Column(name="APPROVE_STATUS")
-	    private String     approveStatus ;
+	    @Column(name="APPROVER_STATUS")
+	    private String     approverStatus ;
 
 	    @Column(name="USER_ID")
 	    private String userId ;
@@ -151,7 +151,12 @@ public class TtrnRiPlacement implements Serializable {
 	    @Column(name="REMARKS")
 	    private String remarks ;
 	
+	    @Column(name="APPROVER_LOGIN_ID")
+	    private String approverLoginId ;
 	    
+	    @Temporal(TemporalType.TIMESTAMP)
+	    @Column(name="APPROVER_SYSDATE")
+	    private Date       approverSysDate ;
 	    //--- ENTITY LINKS (RELATIONSHIP)
 //	    @OneToMany(mappedBy = "ttrnRiPlacement")
 //	    private List<MailNotificationDetail> listOfMailNotificationDetail;

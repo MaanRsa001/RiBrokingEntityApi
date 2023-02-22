@@ -572,6 +572,7 @@ public class PlacementServiceImple implements PlacementService {
 					res.setShareProposedSigned(map.get("SHARE_PROPOSED_SIGNED")==null?"":map.get("SHARE_PROPOSED_SIGNED").toString()); 
 					res.setMailStatus(map.get("MAIL_STATUS")==null?"":map.get("MAIL_STATUS").toString()); 
 					res.setOfferNo(map.get("OFFER_NO")==null?"":map.get("OFFER_NO").toString());
+					res.setApproverStatus(map.get("APPROVER_STATUS")==null?"":map.get("APPROVER_STATUS").toString());
 					resList.add(res);
 					}
 					resList.sort(Comparator.comparing(GetPlacementInfoListRes1 :: getOfferNo)
@@ -679,7 +680,7 @@ public class PlacementServiceImple implements PlacementService {
 				entity.setStatus(currentStatus==null?"":currentStatus);
 				entity.setPlacementAmendId(StringUtils.isBlank(plamendId)? BigDecimal.ZERO  :new BigDecimal(plamendId));
 				entity.setStatusNo(res1.getStatusNo()==null?BigDecimal.ZERO :new BigDecimal(res1.getStatusNo()));
-				entity.setApproveStatus("Y");
+				entity.setApproverStatus("Y");
 				entity.setUserId(bean.getUserId()==null?"":bean.getUserId());
 				ripRepo.saveAndFlush(entity);		
 				resList.add(res);
@@ -883,7 +884,7 @@ public class PlacementServiceImple implements PlacementService {
 				}
 				entity.setPlacementAmendId(StringUtils.isBlank(bean.getPlacementamendId())? BigDecimal.ZERO:new BigDecimal(bean.getPlacementamendId()));
 				entity.setStatusNo(StringUtils.isBlank(bean.getStatusNo())? null: new BigDecimal(bean.getStatusNo()));
-				entity.setApproveStatus("Y");
+				entity.setApproverStatus(bean.getApproverStatus());
 				entity.setUserId(bean.getUserId());
 				entity.setBranchCode(bean.getBranchCode());
 				entity.setSysDate(new Date());
@@ -903,7 +904,6 @@ public class PlacementServiceImple implements PlacementService {
 			}
 		return response;
 	}
-	@Override
 	public CommonResponse updateStatus(UpdatePlacementReq bean) {
 		CommonResponse response = new CommonResponse();
 		String corresId="",statusNo="";
@@ -950,7 +950,7 @@ public class PlacementServiceImple implements PlacementService {
 				entity.setCorrespondentId(new BigDecimal(bean.getCorresId()));
 				entity.setStatusNo(new BigDecimal(bean.getStatusNo()));
 				entity.setUserId(bean.getUserId());
-				entity.setApproverStatus("Y");				
+				entity.setApproverStatus(bean.getApproverStatus());				
 				placeStatusRepo.saveAndFlush(entity);		
 			}
 			response.setMessage("Success");
@@ -1183,6 +1183,7 @@ public class PlacementServiceImple implements PlacementService {
 				req.setBranchCode(bean.getBranchCode());
 				req.setCorresId(bean.getCorresId());
 				req.setStatusNo(bean.getStatusNo());
+				req.setApproverStatus("Y");
 				List<UpdatePlacementListReq> placementListReq=new ArrayList<UpdatePlacementListReq>();
 				List<InsertMailDetailsRes1> resp=res.getCommonResponse();
 				for(int i=0;i<resp.size();i++) {
@@ -1733,8 +1734,8 @@ public class PlacementServiceImple implements PlacementService {
 			if(!CollectionUtils.isEmpty(list1)) {
 				Tuple map=list1.get(0);
 				String bouquetNo=map.get("BOUQUET_NO")==null?"":map.get("BOUQUET_NO").toString();
-				String proposalNo=map.get("PROPOSAL_NO")==null?"":map.get("PROPOSAL_NO").toString();
-				String baseproposalNo=map.get("BASE_LAYER")==null?"":map.get("BASE_LAYER").toString();
+				//String proposalNo=map.get("PROPOSAL_NO")==null?"":map.get("PROPOSAL_NO").toString();
+				//String baseproposalNo=map.get("BASE_LAYER")==null?"":map.get("BASE_LAYER").toString();
 				String offerNo=map.get("OFFER_NO")==null?"":map.get("OFFER_NO").toString();
 				if(StringUtils.isNotBlank(bouquetNo)) {
 					mailsub=mailsub+" "+bouquetNo+"";

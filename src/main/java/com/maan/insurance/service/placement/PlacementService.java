@@ -75,7 +75,7 @@ public interface PlacementService {
 
 	SendMailRes sendMail(SendMailReq req);
 
-	CommonResponse updateStatus(UpdatePlacementReq req);
+	//CommonResponse updateStatus(UpdatePlacementReq req);
 
 	//InsertMailDetailsRes insertMailDetails(InsertMailDetailsReq req);
 

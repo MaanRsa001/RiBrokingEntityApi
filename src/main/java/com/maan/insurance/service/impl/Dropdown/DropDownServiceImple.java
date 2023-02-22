@@ -164,6 +164,8 @@ import com.maan.insurance.model.res.DropDown.GetOpenPeriodRes;
 import com.maan.insurance.model.res.DropDown.GetOpenPeriodRes1;
 import com.maan.insurance.model.res.DropDown.GetPlacementInfoListRes;
 import com.maan.insurance.model.res.DropDown.GetPlacementInfoListRes1;
+import com.maan.insurance.model.res.DropDown.GetSubStatusDropDownRes;
+import com.maan.insurance.model.res.DropDown.SubStatusResDropDown;
 import com.maan.insurance.model.res.retro.CommonSaveRes;
 import com.maan.insurance.service.Dropdown.DropDownService;
 import com.maan.insurance.service.impl.QueryImplemention;
@@ -5127,19 +5129,21 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 	}
 
 	@Override
-	public GetCommonDropDownRes getSubStatusDropDown(String branchCode, String statusCode) {
-		GetCommonDropDownRes response = new GetCommonDropDownRes();
-		List<CommonResDropDown> resList = new ArrayList<CommonResDropDown>();
+	public GetSubStatusDropDownRes getSubStatusDropDown(String branchCode, String statusCode) {
+		GetSubStatusDropDownRes response = new GetSubStatusDropDownRes();
+		List<SubStatusResDropDown> resList = new ArrayList<SubStatusResDropDown>();
 		try{
 			//GET_SUBSTATUS_DROP_DOWN
 			List<SubStatusMaster> list = ssmRepo.findByBranchCodeAndStatusAndStatusCode(branchCode,"Y",statusCode);
 			
 			if(list.size()>0) {
       			for(SubStatusMaster data: list) {
-      				CommonResDropDown res = new CommonResDropDown();
+      				SubStatusResDropDown res = new SubStatusResDropDown();
       				res.setCode(data.getSubStatusCode()==null?"":data.getSubStatusCode().toString());
       				res.setCodeDescription(data.getSubStatusName()==null?"": data.getSubStatusName().toString());
       				res.setCodeValue(data.getSubStatusDescripton()==null?"": data.getSubStatusDescripton().toString());
+      				res.setApproverYN(data.getApprovelYN()==null?"": data.getApprovelYN().toString());
+      				res.setMailYN(data.getEmailYN()==null?"": data.getEmailYN().toString());
       				resList.add(res);
       			}
       		}

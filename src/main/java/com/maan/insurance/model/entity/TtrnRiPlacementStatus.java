@@ -127,7 +127,12 @@ public class TtrnRiPlacementStatus implements Serializable {
 	    @Column(name="REMARKS")
 	    private String remarks ;
 
-	 
+	    @Column(name="APPROVER_LOGIN_ID")
+	    private String approverLoginId ;
+	    
+	    @Temporal(TemporalType.TIMESTAMP)
+	    @Column(name="APPROVER_SYSDATE")
+	    private Date       approverSysDate ;
 	    //--- ENTITY LINKS ( RELATIONSHIP )
 
 

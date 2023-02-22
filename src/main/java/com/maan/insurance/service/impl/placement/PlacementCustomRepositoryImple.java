@@ -1549,7 +1549,8 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 					 p.get("writtenLineRemarks").alias("WRITTEN_LINE_REMARKS"), 
 					 p.get("shareLineValidity").alias("SHARE_LINE_VALIDITY"), 
 					 p.get("shareLineRemarks").alias("SHARE_LINE_REMARKS"), 
-					 p.get("shareProposedSigned").alias("SHARE_PROPOSED_SIGNED"), 
+					 p.get("shareProposedSigned").alias("SHARE_PROPOSED_SIGNED"),
+					 cb.selectCase().when(cb.equal(p.get("approverStatus"),"P"), "Pending").when(cb.equal(p.get("approverStatus"),"A"), "Approved").when(cb.equal(p.get("approverStatus"),"R"), "Rejected").otherwise("Success").alias("APPROVER_STATUS"), 
 					 offer.alias("OFFER_NO"),
 					 cb.coalesce(mailStatus, "Pending").alias("MAIL_STATUS")
 				//	 mailStatus.alias("MAIL_STATUS")
@@ -1691,7 +1692,8 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 					 p.get("writtenLineRemarks").alias("WRITTEN_LINE_REMARKS"), 
 					 p.get("shareLineValidity").alias("SHARE_LINE_VALIDITY"), 
 					 p.get("shareLineRemarks").alias("SHARE_LINE_REMARKS"), 
-					 p.get("shareProposedSigned").alias("SHARE_PROPOSED_SIGNED"), 
+					 p.get("shareProposedSigned").alias("SHARE_PROPOSED_SIGNED"),
+					 cb.selectCase().when(cb.equal(p.get("approverStatus"),"P"), "Pending").when(cb.equal(p.get("approverStatus"),"A"), "Approved").when(cb.equal(p.get("approverStatus"),"R"), "Rejected").otherwise("Success").alias("APPROVER_STATUS"), 
 					 offer.alias("OFFER_NO"),
 					 cb.coalesce(mailStatus, "Pending").alias("MAIL_STATUS")
 					 );
@@ -1834,6 +1836,7 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 					 p.get("shareLineValidity").alias("SHARE_LINE_VALIDITY"), 
 					 p.get("shareLineRemarks").alias("SHARE_LINE_REMARKS"), 
 					 p.get("shareProposedSigned").alias("SHARE_PROPOSED_SIGNED"), 
+					 cb.selectCase().when(cb.equal(p.get("approverStatus"),"P"), "Pending").when(cb.equal(p.get("approverStatus"),"A"), "Approved").when(cb.equal(p.get("approverStatus"),"R"), "Rejected").otherwise("Success").alias("APPROVER_STATUS"), 
 					 offer.alias("OFFER_NO"),
 					 cb.coalesce(mailStatus, "Pending").alias("MAIL_STATUS")
 					 );
@@ -1857,6 +1860,7 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 				predicates.add(cb.equal(p.get("reinsurerId"), req.getSearchReinsurerId()));
 				predicates.add(cb.equal(p.get("brokerId"), req.getSearchBrokerId()));
 				predicates.add(cb.equal(p.get("status"), req.getSearchStatus()));
+				predicates.add(cb.notEqual(p.get("approverStatus"), "P"));
 			}
 			
 //			List<Order> orderList = new ArrayList<Order>();

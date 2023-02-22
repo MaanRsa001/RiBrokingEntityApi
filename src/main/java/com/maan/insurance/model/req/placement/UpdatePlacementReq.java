@@ -43,4 +43,6 @@ public class UpdatePlacementReq {
 	private String updateDate; 
 	@JsonProperty("Status")
 	private String status; 
+	@JsonProperty("ApproverStatus")
+	private String approverStatus;
 }

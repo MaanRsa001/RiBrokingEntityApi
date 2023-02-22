@@ -49,5 +49,7 @@ public class GetPlacementInfoListRes1 {
 	private String mailStatus; 
 	@JsonProperty("OfferNo")
 	private String offerNo ;
+	@JsonProperty("ApproverStatus")
+	private String approverStatus; 
 
 }

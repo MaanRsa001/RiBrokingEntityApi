@@ -190,7 +190,7 @@ Gson gson = new Gson();
 	}
 		return serv.sendMail(req);
 	} 
-	@PostMapping("/updateStatus")
+	/*@PostMapping("/updateStatus")
 	public CommonResponse updateStatus(@RequestBody UpdatePlacementReq req) throws CommonValidationException {
 		List<ErrorCheck> error= val.validationStatus(req);
 		if(error!=null && error.size()>0) {
@@ -198,7 +198,7 @@ Gson gson = new Gson();
 	}
 		return serv.updateStatus(req);
 	}  
-	/*@PostMapping("/insertMailDetails")
+	@PostMapping("/insertMailDetails")
 	public InsertMailDetailsRes insertMailDetails(@RequestBody InsertMailDetailsReq req) throws CommonValidationException {
 		List<ErrorCheck> error= val.insertMailDetailsVali(req);
 		if(error!=null && error.size()>0) {

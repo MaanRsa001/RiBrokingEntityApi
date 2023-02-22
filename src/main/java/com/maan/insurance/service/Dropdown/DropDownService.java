@@ -41,6 +41,7 @@ import com.maan.insurance.model.res.DropDown.GetNewContractInfoRes;
 import com.maan.insurance.model.res.DropDown.GetNotPlacedProposalListRes;
 import com.maan.insurance.model.res.DropDown.GetOpenPeriodRes;
 import com.maan.insurance.model.res.DropDown.GetPlacementInfoListRes;
+import com.maan.insurance.model.res.DropDown.GetSubStatusDropDownRes;
 import com.maan.insurance.model.res.DropDown.GetYearToListValueRes;
 import com.maan.insurance.model.res.retro.CommonSaveRes;
 
@@ -188,7 +189,7 @@ public interface DropDownService {
 
 	GetCommonDropDownRes getStatusDropDown(String branchCode);
 
-	GetCommonDropDownRes getSubStatusDropDown(String branchCode, String statusCode);
+	GetSubStatusDropDownRes getSubStatusDropDown(String branchCode, String statusCode);
 
 	CommonResponse updateBqEditMode(updateBqEditModeReq req);
 

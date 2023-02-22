@@ -72,7 +72,12 @@ public class SubStatusMaster implements Serializable {
 	    @Temporal(TemporalType.TIMESTAMP)
 	    @Column(name="ENTRY_DATE")
 	    private Date       entryDate ;
-
+	    
+	    @Column(name="APPROVEL_YN")
+	    private String approvelYN ;
+	    
+	    @Column(name="EMAIL_YN")
+	    private String emailYN ;
 	    //--- ENTITY LINKS ( RELATIONSHIP )
 
 
