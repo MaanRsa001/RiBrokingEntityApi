@@ -2000,6 +2000,9 @@ public class PlacementServiceImple implements PlacementService {
 					res.setBrokeragePer(map.get("BROKERAGE_PER")==null?"":formatter.format(map.get("BROKERAGE_PER"))); 
 					res.setWrittenLine(map.get("SHARE_WRITTEN")==null?"":sdf.format(map.get("SHARE_WRITTEN"))); 
 					res.setOfferNo(map.get("OFFER_NO")==null?"":map.get("OFFER_NO").toString());
+					res.setConfirmedSignedLine(map.get("SHARE_SIGNED")==null?"":map.get("SHARE_SIGNED").toString());
+					res.setProposedSignedLine(map.get("SHARE_PROPOSED_SIGNED")==null?"":map.get("SHARE_PROPOSED_SIGNED").toString());
+					res.setShareOffered(map.get("SHARE_OFFERED")==null?"":map.get("SHARE_OFFERED").toString());
 					resList.add(res);
 					}
 				}
@@ -2017,11 +2020,11 @@ public class PlacementServiceImple implements PlacementService {
 	}
 
 	@Override
-	public CommonResponse updateRiplacement(UpdateRiplacementReq req, String status) {
+	public CommonResponse updateRiplacement(UpdateRiplacementReq req) {
 		CommonResponse response = new CommonResponse();
 		try {
-				placementCustomRepository.updateRiplacement(req, status);
-				placementCustomRepository.updateRiplacementStatus(req, status);
+				placementCustomRepository.updateRiplacement(req);
+				placementCustomRepository.updateRiplacementStatus(req);
 				
 				response.setMessage("Success");
 				response.setIsError(false);

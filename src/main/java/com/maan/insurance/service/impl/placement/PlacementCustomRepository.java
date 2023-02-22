@@ -87,9 +87,9 @@ public interface PlacementCustomRepository {
 
 	List<Tuple> getApprovalPendingList(GetApprovalPendingListReq bean, String status);
 
-	void updateRiplacement(UpdateRiplacementReq req,  String status);
+	void updateRiplacement(UpdateRiplacementReq req);
 
-	void updateRiplacementStatus(UpdateRiplacementReq req, String status);
+	void updateRiplacementStatus(UpdateRiplacementReq req);
 
 	
 }

@@ -35,6 +35,13 @@ public class GetApprovalPendingListRes1 {
 	
 	@JsonProperty("WrittenLine")
 	private String writtenLine;  //sharewritten
+	
+	@JsonProperty("ConfirmedSignedLine")
+	private String confirmedSignedLine; 
+	@JsonProperty("ProposedSignedLine")
+	private String proposedSignedLine; 
+	@JsonProperty("ShareOffered")
+	private String shareOffered  ;
 
 
 }

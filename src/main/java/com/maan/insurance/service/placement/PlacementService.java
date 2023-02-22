@@ -99,6 +99,6 @@ public interface PlacementService {
 
 	GetApprovalPendingListRes getApprovalPendingList(GetApprovalPendingListReq req, String status);
 
-	CommonResponse updateRiplacement(UpdateRiplacementReq req, String status);
+	CommonResponse updateRiplacement(UpdateRiplacementReq req);
 
 }

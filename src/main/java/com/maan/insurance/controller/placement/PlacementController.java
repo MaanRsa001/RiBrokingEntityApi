@@ -267,8 +267,8 @@ Gson gson = new Gson();
 	}
 		return serv.getMailTemplate(req);  
 	}
-	@PostMapping("/getApprovalPendingList")
-	public GetApprovalPendingListRes getApprovalPendingList(@RequestBody GetApprovalPendingListReq req) throws CommonValidationException {
+	@PostMapping("/getApprovalPendingListPWL")
+	public GetApprovalPendingListRes getApprovalPendingListPWL(@RequestBody GetApprovalPendingListReq req) throws CommonValidationException {
 		List<ErrorCheck> error= val.getApprovalPendingListVali(req);
 		if(error!=null && error.size()>0) {
 			throw new CommonValidationException("error",error);
@@ -281,6 +281,38 @@ Gson gson = new Gson();
 		if(error!=null && error.size()>0) {
 			throw new CommonValidationException("error",error);
 		}
-		return serv.updateRiplacement(req, "PWL");
+		return serv.updateRiplacement(req);
 		}
+	@PostMapping("/getApprovalPendingListNPWL")
+	public GetApprovalPendingListRes getApprovalPendingListNPWL(@RequestBody GetApprovalPendingListReq req) throws CommonValidationException {
+		List<ErrorCheck> error= val.getApprovalPendingListVali(req);
+		if(error!=null && error.size()>0) {
+			throw new CommonValidationException("error",error);
+		}
+		return serv.getApprovalPendingList(req,"NPWL");
+		}  
+	@PostMapping("/getApprovalPendingListPSL")
+	public GetApprovalPendingListRes getApprovalPendingListPSL(@RequestBody GetApprovalPendingListReq req) throws CommonValidationException {
+		List<ErrorCheck> error= val.getApprovalPendingListVali(req);
+		if(error!=null && error.size()>0) {
+			throw new CommonValidationException("error",error);
+		}
+		return serv.getApprovalPendingList(req,"PSL");
+		}  
+	@PostMapping("/getApprovalPendingListCSL")
+	public GetApprovalPendingListRes getApprovalPendingListCSL(@RequestBody GetApprovalPendingListReq req) throws CommonValidationException {
+		List<ErrorCheck> error= val.getApprovalPendingListVali(req);
+		if(error!=null && error.size()>0) {
+			throw new CommonValidationException("error",error);
+		}
+		return serv.getApprovalPendingList(req,"CSL");
+		}  
+	@PostMapping("/getApprovalPendingListRO")
+	public GetApprovalPendingListRes getApprovalPendingListRO(@RequestBody GetApprovalPendingListReq req) throws CommonValidationException {
+		List<ErrorCheck> error= val.getApprovalPendingListVali(req);
+		if(error!=null && error.size()>0) {
+			throw new CommonValidationException("error",error);
+		}
+		return serv.getApprovalPendingList(req,"RO");
+		}  
 }

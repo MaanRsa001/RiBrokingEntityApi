@@ -2514,7 +2514,10 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 					 reInsurerName.alias("REINSURER_NAME"),
 					 brokerName.alias("BROKER_NAME"),
 					 p.get("shareWritten").alias("SHARE_WRITTEN"), //WrittenLine
-					 p.get("shareProposalWritten").alias("SHARE_PROPOSAL_WRITTEN"), 
+					 p.get("shareProposalWritten").alias("SHARE_PROPOSAL_WRITTEN"), //ProposalWrittenLine
+					 p.get("shareSigned").alias("SHARE_SIGNED"), //Confirmed Signed Line 
+					 p.get("shareProposedSigned").alias("SHARE_PROPOSED_SIGNED"), //Proposed Signed Line 
+					 p.get("shareOffered").alias("SHARE_OFFERED"), //Share Offered 
 					 p.get("brokerage").alias("BROKERAGE_PER") ); 
 
 					
@@ -2572,7 +2575,7 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 
 	@Transactional
 	@Override
-	public void updateRiplacement(UpdateRiplacementReq req,  String status) {	
+	public void updateRiplacement(UpdateRiplacementReq req) {	
 		try {
 			
 			//TtrnRiPlacement
@@ -2600,7 +2603,7 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 			Predicate n3 = cb.equal(m.get("brokerId"),req.getBrokerId());
 			Predicate n4 = cb.equal(m.get("branchCode"), req.getBranchCode());
 			Predicate n5 = cb.equal(m.get("placementAmendId"), amend);
-			Predicate n6 = cb.equal(m.get("status"), status); //
+			Predicate n6 = cb.equal(m.get("status"), req.getStatus()); //
 			
 			update.where(n1,n2,n3,n4,n5,n6);
 			em.createQuery(update).executeUpdate();
@@ -2611,7 +2614,7 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 }
 	@Transactional
 	@Override
-	public void updateRiplacementStatus(UpdateRiplacementReq req, String status) {
+	public void updateRiplacementStatus(UpdateRiplacementReq req) {
 		try {
 			//TtrnRiPlacementStatus
 			CriteriaBuilder cb = this.em.getCriteriaBuilder();
@@ -2638,7 +2641,7 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 			Predicate d3 = cb.equal(ri.get("brokerId"),req.getBrokerId());
 			Predicate d4 = cb.equal(ri.get("branchCode"), req.getBranchCode());
 			Predicate d5 = cb.equal(ri.get("amendId"), amend);
-			Predicate d6 = cb.equal(ri.get("status"), status); //
+			Predicate d6 = cb.equal(ri.get("status"), req.getStatus());//
 			
 			update2.where(d1,d2,d3,d4,d5,d6);
 			em.createQuery(update2).executeUpdate();

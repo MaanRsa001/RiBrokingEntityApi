@@ -20,4 +20,6 @@ public class UpdateRiplacementReq {
 	private String brokerId; 
 	@JsonProperty("BranchCode")
 	private String branchCode; 
+	@JsonProperty("Status")
+	private String status; 
 }
