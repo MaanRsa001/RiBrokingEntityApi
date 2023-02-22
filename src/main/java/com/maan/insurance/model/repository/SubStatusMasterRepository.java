@@ -12,4 +12,6 @@ public interface SubStatusMasterRepository extends JpaRepository<SubStatusMaster
 
 	List<SubStatusMaster> findByBranchCodeAndStatusAndStatusCode(String branchCode, String string, String statusCode);
 
+	List<SubStatusMaster> findByApprovelYN(String string);
+
 }

@@ -2528,13 +2528,13 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 			if(StringUtils.isNotBlank(req.getSearchType())) {
 				
 				if(StringUtils.isNotBlank( req.getSearchReinsurerName()))
-				predicates.add(cb.equal(reInsurerName, req.getSearchReinsurerName()));
+					predicates.add(cb.equal(reInsurerName, req.getSearchReinsurerName()));
 				
 				if(StringUtils.isNotBlank( req.getSearchBrokerName()))
-				predicates.add(cb.equal(brokerName, req.getSearchBrokerName()));
+					predicates.add(cb.equal(brokerName, req.getSearchBrokerName()));
 				
 				if(StringUtils.isNotBlank( req.getSearchStatusNo()))
-				predicates.add(cb.equal(p.get("statusNo"), req.getSearchStatusNo()));
+					predicates.add(cb.equal(p.get("statusNo"), req.getSearchStatusNo()));
 				
 				if(StringUtils.isNotBlank( req.getSearchOfferNo()))
 					predicates.add(cb.equal(offer, req.getSearchOfferNo()));

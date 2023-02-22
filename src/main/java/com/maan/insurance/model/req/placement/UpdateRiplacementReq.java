@@ -14,7 +14,6 @@ public class UpdateRiplacementReq {
 	private String approverLoginId; 
 	@JsonProperty("Remarks")
 	private String remarks ;
-	
 	@JsonProperty("ReinsurerId")
 	private String reinsurerId; 
 	@JsonProperty("BrokerId")

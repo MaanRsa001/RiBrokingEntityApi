@@ -6316,6 +6316,35 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 			}
 			return response;
 		}
+
+
+
+		@Override
+		public GetCommonDropDownRes getSubStatusInfo(String approvelStatus) {
+			GetCommonDropDownRes response = new GetCommonDropDownRes();
+			List<CommonResDropDown> resList = new ArrayList<CommonResDropDown>();
+			try{
+				List<SubStatusMaster> list = ssmRepo.findByApprovelYN("Y");
+				
+				if(list.size()>0) {
+	      			for(SubStatusMaster data: list) {
+	      				CommonResDropDown res = new CommonResDropDown();
+	      				res.setCode(data.getSubStatusCode()==null?"":data.getSubStatusCode().toString());
+	      				res.setCodeDescription(data.getSubStatusName()==null?"": data.getSubStatusName());
+	      				resList.add(res);
+	      			}
+	      		}
+				response.setCommonResponse(resList);
+				response.setMessage("Success");
+				response.setIsError(false);
+			}catch(Exception e){
+					log.error(e);
+					e.printStackTrace();
+					response.setMessage("Failed");
+					response.setIsError(true);
+				}
+			return response;
+		}
 		
 
 }

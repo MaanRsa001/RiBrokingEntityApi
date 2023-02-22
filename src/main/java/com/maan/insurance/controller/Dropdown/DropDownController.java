@@ -726,4 +726,9 @@ public class DropDownController {
 		return dropDownservice.Savehtmltopdf(req);
 	} 
 	
+	@GetMapping("/getSubStatusInfo/{approvelStatus}")
+	public GetCommonDropDownRes getSubStatusInfo(@PathVariable("approvelStatus") String approvelStatus)throws CommonValidationException {
+		return dropDownservice.getSubStatusInfo(approvelStatus);
+	}   
+	
 }

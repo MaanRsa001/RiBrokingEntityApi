@@ -1,7 +1,5 @@
 package com.maan.insurance.model.req.placement;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
@@ -13,16 +11,10 @@ public class GetApprovalPendingListReq {
 	private String searchBouquetNo; 
 	@JsonProperty("SearchBaseProposalNo")
 	private String searchBaseProposalNo;
-	
 	@JsonProperty("SearchProposalNo")
 	private String searchProposalNo; 
-//	@JsonProperty("SearchReinsurerId")
-//	private String searchReinsurerId;
-	
 	@JsonProperty("SearchType")
 	private String searchType; 
-//	@JsonProperty("SearchBrokerId") 
-//	private String searchBrokerId; 
 	@JsonProperty("SearchStatusNo") 
 	private String searchStatusNo; 
 	@JsonProperty("SearchOfferNo") 

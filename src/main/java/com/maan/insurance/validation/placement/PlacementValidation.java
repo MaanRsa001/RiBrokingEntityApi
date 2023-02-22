@@ -644,7 +644,25 @@ public List<ErrorCheck> validationStatus(UpdatePlacementReq bean) {
 	}
 
 	public List<ErrorCheck> updateRiplacementVali(UpdateRiplacementReq req) {
-		// TODO Auto-generated method stub
-		return null;
+		List<ErrorCheck> list = new ArrayList<ErrorCheck>();
+		if (StringUtils.isBlank(req.getBranchCode())) {
+			list.add(new ErrorCheck("Please Enter BranchCode", "BranchCode", "1"));
+		}
+		if (StringUtils.isBlank(req.getProposalNo())) {
+			list.add(new ErrorCheck("Please Enter ProposalNo", "ProposalNo", "2"));
+		}
+		if (StringUtils.isBlank(req.getApproverLoginId())) {
+			list.add(new ErrorCheck("Please Enter ApproverLoginId", "ApproverLoginId", "3"));
+		}
+		if (StringUtils.isBlank(req.getApproverStatus())) {
+			list.add(new ErrorCheck("Please Enter ApproverStatus", "ApproverStatus", "4"));
+		}
+		if (StringUtils.isBlank(req.getBrokerId())) {
+			list.add(new ErrorCheck("Please Enter BrokerId", "BrokerId", "5"));
+		}
+		if (StringUtils.isBlank(req.getReinsurerId())) {
+			list.add(new ErrorCheck("Please Enter ReinsurerId", "ReinsurerId", "6"));
+		}
+		return list;
 	}
 	}
