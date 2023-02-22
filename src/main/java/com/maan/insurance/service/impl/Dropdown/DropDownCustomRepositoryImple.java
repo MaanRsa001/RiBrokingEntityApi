@@ -2,6 +2,7 @@ package com.maan.insurance.service.impl.Dropdown;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -23,6 +24,7 @@ import com.maan.insurance.model.entity.ConstantDetail;
 import com.maan.insurance.model.entity.CurrencyMaster;
 import com.maan.insurance.model.entity.PersonalInfo;
 import com.maan.insurance.model.entity.PositionMaster;
+import com.maan.insurance.model.entity.SubStatusMaster;
 import com.maan.insurance.model.entity.TmasDepartmentMaster;
 import com.maan.insurance.model.entity.TmasProductMaster;
 import com.maan.insurance.model.entity.TtrnRiPlacement;
@@ -466,6 +468,29 @@ public class DropDownCustomRepositoryImple implements DropDownCustomRepository{
 			e.printStackTrace();
 		}
 		return proposal;
+	}
+
+	@Override
+	public List<Tuple> getSubStatusInfo(String approvelStatus) {
+		List<Tuple> list = new ArrayList<Tuple>();
+		try {
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			Root<SubStatusMaster> pm = query.from(SubStatusMaster.class);
+			
+			query.multiselect(pm.get("subStatusCode").alias("sub_status_code"),
+					pm.get("subStatusName").alias("sub_status_name")).distinct(true);						
+			
+			Predicate n1 = cb.equal(pm.get("approvelYN"), "Y");
+			query.where(n1);
+		
+			TypedQuery<Tuple> res1 = em.createQuery(query);
+		
+			list = res1.getResultList();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return list;
 	}
 
 }

@@ -17,4 +17,6 @@ public interface DropDownCustomRepository {
 
 	String getBaseProposalNo(String proposalNo);
 
+	List<Tuple> getSubStatusInfo(String approvelStatus);
+
 }
