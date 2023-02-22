@@ -5,6 +5,7 @@ import java.util.List;
 import javax.persistence.Tuple;
 
 import com.maan.insurance.model.req.placement.EditPlacingDetailsReq;
+import com.maan.insurance.model.req.placement.GetApprovalPendingListReq;
 import com.maan.insurance.model.req.placement.GetExistingAttachListReq;
 import com.maan.insurance.model.req.placement.GetExistingReinsurerListReq;
 import com.maan.insurance.model.req.placement.GetMailTemplateReq;
@@ -18,8 +19,7 @@ import com.maan.insurance.model.req.placement.SavePlacingReq;
 import com.maan.insurance.model.req.placement.SendMailReq;
 import com.maan.insurance.model.req.placement.UpdatePlacementListReq;
 import com.maan.insurance.model.req.placement.UpdatePlacementReq;
-import com.maan.insurance.model.res.DropDown.GetCommonDropDownRes;
-import com.maan.insurance.model.res.placement.GetExistingAttachListRes1;
+import com.maan.insurance.model.req.placement.UpdateRiplacementReq;
 import com.maan.insurance.model.res.placement.GetPlacementNoRes;
 
 public interface PlacementCustomRepository {
@@ -84,6 +84,12 @@ public interface PlacementCustomRepository {
 	List<Tuple> newContractPlSummary(PlacementSummaryReq bean);
 
 	double sumOfShareSigned(String proposalNo);
+
+	List<Tuple> getApprovalPendingList(GetApprovalPendingListReq bean, String status);
+
+	void updateRiplacement(UpdateRiplacementReq req,  String status);
+
+	void updateRiplacementStatus(UpdateRiplacementReq req, String status);
 
 	
 }

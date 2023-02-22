@@ -18,6 +18,7 @@ import com.maan.insurance.error.ErrorCheck;
 import com.maan.insurance.model.req.placement.AttachFileReq;
 import com.maan.insurance.model.req.placement.DeleteFileReq;
 import com.maan.insurance.model.req.placement.EditPlacingDetailsReq;
+import com.maan.insurance.model.req.placement.GetApprovalPendingListReq;
 import com.maan.insurance.model.req.placement.GetExistingAttachListReq;
 import com.maan.insurance.model.req.placement.GetExistingReinsurerListReq;
 import com.maan.insurance.model.req.placement.GetMailTemplateReq;
@@ -28,16 +29,17 @@ import com.maan.insurance.model.req.placement.GetPlacementViewReq;
 import com.maan.insurance.model.req.placement.GetPlacingInfoReq;
 import com.maan.insurance.model.req.placement.GetReinsurerInfoReq;
 import com.maan.insurance.model.req.placement.InsertMailDetailsReq;
+import com.maan.insurance.model.req.placement.PlacementSummaryReq;
 import com.maan.insurance.model.req.placement.ReinsListReq;
 import com.maan.insurance.model.req.placement.SavePlacingReq;
 import com.maan.insurance.model.req.placement.SendMailReq;
 import com.maan.insurance.model.req.placement.UpdateMailDetailsReq;
 import com.maan.insurance.model.req.placement.UpdatePlacementListReq;
 import com.maan.insurance.model.req.placement.UpdatePlacementReq;
+import com.maan.insurance.model.req.placement.UpdateRiplacementReq;
 import com.maan.insurance.model.req.placement.UploadDocumentReq;
 import com.maan.insurance.model.req.placement.proposalInfoReq;
 import com.maan.insurance.service.impl.placement.PlacementCustomRepository;
-import com.maan.insurance.model.req.placement.PlacementSummaryReq;
 
 @Service
 public class PlacementValidation {
@@ -634,5 +636,15 @@ public List<ErrorCheck> validationStatus(UpdatePlacementReq bean) {
 			list.add(new ErrorCheck("Please Enter ProposalNo", "ProposalNo", "2"));
 		}
 		return list;
+	}
+
+	public List<ErrorCheck> getApprovalPendingListVali(GetApprovalPendingListReq req) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public List<ErrorCheck> updateRiplacementVali(UpdateRiplacementReq req) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	}

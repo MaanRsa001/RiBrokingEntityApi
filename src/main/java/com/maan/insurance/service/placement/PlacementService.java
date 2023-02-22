@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import com.maan.insurance.model.req.placement.AttachFileReq;
 import com.maan.insurance.model.req.placement.DeleteFileReq;
 import com.maan.insurance.model.req.placement.EditPlacingDetailsReq;
+import com.maan.insurance.model.req.placement.GetApprovalPendingListReq;
 import com.maan.insurance.model.req.placement.GetExistingAttachListReq;
 import com.maan.insurance.model.req.placement.GetExistingReinsurerListReq;
 import com.maan.insurance.model.req.placement.GetMailTemplateReq;
@@ -18,12 +19,14 @@ import com.maan.insurance.model.req.placement.PlacementSummaryReq;
 import com.maan.insurance.model.req.placement.SavePlacingReq;
 import com.maan.insurance.model.req.placement.SendMailReq;
 import com.maan.insurance.model.req.placement.UpdatePlacementReq;
+import com.maan.insurance.model.req.placement.UpdateRiplacementReq;
 import com.maan.insurance.model.req.placement.UploadDocumentReq;
 import com.maan.insurance.model.req.placement.proposalInfoReq;
 import com.maan.insurance.model.res.DropDown.GetCommonDropDownRes;
 import com.maan.insurance.model.res.placement.AttachFileRes;
 import com.maan.insurance.model.res.placement.CommonSaveResList;
 import com.maan.insurance.model.res.placement.EditPlacingDetailsRes;
+import com.maan.insurance.model.res.placement.GetApprovalPendingListRes;
 import com.maan.insurance.model.res.placement.GetExistingAttachListRes;
 import com.maan.insurance.model.res.placement.GetMailTemplateRes;
 import com.maan.insurance.model.res.placement.GetPlacementInfoListRes;
@@ -36,6 +39,7 @@ import com.maan.insurance.model.res.placement.PlacementSummaryRes;
 import com.maan.insurance.model.res.placement.ProposalInfoRes;
 import com.maan.insurance.model.res.placement.SendMailRes;
 import com.maan.insurance.model.res.placement.UpdatePlacementRes1;
+import com.maan.insurance.model.res.placement.UpdateRiplacementRes;
 import com.maan.insurance.model.res.placement.UploadDocumentRes;
 import com.maan.insurance.model.res.retro.CommonResponse;
 import com.maan.insurance.model.res.xolPremium.CommonSaveRes;
@@ -92,5 +96,9 @@ public interface PlacementService {
 	PlacementSummaryRes placementSummary(PlacementSummaryReq req);
 
 	GetMailTemplateRes getMailTemplate(GetMailTemplateReq req);
+
+	GetApprovalPendingListRes getApprovalPendingList(GetApprovalPendingListReq req, String status);
+
+	CommonResponse updateRiplacement(UpdateRiplacementReq req, String status);
 
 }

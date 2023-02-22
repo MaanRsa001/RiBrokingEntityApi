@@ -58,6 +58,7 @@ import com.maan.insurance.model.repository.TtrnRiPlacementStatusRepository;
 import com.maan.insurance.model.req.placement.AttachFileReq;
 import com.maan.insurance.model.req.placement.DeleteFileReq;
 import com.maan.insurance.model.req.placement.EditPlacingDetailsReq;
+import com.maan.insurance.model.req.placement.GetApprovalPendingListReq;
 import com.maan.insurance.model.req.placement.GetExistingAttachListReq;
 import com.maan.insurance.model.req.placement.GetExistingReinsurerListReq;
 import com.maan.insurance.model.req.placement.GetMailTemplateReq;
@@ -74,6 +75,7 @@ import com.maan.insurance.model.req.placement.SavePlacingReq;
 import com.maan.insurance.model.req.placement.SendMailReq;
 import com.maan.insurance.model.req.placement.UpdatePlacementListReq;
 import com.maan.insurance.model.req.placement.UpdatePlacementReq;
+import com.maan.insurance.model.req.placement.UpdateRiplacementReq;
 import com.maan.insurance.model.req.placement.UploadDocumentReq;
 import com.maan.insurance.model.req.placement.UploadDocumentReq1;
 import com.maan.insurance.model.req.placement.proposalInfoReq;
@@ -86,6 +88,8 @@ import com.maan.insurance.model.res.placement.CommonSaveResList;
 import com.maan.insurance.model.res.placement.EditPlacingDetailsRes;
 import com.maan.insurance.model.res.placement.EditPlacingDetailsRes1;
 import com.maan.insurance.model.res.placement.EditPlacingDetailsResponse;
+import com.maan.insurance.model.res.placement.GetApprovalPendingListRes;
+import com.maan.insurance.model.res.placement.GetApprovalPendingListRes1;
 import com.maan.insurance.model.res.placement.GetExistingAttachListRes;
 import com.maan.insurance.model.res.placement.GetExistingAttachListRes1;
 import com.maan.insurance.model.res.placement.GetMailTemplateRes;
@@ -116,6 +120,7 @@ import com.maan.insurance.model.res.placement.SavePlacingRes;
 import com.maan.insurance.model.res.placement.SendMailRes;
 import com.maan.insurance.model.res.placement.UpdatePlacementRes;
 import com.maan.insurance.model.res.placement.UpdatePlacementRes1;
+import com.maan.insurance.model.res.placement.UpdateRiplacementRes;
 import com.maan.insurance.model.res.placement.UploadDocumentRes;
 import com.maan.insurance.model.res.placement.UploadDocumentRes1;
 import com.maan.insurance.model.res.retro.CommonResponse;
@@ -1968,5 +1973,64 @@ public class PlacementServiceImple implements PlacementService {
 	public GetPlacementNoRes getPlacementNo(SavePlacingReq req) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public GetApprovalPendingListRes getApprovalPendingList(GetApprovalPendingListReq bean,String status) {
+		GetApprovalPendingListRes response = new GetApprovalPendingListRes();
+		List<Tuple> list=new ArrayList<>();
+		List<GetApprovalPendingListRes1> resList = new ArrayList<GetApprovalPendingListRes1>();
+		try {
+				list = placementCustomRepository.getApprovalPendingList(bean, status); 
+			
+			DecimalFormat formatter = new DecimalFormat("#0.00000000");     
+			if(list.size()>0) {
+				for(int i=0;i<list.size();i++) {
+					Tuple map=list.get(i);
+					GetApprovalPendingListRes1 res = new GetApprovalPendingListRes1();
+					res.setSno(map.get("SNO")==null?"":map.get("SNO").toString()); 
+					res.setStatusNo(map.get("STATUS_NO")==null?"":map.get("STATUS_NO").toString());		
+					res.setBouquetNo(map.get("BOUQUET_NO")==null?"":map.get("BOUQUET_NO").toString()); 
+					res.setBaseProposalNo(map.get("BASE_PROPOSAL_NO")==null?"":map.get("BASE_PROPOSAL_NO").toString()); 
+					res.setProposalNo(map.get("PROPOSAL_NO")==null?"":map.get("PROPOSAL_NO").toString()); 
+					res.setCedingCompany(map.get("CEDING_COMPANY_NAME")==null?"":map.get("CEDING_COMPANY_NAME").toString()); 
+					res.setReinsurerName(map.get("REINSURER_NAME")==null?"":map.get("REINSURER_NAME").toString()); 
+					res.setBrokerName(map.get("BROKER_NAME")==null?"":map.get("BROKER_NAME").toString()); 
+					res.setProposalWrittenLine(map.get("SHARE_PROPOSAL_WRITTEN")==null?"":formatter.format(map.get("SHARE_PROPOSAL_WRITTEN")));		
+					res.setBrokeragePer(map.get("BROKERAGE_PER")==null?"":formatter.format(map.get("BROKERAGE_PER"))); 
+					res.setWrittenLine(map.get("SHARE_WRITTEN")==null?"":sdf.format(map.get("SHARE_WRITTEN"))); 
+					res.setOfferNo(map.get("OFFER_NO")==null?"":map.get("OFFER_NO").toString());
+					resList.add(res);
+					}
+				}
+		
+			response.setCommonResponse(resList);	
+			response.setMessage("Success");
+			response.setIsError(false);
+		}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	}
+
+	@Override
+	public CommonResponse updateRiplacement(UpdateRiplacementReq req, String status) {
+		CommonResponse response = new CommonResponse();
+		try {
+				placementCustomRepository.updateRiplacement(req, status);
+				placementCustomRepository.updateRiplacementStatus(req, status);
+				
+				response.setMessage("Success");
+				response.setIsError(false);
+		}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
 	}
 	}

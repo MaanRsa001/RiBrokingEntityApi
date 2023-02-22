@@ -54,7 +54,6 @@ import com.maan.insurance.model.res.DropDown.GetOpenPeriodRes;
 import com.maan.insurance.model.res.DropDown.GetPlacementInfoListRes;
 import com.maan.insurance.model.res.DropDown.GetSubStatusDropDownRes;
 import com.maan.insurance.model.res.retro.CommonSaveRes;
-
 import com.maan.insurance.service.Dropdown.DropDownService;
 import com.maan.insurance.validation.Dropdown.DropDownValidation;
 
