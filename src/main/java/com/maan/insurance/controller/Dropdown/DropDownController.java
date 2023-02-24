@@ -2,8 +2,6 @@ package com.maan.insurance.controller.Dropdown;
 
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.Gson;
-import com.maan.insurance.controller.TreasuryController;
 import com.maan.insurance.error.CommonValidationException;
 import com.maan.insurance.error.ErrorCheck;
 import com.maan.insurance.model.req.DropDown.DuplicateCountCheckReq;
@@ -55,7 +52,6 @@ import com.maan.insurance.model.res.DropDown.GetNewContractInfoRes;
 import com.maan.insurance.model.res.DropDown.GetNotPlacedProposalListRes;
 import com.maan.insurance.model.res.DropDown.GetOpenPeriodRes;
 import com.maan.insurance.model.res.DropDown.GetPlacementInfoListRes;
-import com.maan.insurance.model.res.DropDown.GetYearToListValueRes;
 import com.maan.insurance.model.res.retro.CommonSaveRes;
 
 import com.maan.insurance.service.Dropdown.DropDownService;
@@ -297,6 +293,10 @@ public class DropDownController {
 	@GetMapping("/getTypeList/{type}")
 	public GetCommonDropDownRes getTypeList(@PathVariable("type") String type) throws CommonValidationException {
 		return dropDownservice.getTypeList(type);
+	}
+	@GetMapping("/getQuotaShareList/{type}")
+	public GetCommonDropDownRes getQuotaShareList(@PathVariable("type") String type) throws CommonValidationException {
+		return dropDownservice.getQuotaShareList(type);
 	}
 
 	@PostMapping("/getReinstatementOptionList")

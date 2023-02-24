@@ -3091,7 +3091,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			//REINSTATEMENT_MAIN_SELECT_A
 			List<Tuple> result =  nonProportCustomRepository.reinstatementMainSelectA(req.getProposalNo(),req.getBranchCode());
 				
-			if(CollectionUtils.isEmpty(result)) { //Ri
+			if(CollectionUtils.isEmpty(result) && !"0".equals(req.getReferenceNo())){ //Ri
 						//REINSTATEMENT_MAIN_SELECT_A_REFERENCE
 						result =  nonProportCustomRepository.reinstatementMainSelectAReference(req.getReferenceNo(),req.getBranchCode());
 
@@ -3174,7 +3174,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			req.setAmendId("0");
 		}
 		deleteMainTable(req.getProposalNo(),req.getAmendId(),req.getBranchCode(),req.getReferenceNo());
-		if(StringUtils.isBlank(req.getProposalNo()) && StringUtils.isBlank(req.getReferenceNo())) { //ri
+		if(StringUtils.isBlank(req.getProposalNo()) && (StringUtils.isBlank(req.getReferenceNo()) || "0".equals(req.getReferenceNo()))) { //ri
         	String referenceNo="";
         	
         	List<Map<String, Object>> list  = queryImpl.selectSingle("SELECT  REFERENCENO_SEQ.NEXTVAL REFERENCENO FROM DUAL",new String[]{});
@@ -3258,7 +3258,8 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 				 ttrnRipRepository.deleteByProposalNoAndBranchCode(proposalNo,branchCode);
 			}else if(StringUtils.isBlank(proposalNo)) {
 				//REINSTATEMENT_MAIN_DELETE
-				 ttrnRipRepository.deleteByReferenceNoAndBranchCode(referenceNo,branchCode);
+				if(!"0".equals(referenceNo))
+				 ttrnRipRepository.deleteByReferenceNoAndBranchCode(new BigDecimal(referenceNo),branchCode);
 			}
 			else{
 				//REINSTATEMENT_MAIN_DELETE2
@@ -3712,7 +3713,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 						Tuple insMap = instalmentList.get(k);
 						instalmentRes.setInstalmentDateList(insMap.get("INSTALLMENT_DATE")==null?"":DateFormat(insMap.get("INSTALLMENT_DATE")));
 						instalmentRes.setPaymentDueDays((insMap.get("PAYEMENT_DUE_DAY")==null?"":insMap.get("PAYEMENT_DUE_DAY").toString()));
-						instalmentRes.setInstalList(insMap.get("INSTALLMENT_DATE")==null?"":DateFormat(insMap.get("INSTALLMENT_DATE")));
+						instalmentRes.setInstalList(insMap.get("MND_PREMIUM_OC")==null?"":fm.formatter(insMap.get("MND_PREMIUM_OC").toString()));
 						instalmentResList.add(instalmentRes);
 						}
 					res.setInstalmentList(instalmentResList);					

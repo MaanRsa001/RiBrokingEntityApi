@@ -49,4 +49,6 @@ public interface ConstantDetailRepository  extends JpaRepository<ConstantDetail,
 	List<ConstantDetail> findDistinctByCategoryIdAndStatusAndCategoryDetailIdNotOrderByType(BigDecimal bigDecimal,
 			String string, BigDecimal bigDecimal2);
 
+	List<ConstantDetail> findByCategoryIdAndStatusAndCoreAppCode(BigDecimal bigDecimal, String string, String type);
+
 }

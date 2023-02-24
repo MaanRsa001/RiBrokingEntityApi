@@ -142,7 +142,7 @@ public class TtrnRiPlacement implements Serializable {
 	    @Column(name="STATUS")
 	    private String     status ;
 
-	    @Column(name="APPROVE_STATUS")
+	    @Column(name="APPROVER_STATUS")
 	    private String     approveStatus ;
 
 	    @Column(name="USER_ID")

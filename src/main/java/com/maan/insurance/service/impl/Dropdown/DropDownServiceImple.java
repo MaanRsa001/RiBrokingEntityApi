@@ -757,11 +757,11 @@ public class DropDownServiceImple implements DropDownService{
 			Root<PositionMaster> pms = amend.from(PositionMaster.class);
 			amend.select(cb.max(pms.get("amendId")));
 			Predicate a1 = cb.equal( pm.get("contractNo"), pms.get("contractNo"));
-			Predicate a2 = cb.equal( pm.get("deptId"), pms.get("deptId"));
+			Predicate a2 = cb.equal( pm.get("sectionNo"), pms.get("sectionNo"));
 			amend.where(a1,a2);
 
 			Predicate n1 = cb.equal(pm.get("contractNo"),req.getContractNo());
-			Predicate n2 = cb.equal(pm.get("deptId"),req.getDepartId());
+			Predicate n2 = cb.equal(pm.get("sectionNo"),req.getDepartId());
 			Predicate n3 = cb.equal(pm.get("amendId"), amend);
 			query.where(n1,n2,n3);
 			
@@ -3374,8 +3374,19 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 					res.setCode(String.valueOf(year));
 					res.setCodeDescription(String.valueOf(year));
 					yearsList.add(res);
+					if (month == 0) {
+						if (day <=7) {
+							cal.add(Calendar.YEAR, 1);
+							year = cal.get(Calendar.YEAR);
+							res = new CommonResDropDown();
+							res.setCode(String.valueOf(year));
+							res.setCodeDescription(String.valueOf(year));
+							yearsList.add(res);
 
-				if (month == 11) {
+						}
+					}
+
+					/*if (month == 12) {
 					if (day >= 25) {
 						cal.add(Calendar.YEAR, 1);
 						year = cal.get(Calendar.YEAR);
@@ -3394,7 +3405,7 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 						res.setCodeDescription(String.valueOf(year));
 						yearsList.add(res);
 					}
-				}
+				}*/
 
 			}
 
@@ -4850,50 +4861,9 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 		List<CommonResDropDown> resList = new ArrayList<CommonResDropDown>();
 		try{
 			if(StringUtils.isNotBlank(cedingId) && StringUtils.isNotBlank(brokerId)) {
+				List<Tuple> result=dropDownCustomRepository.getPaymentPartnerlist(branchCode,cedingId,brokerId);
 			//GET_PAYMENT_PARTNER_LIST
-			CriteriaBuilder cb = em.getCriteriaBuilder(); 
-      		CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
-      		
-      		Root<PersonalInfo> tc = query.from(PersonalInfo.class); 
-
-      		// Select
-      		query.multiselect(tc.get("customerId").alias("customerId"),
-      				cb.selectCase().when(cb.equal(tc.get("customerType"), "C"), tc.get("companyName")).otherwise(cb.concat(tc.get("firstName"), tc.get("lastName"))).alias("name"))
-      				.distinct(true) ;  
-
-      		// MAXAmend ID
-      		Subquery<Long> maxAmend = query.subquery(Long.class); 
-      		Root<PersonalInfo> pms = maxAmend.from(PersonalInfo.class);
-      		maxAmend.select(cb.max(pms.get("amendId")));
-      		Predicate a1 = cb.equal(tc.get("branchCode"), pms.get("branchCode"));
-      		Predicate a2 = cb.equal(tc.get("customerType"), pms.get("customerType"));
-      		Predicate a3 = cb.equal(tc.get("status"), pms.get("status"));
-      		Predicate a4 = cb.equal(tc.get("customerId"), pms.get("customerId"));
-      		maxAmend.where(a1,a2,a3,a4);
-      		
-      		//Order By
-//			List<Order> orderList = new ArrayList<Order>();
-//			orderList.add(cb.asc(cb.selectCase().when(cb.equal(tc.get("customerType"), "C"), tc.get("companyName")).otherwise(cb.concat(tc.get("firstName"), tc.get("lastName")))));
-      		
-      		// Where
-      		Predicate n1 = cb.equal(tc.get("branchCode"), branchCode);
-      		Predicate n2 = cb.equal(tc.get("customerType"), "C");
-      		Predicate n3 = cb.equal(tc.get("status"), "Y");
-      		Predicate n4 = cb.equal(tc.get("customerId"), cedingId);
-      		Predicate n5 = cb.equal(tc.get("amendId"), maxAmend);
-      		//Order By name (alias name need to check and update)
-      		if(!"63".equals(brokerId)){
-				//GET_PAYMENT_PARTNER_BR_LIST
-      			Predicate n7 = cb.equal(tc.get("customerId"), brokerId);
-				Predicate n6 = cb.equal(tc.get("customerType"), "B");
-				query.where(n1,n2,n3,n4,n5,n6,n7);
-			}else {
-      		query.where(n1,n2,n3,n4,n5);
-			}
-      		
-      		// Get Result
-      		TypedQuery<Tuple> list = em.createQuery(query);
-      		List<Tuple> result = list.getResultList();
+			
 			
 			//query+="ORDER BY NAME";
       		if(result.size()>0) {
@@ -6311,6 +6281,34 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 				response.setIsError(true);
 			}
 			return response;
+		}
+
+
+
+		@Override
+		public GetCommonDropDownRes getQuotaShareList(String type) {
+			GetCommonDropDownRes response = new GetCommonDropDownRes();
+			List<CommonResDropDown> resList = new ArrayList<CommonResDropDown>();
+				try {
+					//GET_COMMISSION_LIST
+					List<ConstantDetail> list = constRepo.findByCategoryIdAndStatusAndCoreAppCode(new BigDecimal("42"),"Y",type);			
+					for(int i=0 ; i<list.size() ; i++){
+						CommonResDropDown res = new CommonResDropDown();
+						ConstantDetail tempMap =  list.get(i);
+						res.setCode(tempMap.getDetailName()==null?"":tempMap.getDetailName().toString());
+						res.setCodeDescription(tempMap.getRemarks()==null?"":tempMap.getRemarks().toString());
+						resList.add(res);
+						}
+					    response.setCommonResponse(resList);
+						response.setMessage("Success");
+						response.setIsError(false);
+					}
+				     catch(Exception e){
+						e.printStackTrace();
+						response.setMessage("Failed");
+						response.setIsError(true);
+				       }
+					return response;	
 		}
 		
 

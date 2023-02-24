@@ -233,4 +233,6 @@ public interface DropDownService {
 	GetCommonDropDownRes getProductDropDown(String branchCode);
 
 	CommonResponse Savehtmltopdf(SavehtmltoPdfReq req);
+
+	GetCommonDropDownRes getQuotaShareList(String type);
 }

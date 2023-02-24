@@ -2473,7 +2473,7 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 		
 			query.multiselect(
 					pm.get("payementDueDay").alias("PAYEMENT_DUE_DAY"),
-					pm.get("installmentDate").alias("INSTALLMENT_DATE"));
+					pm.get("installmentDate").alias("INSTALLMENT_DATE"),pm.get("mndPremiumOc").alias("MND_PREMIUM_OC"));
 					
 			//end
 			Subquery<Long> end = query.subquery(Long.class);
