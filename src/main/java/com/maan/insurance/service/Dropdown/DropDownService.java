@@ -42,7 +42,6 @@ import com.maan.insurance.model.res.DropDown.GetNotPlacedProposalListRes;
 import com.maan.insurance.model.res.DropDown.GetOpenPeriodRes;
 import com.maan.insurance.model.res.DropDown.GetPlacementInfoListRes;
 import com.maan.insurance.model.res.DropDown.GetSubStatusDropDownRes;
-import com.maan.insurance.model.res.DropDown.GetYearToListValueRes;
 import com.maan.insurance.model.res.retro.CommonSaveRes;
 
 @Service
@@ -236,4 +235,6 @@ public interface DropDownService {
 	CommonResponse Savehtmltopdf(SavehtmltoPdfReq req);
 
 	GetCommonDropDownRes getSubStatusInfo(String approvelStatus);
+	
+	GetCommonDropDownRes getQuotaShareList(String type);
 }

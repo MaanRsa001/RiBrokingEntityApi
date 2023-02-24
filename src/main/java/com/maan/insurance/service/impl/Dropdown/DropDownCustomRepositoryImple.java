@@ -19,6 +19,7 @@ import javax.persistence.criteria.Subquery;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 
 import com.maan.insurance.model.entity.ConstantDetail;
 import com.maan.insurance.model.entity.CurrencyMaster;
@@ -491,6 +492,84 @@ public class DropDownCustomRepositoryImple implements DropDownCustomRepository{
 			e.printStackTrace();
 		}
 		return list;
+	}
+	public List<Tuple> getPaymentPartnerlist(String branchCode, String cedingId, String brokerId) {
+		List<Tuple> resultList = getCedingCompany(branchCode, cedingId);
+		List<Tuple> resultList1 = getBrokerCompany(branchCode, brokerId);
+		if(!CollectionUtils.isEmpty(resultList1) && !"63".equals(brokerId)) {
+			resultList.addAll(resultList1);
+		}
+		return resultList;
+	}
+
+	private List<Tuple> getBrokerCompany(String branchCode, String brokerId) {
+		CriteriaBuilder cb = em.getCriteriaBuilder(); 
+  		CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+  		
+  		Root<PersonalInfo> tc = query.from(PersonalInfo.class); 
+
+  		// Select
+  		query.multiselect(tc.get("customerId").alias("customerId"),
+  				cb.selectCase().when(cb.equal(tc.get("customerType"), "C"), tc.get("companyName")).otherwise(cb.concat(tc.get("firstName"), tc.get("lastName"))).alias("name"))
+  				.distinct(true) ;  
+
+  		// MAXAmend ID
+  		Subquery<Long> maxAmend = query.subquery(Long.class); 
+  		Root<PersonalInfo> pms = maxAmend.from(PersonalInfo.class);
+  		maxAmend.select(cb.max(pms.get("amendId")));
+  		Predicate a1 = cb.equal(tc.get("branchCode"), pms.get("branchCode"));
+  		Predicate a2 = cb.equal(tc.get("customerType"), pms.get("customerType"));
+  		Predicate a3 = cb.equal(tc.get("status"), pms.get("status"));
+  		Predicate a4 = cb.equal(tc.get("customerId"), pms.get("customerId"));
+  		maxAmend.where(a1,a2,a3,a4);
+
+  		// Where
+  		Predicate n1 = cb.equal(tc.get("branchCode"), branchCode);
+  		Predicate n2 = cb.equal(tc.get("customerType"), "B");
+  		Predicate n3 = cb.equal(tc.get("status"), "Y");
+  		Predicate n4 = cb.equal(tc.get("customerId"), brokerId);
+  		Predicate n5 = cb.equal(tc.get("amendId"), maxAmend);
+  		query.where(n1,n2,n3,n4,n5);
+  		
+  		// Get Result
+  		TypedQuery<Tuple> list = em.createQuery(query);
+  		List<Tuple> result = list.getResultList();
+		return result;
+	}
+
+	private List<Tuple> getCedingCompany(String branchCode, String cedingId) {
+		CriteriaBuilder cb = em.getCriteriaBuilder(); 
+  		CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+  		
+  		Root<PersonalInfo> tc = query.from(PersonalInfo.class); 
+
+  		// Select
+  		query.multiselect(tc.get("customerId").alias("customerId"),
+  				cb.selectCase().when(cb.equal(tc.get("customerType"), "C"), tc.get("companyName")).otherwise(cb.concat(tc.get("firstName"), tc.get("lastName"))).alias("name"))
+  				.distinct(true) ;  
+
+  		// MAXAmend ID
+  		Subquery<Long> maxAmend = query.subquery(Long.class); 
+  		Root<PersonalInfo> pms = maxAmend.from(PersonalInfo.class);
+  		maxAmend.select(cb.max(pms.get("amendId")));
+  		Predicate a1 = cb.equal(tc.get("branchCode"), pms.get("branchCode"));
+  		Predicate a2 = cb.equal(tc.get("customerType"), pms.get("customerType"));
+  		Predicate a3 = cb.equal(tc.get("status"), pms.get("status"));
+  		Predicate a4 = cb.equal(tc.get("customerId"), pms.get("customerId"));
+  		maxAmend.where(a1,a2,a3,a4);
+
+  		// Where
+  		Predicate n1 = cb.equal(tc.get("branchCode"), branchCode);
+  		Predicate n2 = cb.equal(tc.get("customerType"), "C");
+  		Predicate n3 = cb.equal(tc.get("status"), "Y");
+  		Predicate n4 = cb.equal(tc.get("customerId"), cedingId);
+  		Predicate n5 = cb.equal(tc.get("amendId"), maxAmend);
+  		query.where(n1,n2,n3,n4,n5);
+  		
+  		// Get Result
+  		TypedQuery<Tuple> list = em.createQuery(query);
+  		List<Tuple> result = list.getResultList();
+		return result;
 	}
 
 }

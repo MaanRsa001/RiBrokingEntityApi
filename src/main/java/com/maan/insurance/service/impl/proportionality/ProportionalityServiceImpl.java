@@ -2275,17 +2275,19 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 	public CommonSaveRes insertProfitCommission(ProfitCommissionSaveReq req) {
 		CommonSaveRes resp=new CommonSaveRes();
 		try {
-			if(!"1".equalsIgnoreCase(req.getShareProfitCommission())){
+			if("1".equalsIgnoreCase(req.getShareProfitCommission())){
 				mainDelete(req);
 				profitMainEmptyInsert(req);
 			}
 			profitUpdate(req);
-			resp.setResponse("Success");
+			
+			resp.setResponse(req.getReferenceNo());
+			resp.setMessage("Success");
 			resp.setErroCode(0);
 			resp.setIsError(false);
 		} catch (Exception e) {
 			e.printStackTrace();
-			resp.setResponse("Failed");
+			resp.setMessage("Failed");
 			resp.setErroCode(1);
 			resp.setIsError(true);
 		}

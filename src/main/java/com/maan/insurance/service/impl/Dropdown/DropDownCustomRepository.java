@@ -18,5 +18,8 @@ public interface DropDownCustomRepository {
 	String getBaseProposalNo(String proposalNo);
 
 	List<Tuple> getSubStatusInfo(String approvelStatus);
+	
+	List<Tuple> getPaymentPartnerlist(String branchCode, String cedingId, String brokerId);
+
 
 }

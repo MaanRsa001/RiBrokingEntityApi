@@ -16,13 +16,12 @@ public interface TtrnRipRepository extends JpaRepository<TtrnRip,TtrnRipId> , Jp
 	void deleteByProposalNoAndBranchCode(String proposalNo, String branchCode);
 
 	@Transactional
-	void deleteByReferenceNoAndBranchCode(String referenceNo, String branchCode);
-
-	@Transactional
 	void deleteByProposalNoAndAmendIdAndBranchCode(String proposalNo, BigDecimal bigDecimal, String branchCode);
 
 	TtrnRip findTop1ByBranchCodeOrderBySnoDesc(String branchCode);
 
 	int countByProposalNo(String proposalNo);
+	@Transactional
+	void deleteByReferenceNoAndBranchCode(BigDecimal bigDecimal, String branchCode);
 
 }

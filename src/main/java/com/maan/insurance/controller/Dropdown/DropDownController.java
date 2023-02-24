@@ -294,6 +294,10 @@ public class DropDownController {
 	public GetCommonDropDownRes getTypeList(@PathVariable("type") String type) throws CommonValidationException {
 		return dropDownservice.getTypeList(type);
 	}
+	@GetMapping("/getQuotaShareList/{type}")
+	public GetCommonDropDownRes getQuotaShareList(@PathVariable("type") String type) throws CommonValidationException {
+		return dropDownservice.getQuotaShareList(type);
+	}
 
 	@PostMapping("/getReinstatementOptionList")
 	public GetCommonDropDownRes getReinstatementOptionList() throws CommonValidationException {
