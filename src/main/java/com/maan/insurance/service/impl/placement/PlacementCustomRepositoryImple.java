@@ -2510,6 +2510,8 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 					 p.get("bouquetNo").alias("BOUQUET_NO"),
 					 p.get("baseProposalNo").alias("BASE_PROPOSAL_NO"),
 					 p.get("proposalNo").alias("PROPOSAL_NO") ,
+					 p.get("reinsurerId").alias("REINSURER_ID"),
+					 p.get("brokerId").alias("BROKER_ID") ,
 					 companyName.alias("CEDING_COMPANY_NAME"),
 					 reInsurerName.alias("REINSURER_NAME"),
 					 brokerName.alias("BROKER_NAME"),
@@ -2518,6 +2520,7 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 					 p.get("shareSigned").alias("SHARE_SIGNED"), //Confirmed Signed Line 
 					 p.get("shareProposedSigned").alias("SHARE_PROPOSED_SIGNED"), //Proposed Signed Line 
 					 p.get("shareOffered").alias("SHARE_OFFERED"), //Share Offered 
+					 p.get("status").alias("STATUS"),
 					 p.get("brokerage").alias("BROKERAGE_PER") ); 
 
 					
@@ -2525,10 +2528,11 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 			predicates.add(cb.equal(p.get("approverStatus"), "P"));
 			predicates.add(cb.equal(p.get("status"), status));
 			
-			List<String> includeprop =new ArrayList<String>(Arrays.asList(req.getSearchIncludeProposalNos().split(",") )) ;
-			List<String> excludeprop =new ArrayList<String>(Arrays.asList(req.getSearchExcludeProposalNos().split(",") )) ;
-
+			
 			if(StringUtils.isNotBlank(req.getSearchType())) {
+				List<String> includeprop =new ArrayList<String>(Arrays.asList(req.getSearchIncludeProposalNos().split(",") )) ;
+				List<String> excludeprop =new ArrayList<String>(Arrays.asList(req.getSearchExcludeProposalNos().split(",") )) ;
+
 				
 				if(StringUtils.isNotBlank( req.getSearchReinsurerName()))
 					predicates.add(cb.equal(reInsurerName, req.getSearchReinsurerName()));

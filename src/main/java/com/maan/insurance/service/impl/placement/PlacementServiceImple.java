@@ -1993,7 +1993,9 @@ public class PlacementServiceImple implements PlacementService {
 					res.setBouquetNo(map.get("BOUQUET_NO")==null?"":map.get("BOUQUET_NO").toString()); 
 					res.setBaseProposalNo(map.get("BASE_PROPOSAL_NO")==null?"":map.get("BASE_PROPOSAL_NO").toString()); 
 					res.setProposalNo(map.get("PROPOSAL_NO")==null?"":map.get("PROPOSAL_NO").toString()); 
-					res.setCedingCompany(map.get("CEDING_COMPANY_NAME")==null?"":map.get("CEDING_COMPANY_NAME").toString()); 
+					res.setCedingCompany(map.get("CEDING_COMPANY_NAME")==null?"":map.get("CEDING_COMPANY_NAME").toString());
+					res.setReinsurerId(map.get("REINSURER_ID")==null?"":map.get("REINSURER_ID").toString()); 
+					res.setBrokerId(map.get("BROKER_ID")==null?"":map.get("BROKER_ID").toString());
 					res.setReinsurerName(map.get("REINSURER_NAME")==null?"":map.get("REINSURER_NAME").toString()); 
 					res.setBrokerName(map.get("BROKER_NAME")==null?"":map.get("BROKER_NAME").toString()); 
 					res.setProposalWrittenLine(map.get("SHARE_PROPOSAL_WRITTEN")==null?"":formatter.format(map.get("SHARE_PROPOSAL_WRITTEN")));		
@@ -2003,6 +2005,7 @@ public class PlacementServiceImple implements PlacementService {
 					res.setConfirmedSignedLine(map.get("SHARE_SIGNED")==null?"":map.get("SHARE_SIGNED").toString());
 					res.setProposedSignedLine(map.get("SHARE_PROPOSED_SIGNED")==null?"":map.get("SHARE_PROPOSED_SIGNED").toString());
 					res.setShareOffered(map.get("SHARE_OFFERED")==null?"":map.get("SHARE_OFFERED").toString());
+					res.setStatus(map.get("STATUS")==null?"":map.get("STATUS").toString());
 					resList.add(res);
 					}
 				}

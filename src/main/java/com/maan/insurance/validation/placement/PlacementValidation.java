@@ -603,9 +603,10 @@ public List<ErrorCheck> validationStatus(UpdatePlacementReq bean) {
 		if (StringUtils.isBlank(req.getReinsurerId())) {
 			list.add(new ErrorCheck("Please Enter ReinsurerId", "ReinsurerId", "4"));
 		}
-		if (StringUtils.isBlank(req.getNewStatus())) {
-			list.add(new ErrorCheck("Please Enter NewStatus", "NewStatus", "5"));
-		}
+		/*
+		 * if (StringUtils.isBlank(req.getNewStatus())) { list.add(new
+		 * ErrorCheck("Please Enter NewStatus", "NewStatus", "5")); }
+		 */
 		return list;
 	}
 

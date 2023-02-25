@@ -21,7 +21,10 @@ public class GetApprovalPendingListRes1 {
 	private String proposalNo; 
 	@JsonProperty("CedingCompany")
 	private String cedingCompany; 
-
+	@JsonProperty("ReinsurerId")
+	private String reinsurerId; 
+	@JsonProperty("BrokerId")
+	private String brokerId; 
 	@JsonProperty("ReinsurerName")
 	private String reinsurerName; 
 	@JsonProperty("BrokerName")
@@ -42,6 +45,8 @@ public class GetApprovalPendingListRes1 {
 	private String proposedSignedLine; 
 	@JsonProperty("ShareOffered")
 	private String shareOffered  ;
+	@JsonProperty("Status")
+	private String status  ;
 
 
 }
