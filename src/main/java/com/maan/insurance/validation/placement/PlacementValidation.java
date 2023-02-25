@@ -336,9 +336,9 @@ public List<ErrorCheck> validationStatus(UpdatePlacementReq bean) {
 						}
 					}
 					if(StringUtils.isBlank(req.getWrittenvaliditydate())) {
-						list.add(new ErrorCheck(prop.getProperty("error.writtenvaliditydate.required")+" "+String.valueOf(i+1),"writtenvaliditydate","01"));
+						//list.add(new ErrorCheck(prop.getProperty("error.writtenvaliditydate.required")+" "+String.valueOf(i+1),"writtenvaliditydate","01"));
 					}if(StringUtils.isBlank(req.getWrittenvalidityRemarks())) {
-						list.add(new ErrorCheck(prop.getProperty("error.writtenvalidityRemarks.required")+" "+String.valueOf(i+1),"writtenvalidityRemarks","01"));
+						//list.add(new ErrorCheck(prop.getProperty("error.writtenvalidityRemarks.required")+" "+String.valueOf(i+1),"writtenvalidityRemarks","01"));
 					}if(StringUtils.isBlank(req.getBrokerage())) {
 						list.add(new ErrorCheck(prop.getProperty("error.brokeragep.required")+" "+String.valueOf(i+1),"brokeragep","01"));
 					}
@@ -366,9 +366,9 @@ public List<ErrorCheck> validationStatus(UpdatePlacementReq bean) {
 							}
 						}
 					}if(StringUtils.isBlank(req.getSignedLineValidity())) {
-						list.add(new ErrorCheck(prop.getProperty("error.signedLineValidity.required")+" "+String.valueOf(i+1),"signedLineValidity","01"));
+						//list.add(new ErrorCheck(prop.getProperty("error.signedLineValidity.required")+" "+String.valueOf(i+1),"signedLineValidity","01"));
 					}if(StringUtils.isBlank(req.getSignedLineRemarks())) {
-						list.add(new ErrorCheck(prop.getProperty("error.signedLineRemarks.required")+" "+String.valueOf(i+1),"signedLineRemarks","01"));
+						//list.add(new ErrorCheck(prop.getProperty("error.signedLineRemarks.required")+" "+String.valueOf(i+1),"signedLineRemarks","01"));
 					}
 				}else if("PSL".equals(bean.getNewStatus())) {
 					if(StringUtils.isBlank(req.getProposedSL())) {

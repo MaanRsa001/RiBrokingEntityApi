@@ -3376,7 +3376,7 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 					yearsList.add(res);
 					if (month == 0) {
 						if (day <=7) {
-							cal.add(Calendar.YEAR, 1);
+							cal.add(Calendar.YEAR, -1);
 							year = cal.get(Calendar.YEAR);
 							res = new CommonResDropDown();
 							res.setCode(String.valueOf(year));
