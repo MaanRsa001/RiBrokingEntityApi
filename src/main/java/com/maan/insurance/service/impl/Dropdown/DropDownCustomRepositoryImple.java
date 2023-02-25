@@ -183,7 +183,7 @@ public class DropDownCustomRepositoryImple implements DropDownCustomRepository{
 					pm.get("proposalNo").alias("PROPOSAL_NO"),
 					detailName.alias("TREATY_TYPE"),
 					rd.get("rskTreatyid").alias("RSK_TREATYID"),
-					cb.selectCase().when(cb.equal(pm.get("oldContractno"), ""), "New").otherwise("Renew").alias("POLICY_STATUS"),
+					cb.selectCase().when(cb.equal(cb.coalesce(pm.get("oldContractno"),"0"), "0"), "New").otherwise("Renew").alias("POLICY_STATUS"),
 					cb.coalesce(pm.get("baseLayer"), pm.get("proposalNo")).alias("BASE_LAYER"),
 					pm.get("sectionNo").alias("SECTION_NO"),
 					pm.get("layerNo").alias("LAYER_NO"),
