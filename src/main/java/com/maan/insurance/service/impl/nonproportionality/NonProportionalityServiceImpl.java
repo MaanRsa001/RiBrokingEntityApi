@@ -1,6 +1,7 @@
 package com.maan.insurance.service.impl.nonproportionality;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +61,7 @@ import com.maan.insurance.model.req.nonproportionality.CrestaSaveReq;
 import com.maan.insurance.model.req.nonproportionality.GetLayerInfoReq;
 import com.maan.insurance.model.req.nonproportionality.GetRetroContractDetailsListReq;
 import com.maan.insurance.model.req.nonproportionality.GetRetroContractDetailsReq;
+import com.maan.insurance.model.req.nonproportionality.InsInstallReq;
 import com.maan.insurance.model.req.nonproportionality.InsertBonusDetailsReq;
 import com.maan.insurance.model.req.nonproportionality.InsertIEModuleReq;
 import com.maan.insurance.model.req.nonproportionality.InsertRetroCessReq;
@@ -104,6 +106,9 @@ import com.maan.insurance.model.res.nonproportionality.GetReInstatementDetailsLi
 import com.maan.insurance.model.res.nonproportionality.GetRemarksDetailsRes;
 import com.maan.insurance.model.res.nonproportionality.GetRetroContractDetailsListRes;
 import com.maan.insurance.model.res.nonproportionality.GetRetroContractDetailsListRes1;
+import com.maan.insurance.model.res.nonproportionality.InsInstallRes;
+import com.maan.insurance.model.res.nonproportionality.InsInstallRes1;
+import com.maan.insurance.model.res.nonproportionality.InsInstallResponse;
 import com.maan.insurance.model.res.nonproportionality.InstalListRes;
 import com.maan.insurance.model.res.nonproportionality.InstalmentListRes;
 import com.maan.insurance.model.res.nonproportionality.InstalmentListRes1;
@@ -4942,6 +4947,78 @@ private boolean checkEditSaveModeMethod(final insertProportionalTreatyReq req) {
 			}
 		return response;
 	}
+
+	@Override
+	public InsInstallRes insInstall(InsInstallReq bean) {
+		InsInstallRes response = new InsInstallRes();
+		List<InsInstallRes1> resList = new ArrayList<InsInstallRes1>();
+		InsInstallResponse res1 = new InsInstallResponse();
+		try {
+	//	List<String> instalmentDate = new ArrayList<String>();
+		List<String> installmentPremium = new ArrayList<String>();
+//		List<String> paymentDueDays = new ArrayList<String>();
+//		List<String> instalList = new ArrayList<String>();
+		int count=bean.getInstallsno().size();
+		int nos=Integer.parseInt(bean.getMdInstalmentNumber());
+		if(StringUtils.isNotBlank(bean.getMdInstalmentNumber()) && nos>0){
+		
+			if(StringUtils.isNotEmpty(bean.getMdPremium()) && nos!=0){	
+				bean.setMdPremium(bean.getMdPremium().replaceAll(",", ""));
+				double total=0;
+				final  DecimalFormat twoDigit = new DecimalFormat("###0.00");
+				
+					total=Double.parseDouble(bean.getMdPremium())/nos;
+					final double dround = Math.round(total * 100.0) / 100.0;
+				
+					final String valu = twoDigit.format(dround);
+					double Sum=0.0;
+					for(int i=0;i<nos-1;i++){
+							
+						installmentPremium.add(fm.formatter(valu));
+						 Sum=Sum+Double.parseDouble(valu);
+					
+					}
+					Double Gwpi=Double.parseDouble(bean.getMdPremium());
+					String retotal =twoDigit.format(Gwpi-Sum);
+					
+					 installmentPremium.add(fm.formatter(retotal));
+					 res1.setInstallmentPremium(installmentPremium);
+					 }
+			
+			for(int j=0;j<Integer.parseInt(bean.getMdInstalmentNumber());j++){	
+				List<InstalmentperiodReq> req = bean.getInstalmentDetails();
+				InsInstallRes1 res = new InsInstallRes1();
+				
+				if(count>j) {
+			if(StringUtils.isNotBlank(req.get(j).getInstalmentDateList())) {
+				res.setInstalmentDateList(req.get(j).getInstalmentDateList());	
+			}
+			
+			if(StringUtils.isNotBlank(req.get(j).getPaymentDueDays())){
+				res.setPaymentDueDays(req.get(j).getPaymentDueDays());
+			//	paymentDueDays.add(req.get(j).getPaymentDueDays());
+			}
+			}
+			//instalList.add("0"); 
+			res.setInstalList("0"); 
+			resList.add(res);
+			}
+//		bean.setInstalmentDateList(instalmentDate);
+//		bean.setInstallmentPremium(installmentPremium);
+//		bean.setPaymentDueDays(paymentDueDays);
+//		bean.setInstalList(instalList);
+		res1.setInsInstallResList(resList);
+		response.setCommonResponse(res1);
+		response.setMessage("Success");
+		response.setIsError(false);
+		}
+		}catch(Exception e){
+			e.printStackTrace();
+			response.setMessage("Failed");
+			response.setIsError(true);
+		}
+	return response;
+}
 	
 
 }

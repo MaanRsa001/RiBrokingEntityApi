@@ -6,6 +6,7 @@ import com.maan.insurance.model.req.nonproportionality.CrestaSaveReq;
 import com.maan.insurance.model.req.nonproportionality.GetLayerInfoReq;
 import com.maan.insurance.model.req.nonproportionality.GetRetroContractDetailsListReq;
 import com.maan.insurance.model.req.nonproportionality.GetRetroContractDetailsReq;
+import com.maan.insurance.model.req.nonproportionality.InsInstallReq;
 import com.maan.insurance.model.req.nonproportionality.InsertBonusDetailsReq;
 import com.maan.insurance.model.req.nonproportionality.InsertIEModuleReq;
 import com.maan.insurance.model.req.nonproportionality.InsertRetroCessReq;
@@ -39,6 +40,7 @@ import com.maan.insurance.model.res.nonproportionality.GetLowClaimBonusListRes;
 import com.maan.insurance.model.res.nonproportionality.GetReInstatementDetailsListRes;
 import com.maan.insurance.model.res.nonproportionality.GetRemarksDetailsRes;
 import com.maan.insurance.model.res.nonproportionality.GetRetroContractDetailsListRes;
+import com.maan.insurance.model.res.nonproportionality.InsInstallRes;
 import com.maan.insurance.model.res.nonproportionality.RiskDetailsEditModeRes;
 import com.maan.insurance.model.res.nonproportionality.SaveRiskDeatilsSecondFormRes;
 import com.maan.insurance.model.res.nonproportionality.SaveSecondPageRes;
@@ -129,6 +131,8 @@ public interface NonProportionalityService {
 	GetLayerInfoRes getLayerInfo(GetLayerInfoReq req);
 
 	CommonResponse cancelProposal(String proposalNo, String proposalReference, String newProposal);
+
+	InsInstallRes insInstall(InsInstallReq req);
 
 
 }

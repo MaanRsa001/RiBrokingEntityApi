@@ -17,6 +17,7 @@ import com.maan.insurance.model.req.nonproportionality.CrestaSaveReq;
 import com.maan.insurance.model.req.nonproportionality.GetLayerInfoReq;
 import com.maan.insurance.model.req.nonproportionality.GetRetroContractDetailsListReq;
 import com.maan.insurance.model.req.nonproportionality.GetRetroContractDetailsReq;
+import com.maan.insurance.model.req.nonproportionality.InsInstallReq;
 import com.maan.insurance.model.req.nonproportionality.InsertBonusDetailsReq;
 import com.maan.insurance.model.req.nonproportionality.InsertIEModuleReq;
 import com.maan.insurance.model.req.nonproportionality.InsertRetroCessReq;
@@ -46,6 +47,7 @@ import com.maan.insurance.model.res.nonproportionality.GetLowClaimBonusListRes;
 import com.maan.insurance.model.res.nonproportionality.GetReInstatementDetailsListRes;
 import com.maan.insurance.model.res.nonproportionality.GetRemarksDetailsRes;
 import com.maan.insurance.model.res.nonproportionality.GetRetroContractDetailsListRes;
+import com.maan.insurance.model.res.nonproportionality.InsInstallRes;
 import com.maan.insurance.model.res.nonproportionality.RiskDetailsEditModeRes;
 import com.maan.insurance.model.res.nonproportionality.ShowLayerBrokerageRes;
 import com.maan.insurance.model.res.nonproportionality.ShowRetroCess1Res;
@@ -333,5 +335,13 @@ public class NonProportionalityController {
 			@GetMapping("/CancelProposal/{proposalNo}/{proposalReference}/{newProposal}")
 			public CommonResponse cancelProposal(@PathVariable ("proposalNo") String proposalNo,@PathVariable ("proposalReference") String proposalReference,@PathVariable ("newProposal") String newProposal) throws CommonValidationException {
 							return nonPropService.cancelProposal(proposalNo,proposalReference,newProposal);
+				}  
+			@PostMapping("/insInstall")
+				public InsInstallRes insInstall(@RequestBody InsInstallReq req) throws CommonValidationException {
+					List<ErrorCheck> error=nonPropValidation.insInstallVali(req);
+					if(error!=null && error.size()>0) {
+						throw new CommonValidationException("error",error);
+					}
+					return nonPropService.insInstall(req);
 				} 
 }
