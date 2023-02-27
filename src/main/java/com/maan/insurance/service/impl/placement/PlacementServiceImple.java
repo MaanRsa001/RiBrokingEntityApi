@@ -2000,7 +2000,7 @@ public class PlacementServiceImple implements PlacementService {
 					res.setBrokerName(map.get("BROKER_NAME")==null?"":map.get("BROKER_NAME").toString()); 
 					res.setProposalWrittenLine(map.get("SHARE_PROPOSAL_WRITTEN")==null?"":formatter.format(map.get("SHARE_PROPOSAL_WRITTEN")));		
 					res.setBrokeragePer(map.get("BROKERAGE_PER")==null?"":formatter.format(map.get("BROKERAGE_PER"))); 
-					res.setWrittenLine(map.get("SHARE_WRITTEN")==null?"":sdf.format(map.get("SHARE_WRITTEN"))); 
+					res.setWrittenLine(map.get("SHARE_WRITTEN")==null?"":formatter.format(map.get("SHARE_WRITTEN"))); 
 					res.setOfferNo(map.get("OFFER_NO")==null?"":map.get("OFFER_NO").toString());
 					res.setConfirmedSignedLine(map.get("SHARE_SIGNED")==null?"":map.get("SHARE_SIGNED").toString());
 					res.setProposedSignedLine(map.get("SHARE_PROPOSED_SIGNED")==null?"":map.get("SHARE_PROPOSED_SIGNED").toString());
