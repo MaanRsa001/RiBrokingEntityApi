@@ -606,12 +606,13 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 					} else {
 						proposalno = beanObj.getProposalNo();
 					}
-					if(StringUtils.isNotBlank(beanObj.getRequestNumber()) && !"0".equals(beanObj.getRequestNumber())) {
-						proportionalityCustomRepository.updateBonus(beanObj.getRequestNumber(),beanObj.getProposalNo());
-						proportionalityCustomRepository.updateRip(beanObj.getRequestNumber(),beanObj.getProposalNo());
-					}
+					
 					//this.showSecondpageEditItems(beanObj, pid, proposalno);
 				}
+			}
+			if(StringUtils.isNotBlank(beanObj.getRequestNumber()) && !"0".equals(beanObj.getRequestNumber())) {
+				proportionalityCustomRepository.updateBonus(beanObj.getRequestNumber(),beanObj.getProposalNo());
+				proportionalityCustomRepository.updateRip(beanObj.getRequestNumber(),beanObj.getProposalNo());
 			}
 			res.setProposalNo(beanObj.getProposalNo());
 			res.setMessage("Success");
@@ -2237,7 +2238,8 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 					Predicate n3 = cb.equal(rp.get("branch"), arg[1]);
 					Predicate n4 = cb.equal(rp.get("type"), arg[2]);
 					Predicate n5 = cb.equal(rp.get("layerNo"), arg[3]);
-					delete.where(n1,n3,n4,n5);
+					Predicate n6 = cb.or(cb.isNull(rp.get("proposalNo")),cb.equal(rp.get("proposalNo"), 0));
+					delete.where(n1,n3,n4,n5,n6);
 					em.createQuery(delete).executeUpdate();
 					
 			}	else{
@@ -2312,7 +2314,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 	private void profitMainEmptyInsert(ProfitCommissionSaveReq bean) {
 		try{
 			//COMMISSION_INSERT
-			if(StringUtils.isBlank(bean.getProposalNo()) && StringUtils.isBlank(bean.getReferenceNo())) { //ri
+			if(StringUtils.isBlank(bean.getProposalNo()) && (StringUtils.isBlank(bean.getReferenceNo()) || "0".equals(bean.getReferenceNo()))) { //ri
 	        	String referenceNo="";
 	        	
 	        	List<Map<String, Object>> list  = queryImpl.selectSingle("SELECT  REFERENCENO_SEQ.NEXTVAL REFERENCENO FROM DUAL",new String[]{});
@@ -2609,7 +2611,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 				beanObj.setSubProfitcenter("");
 				beanObj.setPolicyBranch("");
 				beanObj.setBroker("");
-				beanObj.setTreatyNametype("");
+				//beanObj.setTreatyNametype("");
 				beanObj.setMonth("");
 				beanObj.setUnderwriter("");
 				beanObj.setAcceptanceDate("");
@@ -4654,14 +4656,16 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 		}
 		
 		BonusSaveReq req1 = new BonusSaveReq();
+		req1.setReferenceNo(req.getReferenceNo());
 		req1.setProposalNo(req.getProposalNo());
 		req1.setBranchCode(req.getBranchCode());
 		req1.setLayerNo(req.getLayerNo());
 		req1.setAmendId(req.getAmendId());
 		req1.setPageFor(req.getPageFor());
+		req.setType(req.getPageFor());
 		deleteMaintable(req1,req.getType());
 		
-		  if(StringUtils.isBlank(req.getProposalNo()) && StringUtils.isBlank(req.getReferenceNo())) { //Ri
+		  if(StringUtils.isBlank(req.getProposalNo()) && (StringUtils.isBlank(req.getReferenceNo()) || "0".equals(req.getReferenceNo()))){ //Ri
 	        	String referenceNo="";
 	        	List<Map<String, Object>> list  = queryImpl.selectSingle("SELECT  REFERENCENO_SEQ.NEXTVAL REFERENCENO FROM DUAL",new String[]{}); 
 	        	if (!CollectionUtils.isEmpty(list)) {
@@ -4746,7 +4750,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
            
 		TtrnBonus insert = proportionalityCustomRepository.bonusMainInsertPtty(args);
         if(insert!=null) {
-     	   ttrnBonusRepository.save(insert);
+     	   ttrnBonusRepository.saveAndFlush(insert);
      	   }
         if("MB".equals(req.getScalementhod())) {
 			   break;

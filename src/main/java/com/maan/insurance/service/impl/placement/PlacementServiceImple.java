@@ -341,63 +341,6 @@ public class PlacementServiceImple implements PlacementService {
 		return response;
 	}
 
-	
-
-//	@Override
-//	public GetReinsurerInfoRes getReinsurerInfo(GetReinsurerInfoReq bean) {
-//		GetReinsurerInfoRes response = new GetReinsurerInfoRes();
-//		List<GetReinsurerInfoRes1> resList = new ArrayList<GetReinsurerInfoRes1>();
-//		GetReinsurerInfoResponse res1 = new GetReinsurerInfoResponse();
-//		List<Map<String,Object>>list=null;
-//		int mailcount=0;
-//		
-//		try {
-//			//GET_REINSURER_INFO_NOTIN --LEFT JOIN--
-//			list = queryImpl.selectList("GET_REINSURER_INFO_NOTIN",new String[] {bean.getBranchCode(),bean.getEproposalNo()});
-//			if(!CollectionUtils.isEmpty(list)) {
-//				res1.setPlacementMode(list.get(0).get("PLACEMENT_MODE")==null?"":list.get(0).get("PLACEMENT_MODE").toString());
-//				res1.setPlacementDisabled("Y");
-//			}
-//			//GET_PROPOSAL_MAIL_COUNT
-//			mailcount = ripRepo.countByBranchCodeAndProposalNoAndStatusNot(bean.getBranchCode(),new BigDecimal(bean.getEproposalNo()),"0");
-//			if(StringUtils.isNotBlank(bean.getBouquetNo()) && "C".equals(res1.getPlacementMode())) {	
-//				//get_Reinsurer_Info_Bouquet_Notin --LEFT JOIN--
-//				list=queryImpl.selectList("GET_REINSURER_INFO_BOUQUET_NOTIN",new String[] {bean.getBranchCode(),bean.getBouquetNo()});
-//				//GET_BOUQUET_MAIL_COUNT
-//				mailcount=ripRepo.countByBranchCodeAndBouquetNoAndStatusNot(bean.getBranchCode(),new BigDecimal(bean.getBouquetNo()),"0");
-//			}
-//			if(!CollectionUtils.isEmpty(list)) {
-//				for(int i=0;i<list.size();i++) {
-//					Map<String,Object>map=list.get(i);
-//					GetReinsurerInfoRes1 res = new GetReinsurerInfoRes1();
-//					res.setMailStatus(map.get("MAIL_STATUS")==null?"":map.get("MAIL_STATUS").toString());
-//					res.setPlacingBroker(map.get("BROKER_ID")==null?"":map.get("BROKER_ID").toString());
-//					res.setProposalNos(map.get("PROPOSAL_NO")==null?"":map.get("PROPOSAL_NO").toString());
-//					res.setReinsSNo(map.get("SNO")==null?"":map.get("SNO").toString());
-//					res.setReinsureName(map.get("REINSURER_ID")==null?"":map.get("REINSURER_ID").toString());
-//					res.setShareOffer(map.get("SHARE_OFFERED")==null?"":fm.formattereight(map.get("SHARE_OFFERED").toString()));;
-//		
-//					if(mailcount>0) {
-//						res.setDeleteStatus("N");
-//					}else {
-//						res.setDeleteStatus("N");
-//					}
-//					res.setChangeStatus("N");
-//					resList.add(res);
-//					}
-//				res1.setReinsurerInfoList(resList);
-//			}
-//			response.setCommonResponse(res1);	
-//			response.setMessage("Success");
-//			response.setIsError(false);
-//		}catch(Exception e){
-//				log.error(e);
-//				e.printStackTrace();
-//				response.setMessage("Failed");
-//				response.setIsError(true);
-//			}
-//		return response;
-//	}
 	@Override
 	public GetReinsurerInfoRes getReinsurerInfo(GetReinsurerInfoReq bean) {
 		GetReinsurerInfoRes response = new GetReinsurerInfoRes();
@@ -454,83 +397,6 @@ public class PlacementServiceImple implements PlacementService {
 		return response;
 	}
 
-//	@Override
-//	public GetPlacementInfoListRes getPlacementInfoList(GetPlacementInfoListReq bean) {
-//		GetPlacementInfoListRes response = new GetPlacementInfoListRes();
-//		List<Map<String,Object>>list=null;
-//		String query="";
-//		String qutext ="";
-//		List<GetPlacementInfoListRes1> resList = new ArrayList<GetPlacementInfoListRes1>();
-//		try {
-//			String[] obj=new String[2];
-//			if(StringUtils.isNotBlank(bean.getBouquetNo())) {
-//				query="GET_PLACEMENT_BOUQUET_LIST"; //LEFT JOIN
-//				  qutext = prop.getProperty(query);
-//				obj[0]=bean.getBranchCode();
-//				obj[1]=bean.getBouquetNo();
-//			}else if(StringUtils.isNotBlank(bean.getBaseProposalNo())) {
-//				query="GET_PLACEMENT_BASE_LIST";
-//				 qutext = prop.getProperty(query);
-//				obj[0]=bean.getBranchCode();
-//				obj[1]=bean.getBaseProposalNo();
-//			}else {
-//				query="GET_PLACEMENT_LIST";
-//				 qutext = prop.getProperty(query);
-//				obj[0]=bean.getBranchCode();
-//				obj[1]=StringUtils.isBlank(bean.getEproposalNo())?bean.getProposalNo():bean.getEproposalNo();
-//			}
-//			if(StringUtils.isNotBlank(bean.getSearchType())) {
-//				qutext=qutext+" AND P.REINSURER_ID='"+bean.getSearchReinsurerId()+"' AND P.BROKER_ID='"+bean.getSearchBrokerId()+"' AND P.STATUS='"+bean.getSearchStatus()+"'";
-//			}
-//			qutext=qutext+" ORDER BY OFFER_NO,P.BASE_PROPOSAL_NO,P.PROPOSAL_NO,P.SNO";
-//			query1 =queryImpl.setQueryProp(qutext, obj);
-//    		query1.unwrap(NativeQueryImpl.class).setResultTransformer(AliasToEntityMapResultTransformer.INSTANCE);
-//    		try {
-//    			 list = query1.getResultList();
-//    		} catch(Exception e) {
-//    			e.printStackTrace();
-//    		} 
-//			
-//			if(list.size()>0) {
-//				for(int i=0;i<list.size();i++) {
-//					Map<String,Object>map=list.get(i);
-//					GetPlacementInfoListRes1 res = new GetPlacementInfoListRes1();
-//					res.setSno(map.get("SNO")==null?"":map.get("SNO").toString()); 
-//					res.setBouquetNo(map.get("BOUQUET_NO")==null?"":map.get("BOUQUET_NO").toString()); 
-//					res.setBaseProposalNo(map.get("BASE_PROPOSAL_NO")==null?"":map.get("BASE_PROPOSAL_NO").toString()); 
-//					res.setProposalNo(map.get("PROPOSAL_NO")==null?"":map.get("PROPOSAL_NO").toString()); 
-//					res.setCedingCompanyId(map.get("CEDING_COMPANY_ID")==null?"":map.get("CEDING_COMPANY_ID").toString()); 
-//					res.setReinsurerId(map.get("REINSURER_ID")==null?"":map.get("REINSURER_ID").toString()); 
-//					res.setBrokerId(map.get("BROKER_ID")==null?"":map.get("BROKER_ID").toString()); 
-//					res.setReinsurerName(map.get("REINSURER_NAME")==null?"":map.get("REINSURER_NAME").toString()); 
-//					res.setBrokerName(map.get("BROKER_NAME")==null?"":map.get("BROKER_NAME").toString()); 
-//					res.setShareOffered(map.get("SHARE_OFFERED")==null?"":map.get("SHARE_OFFERED").toString()); 
-//					res.setShareWritten(map.get("SHARE_WRITTEN")==null?"":map.get("SHARE_WRITTEN").toString()); 
-//					res.setShareProposalWritten(map.get("SHARE_PROPOSAL_WRITTEN")==null?"":map.get("SHARE_PROPOSAL_WRITTEN").toString()); 
-//					res.setShareSigned(map.get("SHARE_SIGNED")==null?"":map.get("SHARE_SIGNED").toString()); 
-//					res.setBrokeragePer(map.get("BROKERAGE_PER")==null?"":map.get("BROKERAGE_PER").toString()); 
-//					res.setStatus(map.get("STATUS")==null?"":map.get("STATUS").toString()); 
-//					res.setWrittenLineValidity(map.get("WRITTEN_LINE_VALIDITY")==null?"":map.get("WRITTEN_LINE_VALIDITY").toString()); 
-//					res.setWrittenLineRemarks(map.get("WRITTEN_LINE_REMARKS")==null?"":map.get("WRITTEN_LINE_REMARKS").toString()); 
-//					res.setShareLineValidity(map.get("SHARE_LINE_VALIDITY")==null?"":map.get("SHARE_LINE_VALIDITY").toString()); 
-//					res.setShareLineRemarks(map.get("SHARE_LINE_REMARKS")==null?"":map.get("SHARE_LINE_REMARKS").toString()); 
-//					res.setShareProposedSigned(map.get("SHARE_PROPOSED_SIGNED")==null?"":map.get("SHARE_PROPOSED_SIGNED").toString()); 
-//					res.setMailStatus(map.get("MAIL_STATUS")==null?"":map.get("MAIL_STATUS").toString()); 
-//					res.setOfferNo(map.get("OFFER_NO")==null?"":map.get("OFFER_NO").toString());
-//					resList.add(res);
-//					}
-//			}
-//			response.setCommonResponse(resList);	
-//			response.setMessage("Success");
-//			response.setIsError(false);
-//		}catch(Exception e){
-//				log.error(e);
-//				e.printStackTrace();
-//				response.setMessage("Failed");
-//				response.setIsError(true);
-//			}
-//		return response;
-//	}
 	@Override
 	public GetPlacementInfoListRes getPlacementInfoList(GetPlacementInfoListReq bean) {
 		GetPlacementInfoListRes response = new GetPlacementInfoListRes();
@@ -1207,7 +1073,9 @@ public class PlacementServiceImple implements PlacementService {
 			status=sendResponseMail(hostName, user, pwd, mailform, subject, multipart, toAddresses, ccAddresses, shortAddress,port);
 			if(!"PC".equalsIgnoreCase(bean.getMailType())) {	
 				if("Success".equals(status) && "P".equals(bean.getMailType())) {
+					insertPlacingDetail(bean,bean.getMailType());		
 					req.setStatus("P");
+					req.setStatusNo(bean.getStatusNo());
 					updateStatus(req); 
 				}
 				updateMailDetails(req,status,bean.getMailType());
@@ -1436,7 +1304,72 @@ public class PlacementServiceImple implements PlacementService {
 			}
 		return response;
 	}
-   
+	public InsertMailDetailsRes insertPlacingDetail(SendMailReq bean, String status) {
+		InsertMailDetailsRes response = new InsertMailDetailsRes();
+		List<InsertMailDetailsRes1> resList = new ArrayList<InsertMailDetailsRes1>();
+		List<Tuple>list=null;
+		String plamendId="0",statusNo="";
+		TtrnRiPlacement entity = new TtrnRiPlacement();
+		try {
+			
+			SavePlacingReq bean1=new SavePlacingReq();
+			bean1.setPlacementMode(bean.getPlacementMode());
+			bean1.setBouquetNo(bean.getBouquetNo());
+			bean1.setBaseProposalNo(bean.getBaseProposalNo());
+			bean1.setEproposalNo(bean.getProposalNo());
+			bean1.setBranchCode(bean.getBranchCode());	
+			GetPlacementNoRes1 res1 = 	placementCustomRepository.getPlacementNo(bean1).getCommonResponse();
+			bean.setStatusNo(res1.getStatusNo());
+			//INSERT_MAIL_NOTIFICATION
+			if("C".equals(bean.getPlacementMode())) {
+				list=placementCustomRepository.GetPlacementBouquet(bean.getBranchCode(),bean.getBrokerId(),bean.getBouquetNo(),bean.getReinsurerId(),bean.getBaseProposalNo());
+			}
+			else {
+				list=placementCustomRepository.GetPlacementEdit(bean.getBranchCode(),bean.getBrokerId(),bean.getEproposalNo(),bean.getReinsurerId());
+			}
+			
+			if(!CollectionUtils.isEmpty(list)) {
+				for(int  i=0;i<list.size();i++) {
+					Tuple map=list.get(i);
+					plamendId=placementCustomRepository.getMaxAmendId(bean.getBranchCode(),bean.getEproposalNo(),bean.getReinsurerId(),bean.getBrokerId());
+					if(StringUtils.isBlank(plamendId) || "null".equalsIgnoreCase(plamendId)) {
+						plamendId="0";
+					}
+					entity.setPlacementNo(new BigDecimal(res1.getPlacementNo()));
+					entity.setSno(map.get("SNO")==null?BigDecimal.ZERO:new BigDecimal(map.get("SNO").toString()));
+					entity.setBouquetNo(map.get("BOUQUET_NO")==null? BigDecimal.ZERO :new BigDecimal(map.get("BOUQUET_NO").toString()));
+					entity.setBaseProposalNo(map.get("BASE_PROPOSAL_NO")==null?BigDecimal.ZERO :new BigDecimal(map.get("BASE_PROPOSAL_NO").toString()));
+					entity.setProposalNo(map.get("PROPOSAL_NO")==null?BigDecimal.ZERO :new BigDecimal(map.get("PROPOSAL_NO").toString()));
+					entity.setContractNo(map.get("CONTRACT_NO")==null?BigDecimal.ZERO:new BigDecimal(map.get("CONTRACT_NO").toString()));;
+					entity.setLayerNo(map.get("LAYER_NO")==null?BigDecimal.ZERO:new BigDecimal(map.get("LAYER_NO").toString()));
+					entity.setSectionNo(map.get("SECTION_NO")==null?BigDecimal.ZERO:new BigDecimal(map.get("SECTION_NO").toString()));
+					entity.setCedingCompanyId(map.get("CEDING_COMPANY_ID")==null?"":map.get("CEDING_COMPANY_ID").toString());
+					entity.setAmendId(map.get("AMEND_ID")==null? BigDecimal.ZERO :new BigDecimal(map.get("AMEND_ID").toString()));
+					entity.setReinsurerId(map.get("REINSURER_ID")==null?"":map.get("REINSURER_ID").toString());
+					entity.setBrokerId(map.get("BROKER_ID")==null?"":map.get("BROKER_ID").toString());
+					entity.setShareOffered(map.get("REINSURER_ID")==null?BigDecimal.ZERO :new BigDecimal(map.get("REINSURER_ID").toString()));
+					entity.setBranchCode(bean.getBranchCode()==null?"":bean.getBranchCode());
+					entity.setSysDate(new Date());
+					entity.setPlacementMode(bean.getPlacementMode()==null?"":bean.getPlacementMode());
+					entity.setStatus(status==null?"":status);
+					entity.setPlacementAmendId(StringUtils.isBlank(plamendId)? BigDecimal.ZERO  :new BigDecimal(plamendId));
+					entity.setStatusNo(bean.getStatusNo()==null?BigDecimal.ZERO :new BigDecimal(bean.getStatusNo()));
+					entity.setApproverStatus("Y");
+					entity.setUserId(bean.getUserId()==null?"":bean.getUserId());
+					ripRepo.saveAndFlush(entity);	
+					}
+			}
+			response.setCommonResponse(resList);
+			response.setMessage("Success");
+			response.setIsError(false);
+		}catch(Exception e){
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+	}
 	@Transactional
 	public CommonResponse updateMailDetails(UpdatePlacementReq bean, String status, String mailType) {
 		CommonResponse response = new CommonResponse();
@@ -1445,7 +1378,7 @@ public class PlacementServiceImple implements PlacementService {
 			UpdatePlacementListReq resp =bean.getPlacementListReq().get(i);
 			
 			placementCustomRepository.updateNotificationStatus(resp,bean,status);
-			placementCustomRepository.updatePlacement(resp,bean,mailType);
+			//placementCustomRepository.updatePlacement(resp,bean,mailType);
 			placementCustomRepository.updateAttachementStatus(resp,bean);
 			placementCustomRepository.updatePlacementStatus(resp,bean);
 		}
@@ -1573,96 +1506,6 @@ public class PlacementServiceImple implements PlacementService {
 			}
 		return response;
 	}
-
-//	@Override
-//	public PlacementSummaryRes placementSummary(PlacementSummaryReq bean) {
-//		PlacementSummaryRes response = new PlacementSummaryRes();
-//		List<Map<String,Object>>list=null;
-//		String query="";
-//		try {
-//			String[] obj=new String[2];
-//			query= "NEW_CONTRACT_PL_SUMMARY"; //left outer join
-//			 String qutext = prop.getProperty(query);
-//			obj[0]=bean.getBranchCode();
-//			obj[1]=bean.getProposalNo();
-//			
-//			if(StringUtils.isNotBlank(bean.getSearchType()) && null !=bean.getSearchType()){
-//            	
-//        		if(StringUtils.isNotBlank(bean.getCompanyNameSearch())){
-//            		obj = dropDownImple.getIncObjectArray(obj, new String[]{("%" + bean.getCompanyNameSearch() + "%")});
-//            		qutext += " " + " AND UPPER((SELECT CASE WHEN PI.CUSTOMER_TYPE = 'C' THEN PI.COMPANY_NAME ELSE PI.FIRST_NAME || ' ' || PI.LAST_NAME END NAME FROM PERSONAL_INFO PI WHERE CUSTOMER_TYPE='R'  AND CUSTOMER_ID=TRP.REINSURER_ID AND BRANCH_CODE=TRP.BRANCH_CODE  AND AMEND_ID=(SELECT MAX(AMEND_ID) FROM PERSONAL_INFO WHERE CUSTOMER_ID=PI.CUSTOMER_ID))) LIKE UPPER(?)";
-//            	}
-//        		if(StringUtils.isNotBlank(bean.getBrokerNameSearch())){
-//            		obj = dropDownImple.getIncObjectArray(obj, new String[]{("%" + bean.getBrokerNameSearch() + "%")});
-//            		qutext += " " + " AND UPPER((SELECT CASE WHEN PI.CUSTOMER_TYPE = 'C' THEN PI.COMPANY_NAME ELSE PI.FIRST_NAME || ' ' || PI.LAST_NAME END NAME FROM PERSONAL_INFO PI WHERE CUSTOMER_TYPE='B'  AND CUSTOMER_ID=TRP.BROKER_ID AND BRANCH_CODE=TRP.BRANCH_CODE AND AMEND_ID=(SELECT MAX(AMEND_ID) FROM PERSONAL_INFO WHERE CUSTOMER_ID=PI.CUSTOMER_ID))) LIKE UPPER(?)";
-//            	}
-//            	if(StringUtils.isNotBlank(bean.getUwYearSearch())){
-//            		obj = dropDownImple.getIncObjectArray(obj, new String[]{("%" + bean.getUwYearSearch() + "%")});
-//            		qutext += " " +" AND UPPER(UW_YEAR) LIKE UPPER(?)";
-//            	}
-//            	if(StringUtils.isNotBlank(bean.getUwYearToSearch())){
-//            		obj = dropDownImple.getIncObjectArray(obj, new String[]{("%" + bean.getUwYearToSearch() + "%")});
-//            		qutext += " " +" AND UPPER(UW_YEAR_TO) LIKE UPPER(?)";
-//            	}
-//            	if(StringUtils.isNotBlank(bean.getIncepDateSearch())){
-//            		obj = dropDownImple.getIncObjectArray(obj, new String[]{("%" + bean.getIncepDateSearch() + "%")});
-//            		qutext += " "  +" AND TO_CHAR(INCEPTION_DATE,'DD/MM/YYYY') LIKE ?";;
-//            	}
-//            	if(StringUtils.isNotBlank(bean.getExpDateSearch())){
-//            		obj = dropDownImple.getIncObjectArray(obj, new String[]{("%" + bean.getExpDateSearch() + "%")});
-//            		qutext += " " +" AND TO_CHAR(EXPIRY_DATE,'DD/MM/YYYY') LIKE ?";;
-//            	}
-//            	qutext += " " + "ORDER BY PM.PROPOSAL_NO, TRP.SNO";
-//            	
-//            }else{
-////            	bean.setCompanyNameSearch("");
-////            	bean.setBrokerNameSearch("");
-////            	bean.setUwYearSearch("");
-////            	bean.setUwYearToSearch("");
-////            	bean.setIncepDateSearch("");
-////            	bean.setExpDateSearch("");
-//            }
-//	        	query1 =queryImpl.setQueryProp(qutext, obj);
-//	    		query1.unwrap(NativeQueryImpl.class).setResultTransformer(AliasToEntityMapResultTransformer.INSTANCE);
-//	    		try {
-//	    			 list = query1.getResultList();
-//	    		} catch(Exception e) {
-//	    			e.printStackTrace();
-//	    		} 
-//	    		 List<PlacementSummaryRes1> resList =new ArrayList<PlacementSummaryRes1>();
-//	             if(list!=null && list.size()>0){
-//	             for (int i = 0; i < list.size(); i++) {
-//	                 Map<String, Object> tempMap = list.get(i);
-//	                 PlacementSummaryRes1 tempBean = new PlacementSummaryRes1();
-//	                 tempBean.setOfferNo(tempMap.get("OFFER_NO") == null ? "" : tempMap.get("OFFER_NO").toString()); 
-//	                 tempBean.setBaseProposal(tempMap.get("BASE_PROPOSAL") == null ? "" : tempMap.get("BASE_PROPOSAL").toString()); 
-//	                 tempBean.setProposalNo(tempMap.get("PROPOSAL_NO") == null ? "" : tempMap.get("PROPOSAL_NO").toString()); 
-//	                 tempBean.setRskTreatyid(tempMap.get("TREATY_NAME") == null ? "" : tempMap.get("TREATY_NAME").toString()); 
-//	                 tempBean.setLayerSection(tempMap.get("LAYER_SECTION") == null ? "" : tempMap.get("LAYER_SECTION").toString()); 
-//	                 tempBean.setSno(tempMap.get("SNO") == null ? "" : tempMap.get("SNO").toString()); 
-//	                 tempBean.setReinsurerName(tempMap.get("REINSURER_NAME") == null ? "" : tempMap.get("REINSURER_NAME").toString()); 
-//	                 tempBean.setBrokerName(tempMap.get("BROKER_NAME") == null ? "" : tempMap.get("BROKER_NAME").toString()); 
-//	                 tempBean.setCurrency(tempMap.get("CURRENCY") == null ? "" : tempMap.get("CURRENCY").toString()); 
-//	                 tempBean.setEpi100Oc(tempMap.get("EPI_100_OC") == null ? "" : fm.formatter(tempMap.get("EPI_100_OC").toString())); 
-//	                 tempBean.setEpi100Dc(tempMap.get("EPI_100_DC") == null ? "" : fm.formatter(tempMap.get("EPI_100_DC").toString())); 
-//	                 tempBean.setPlacingStatus(tempMap.get("PLACING_STATUS") == null ? "" : tempMap.get("PLACING_STATUS").toString()); 
-//	                 tempBean.setShareSigned(tempMap.get("SHARE_SIGNED") == null ? "" : fm.formattereight(tempMap.get("SHARE_SIGNED").toString())); 
-//	                tempBean.setBrokerage(tempMap.get("BROKERAGE") == null ? "" : fm.formattereight(tempMap.get("BROKERAGE").toString())); 
-//	                tempBean.setBrokerageAmt(tempMap.get("BROKERAGE_AMT") == null ? "" :  fm.formatter(tempMap.get("BROKERAGE_AMT").toString()));
-//	                resList.add(tempBean);
-//	             }
-//	             }
-//	 			 response.setCommonResponse(resList);
-//	 			 response.setMessage("Success");
-//	 			 response.setIsError(false);
-//	 			}catch(Exception e){
-//	 					log.error(e);
-//	 					e.printStackTrace();
-//	 					response.setMessage("Failed");
-//	 					response.setIsError(true);
-//	 				}
-//	 			return response;
-//	}
 	@Override
 	public PlacementSummaryRes placementSummary(PlacementSummaryReq bean) {
 		PlacementSummaryRes response = new PlacementSummaryRes();
@@ -1741,6 +1584,7 @@ public class PlacementServiceImple implements PlacementService {
 				String bouquetNo=map.get("BOUQUET_NO")==null?"":map.get("BOUQUET_NO").toString();
 				//String proposalNo=map.get("PROPOSAL_NO")==null?"":map.get("PROPOSAL_NO").toString();
 				//String baseproposalNo=map.get("BASE_LAYER")==null?"":map.get("BASE_LAYER").toString();
+				String statusNo=placementCustomRepository.getStatusNo(proposal, req.getBranchCode(),req.getReinsurerId(),req.getBrokerId());
 				String offerNo=map.get("OFFER_NO")==null?"":map.get("OFFER_NO").toString();
 				if(StringUtils.isNotBlank(bouquetNo)) {
 					mailsub=mailsub+" "+bouquetNo+"";
@@ -2028,7 +1872,7 @@ public class PlacementServiceImple implements PlacementService {
 		try {
 				placementCustomRepository.updateRiplacement(req);
 				placementCustomRepository.updateRiplacementStatus(req);
-				
+				SendApprovalPendingMail(req);
 				response.setMessage("Success");
 				response.setIsError(false);
 		}catch(Exception e){
@@ -2038,5 +1882,23 @@ public class PlacementServiceImple implements PlacementService {
 				response.setIsError(true);
 			}
 		return response;
+	}
+
+	private void SendApprovalPendingMail(UpdateRiplacementReq req) {
+		SendMailReq bean=new SendMailReq();
+		GetMailTemplateReq req1=new GetMailTemplateReq();
+		req1.setMailType(req.getStatus()+"AP");
+		GetMailTemplateRes1 resp=getMailTemplate(req1).getCommonResponse();
+		bean.setMailBody(resp.getMailBody());
+		bean.setMailCC(resp.getMailCC());
+		bean.setMailTo(resp.getMailTo());
+		bean.setMailSubject(resp.getMailSubject());
+		bean.setMailRegards(resp.getMailRegards());
+		bean.setProposalNo(req.getProposalNo());
+		bean.setEproposalNo(req.getProposalNo());
+		bean.setBrokerId(req.getBrokerId());
+		bean.setReinsurerId(req.getReinsurerId());
+		bean.setBranchCode(req.getBranchCode());
+		sendMail(bean);
 	}
 	}

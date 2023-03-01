@@ -22,6 +22,7 @@ import com.maan.insurance.model.req.nonproportionality.InsertIEModuleReq;
 import com.maan.insurance.model.req.nonproportionality.InsertRetroCessReq;
 import com.maan.insurance.model.req.nonproportionality.InsertRetroContractsReq;
 import com.maan.insurance.model.req.nonproportionality.LowClaimBonusInserReq;
+import com.maan.insurance.model.req.nonproportionality.LowClaimBonusListReq;
 import com.maan.insurance.model.req.nonproportionality.MoveReinstatementMainReq;
 import com.maan.insurance.model.req.nonproportionality.ReInstatementMainInsertReq;
 import com.maan.insurance.model.req.nonproportionality.RemarksSaveReq;
@@ -210,12 +211,12 @@ public class NonProportionalityController {
 	public CommonResponse deleteMainTable(@PathVariable ("proposalNo") String proposalNo,@PathVariable ("amendId") String amendId,@PathVariable ("branchCode") String branchCode,@PathVariable ("referenceNo") String referenceNo) throws CommonValidationException {
 					return nonPropService.deleteMainTable(proposalNo,amendId,branchCode,referenceNo);
 		}
-	@GetMapping("/getLowClaimBonusList/{proposalNo}/{branchCode}/{acqBonus}/{referenceNo}")
-	public GetLowClaimBonusListRes getLowClaimBonusList(@PathVariable ("proposalNo") String proposalNo,@PathVariable ("branchCode") String branchCode,@PathVariable ("acqBonus") String acqBonus,@PathVariable ("referenceNo") String referenceNo) throws CommonValidationException {
-					return nonPropService.getLowClaimBonusList(proposalNo,branchCode,acqBonus,referenceNo);
+	@PostMapping("/getLowClaimBonusList")
+	public GetLowClaimBonusListRes getLowClaimBonusList(@RequestBody LowClaimBonusListReq req) throws CommonValidationException {
+					return nonPropService.getLowClaimBonusList(req.getProposalNo(),req.getBranchCode(),req.getAcqBonus(),req.getReferenceNo());
 		}
 	@PostMapping("/LowClaimBonusInser")
-		public CommonResponse lowClaimBonusInser(@RequestBody LowClaimBonusInserReq req) throws CommonValidationException {
+		public CommonSaveRes lowClaimBonusInser(@RequestBody LowClaimBonusInserReq req) throws CommonValidationException {
 			List<ErrorCheck> error=nonPropValidation.lowClaimBonusInserVali(req);
 			if(error!=null && error.size()>0) {
 				throw new CommonValidationException("error",error);

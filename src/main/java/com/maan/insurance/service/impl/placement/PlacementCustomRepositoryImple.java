@@ -597,7 +597,7 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 					pm.get("writtenLineValidity").alias("WRITTEN_LINE_VALIDITY"),pm.get("writtenLineRemarks").alias("WRITTEN_LINE_REMARKS"),
 					pm.get("shareLineValidity").alias("SHARE_LINE_VALIDITY"),pm.get("shareLineRemarks").alias("SHARE_LINE_REMARKS"),
 					pm.get("shareProposedSigned").alias("SHARE_PROPOSED_SIGNED"),mailStatus.alias("MAIL_STATUS"),
-					pm.get("placementAmendId").alias("PLACEMENT_AMEND_ID"),
+					pm.get("placementAmendId").alias("PLACEMENT_AMEND_ID"),pm.get("amendId").alias("AMEND_ID"),
 					pm.get("contractNo").alias("CONTRACT_NO"),pm.get("layerNo").alias("LAYER_NO"),
 					pm.get("sectionNo").alias("SECTION_NO"),pr.get("rskEpiEstOc").alias("EPI_AMOUNT"),de.get("rskExchangeRate").alias("EXCAHNGE_RATE")); 
 
@@ -871,7 +871,7 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 					pm.get("writtenLineValidity").alias("WRITTEN_LINE_VALIDITY"),pm.get("writtenLineRemarks").alias("WRITTEN_LINE_REMARKS"),
 					pm.get("shareLineValidity").alias("SHARE_LINE_VALIDITY"),pm.get("shareLineRemarks").alias("SHARE_LINE_REMARKS"),
 					pm.get("shareProposedSigned").alias("SHARE_PROPOSED_SIGNED"),mailStatus.alias("MAIL_STATUS"),
-					pm.get("contractNo").alias("CONTRACT_NO"),pm.get("layerNo").alias("LAYER_NO"),
+					pm.get("contractNo").alias("CONTRACT_NO"),pm.get("layerNo").alias("LAYER_NO"),pm.get("amendId").alias("AMEND_ID"),
 					pm.get("sectionNo").alias("SECTION_NO")); 
 					
 
@@ -1578,6 +1578,7 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 				predicates.add(cb.equal(p.get("reinsurerId"), req.getSearchReinsurerId()));
 				predicates.add(cb.equal(p.get("brokerId"), req.getSearchBrokerId()));
 				predicates.add(cb.equal(p.get("status"), req.getSearchStatus()));
+				predicates.add(cb.notEqual(p.get("approverStatus"), "P"));
 			}
 			
 //			List<Order> orderList = new ArrayList<Order>();
@@ -1720,6 +1721,7 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 				predicates.add(cb.equal(p.get("reinsurerId"), req.getSearchReinsurerId()));
 				predicates.add(cb.equal(p.get("brokerId"), req.getSearchBrokerId()));
 				predicates.add(cb.equal(p.get("status"), req.getSearchStatus()));
+				predicates.add(cb.notEqual(p.get("approverStatus"), "P"));
 			}
 			
 //			List<Order> orderList = new ArrayList<Order>();
@@ -2632,7 +2634,7 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 			
 			// MAXAmend ID
 			Subquery<Long> amend = update2.subquery(Long.class); 
-			Root<TtrnRiPlacement> pms = amend.from(TtrnRiPlacement.class);
+			Root<TtrnRiPlacementStatus> pms = amend.from(TtrnRiPlacementStatus.class);
 			amend.select(cb.max(pms.get("amendId")));
 			Predicate a1 = cb.equal( ri.get("branchCode"), pms.get("branchCode"));
 			Predicate a2 = cb.equal( ri.get("proposalNo"), pms.get("proposalNo"));
@@ -2645,12 +2647,18 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 			Predicate d3 = cb.equal(ri.get("brokerId"),req.getBrokerId());
 			Predicate d4 = cb.equal(ri.get("branchCode"), req.getBranchCode());
 			Predicate d5 = cb.equal(ri.get("amendId"), amend);
-			Predicate d6 = cb.equal(ri.get("status"), req.getStatus());//
+			Predicate d6 = cb.equal(ri.get("newStatus"), req.getStatus());//
 			
 			update2.where(d1,d2,d3,d4,d5,d6);
 			em.createQuery(update2).executeUpdate();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public String getStatusNo(String proposal, String branchCode, String reinsurerId, String brokerId) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

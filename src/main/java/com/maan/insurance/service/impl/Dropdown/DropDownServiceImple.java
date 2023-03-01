@@ -1924,7 +1924,7 @@ public class DropDownServiceImple implements DropDownService{
 				Subquery<String> deptId = query.subquery(String.class); 
 				Root<PositionMaster> pms = deptId.from(PositionMaster.class);
 				deptId.select(pms.get("deptId"));
-				Predicate a1 = cb.equal( pms.get("contractNo"),req.getContractNo());
+				Predicate a1 = cb.equal( pms.get("contractNo"),new BigDecimal(req.getContractNo()));
 				Predicate a2 = cb.equal( pms.get("baseLayer"),req.getContractNo());
 				Predicate a3 = cb.or(a1,a2);
 				deptId.where(a3);
@@ -6013,8 +6013,9 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 					amend.where(a1);
 
 					Expression<String> e1 = m.get("amendId");
+					Predicate n1 = cb.equal(m.get("proposalNo"), req.getProposalNo());
 					Predicate n2 = e1.in(amend==null?null:amend);
-					update.where(n2);
+					update.where(n1,n2);
 					em.createQuery(update).executeUpdate();
 					
 					response.setMessage("Success");

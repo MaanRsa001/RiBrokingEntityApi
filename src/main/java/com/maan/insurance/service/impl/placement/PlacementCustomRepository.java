@@ -91,6 +91,8 @@ public interface PlacementCustomRepository {
 
 	void updateRiplacementStatus(UpdateRiplacementReq req);
 
+	String getStatusNo(String proposal, String branchCode, String reinsurerId, String brokerId);
+
 	
 }
 

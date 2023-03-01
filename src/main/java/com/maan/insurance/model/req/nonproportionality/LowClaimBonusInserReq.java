@@ -3,9 +3,6 @@ package com.maan.insurance.model.req.nonproportionality;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.maan.insurance.model.res.nonproportionality.GetLowClaimBonusListRes;
-import com.maan.insurance.model.res.nonproportionality.GetLowClaimBonusListRes1;
-
 import lombok.Data;
 
 @Data

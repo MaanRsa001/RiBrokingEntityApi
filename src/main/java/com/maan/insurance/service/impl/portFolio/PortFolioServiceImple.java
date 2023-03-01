@@ -1372,9 +1372,10 @@ public class PortFolioServiceImple implements PortFolioService{
 	      		statusNo.where(g3,g1,g2);
 	      		Predicate f1 = cb.equal( a.get("proposalNo"), ri.get("proposalNo"));
 	      		Predicate f2 = cb.equal( ri.get("status"), "CSL");
+	      		Predicate f4 = cb.equal( ri.get("approverStatus"), "A");
 	      		Expression<String> e1 = ri.get("statusNo");
  	      		Predicate f3 = e1.in(statusNo);
-	      		prop.where(f3,f1,f2);
+	      		prop.where(f3,f1,f2,f4);
 	      		
 	      		List<Predicate> predicateList = new ArrayList<Predicate>();
 	      		//predicateList.add(cb.equal(e.get("rskDeptid"), b.get("tmasDepartmentId")));

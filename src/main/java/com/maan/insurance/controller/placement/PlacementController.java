@@ -275,7 +275,7 @@ Gson gson = new Gson();
 		}
 		return serv.getApprovalPendingList(req,"PWL");
 		}  
-	@PostMapping("/updateRiplacement")
+	@PostMapping("/updateApproverStatus")
 	public CommonResponse updateRiplacement(@RequestBody UpdateRiplacementReq req) throws CommonValidationException {
 		List<ErrorCheck> error= val.updateRiplacementVali(req);
 		if(error!=null && error.size()>0) {

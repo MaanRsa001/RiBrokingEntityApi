@@ -79,7 +79,8 @@ public class SubStatusMaster implements Serializable {
 	    @Column(name="EMAIL_YN")
 	    private String emailYN ;
 	    //--- ENTITY LINKS ( RELATIONSHIP )
-
+	    @Column(name="DISPLAY_ORDER", nullable=false)
+	    private BigDecimal displayOrder ;
 
 	}
 

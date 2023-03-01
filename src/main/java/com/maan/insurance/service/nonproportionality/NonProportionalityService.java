@@ -98,7 +98,7 @@ public interface NonProportionalityService {
 
 	GetLowClaimBonusListRes getLowClaimBonusList(String proposalNo, String branchCode, String acqBonus, String referenceNo);
 
-	CommonResponse lowClaimBonusInser(LowClaimBonusInserReq req);
+	CommonSaveRes lowClaimBonusInser(LowClaimBonusInserReq req);
 
 	GetInclusionExListRes getInclusionExList(String proposalNo, String branchCode);
 

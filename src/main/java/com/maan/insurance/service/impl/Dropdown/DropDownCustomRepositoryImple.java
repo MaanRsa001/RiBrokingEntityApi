@@ -479,11 +479,12 @@ public class DropDownCustomRepositoryImple implements DropDownCustomRepository{
 			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
 			Root<SubStatusMaster> pm = query.from(SubStatusMaster.class);
 			
-			query.multiselect(pm.get("subStatusCode").alias("sub_status_code"),
+			query.multiselect(pm.get("displayOrder"),pm.get("subStatusCode").alias("sub_status_code"),
 					pm.get("subStatusName").alias("sub_status_name")).distinct(true);						
-			
+			List<Order> orderList = new ArrayList<Order>();
+			orderList.add(cb.asc(pm.get("displayOrder")));
 			Predicate n1 = cb.equal(pm.get("approvelYN"), "Y");
-			query.where(n1);
+			query.where(n1).orderBy(orderList);
 		
 			TypedQuery<Tuple> res1 = em.createQuery(query);
 		

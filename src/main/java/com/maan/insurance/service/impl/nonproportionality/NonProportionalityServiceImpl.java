@@ -11,6 +11,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -3258,7 +3259,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 				 ttrnRipRepository.deleteByProposalNoAndBranchCode(proposalNo,branchCode);
 			}else if(StringUtils.isBlank(proposalNo)) {
 				//REINSTATEMENT_MAIN_DELETE
-				if(!"0".equals(referenceNo))
+				if(StringUtils.isNotBlank(referenceNo) && !"0".equals(referenceNo))
 				 ttrnRipRepository.deleteByReferenceNoAndBranchCode(new BigDecimal(referenceNo),branchCode);
 			}
 			else{
@@ -3319,8 +3320,9 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 
 
 	@Override
-	public CommonResponse lowClaimBonusInser(LowClaimBonusInserReq bean) {
-		CommonResponse response = new CommonResponse();
+	@Transactional
+	public CommonSaveRes lowClaimBonusInser(LowClaimBonusInserReq bean) {
+		CommonSaveRes response = new CommonSaveRes();
 		try{
 			if(StringUtils.isBlank(bean.getEndorsmentNo())){
 				//GET_AMEND_ID
@@ -3333,14 +3335,13 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 	        	   bean.setEndorsmentNo("0");
 	           }
 			}
-	      //  deleteMaintable(bean);
-			 if(StringUtils.isBlank(bean.getProposalNo()) && StringUtils.isBlank(bean.getReferenceNo())) {
+	        deleteMaintable(bean);
+			 if(StringUtils.isBlank(bean.getProposalNo()) && (StringUtils.isBlank(bean.getReferenceNo())|| "0".equals(bean.getReferenceNo()))) {
 		        	String referenceNo="";
 		        
 		        	List<Map<String, Object>> list  = queryImpl.selectSingle("SELECT  REFERENCENO_SEQ.NEXTVAL REFERENCENO FROM DUAL",new String[]{});
 		        	if (!CollectionUtils.isEmpty(list)) {
-		        		referenceNo = list.get(0).get("REFERENCENO") == null ? ""
-		        				: list.get(0).get("REFERENCENO").toString();
+		        		referenceNo = list.get(0).get("REFERENCENO") == null ? "": list.get(0).get("REFERENCENO").toString();
 		        	}
 		        	bean.setReferenceNo(referenceNo);
 		        }
@@ -3375,19 +3376,83 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			           TtrnBonus insert = nonProportCustomRepository.bonusMainInsert(args);
 			           if(insert!=null) {
 			        	   ttrnBonusRepository.saveAndFlush(insert);
-			        	   }
+			           }
 				}
-					}
-						 response.setMessage("Success");
-				   			response.setIsError(false);
-				   			}catch(Exception e){
-				   				e.printStackTrace();
-				   				response.setMessage("Failed");
-				   				response.setIsError(true);
-				   			}
-				   		return response;
+			}
+			response.setResponse(bean.getReferenceNo());
+			response.setMessage("Success");
+	   		response.setIsError(false);
+   			}catch(Exception e){
+   				e.printStackTrace();
+   				response.setMessage("Failed");
+   				response.setIsError(true);
+   			}
+	   		return response;
 	}
 
+	@Transactional
+	private void deleteMaintable(LowClaimBonusInserReq bean) {
+		String arg[]=null;
+		try{
+			CriteriaBuilder cb = em.getCriteriaBuilder();
+			CriteriaDelete<TtrnBonus> delete = cb.createCriteriaDelete(TtrnBonus.class);
+			Root<TtrnBonus> rp = delete.from(TtrnBonus.class);
+			
+			if("".equalsIgnoreCase(bean.getEndorsmentNo())){
+				//BONUS_MAIN_DELETE
+				 arg = new String[4];
+				 arg[0] = bean.getProposalNo();
+				 arg[1] = bean.getBranchCode();
+				 arg[2] ="LCB";
+		         arg[3]=StringUtils.isEmpty(bean.getLayerNo()) ? "0" : bean.getLayerNo();
+				  	
+				  	Predicate n1 = cb.equal(rp.get("proposalNo"), arg[0]);
+					Predicate n3 = cb.equal(rp.get("branch"), arg[1]);
+					Predicate n4 = cb.equal(rp.get("type"), arg[2]);
+					Predicate n5 = cb.equal(rp.get("layerNo"), arg[3]);
+					delete.where(n1,n3,n4,n5);
+					em.createQuery(delete).executeUpdate();
+					
+			}else if(StringUtils.isBlank(bean.getProposalNo())) {
+				//BONUS_MAIN_DELETE3
+				 arg = new String[4];
+				 arg[0] = bean.getReferenceNo();
+				 arg[1] = bean.getBranchCode();
+				 arg[2] ="LCB";
+				 arg[3]=StringUtils.isEmpty(bean.getLayerNo()) ? "0" : bean.getLayerNo();
+				  
+				  	Predicate n1 = cb.equal(rp.get("referenceNo"), arg[0]);
+					Predicate n3 = cb.equal(rp.get("branch"), arg[1]);
+					Predicate n4 = cb.equal(rp.get("type"), arg[2]);
+					Predicate n5 = cb.equal(rp.get("layerNo"), arg[3]);
+					Predicate n6 = cb.or(cb.isNull(rp.get("proposalNo")),cb.equal(rp.get("proposalNo"), 0));
+					delete.where(n1,n3,n4,n5,n6);
+					em.createQuery(delete).executeUpdate();
+					
+			}	else{
+			 //BONUS_MAIN_DELETE2
+			 arg = new String[5];
+			 arg[0] = bean.getProposalNo();
+			 arg[1] = bean.getEndorsmentNo();
+			 arg[2] = bean.getBranchCode();
+			 arg[3] ="LCB";
+			  arg[4]=StringUtils.isEmpty(bean.getLayerNo()) ? "0" : bean.getLayerNo();
+				
+				//Where
+				Predicate n1 = cb.equal(rp.get("proposalNo"), arg[0]);
+				Predicate n2 = cb.equal(rp.get("endorsementNo"), arg[1]);
+				Predicate n3 = cb.equal(rp.get("branch"), arg[2]);
+				Predicate n4 = cb.equal(rp.get("type"), arg[3]);
+				Predicate n5 = cb.equal(rp.get("layerNo"), arg[4]);
+				delete.where(n1,n2,n3,n4,n5);
+				em.createQuery(delete).executeUpdate();
+
+			}
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}
+	}
 
 	@Override
 	public GetInclusionExListRes getInclusionExList(String proposalNo, String branchCode) {
@@ -4629,7 +4694,7 @@ public void MoveReinstatementEmptyData(ReInstatementMainInsertReq bean) {
 	if(StringUtils.isBlank(bean.getAmendId())){
 		bean.setAmendId("0");
 	}
-	if(StringUtils.isBlank(bean.getProposalNo()) && StringUtils.isBlank(bean.getReferenceNo())) { //ri
+	if(StringUtils.isBlank(bean.getProposalNo()) && (StringUtils.isBlank(bean.getReferenceNo()) || "0".equals(bean.getReferenceNo()))) { //ri
     	String referenceNo="";
     	
     	List<Map<String, Object>> list  = queryImpl.selectSingle("SELECT  REFERENCENO_SEQ.NEXTVAL REFERENCENO FROM DUAL",new String[]{}); //dual
@@ -4796,7 +4861,7 @@ public void insetNOClaimBonusMainTable(InsertBonusDetailsReq bean) {
 			}
 		}
 		deleteMainTable(bean.getProposalNo(),bean.getAmendId(),bean.getBranchCode(),bean.getReferenceNo());
-		if(StringUtils.isBlank(bean.getProposalNo()) && StringUtils.isBlank(bean.getReferenceNo())) {
+		if(StringUtils.isBlank(bean.getProposalNo()) && (StringUtils.isBlank(bean.getReferenceNo()) || "0".equals(bean.getReferenceNo()))) {
         	String referenceNo="";
         	String query="GET_REFERENCE_NO_SEQ";  //ri
         	
