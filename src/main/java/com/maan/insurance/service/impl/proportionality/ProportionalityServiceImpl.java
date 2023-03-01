@@ -2529,7 +2529,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 					beanObj.setOurEstimate(resMap.get("RSK_EPI_ESTIMATE")==null?"":resMap.get("RSK_EPI_ESTIMATE").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_EPI_ESTIMATE").toString()==null?"":resMap.get("RSK_EPI_ESTIMATE").toString());
 				}
 				if(beanObj.getProductId().equalsIgnoreCase("2")){
-					beanObj.setEpi(resMap.get("RSK_EPI_EST_OC")==null?"":resMap.get("RSK_EPI_EST_OC").toString().equalsIgnoreCase("0") ? "0": resMap.get("RSK_EPI_EST_OC").toString()==null?"":resMap.get("RSK_EPI_EST_OC").toString());
+					beanObj.setEpi(resMap.get("RSK_EPI_EST_OC")==null?"":resMap.get("RSK_EPI_EST_OC").toString().equalsIgnoreCase("0") ? "0.00":resMap.get("RSK_EPI_EST_OC").toString()==null?"":fm.formatter(resMap.get("RSK_EPI_EST_OC").toString()));
 				}
 				beanObj.setXlCost(resMap.get("RSK_XLCOST_OC")==null?"":resMap.get("RSK_XLCOST_OC").toString().equalsIgnoreCase("0") ? "0": resMap.get("RSK_XLCOST_OC").toString()==null?"":resMap.get("RSK_XLCOST_OC").toString());
 				if(beanObj.getProductId().equalsIgnoreCase("2")){
@@ -2561,7 +2561,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 				beanObj.setMaxLimitProduct(resMap.get("RSK_MAX_LMT_COVER")==null?"":resMap.get("RSK_MAX_LMT_COVER").toString()==null ? "0" : resMap.get("RSK_MAX_LMT_COVER").toString()==null?"":resMap.get("RSK_MAX_LMT_COVER").toString());
 				beanObj.setRenewalcontractNo(resMap.get("OLD_CONTRACTNO")==null?"":resMap.get("OLD_CONTRACTNO").toString());
 				beanObj.setBaseLoginId(resMap.get("LOGIN_ID")==null?"":resMap.get("LOGIN_ID").toString());
-				beanObj.setTreatyLimitsurplusOC(resMap.get("RSK_TREATY_SURP_LIMIT_OC")==null?"":resMap.get("RSK_TREATY_SURP_LIMIT_OC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_TREATY_SURP_LIMIT_OC").toString()==null?"":resMap.get("RSK_TREATY_SURP_LIMIT_OC").toString());
+				beanObj.setTreatyLimitsurplusOC(resMap.get("RSK_TREATY_SURP_LIMIT_OC")==null?"":fm.formatter(resMap.get("RSK_TREATY_SURP_LIMIT_OC").toString()).equalsIgnoreCase("0") ? "0" : resMap.get("RSK_TREATY_SURP_LIMIT_OC").toString()==null?"":fm.formatter(resMap.get("RSK_TREATY_SURP_LIMIT_OC").toString()));
 				beanObj.setInwardType(resMap.get("INWARD_BUS_TYPE")==null?"":resMap.get("INWARD_BUS_TYPE").toString());
 				beanObj.setTreatyType(resMap.get("TREATYTYPE")==null?"":resMap.get("TREATYTYPE").toString());
 				beanObj.setLOCIssued(resMap.get("RSK_LOC_ISSUED")==null?"":resMap.get("RSK_LOC_ISSUED").toString());
@@ -2572,10 +2572,10 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 				beanObj.setLocBeneficerName(resMap.get("RSK_LOC_BENFCRE_NAME")==null?"":resMap.get("RSK_LOC_BENFCRE_NAME").toString());
 				beanObj.setRetentionYN(resMap.get("RETENTIONYN")==null?"":resMap.get("RETENTIONYN").toString());
 				if( beanObj.getTreatyType().equalsIgnoreCase("4") ||  beanObj.getTreatyType().equalsIgnoreCase("5") ){
-					beanObj.setFaclimitOrigCur(fm.formatter(resMap.get("RSK_LIMIT_OC")==null?"0":resMap.get("RSK_LIMIT_OC").toString()));
+					beanObj.setFaclimitOrigCur(resMap.get("RSK_LIMIT_OC")==null?"0.00":fm.formatter(resMap.get("RSK_LIMIT_OC").toString()));
 				}
-				else{
-				beanObj.setLimitOrigCur(resMap.get("RSK_LIMIT_OC")==null?"0":resMap.get("RSK_LIMIT_OC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_LIMIT_OC").toString()==null?"":resMap.get("RSK_LIMIT_OC").toString());
+				else{//
+				beanObj.setLimitOrigCur(resMap.get("RSK_LIMIT_OC")==null?"0.00":fm.formatter(resMap.get("RSK_LIMIT_OC").toString()).equalsIgnoreCase("0") ? "0" : resMap.get("RSK_LIMIT_OC").toString()==null?"":fm.formatter(resMap.get("RSK_LIMIT_OC").toString()));
 				}
 			
 			if(StringUtils.isNotBlank(beanObj.getContractNo())&&!"0".equals(beanObj.getContractNo())){
@@ -2837,46 +2837,46 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 			if (resMap != null) {
 				if (resMap.get("RSK_LIMIT_OS_OC") != null) {
 					res.setLimitOurShare(resMap.get("RSK_LIMIT_OS_OC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_LIMIT_OS_OC").toString());
-					res.setLimitOSViewOC(fm.formatter(resMap.get("RSK_LIMIT_OS_OC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_LIMIT_OS_OC").toString()));
+					res.setLimitOSViewOC(resMap.get("RSK_LIMIT_OS_OC").toString().equalsIgnoreCase("0") ? "0.00" : fm.formatter(resMap.get("RSK_LIMIT_OS_OC").toString()));
 				}
 				if (resMap.get("RSK_EPI_OSOF_OC") != null) {
 					res.setEpiAsPerOffer(resMap.get("RSK_EPI_OSOF_OC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_EPI_OSOF_OC").toString());
-					res.setEpiOSViewOC(fm.formatter(resMap.get("RSK_EPI_OSOF_OC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_EPI_OSOF_OC").toString()));
+					res.setEpiOSViewOC(resMap.get("RSK_EPI_OSOF_OC").toString().equalsIgnoreCase("0") ? "0.00" : fm.formatter(resMap.get("RSK_EPI_OSOF_OC").toString()));
 				}
 				if (resMap.get("RSK_EPI_OSOE_OC") != null) {
 					res.setEpiAsPerShare(resMap.get("RSK_EPI_OSOE_OC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_EPI_OSOE_OC").toString());
-					res.setEpiOSOEViewOC(fm.formatter(resMap.get("RSK_EPI_OSOE_OC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_EPI_OSOE_OC").toString()));
+					res.setEpiOSOEViewOC(resMap.get("RSK_EPI_OSOE_OC").toString().equalsIgnoreCase("0") ? "0.00" : fm.formatter(resMap.get("RSK_EPI_OSOE_OC").toString()));
 				}
 				if (resMap.get("RSK_XLCOST_OS_OC") != null) {
 					res.setXlcostOurShare(resMap.get("RSK_XLCOST_OS_OC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_XLCOST_OS_OC").toString());
-					res.setXlCostViewOC(fm.formatter(resMap.get("RSK_XLCOST_OS_OC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_XLCOST_OS_OC").toString()));
+					res.setXlCostViewOC(resMap.get("RSK_XLCOST_OS_OC").toString().equalsIgnoreCase("0") ? "0.00" : fm.formatter(resMap.get("RSK_XLCOST_OS_OC").toString()));
 				}
 				if (resMap.get("RSK_LIMIT_OS_DC") != null) {
-					res.setLimitOSViewDC(fm.formatter(resMap.get("RSK_LIMIT_OS_DC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_LIMIT_OS_DC").toString()));
+					res.setLimitOSViewDC(resMap.get("RSK_LIMIT_OS_DC").toString().equalsIgnoreCase("0") ? "0.00" : fm.formatter(resMap.get("RSK_LIMIT_OS_DC").toString()));
 				}
 				if (resMap.get("RSK_EPI_OSOF_DC") != null) {
-					res.setEpiOSViewDC(fm.formatter(resMap.get("RSK_EPI_OSOF_DC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_EPI_OSOF_DC").toString()));
+					res.setEpiOSViewDC(resMap.get("RSK_EPI_OSOF_DC").toString().equalsIgnoreCase("0") ? "0.00" : fm.formatter(resMap.get("RSK_EPI_OSOF_DC").toString()));
 				}
 				if (resMap.get("RSK_EPI_OSOE_DC") != null) {
-					res.setEpiOSOEViewDC(fm.formatter(resMap.get("RSK_EPI_OSOE_DC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_EPI_OSOE_DC").toString()));
+					res.setEpiOSOEViewDC(resMap.get("RSK_EPI_OSOE_DC").toString().equalsIgnoreCase("0") ? "0.00" : fm.formatter(resMap.get("RSK_EPI_OSOE_DC").toString()));
 				}
 				if (resMap.get("RSK_XLCOST_OS_DC") != null) {
-					res.setXlCostViewDC(fm.formatter(resMap.get("RSK_XLCOST_OS_DC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_XLCOST_OS_DC").toString()));
+					res.setXlCostViewDC(resMap.get("RSK_XLCOST_OS_DC").toString().equalsIgnoreCase("0") ? "0.00" : fm.formatter(resMap.get("RSK_XLCOST_OS_DC").toString()));
 				}
 				if (resMap.get("RSK_COMM_QUOTASHARE") != null) {
-					res.setCommissionQS(resMap.get("RSK_COMM_QUOTASHARE").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_COMM_QUOTASHARE").toString());
+					res.setCommissionQS(resMap.get("RSK_COMM_QUOTASHARE").toString().equalsIgnoreCase("0") ? "0.00000000" :fm.formattereight(resMap.get("RSK_COMM_QUOTASHARE").toString()));
 				}
 				if (resMap.get("RSK_COMM_SURPLUS") != null) {
-					res.setCommissionsurp(resMap.get("RSK_COMM_SURPLUS").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_COMM_SURPLUS").toString());
+					res.setCommissionsurp(resMap.get("RSK_COMM_SURPLUS").toString().equalsIgnoreCase("0") ? "0.00000000" :fm.formattereight(resMap.get("RSK_COMM_SURPLUS").toString()));
 				}
 				if (resMap.get("RSK_OVERRIDER_PERC") != null) {
-					res.setOverRidder(resMap.get("RSK_OVERRIDER_PERC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_OVERRIDER_PERC").toString());
+					res.setOverRidder(resMap.get("RSK_OVERRIDER_PERC").toString().equalsIgnoreCase("0") ? "0.00000000" : fm.formattereight(resMap.get("RSK_OVERRIDER_PERC").toString()));
 				}
 				if (resMap.get("RSK_BROKERAGE") != null) {
-					res.setBrokerage(resMap.get("RSK_BROKERAGE").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_BROKERAGE").toString());
+					res.setBrokerage(resMap.get("RSK_BROKERAGE").toString().equalsIgnoreCase("0") ? "0.00000000" : fm.formattereight(resMap.get("RSK_BROKERAGE").toString()));
 				}
 				if (resMap.get("RSK_TAX") != null) {
-					res.setTax(resMap.get("RSK_TAX").toString().equalsIgnoreCase("0") ? "0": resMap.get("RSK_TAX").toString());
+					res.setTax(resMap.get("RSK_TAX").toString().equalsIgnoreCase("0") ? "0.00000000": fm.formattereight(resMap.get("RSK_TAX").toString()));
 				}
 				if (resMap.get("RSK_ACQUISTION_COST_OC") != null) {
 					res.setAcquisitionCost(resMap.get("RSK_ACQUISTION_COST_OC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_ACQUISTION_COST_OC").toString());
@@ -2886,37 +2886,37 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 				}
 				
 				if (resMap.get("RSK_PREMIUM_RESERVE") != null) {
-					res.setPremiumReserve(resMap.get("RSK_PREMIUM_RESERVE").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_PREMIUM_RESERVE").toString());
+					res.setPremiumReserve(resMap.get("RSK_PREMIUM_RESERVE").toString().equalsIgnoreCase("0") ? "0.00000000": fm.formattereight(resMap.get("RSK_PREMIUM_RESERVE").toString()));
 				}
 				if (resMap.get("RSK_LOSS_RESERVE") != null) {
-					res.setLossreserve(resMap.get("RSK_LOSS_RESERVE").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_LOSS_RESERVE").toString());
+					res.setLossreserve(resMap.get("RSK_LOSS_RESERVE").toString().equalsIgnoreCase("0") ? "0.00000000": fm.formattereight(resMap.get("RSK_LOSS_RESERVE").toString()));
 				}
 				if (resMap.get("RSK_INTEREST") != null) {
-					res.setInterest(resMap.get("RSK_INTEREST").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_INTEREST").toString());
+					res.setInterest(resMap.get("RSK_INTEREST").toString().equalsIgnoreCase("0") ? "0.00000000": fm.formattereight(resMap.get("RSK_INTEREST").toString()));
 				}
 				if (resMap.get("RSK_CASHLOSS_LMT_OC") != null) {
-					res.setCashLossLimit(resMap.get("RSK_CASHLOSS_LMT_OC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_CASHLOSS_LMT_OC").toString());
+					res.setCashLossLimit(resMap.get("RSK_CASHLOSS_LMT_OC").toString().equalsIgnoreCase("0") ? "0.00" : fm.formatter(resMap.get("RSK_CASHLOSS_LMT_OC").toString()));
 				}
 				if (resMap.get("RSK_PF_INOUT_PREM") != null) {
-					res.setPortfolioinoutPremium(resMap.get("RSK_PF_INOUT_PREM").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_PF_INOUT_PREM").toString());
+					res.setPortfolioinoutPremium(resMap.get("RSK_PF_INOUT_PREM").toString().equalsIgnoreCase("0") ?"0.00000000": fm.formattereight(resMap.get("RSK_PF_INOUT_PREM").toString()));
 				}
 				if (resMap.get("RSK_PF_INOUT_LOSS") != null) {
-					res.setPortfolioinoutLoss(resMap.get("RSK_PF_INOUT_LOSS").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_PF_INOUT_LOSS").toString());
+					res.setPortfolioinoutLoss(resMap.get("RSK_PF_INOUT_LOSS").toString().equalsIgnoreCase("0") ?"0.00000000": fm.formattereight(resMap.get("RSK_PF_INOUT_LOSS").toString()));
 				}
 				if (resMap.get("RSK_LOSSADVICE") != null) {
-					res.setLossAdvise(resMap.get("RSK_LOSSADVICE").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_LOSSADVICE").toString());
+					res.setLossAdvise(resMap.get("RSK_LOSSADVICE").toString().equalsIgnoreCase("0") ? "0.00" : fm.formatter(resMap.get("RSK_LOSSADVICE").toString()));
 				}
 				if (resMap.get("RSK_LEAD_UW") != null) {
 					res.setLeaderUnderwriter(resMap.get("RSK_LEAD_UW").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_LEAD_UW").toString());
 				}
 				if (resMap.get("RSK_LEAD_UW_SHARE") != null) {
-					res.setLeaderUnderwritershare(resMap.get("RSK_LEAD_UW_SHARE").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_LEAD_UW_SHARE").toString());
+					res.setLeaderUnderwritershare(resMap.get("RSK_LEAD_UW_SHARE").toString().equalsIgnoreCase("0") ? "0.00000000" :fm.formattereight(resMap.get("RSK_LEAD_UW_SHARE").toString()));
 				}
 				res.setAccounts(resMap.get("RSK_ACCOUNTS")==null?"":resMap.get("RSK_ACCOUNTS").toString());
 				res.setCrestaStatus(resMap.get("RSK_CREASTA_STATUS")==null?"":resMap.get("RSK_CREASTA_STATUS").toString());
-				res.setEventlimit(resMap.get("RSK_EVENT_LIMIT_OC")==null?"0":resMap.get("RSK_EVENT_LIMIT_OC").toString());
-				res.setAggregateLimit(resMap.get("RSK_AGGREGATE_LIMIT_OC")==null?"0":resMap.get("RSK_AGGREGATE_LIMIT_OC").toString());
-				res.setOccurrentLimit(resMap.get("RSK_OCCURRENT_LIMIT_OC")==null?"0":resMap.get("RSK_OCCURRENT_LIMIT_OC").toString());
+				res.setEventlimit(resMap.get("RSK_EVENT_LIMIT_OC")==null?"0.00":fm.formatter(resMap.get("RSK_EVENT_LIMIT_OC").toString()));
+				res.setAggregateLimit(resMap.get("RSK_AGGREGATE_LIMIT_OC")==null?"0.00":fm.formatter(resMap.get("RSK_AGGREGATE_LIMIT_OC").toString()));
+				res.setOccurrentLimit(resMap.get("RSK_OCCURRENT_LIMIT_OC")==null?"0.00":fm.formatter(resMap.get("RSK_OCCURRENT_LIMIT_OC").toString()));
 				res.setExclusion(resMap.get("RSK_EXCLUSION")==null?"":resMap.get("RSK_EXCLUSION").toString());
 				res.setRemarks(resMap.get("RSK_REMARKS")==null?"":resMap.get("RSK_REMARKS").toString());
 				res.setUnderwriterRecommendations(resMap.get("RSK_UW_RECOMM")==null?"":resMap.get("RSK_UW_RECOMM").toString());
@@ -2933,7 +2933,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 				res.setLosscommissionSubClass(resMap.get("RSK_LOSS_COMBIN_SUB_CLASS")==null?"":resMap.get("RSK_LOSS_COMBIN_SUB_CLASS").toString());
 				res.setSlidecommissionSubClass(resMap.get("RSK_SLIDE_COMBIN_SUB_CLASS")==null?"":resMap.get("RSK_SLIDE_COMBIN_SUB_CLASS").toString());
 				res.setCrestacommissionSubClass(resMap.get("RSK_CRESTA_COMBIN_SUB_CLASS")==null?"":resMap.get("RSK_CRESTA_COMBIN_SUB_CLASS").toString());
-				res.setManagementExpenses(resMap.get("RSK_PRO_MANAGEMENT_EXP")==null?"":resMap.get("RSK_PRO_MANAGEMENT_EXP").toString());
+				res.setManagementExpenses(resMap.get("RSK_PRO_MANAGEMENT_EXP")==null?"":fm.formattereight(resMap.get("RSK_PRO_MANAGEMENT_EXP").toString()));
 				res.setCommissionType(resMap.get("RSK_PRO_COMM_TYPE")==null?"":resMap.get("RSK_PRO_COMM_TYPE").toString());
 				res.setProfitCommissionPer(resMap.get("RSK_PRO_COMM_PER")==null?"":dropDowmImpl.formatterpercentage(resMap.get("RSK_PRO_COMM_PER").toString()));
 				res.setSetup(resMap.get("RSK_PRO_SET_UP")==null?"":resMap.get("RSK_PRO_SET_UP").toString());
@@ -2955,7 +2955,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 				res.setPcfixedDate(resMap.get("FPC_FIXED_DATE")==null?"":DateFormat(resMap.get("FPC_FIXED_DATE")).toString()); //Ri
 				
 				if (resMap.get("RSK_OTHER_COST") != null) {
-					res.setOthercost(resMap.get("RSK_OTHER_COST").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_OTHER_COST").toString());
+					res.setOthercost(resMap.get("RSK_OTHER_COST").toString().equalsIgnoreCase("0") ? "0.00000000" :fm.formattereight(resMap.get("RSK_OTHER_COST").toString()));
 				}else{
 					res.setOthercost("0");
 				}
@@ -3376,8 +3376,8 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 				if(res!=null && list.size()>0)
 					resMap = list.get(0);
 				if(resMap!=null){
-					res.setBrokerage(resMap.get("RSK_BROKERAGE")==null?"":resMap.get("RSK_BROKERAGE").toString());
-					res.setTax(resMap.get("RSK_TAX")==null?"":resMap.get("RSK_TAX").toString());
+					res.setBrokerage(resMap.get("RSK_BROKERAGE")==null?"":fm.formattereight(resMap.get("RSK_BROKERAGE").toString()));
+					res.setTax(resMap.get("RSK_TAX")==null?"":fm.formattereight(resMap.get("RSK_TAX").toString()));
 				}
 			}
 			response.setCommonResponse(res);
@@ -3782,8 +3782,8 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 		               GetScaleCommissionListRes1 res = new GetScaleCommissionListRes1();
 		               res.setBonusSno(tempMap.get("LCB_ID")==null?"":tempMap.get("LCB_ID").toString());
 		               res.setBonusFrom(tempMap.get("LCB_FROM")==null?"":fm.formattereight(tempMap.get("LCB_FROM").toString()));
-		               res.setBonusTo(tempMap.get("LCB_TO")==null?"":fm.formatter(tempMap.get("LCB_TO").toString()));
-		               res.setBonusLowClaimBonus(tempMap.get("LCB_PERCENTAGE")==null?"":fm.formatter(tempMap.get("LCB_PERCENTAGE").toString()));
+		               res.setBonusTo(tempMap.get("LCB_TO")==null?"":fm.formattereight(tempMap.get("LCB_TO").toString()));
+		               res.setBonusLowClaimBonus(tempMap.get("LCB_PERCENTAGE")==null?"":fm.formattereight(tempMap.get("LCB_PERCENTAGE").toString()));
 			           res.setScaleMaxPartPercent(tempMap.get("SCALE_MAX_PART_PERCENT")==null?"":dropDowmImpl.formatter(tempMap.get("SCALE_MAX_PART_PERCENT").toString()));
 		               if(!"scale".equalsIgnoreCase(req.getPageFor())){
 		               res.setBonusTypeId(tempMap.get("LCB_TYPE")==null?"":tempMap.get("LCB_TYPE").toString());
@@ -4013,7 +4013,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 				secViewDataMap = result1.get(0);
 			if (secViewDataMap != null) {
 				if( res.getTreatyType().equalsIgnoreCase("4") ||  res.getTreatyType().equalsIgnoreCase("5") ){
-					res.setFaclimitOrigCur(secViewDataMap.get("RSK_LIMIT_OC")==null?"0":fm.formatter(secViewDataMap.get("RSK_LIMIT_OC").toString()));
+					res.setFaclimitOrigCur(secViewDataMap.get("RSK_LIMIT_OC")==null?"0.00":fm.formatter(secViewDataMap.get("RSK_LIMIT_OC").toString()));
 					res.setFacLimitOrigCurDc(secViewDataMap.get("RSK_LIMIT_DC")==null?"":fm.formatter(secViewDataMap.get("RSK_LIMIT_DC").toString()));
 					res.setLimitOrigCur("0.00");
 					res.setLimitOrigCurDc("0.00");
@@ -4021,7 +4021,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 				else{
 					res.setFaclimitOrigCur("0.00");
 					res.setFacLimitOrigCurDc("0.00");
-					res.setLimitOrigCur(secViewDataMap.get("RSK_LIMIT_OC")==null?"0":fm.formatter(secViewDataMap.get("RSK_LIMIT_OC").toString()));
+					res.setLimitOrigCur(secViewDataMap.get("RSK_LIMIT_OC")==null?"0.00":fm.formatter(secViewDataMap.get("RSK_LIMIT_OC").toString()));
 					res.setLimitOrigCurDc(secViewDataMap.get("RSK_LIMIT_DC")==null?"":fm.formatter(secViewDataMap.get("RSK_LIMIT_DC").toString()));
 				}
 				res.setEpiorigCur(secViewDataMap.get("RSK_EPI_OFFER_OC")==null?"":fm.formatter(secViewDataMap.get("RSK_EPI_OFFER_OC").toString()));
@@ -4059,7 +4059,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 				res.setMdpremiumourserviceDc(secViewDataMap.get("RSK_MD_PREM_OS_DC")==null?"":fm.formatter(secViewDataMap.get("RSK_MD_PREM_OS_DC").toString()));
 				res.setSpRetro(secViewDataMap.get("RSK_SP_RETRO")==null?"0":secViewDataMap.get("RSK_SP_RETRO").toString());
 				res.setNoInsurer(secViewDataMap.get("RSK_NO_OF_INSURERS")==null?"0":secViewDataMap.get("RSK_NO_OF_INSURERS").toString());
-				res.setMaxLimitProduct(secViewDataMap.get("RSK_MAX_LMT_COVER")==null?"0":fm.formatter(secViewDataMap.get("RSK_MAX_LMT_COVER").toString()));
+				res.setMaxLimitProduct(secViewDataMap.get("RSK_MAX_LMT_COVER")==null?"0.00":fm.formatter(secViewDataMap.get("RSK_MAX_LMT_COVER").toString()));
 				res.setCedRetenType(secViewDataMap.get("CEDRET_TYPE")==null?"0":secViewDataMap.get("CEDRET_TYPE").toString());
 				res.setTreatyLimitsurplusOC(secViewDataMap.get("RSK_TREATY_SURP_LIMIT_OC")==null?"":fm.formatter(secViewDataMap.get("RSK_TREATY_SURP_LIMIT_OC").toString()));
 				res.setTreatyLimitsurplusDC(secViewDataMap.get("RSK_TREATY_SURP_LIMIT_DC")==null?"":fm.formatter(secViewDataMap.get("RSK_TREATY_SURP_LIMIT_DC").toString()));
@@ -4114,7 +4114,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 				thirdViewDataMap = (Map<String, Object>)res3.get(0);
 			if (thirdViewDataMap != null) {
 				for (int k = 0; k < res3.size(); k++) {
-					res.setBrokerage(thirdViewDataMap.get("RSK_BROKERAGE")==null?"":thirdViewDataMap.get("RSK_BROKERAGE").toString());
+					res.setBrokerage(thirdViewDataMap.get("RSK_BROKERAGE")==null?"":fm.formattereight(thirdViewDataMap.get("RSK_BROKERAGE").toString()));
 					res.setTax(thirdViewDataMap.get("RSK_TAX")==null?"":dropDowmImpl.formattereight(thirdViewDataMap.get("RSK_TAX").toString())); //Ri
 					res.setShareProfitCommission(thirdViewDataMap.get("RSK_PROFIT_COMM")==null?"":thirdViewDataMap.get("RSK_PROFIT_COMM").toString());
 					
@@ -4132,15 +4132,15 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 					res.setAcquisitionCostDc(thirdViewDataMap.get("RSK_ACQUISTION_COST_DC")==null?"":thirdViewDataMap.get("RSK_ACQUISTION_COST_DC").toString());
 					res.setAcquisitionCostOSOC(getShareVal(res.getAcquisitionCost().replaceAll(",", ""),req.getSharSign(),"share"));
 					res.setAcquisitionCostOSDC(fm.formatter(getDesginationCountry(res.getAcquisitionCostOSOC().replaceAll(",",""),res.getExchRate()).toString()));
-					res.setCommissionQS(thirdViewDataMap.get("RSK_COMM_QUOTASHARE")==null?"":dropDowmImpl.formattereight(thirdViewDataMap.get("RSK_COMM_QUOTASHARE").toString()));
-					res.setCommissionsurp(thirdViewDataMap.get("RSK_COMM_SURPLUS")==null?"":dropDowmImpl.formattereight(thirdViewDataMap.get("RSK_COMM_SURPLUS").toString()));
+					res.setCommissionQS(thirdViewDataMap.get("RSK_COMM_QUOTASHARE")==null?"":fm.formattereight(thirdViewDataMap.get("RSK_COMM_QUOTASHARE").toString()));
+					res.setCommissionsurp(thirdViewDataMap.get("RSK_COMM_SURPLUS")==null?"":fm.formattereight(thirdViewDataMap.get("RSK_COMM_SURPLUS").toString()));
 					res.setOverRidder(thirdViewDataMap.get("RSK_OVERRIDER_PERC")==null?"":dropDowmImpl.formattereight(thirdViewDataMap.get("RSK_OVERRIDER_PERC").toString()));
 					
-					res.setPremiumReserve(thirdViewDataMap.get("RSK_PREMIUM_RESERVE")==null?"":dropDowmImpl.formattereight(thirdViewDataMap.get("RSK_PREMIUM_RESERVE").toString()));
-					res.setLossreserve(thirdViewDataMap.get("RSK_LOSS_RESERVE")==null?"":dropDowmImpl.formattereight(thirdViewDataMap.get("RSK_LOSS_RESERVE").toString()));
-					res.setInterest(thirdViewDataMap.get("RSK_INTEREST")==null?"":dropDowmImpl.formattereight(thirdViewDataMap.get("RSK_INTEREST").toString()));
-					res.setPortfolioinoutPremium(thirdViewDataMap.get("RSK_PF_INOUT_PREM")==null?"":dropDowmImpl.formattereight(thirdViewDataMap.get("RSK_PF_INOUT_PREM").toString()));
-					res.setPortfolioinoutLoss(thirdViewDataMap.get("RSK_PF_INOUT_LOSS")==null?"":dropDowmImpl.formattereight(thirdViewDataMap.get("RSK_PF_INOUT_LOSS").toString()));
+					res.setPremiumReserve(thirdViewDataMap.get("RSK_PREMIUM_RESERVE")==null?"":fm.formattereight(thirdViewDataMap.get("RSK_PREMIUM_RESERVE").toString()));
+					res.setLossreserve(thirdViewDataMap.get("RSK_LOSS_RESERVE")==null?"":fm.formattereight(thirdViewDataMap.get("RSK_LOSS_RESERVE").toString()));
+					res.setInterest(thirdViewDataMap.get("RSK_INTEREST")==null?"":fm.formattereight(thirdViewDataMap.get("RSK_INTEREST").toString()));
+					res.setPortfolioinoutPremium(thirdViewDataMap.get("RSK_PF_INOUT_PREM")==null?"":fm.formattereight(thirdViewDataMap.get("RSK_PF_INOUT_PREM").toString()));
+					res.setPortfolioinoutLoss(thirdViewDataMap.get("RSK_PF_INOUT_LOSS")==null?"":fm.formattereight(thirdViewDataMap.get("RSK_PF_INOUT_LOSS").toString()));
 					res.setLossAdvise(thirdViewDataMap.get("RSK_LOSSADVICE")==null?"":fm.formatter(thirdViewDataMap.get("RSK_LOSSADVICE").toString()));
 					res.setLossAdviseDc(thirdViewDataMap.get("RSK_LOSSADVICE_DC")==null?"":fm.formatter(thirdViewDataMap.get("RSK_LOSSADVICE_DC").toString()));
 					res.setLossAdviseOSOC(getShareVal(res.getLossAdvise().replaceAll(",", ""),res.getSharSign(),"share"));
@@ -4162,7 +4162,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 						
 						res.setLeaderUnderwriter(getUGUWName(req.getBranchCode(),res.getLeaderUnderwriter()));
 					}
-					res.setLeaderUnderwritershare(thirdViewDataMap.get("RSK_LEAD_UW_SHARE")==null?"":dropDowmImpl.formatterpercentage(thirdViewDataMap.get("RSK_LEAD_UW_SHARE").toString()));
+					res.setLeaderUnderwritershare(thirdViewDataMap.get("RSK_LEAD_UW_SHARE")==null?"":fm.formattereight(thirdViewDataMap.get("RSK_LEAD_UW_SHARE").toString()));
 					res.setAccounts(thirdViewDataMap.get("RSK_ACCOUNTS")==null?"":thirdViewDataMap.get("RSK_ACCOUNTS").toString());
 					res.setExclusion(thirdViewDataMap.get("RSK_EXCLUSION")==null?"":thirdViewDataMap.get("RSK_EXCLUSION").toString());
 					res.setRemarks(thirdViewDataMap.get("RSK_REMARKS")==null?"":thirdViewDataMap.get("RSK_REMARKS").toString());
@@ -4182,27 +4182,27 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 				}
 					res.setReinstAditionalPremiumpercentDc(thirdViewDataMap.get("RSK_REINSTATE_ADDL_PREM_PCT")==null?"":fm.formatter(thirdViewDataMap.get("RSK_REINSTATE_ADDL_PREM_PCT").toString()));
 					res.setBurningCost(thirdViewDataMap.get("RSK_BURNING_COST_PCT")==null?"":fm.formatter(thirdViewDataMap.get("RSK_BURNING_COST_PCT").toString()));
-					res.setBrokerage(thirdViewDataMap.get("RSK_BROKERAGE")==null?"":dropDowmImpl.formattereight(thirdViewDataMap.get("RSK_BROKERAGE").toString()));
-					res.setLimitPerVesselOC(thirdViewDataMap.get("LIMIT_PER_VESSEL_OC")==null?"0":fm.formatter(thirdViewDataMap.get("LIMIT_PER_VESSEL_OC").toString()));
+					res.setBrokerage(thirdViewDataMap.get("RSK_BROKERAGE")==null?"":fm.formattereight(thirdViewDataMap.get("RSK_BROKERAGE").toString()));
+					res.setLimitPerVesselOC(thirdViewDataMap.get("LIMIT_PER_VESSEL_OC")==null?"0.00":fm.formatter(thirdViewDataMap.get("LIMIT_PER_VESSEL_OC").toString()));
 					res.setLimitPerVesselDC(thirdViewDataMap.get("LIMIT_PER_VESSEL_DC")==null?"":fm.formatter(thirdViewDataMap.get("LIMIT_PER_VESSEL_DC").toString()));
 					res.setLimitPerVesselOSOC(getShareVal(res.getLimitPerVesselOC().replaceAll(",", ""),res.getSharSign(),"share"));
 					res.setLimitPerVesselOSDC(fm.formatter(getDesginationCountry(res.getLimitPerVesselOSOC().replaceAll(",",""),res.getExchRate()).toString()));
 					
-					res.setLimitPerLocationOC(thirdViewDataMap.get("LIMIT_PER_LOCATION_OC")==null?"0":fm.formatter(thirdViewDataMap.get("LIMIT_PER_LOCATION_OC").toString()));
+					res.setLimitPerLocationOC(thirdViewDataMap.get("LIMIT_PER_LOCATION_OC")==null?"0.00":fm.formatter(thirdViewDataMap.get("LIMIT_PER_LOCATION_OC").toString()));
 					res.setLimitPerLocationDC(thirdViewDataMap.get("LIMIT_PER_LOCATION_DC")==null?"":fm.formatter(thirdViewDataMap.get("LIMIT_PER_LOCATION_DC").toString()));
 					res.setLimitPerLocationOSOC(getShareVal(res.getLimitPerLocationOC().replaceAll(",", ""),res.getSharSign(),"share"));
 					res.setLimitPerLocationOSDC(fm.formatter(getDesginationCountry(res.getLimitPerLocationOSOC().replaceAll(",",""),res.getExchRate()).toString()));
 					res.setEndorsementDate(thirdViewDataMap.get("ENDT_DATE")==null?"":thirdViewDataMap.get("ENDT_DATE").toString());
-					res.setEventlimit(thirdViewDataMap.get("RSK_EVENT_LIMIT_OC")==null?"0":fm.formatter(thirdViewDataMap.get("RSK_EVENT_LIMIT_OC").toString()));
-					res.setEventlimitDC(thirdViewDataMap.get("RSK_EVENT_LIMIT_DC")==null?"0":fm.formatter(thirdViewDataMap.get("RSK_EVENT_LIMIT_DC").toString()));
+					res.setEventlimit(thirdViewDataMap.get("RSK_EVENT_LIMIT_OC")==null?"0.00":fm.formatter(thirdViewDataMap.get("RSK_EVENT_LIMIT_OC").toString()));
+					res.setEventlimitDC(thirdViewDataMap.get("RSK_EVENT_LIMIT_DC")==null?"0.00":fm.formatter(thirdViewDataMap.get("RSK_EVENT_LIMIT_DC").toString()));
 					res.setEventlimitOSOC(getShareVal(res.getEventlimit().replaceAll(",", ""),res.getSharSign(),"share"));
 					res.setEventlimitOSDC(fm.formatter(getDesginationCountry(res.getEventlimitOSOC().replaceAll(",",""),res.getExchRate()).toString()));
-					res.setAggregateLimit(thirdViewDataMap.get("RSK_AGGREGATE_LIMIT_OC")==null?"0":fm.formatter(thirdViewDataMap.get("RSK_AGGREGATE_LIMIT_OC").toString()));
-					res.setAggregateLimitDC(thirdViewDataMap.get("RSK_AGGREGATE_LIMIT_DC")==null?"0":fm.formatter(thirdViewDataMap.get("RSK_AGGREGATE_LIMIT_DC").toString()));
+					res.setAggregateLimit(thirdViewDataMap.get("RSK_AGGREGATE_LIMIT_OC")==null?"0.00":fm.formatter(thirdViewDataMap.get("RSK_AGGREGATE_LIMIT_OC").toString()));
+					res.setAggregateLimitDC(thirdViewDataMap.get("RSK_AGGREGATE_LIMIT_DC")==null?"0.00":fm.formatter(thirdViewDataMap.get("RSK_AGGREGATE_LIMIT_DC").toString()));
 					res.setAggregateLimitOSOC(getShareVal(res.getAggregateLimit().replaceAll(",", ""),res.getSharSign(),"share"));
 					res.setAggregateLimitOSDC(fm.formatter(getDesginationCountry(res.getAggregateLimitOSOC().replaceAll(",",""),res.getExchRate()).toString()));
-					res.setOccurrentLimit(thirdViewDataMap.get("RSK_OCCURRENT_LIMIT_OC")==null?"0":fm.formatter(thirdViewDataMap.get("RSK_OCCURRENT_LIMIT_OC").toString()));
-					res.setOccurrentLimitDC(thirdViewDataMap.get("RSK_OCCURRENT_LIMIT_DC")==null?"0":fm.formatter(thirdViewDataMap.get("RSK_OCCURRENT_LIMIT_DC").toString()));
+					res.setOccurrentLimit(thirdViewDataMap.get("RSK_OCCURRENT_LIMIT_OC")==null?"0.00":fm.formatter(thirdViewDataMap.get("RSK_OCCURRENT_LIMIT_OC").toString()));
+					res.setOccurrentLimitDC(thirdViewDataMap.get("RSK_OCCURRENT_LIMIT_DC")==null?"0.00":fm.formatter(thirdViewDataMap.get("RSK_OCCURRENT_LIMIT_DC").toString()));
 					res.setOccurrentLimitOSOC(getShareVal(res.getOccurrentLimit().replaceAll(",", ""),res.getSharSign(),"share"));
 					res.setOccurrentLimitOSDC(fm.formatter(getDesginationCountry(res.getOccurrentLimitOSOC().replaceAll(",",""),res.getExchRate()).toString()));
 					
@@ -4217,7 +4217,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 					res.setLosscommissionSubClass(thirdViewDataMap.get("RSK_LOSS_COMBIN_SUB_CLASS")==null?"":thirdViewDataMap.get("RSK_LOSS_COMBIN_SUB_CLASS").toString());
 					res.setSlidecommissionSubClass(thirdViewDataMap.get("RSK_SLIDE_COMBIN_SUB_CLASS")==null?"":thirdViewDataMap.get("RSK_SLIDE_COMBIN_SUB_CLASS").toString());
 					res.setCrestacommissionSubClass(thirdViewDataMap.get("RSK_CRESTA_COMBIN_SUB_CLASS")==null?"":thirdViewDataMap.get("RSK_CRESTA_COMBIN_SUB_CLASS").toString());
-					res.setManagementExpenses(thirdViewDataMap.get("RSK_PRO_MANAGEMENT_EXP")==null?"":thirdViewDataMap.get("RSK_PRO_MANAGEMENT_EXP").toString());
+					res.setManagementExpenses(thirdViewDataMap.get("RSK_PRO_MANAGEMENT_EXP")==null?"":fm.formattereight(thirdViewDataMap.get("RSK_PRO_MANAGEMENT_EXP").toString()));
 					res.setCommissionType(thirdViewDataMap.get("RSK_PRO_COMM_TYPE")==null?"":thirdViewDataMap.get("RSK_PRO_COMM_TYPE").toString());
 					res.setProfitCommissionPer(thirdViewDataMap.get("RSK_PRO_COMM_PER")==null?"":dropDowmImpl.formattereight(thirdViewDataMap.get("RSK_PRO_COMM_PER").toString()));
 					res.setSetup(thirdViewDataMap.get("RSK_PRO_SET_UP")==null?"":thirdViewDataMap.get("RSK_PRO_SET_UP").toString());
@@ -4593,7 +4593,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 				for(int i=0;i<result.size();i++){
 	               Map<String,Object> tempMap = result.get(i);
 	               resset.setProfitSno(tempMap.get("S_NO")==null?"":tempMap.get("S_NO").toString());
-	               resset.setManagementExpenses(tempMap.get("MANAGEMENT_EXPENSES")==null?"":tempMap.get("MANAGEMENT_EXPENSES").toString());
+	               resset.setManagementExpenses(tempMap.get("MANAGEMENT_EXPENSES")==null?"":fm.formattereight(tempMap.get("MANAGEMENT_EXPENSES").toString()));
 	               resset.setLossCF(tempMap.get("LOSS")==null?"":tempMap.get("LOSS").toString());
 	               resset.setFistpc(tempMap.get("FIRST_PROFIT_COM_AFTER")==null?"":tempMap.get("FIRST_PROFIT_COM_AFTER").toString());
 	               resset.setProfitMont(tempMap.get("PROFIT_MONTHS")==null?"":tempMap.get("PROFIT_MONTHS").toString());
@@ -5610,11 +5610,11 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 		for(int i=0;i<result.size();i++){
 		      Tuple tempMap = result.get(i);
 		       GetSlidingScaleMethodInfoRes1 bean = new GetSlidingScaleMethodInfoRes1();
-		       bean.setProvisionCom(tempMap.get("PROVISIONAL_COMMISIION")==null?"":tempMap.get("PROVISIONAL_COMMISIION").toString());
+		       bean.setProvisionCom(tempMap.get("PROVISIONAL_COMMISIION")==null?"":fm.formattereight(tempMap.get("PROVISIONAL_COMMISIION").toString()));
                bean.setScalementhod(tempMap.get("SC_METHOD_TYPE")==null?"":tempMap.get("SC_METHOD_TYPE").toString());
-               bean.setScaleminRatio(tempMap.get("SC_MIN_LOSS_RATIO")==null?"":tempMap.get("SC_MIN_LOSS_RATIO").toString());
-               bean.setScalemaxRatio(tempMap.get("SC_MAX_LOSS_RATIO")==null?"":tempMap.get("SC_MAX_LOSS_RATIO").toString());
-               bean.setScalecombine(tempMap.get("SC_COMBINE_LOSS_RATIO")==null?"":tempMap.get("SC_COMBINE_LOSS_RATIO").toString());
+               bean.setScaleminRatio(tempMap.get("SC_MIN_LOSS_RATIO")==null?"":fm.formattereight(tempMap.get("SC_MIN_LOSS_RATIO").toString()));
+               bean.setScalemaxRatio(tempMap.get("SC_MAX_LOSS_RATIO")==null?"":fm.formattereight(tempMap.get("SC_MAX_LOSS_RATIO").toString()));
+               bean.setScalecombine(tempMap.get("SC_COMBINE_LOSS_RATIO")==null?"":fm.formattereight(tempMap.get("SC_COMBINE_LOSS_RATIO").toString()));
                bean.setScalebanding(tempMap.get("SC_BANDING_STEP")==null?"":tempMap.get("SC_BANDING_STEP").toString());
                bean.setScaledigit(tempMap.get("SC_NO_OF_DIGIT")==null?"":tempMap.get("SC_NO_OF_DIGIT").toString());
                bean.setScalelossratioFrom(tempMap.get("LCB_FROM")==null?"":tempMap.get("LCB_FROM").toString());

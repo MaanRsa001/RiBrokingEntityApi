@@ -349,8 +349,8 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 				if(list!=null && list.size()>0) {
 					Tuple	resMap = list.get(0);
 				if(resMap!=null){
-					res.setBrokerage(resMap.get("RSK_BROKERAGE")==null?"":resMap.get("RSK_BROKERAGE").toString());
-					res.setTax(resMap.get("RSK_TAX")==null?"":resMap.get("RSK_TAX").toString());
+					res.setBrokerage(resMap.get("RSK_BROKERAGE")==null?"":fm.formattereight(resMap.get("RSK_BROKERAGE").toString()));
+					res.setTax(resMap.get("RSK_TAX")==null?"":fm.formattereight(resMap.get("RSK_TAX").toString()));
 				}
 			} }
 			response.setCommonResponse(res);
@@ -1570,8 +1570,8 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			if(res1!=null && res1.size()>0)
 				secViewDataMap = res1.get(0);
 			if (secViewDataMap != null) {
-				res.setLimitOrigCur(fm.formatter(secViewDataMap.get("RSK_LIMIT_OC")==null?"":secViewDataMap.get("RSK_LIMIT_OC").toString()));
-				res.setLimitOrigCurDc(fm.formatter(secViewDataMap.get("RSK_LIMIT_DC")==null?"":secViewDataMap.get("RSK_LIMIT_DC").toString()));
+				res.setLimitOrigCur(secViewDataMap.get("RSK_LIMIT_OC")==null?"":fm.formatter(secViewDataMap.get("RSK_LIMIT_OC").toString()));
+				res.setLimitOrigCurDc(secViewDataMap.get("RSK_LIMIT_DC")==null?"":fm.formatter(secViewDataMap.get("RSK_LIMIT_DC").toString()));
 				res.setEpiorigCur(secViewDataMap.get("RSK_EPI_OFFER_OC")==null?"":fm.formatter(secViewDataMap.get("RSK_EPI_OFFER_OC").toString()));
 				res.setEpiorigCurDc(secViewDataMap.get("RSK_EPI_OFFER_DC")==null?"":fm.formatter(secViewDataMap.get("RSK_EPI_OFFER_DC").toString()));
 				res.setOurEstimate(secViewDataMap.get("RSK_EPI_ESTIMATE")==null?"":secViewDataMap.get("RSK_EPI_ESTIMATE").toString());
@@ -1622,7 +1622,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 				res.setMdpremiumourserviceDc(secViewDataMap.get("RSK_MD_PREM_OS_DC")==null?"":fm.formatter(secViewDataMap.get("RSK_MD_PREM_OS_DC").toString()));
 				res.setSpRetro(secViewDataMap.get("RSK_SP_RETRO")==null?"0":secViewDataMap.get("RSK_SP_RETRO").toString());
 				res.setNoInsurer(secViewDataMap.get("RSK_NO_OF_INSURERS")==null?"0":secViewDataMap.get("RSK_NO_OF_INSURERS").toString());
-				res.setMaxLimitProduct(secViewDataMap.get("RSK_MAX_LMT_COVER")==null?"0":fm.formatter(secViewDataMap.get("RSK_MAX_LMT_COVER").toString()));
+				res.setMaxLimitProduct(secViewDataMap.get("RSK_MAX_LMT_COVER")==null?"0.00":fm.formatter(secViewDataMap.get("RSK_MAX_LMT_COVER").toString()));
 				res.setCedRetenType(secViewDataMap.get("CEDRET_TYPE")==null?"0":secViewDataMap.get("CEDRET_TYPE").toString());
 				res.setOurAssessment(secViewDataMap.get("OURASSESSMENT")==null?"0":secViewDataMap.get("OURASSESSMENT").toString());
 				res.setEgnpiOffer(secViewDataMap.get("EGPNI_AS_OFFER")==null?"":fm.formatter(secViewDataMap.get("EGPNI_AS_OFFER").toString()));
@@ -1692,8 +1692,8 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 				thirdViewDataMap = (Map<String, Object>)res3.get(0);
 			if (thirdViewDataMap != null) {
 				for (int k = 0; k < res3.size(); k++) {
-					res.setBrokerage(thirdViewDataMap.get("RSK_BROKERAGE")==null?"":thirdViewDataMap.get("RSK_BROKERAGE").toString());
-					res.setTax(thirdViewDataMap.get("RSK_TAX")==null?"":dropDowmImpl.formatterpercentage(thirdViewDataMap.get("RSK_TAX").toString()));
+					res.setBrokerage(thirdViewDataMap.get("RSK_BROKERAGE")==null?"":fm.formattereight(thirdViewDataMap.get("RSK_BROKERAGE").toString()));
+					res.setTax(thirdViewDataMap.get("RSK_TAX")==null?"":fm.formattereight(thirdViewDataMap.get("RSK_TAX").toString()));
 					if (thirdViewDataMap.get("RSK_PROFIT_COMM") != null) {
 						if (thirdViewDataMap.get("RSK_PROFIT_COMM").toString().equalsIgnoreCase("1")) {
 							res.setShareProfitCommission("YES");
@@ -1743,13 +1743,13 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 						res.setLeaderUnderwriter("ITI Reinsurance Ltd");	
 					}
 					res.setLeaderUnderwritercountry(thirdViewDataMap.get("RSK_LEAD_UNDERWRITER_COUNTRY")==null?"":thirdViewDataMap.get("RSK_LEAD_UNDERWRITER_COUNTRY").toString());
-					res.setLeaderUnderwritershare(thirdViewDataMap.get("RSK_LEAD_UW_SHARE")==null?"":dropDowmImpl.formatterpercentage(thirdViewDataMap.get("RSK_LEAD_UW_SHARE").toString()));					res.setAccounts(thirdViewDataMap.get("RSK_ACCOUNTS")==null?"":thirdViewDataMap.get("RSK_ACCOUNTS").toString());
+					res.setLeaderUnderwritershare(thirdViewDataMap.get("RSK_LEAD_UW_SHARE")==null?"":fm.formattereight(thirdViewDataMap.get("RSK_LEAD_UW_SHARE").toString()));					res.setAccounts(thirdViewDataMap.get("RSK_ACCOUNTS")==null?"":thirdViewDataMap.get("RSK_ACCOUNTS").toString());
 					res.setExclusion(thirdViewDataMap.get("RSK_EXCLUSION")==null?"":thirdViewDataMap.get("RSK_EXCLUSION").toString());
 					res.setRemarks(thirdViewDataMap.get("RSK_REMARKS")==null?"":thirdViewDataMap.get("RSK_REMARKS").toString());
 					res.setUnderwriterRecommendations(thirdViewDataMap.get("RSK_UW_RECOMM")==null?"":thirdViewDataMap.get("RSK_UW_RECOMM").toString());
 					res.setGmsApproval(thirdViewDataMap.get("RSK_GM_APPROVAL")==null?"":thirdViewDataMap.get("RSK_GM_APPROVAL").toString());
 					res.setDecision(thirdViewDataMap.get("RSK_DECISION")==null?"":thirdViewDataMap.get("RSK_DECISION").toString()); 
-					res.setOthercost(thirdViewDataMap.get("RSK_OTHER_COST")==null?"":dropDowmImpl.formatterpercentage(thirdViewDataMap.get("RSK_OTHER_COST").toString()));
+					res.setOthercost(thirdViewDataMap.get("RSK_OTHER_COST")==null?"":fm.formattereight(thirdViewDataMap.get("RSK_OTHER_COST").toString()));
 					res.setReinstAdditionalPremium(thirdViewDataMap.get("RSK_REINSTATE_ADDL_PREM_PCT")==null?"":fm.formatter(thirdViewDataMap.get("RSK_REINSTATE_ADDL_PREM_PCT").toString()));
 					res.setBurningCost(thirdViewDataMap.get("RSK_BURNING_COST_PCT")==null?"":fm.formatter(thirdViewDataMap.get("RSK_BURNING_COST_PCT").toString()));
 					res.setCommissionQSAmt(thirdViewDataMap.get("COMM_QS_AMT")==null?"":fm.formatter(thirdViewDataMap.get("COMM_QS_AMT").toString()));
@@ -1758,7 +1758,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 					res.setProfitCommission(thirdViewDataMap.get("RSK_SHARE_PROFIT_COMMISSION")==null?"":thirdViewDataMap.get("RSK_SHARE_PROFIT_COMMISSION").toString());
 					res.setReinstAditionalPremiumpercent(thirdViewDataMap.get("RSK_REINSTATE_ADDL_PREM_OC")==null?"":fm.formatter(thirdViewDataMap.get("RSK_REINSTATE_ADDL_PREM_OC").toString()));
 					res.setBurningCost(thirdViewDataMap.get("RSK_BURNING_COST_PCT")==null?"":fm.formatter(thirdViewDataMap.get("RSK_BURNING_COST_PCT").toString()));
-					res.setBrokerage((thirdViewDataMap.get("RSK_BROKERAGE")==null?"":thirdViewDataMap.get("RSK_BROKERAGE").toString()));
+					res.setBrokerage((thirdViewDataMap.get("RSK_BROKERAGE")==null?"":fm.formattereight(thirdViewDataMap.get("RSK_BROKERAGE").toString())));
 					res.setLimitPerVesselOC(thirdViewDataMap.get("LIMIT_PER_VESSEL_OC")==null?"":fm.formatter(thirdViewDataMap.get("LIMIT_PER_VESSEL_OC").toString()));
 					res.setLimitPerVesselDC(thirdViewDataMap.get("LIMIT_PER_VESSEL_DC")==null?"":fm.formatter(thirdViewDataMap.get("LIMIT_PER_VESSEL_DC").toString()));
 					res.setLimitPerVesselOSOC(getShareVal(res.getLimitPerVesselOC().replaceAll(",", ""),res.getSharSign(),"share"));
@@ -1902,7 +1902,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 					beanObj.setLimitOrigCur(resMap.get("RSK_LIMIT_OC").toString().equalsIgnoreCase("0") ? "0": resMap.get("RSK_LIMIT_OC").toString());
 				}
 				if (resMap.get("RSK_EPI_EST_OC") != null) {
-					beanObj.setEpi(resMap.get("RSK_EPI_EST_OC").toString().equalsIgnoreCase("0") ? "0": resMap.get("RSK_EPI_EST_OC").toString());
+					beanObj.setEpi(resMap.get("RSK_EPI_EST_OC").toString().equalsIgnoreCase("0") ? "0.00":fm.formatter(resMap.get("RSK_EPI_EST_OC").toString()));
 				}
 				if (resMap.get("RSK_SHARE_WRITTEN") != null) {
 					beanObj.setShareWritten(resMap.get("RSK_SHARE_WRITTEN").toString().equalsIgnoreCase("0") ? "0": resMap.get("RSK_SHARE_WRITTEN").toString());
@@ -1914,7 +1914,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 					beanObj.setMaxLimitProduct(resMap.get("RSK_MAX_LMT_COVER").toString().equalsIgnoreCase("0") ? "0": resMap.get("RSK_MAX_LMT_COVER").toString());
 				}
 				if (resMap.get("RSK_SUBJ_PREMIUM_OC") != null) {
-					beanObj.setSubPremium(resMap.get("RSK_SUBJ_PREMIUM_OC").toString().equalsIgnoreCase("0") ? "0": resMap.get("RSK_SUBJ_PREMIUM_OC").toString());
+					beanObj.setSubPremium(resMap.get("RSK_SUBJ_PREMIUM_OC").toString().equalsIgnoreCase("0") ? "0.00":fm.formatter(resMap.get("RSK_SUBJ_PREMIUM_OC").toString()));
 				}
 				if (resMap.get("RSK_XLPREM_OC") != null) {
 					beanObj.setXlPremium(resMap.get("RSK_XLPREM_OC").toString().equalsIgnoreCase("0") ? "0": resMap.get("RSK_XLPREM_OC").toString());
@@ -1923,10 +1923,10 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 					beanObj.setDeduchunPercent(resMap.get("RSK_DEDUC_OC").toString().equalsIgnoreCase("0") ? "0": resMap.get("RSK_DEDUC_OC").toString());
 				}
 				if (resMap.get("RSK_MD_PREM_OC") != null) {
-					beanObj.setMdPremium(resMap.get("RSK_MD_PREM_OC").toString().equalsIgnoreCase("0") ? "0": resMap.get("RSK_MD_PREM_OC").toString());
+					beanObj.setMdPremium(resMap.get("RSK_MD_PREM_OC").toString().equalsIgnoreCase("0") ? "0.00":fm.formatter(resMap.get("RSK_MD_PREM_OC").toString()));
 				}
 				if (resMap.get("RSK_ADJRATE") != null) {
-					beanObj.setAdjRate(resMap.get("RSK_ADJRATE").toString().equalsIgnoreCase("0") ? "0": resMap.get("RSK_ADJRATE").toString());
+					beanObj.setAdjRate(resMap.get("RSK_ADJRATE").toString().equalsIgnoreCase("0") ? "0.00000000": fm.formattereight(resMap.get("RSK_ADJRATE").toString()));
 				}
 				if (resMap.get("RSK_PF_COVERED") != null) {
 					beanObj.setPortfoloCovered(resMap.get("RSK_PF_COVERED").toString().equalsIgnoreCase("0") ? "0": resMap.get("RSK_PF_COVERED").toString());
@@ -1959,7 +1959,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 					beanObj.setMinimumRate(resMap.get("RSK_MINIMUM_RATE")==null ? "" : resMap.get("RSK_MINIMUM_RATE").toString());
 					beanObj.setMaximumRate(resMap.get("RSK_MAXIIMUM_RATE")==null ? "" : resMap.get("RSK_MAXIIMUM_RATE").toString());
 					beanObj.setBurningCostLF(resMap.get("RSK_BURNING_COST_LF")==null ? "" : resMap.get("RSK_BURNING_COST_LF").toString());
-					beanObj.setMinPremium((resMap.get("RSK_MINIMUM_PREMIUM_OC")==null ||"0".equals(resMap.get("RSK_MINIMUM_PREMIUM_OC"))?"":resMap.get("RSK_MINIMUM_PREMIUM_OC").toString()));
+					beanObj.setMinPremium((resMap.get("RSK_MINIMUM_PREMIUM_OC")==null ||"0".equals(resMap.get("RSK_MINIMUM_PREMIUM_OC"))?"":fm.formatter(resMap.get("RSK_MINIMUM_PREMIUM_OC").toString())));
 					beanObj.setPaymentDuedays(resMap.get("RSK_PAYMENT_DUE_DAYS")==null ? "" : resMap.get("RSK_PAYMENT_DUE_DAYS").toString());
 					beanObj.setCountryIncludedList(resMap.get("COUNTRIES_INCLUDE")==null ? "" : resMap.get("COUNTRIES_INCLUDE").toString());
 					beanObj.setCountryExcludedList(resMap.get("COUNTRIES_EXCLUDE")==null ? "" : resMap.get("COUNTRIES_EXCLUDE").toString());
@@ -1972,7 +1972,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 				beanObj.setRenewalcontractNo(resMap.get("OLD_CONTRACTNO")==null?"":resMap.get("OLD_CONTRACTNO").toString());
 				beanObj.setBaseLoginId(resMap.get("LOGIN_ID")==null?"":resMap.get("LOGIN_ID").toString());
 				beanObj.setPaymentPartner(resMap.get("PAYMENT_PARTNER")==null?"":resMap.get("PAYMENT_PARTNER").toString());
-				beanObj.setRateOnLine(resMap.get("RATE_ON_LINE")==null?"":fm.formatterfour(resMap.get("RATE_ON_LINE").toString()));
+				beanObj.setRateOnLine(resMap.get("RATE_ON_LINE")==null?"":fm.formattereight(resMap.get("RATE_ON_LINE").toString()));
 				beanObj.setRiskdetailYN(resMap.get("RISK_DET_YN")==null?"N":resMap.get("RISK_DET_YN").toString());
 				beanObj.setBrokerdetYN(resMap.get("BROKER_DET_YN")==null?"N":resMap.get("BROKER_DET_YN").toString());
 				beanObj.setPremiumdetailYN(resMap.get("PREMIUM_DET_YN")==null?"N":resMap.get("PREMIUM_DET_YN").toString());
@@ -3538,23 +3538,23 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 				
 							if (resMap.get("RSK_LIMIT_OS_OC") != null) {
 								res.setLimitOurShare(resMap.get("RSK_LIMIT_OS_OC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_LIMIT_OS_OC").toString());
-								res.setLimitOSViewOC(fm.formatter(resMap.get("RSK_LIMIT_OS_OC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_LIMIT_OS_OC").toString()));
+								res.setLimitOSViewOC(resMap.get("RSK_LIMIT_OS_OC").toString().equalsIgnoreCase("0") ? "0.00" : fm.formatter(resMap.get("RSK_LIMIT_OS_OC").toString()));
 							}
 							if (resMap.get("RSK_LIMIT_OS_DC") != null) {
-								res.setLimitOSViewDC(fm.formatter(resMap.get("RSK_LIMIT_OS_DC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_LIMIT_OS_DC").toString()));
+								res.setLimitOSViewDC(resMap.get("RSK_LIMIT_OS_DC").toString().equalsIgnoreCase("0") ? "0.00" : fm.formatter(resMap.get("RSK_LIMIT_OS_DC").toString()));
 							}
 							if (resMap.get("RSK_EPI_OSOF_OC") != null) {
 								res.setEpiAsPerOffer(resMap.get("RSK_EPI_OSOF_OC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_EPI_OSOF_OC").toString());
-								res.setEpiOSViewOC(fm.formatter(resMap.get("RSK_EPI_OSOF_OC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_EPI_OSOF_OC").toString()));
+								res.setEpiOSViewOC(resMap.get("RSK_EPI_OSOF_OC").toString().equalsIgnoreCase("0") ? "0.00" : fm.formatter(resMap.get("RSK_EPI_OSOF_OC").toString()));
 							}
 							if (resMap.get("RSK_EPI_OSOF_DC") != null) {
-								res.setEpiOSViewDC(fm.formatter(resMap.get("RSK_EPI_OSOF_DC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_EPI_OSOF_DC").toString()));
+								res.setEpiOSViewDC(resMap.get("RSK_EPI_OSOF_DC").toString().equalsIgnoreCase("0") ? "0.00" : fm.formatter(resMap.get("RSK_EPI_OSOF_DC").toString()));
 							}
 							if (resMap.get("RSK_BROKERAGE") != null) {
-								res.setBrokerage(resMap.get("RSK_BROKERAGE").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_BROKERAGE").toString());
+								res.setBrokerage(resMap.get("RSK_BROKERAGE").toString().equalsIgnoreCase("0") ? "0.00000000" : fm.formattereight(resMap.get("RSK_BROKERAGE").toString()));
 							}
 							if (resMap.get("RSK_TAX") != null) {
-								res.setTax(resMap.get("RSK_TAX").toString().equalsIgnoreCase("0") ? "0"	: resMap.get("RSK_TAX").toString());
+								res.setTax(resMap.get("RSK_TAX").toString().equalsIgnoreCase("0") ? "0.00000000"	: fm.formattereight(resMap.get("RSK_TAX").toString()));
 							}
 							if (resMap.get("RSK_ACQUISTION_COST_OC") != null) {
 								res.setAcquisitionCost(resMap.get("RSK_ACQUISTION_COST_OC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_ACQUISTION_COST_OC").toString());
@@ -3564,14 +3564,14 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 							}
 							if (resMap.get("RSK_MD_PREM_OS_OC") != null) {
 								res.setMdpremiumourservice(resMap.get("RSK_MD_PREM_OS_OC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_MD_PREM_OS_OC").toString());
-								res.setMandDpreViewOC(fm.formatter(resMap.get("RSK_MD_PREM_OS_OC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_MD_PREM_OS_OC").toString()));
+								res.setMandDpreViewOC(resMap.get("RSK_MD_PREM_OS_OC").toString().equalsIgnoreCase("0") ? "0.00" : fm.formatter(resMap.get("RSK_MD_PREM_OS_OC").toString()));
 							}
 							if (resMap.get("RSK_MD_PREM_OS_DC") != null) {
-								res.setMandDpreViewDC(fm.formatter(resMap.get("RSK_MD_PREM_OS_DC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_MD_PREM_OS_DC").toString()));
+								res.setMandDpreViewDC(resMap.get("RSK_MD_PREM_OS_DC").toString().equalsIgnoreCase("0") ? "0.00" : fm.formatter(resMap.get("RSK_MD_PREM_OS_DC").toString()));
 							}
 							if(StringUtils.isBlank(req.getAnualAggregateLiability())  ) {
 								if (resMap.get("RSK_AGGREGATE_LIAB_OC") != null) {
-									res.setAnualAggregateLiability(resMap.get("RSK_AGGREGATE_LIAB_OC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_AGGREGATE_LIAB_OC").toString());
+									res.setAnualAggregateLiability(resMap.get("RSK_AGGREGATE_LIAB_OC").toString().equalsIgnoreCase("0") ? "0.00" : fm.formatter(resMap.get("RSK_AGGREGATE_LIAB_OC").toString()));
 								}
 							}
 							if (resMap.get("RSK_REINSTATE_NO") != null) {
@@ -3584,7 +3584,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 								res.setLeaderUnderwriter(resMap.get("RSK_LEAD_UW")==null ? "0" : resMap.get("RSK_LEAD_UW").toString());
 							}
 							if (resMap.get("RSK_LEAD_UW_SHARE") != null) {
-								res.setLeaderUnderwritershare(resMap.get("RSK_LEAD_UW_SHARE")==null ? "0" : resMap.get("RSK_LEAD_UW_SHARE").toString());
+								res.setLeaderUnderwritershare(resMap.get("RSK_LEAD_UW_SHARE")==null ? "0.00000000" :fm.formattereight(resMap.get("RSK_LEAD_UW_SHARE").toString()));
 							}
 							if (resMap.get("RSK_ACCOUNTS") != null) {
 								res.setAccounts(resMap.get("RSK_ACCOUNTS").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_ACCOUNTS").toString());
@@ -3597,7 +3597,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 							res.setUnderwriterRecommendations(resMap.get("RSK_UW_RECOMM")==null?"":resMap.get("RSK_UW_RECOMM").toString());
 							res.setGmsApproval(resMap.get("RSK_GM_APPROVAL")==null?"":resMap.get("RSK_GM_APPROVAL").toString());
 							if (resMap.get("RSK_OTHER_COST") != null) {
-								res.setOthercost(resMap.get("RSK_OTHER_COST").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_OTHER_COST").toString());
+								res.setOthercost(resMap.get("RSK_OTHER_COST").toString().equalsIgnoreCase("0") ? "0.00000000" : fm.formattereight(resMap.get("RSK_OTHER_COST").toString()));
 							}
 							if (resMap.get("RSK_REINSTATE_ADDL_PREM_PCT") != null) {
 								res.setReinstAditionalPremiumpercent(resMap.get("RSK_REINSTATE_ADDL_PREM_PCT").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_REINSTATE_ADDL_PREM_PCT").toString());
@@ -3607,20 +3607,20 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 							}
 					//	}
 						if (resMap.get("RSK_LIMIT_OS_DC") != null) {
-							res.setLimitOSViewDC(fm.formatter(resMap.get("RSK_LIMIT_OS_DC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_LIMIT_OS_DC").toString()));
+							res.setLimitOSViewDC(resMap.get("RSK_LIMIT_OS_DC").toString().equalsIgnoreCase("0") ? "0.00" : fm.formatter(resMap.get("RSK_LIMIT_OS_DC").toString()));
 						}
 						if (resMap.get("RSK_EPI_OSOF_OC") != null) {
 							res.setEpiAsPerOffer(resMap.get("RSK_EPI_OSOF_OC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_EPI_OSOF_OC").toString());
-							res.setEpiOSViewOC(fm.formatter(resMap.get("RSK_EPI_OSOF_OC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_EPI_OSOF_OC").toString()));
+							res.setEpiOSViewOC(resMap.get("RSK_EPI_OSOF_OC").toString().equalsIgnoreCase("0") ? "0.00" : fm.formatter(resMap.get("RSK_EPI_OSOF_OC").toString()));
 						}
 						if (resMap.get("RSK_EPI_OSOF_DC") != null) {
-							res.setEpiOSViewDC(fm.formatter(resMap.get("RSK_EPI_OSOF_DC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_EPI_OSOF_DC").toString()));
+							res.setEpiOSViewDC(resMap.get("RSK_EPI_OSOF_DC").toString().equalsIgnoreCase("0") ? "0.00" : fm.formatter(resMap.get("RSK_EPI_OSOF_DC").toString()));
 						}
 						if (resMap.get("RSK_BROKERAGE") != null) {
-							res.setBrokerage(resMap.get("RSK_BROKERAGE").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_BROKERAGE").toString());
+							res.setBrokerage(resMap.get("RSK_BROKERAGE").toString().equalsIgnoreCase("0") ? "0.00000000" :fm.formattereight(resMap.get("RSK_BROKERAGE").toString()));
 						}
 						if (resMap.get("RSK_TAX") != null) {
-							res.setTax(resMap.get("RSK_TAX").toString().equalsIgnoreCase("0") ? "0"	: resMap.get("RSK_TAX").toString());
+							res.setTax(resMap.get("RSK_TAX").toString().equalsIgnoreCase("0") ? "0.00000000"	: fm.formattereight(resMap.get("RSK_TAX").toString()));
 						}
 						if (resMap.get("RSK_ACQUISTION_COST_OC") != null) {
 							res.setAcquisitionCost(resMap.get("RSK_ACQUISTION_COST_OC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_ACQUISTION_COST_OC").toString());
@@ -3630,17 +3630,17 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 						}
 						if (resMap.get("RSK_MD_PREM_OS_OC") != null) {
 							res.setMdpremiumourservice(resMap.get("RSK_MD_PREM_OS_OC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_MD_PREM_OS_OC").toString());
-							res.setMandDpreViewOC(fm.formatter(resMap.get("RSK_MD_PREM_OS_OC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_MD_PREM_OS_OC").toString()));
+							res.setMandDpreViewOC(resMap.get("RSK_MD_PREM_OS_OC").toString().equalsIgnoreCase("0") ? "0.00" : fm.formatter(resMap.get("RSK_MD_PREM_OS_OC").toString()));
 						}
 						if (resMap.get("RSK_MD_PREM_OS_DC") != null) {
-							res.setMandDpreViewDC(fm.formatter(resMap.get("RSK_MD_PREM_OS_DC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_MD_PREM_OS_DC").toString()));
+							res.setMandDpreViewDC(resMap.get("RSK_MD_PREM_OS_DC").toString().equalsIgnoreCase("0") ? "0.00" : fm.formatter(resMap.get("RSK_MD_PREM_OS_DC").toString()));
 						}
 						if (resMap.get("RSK_AGGREGATE_LIAB_OC") != null) {
-							res.setAnualAggregateLiability(resMap.get("RSK_AGGREGATE_LIAB_OC").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_AGGREGATE_LIAB_OC").toString());
+							res.setAnualAggregateLiability(resMap.get("RSK_AGGREGATE_LIAB_OC").toString().equalsIgnoreCase("0") ? "0.00" :fm.formatter(resMap.get("RSK_AGGREGATE_LIAB_OC").toString()));
 						}
 						if (resMap.get("RSK_AGGREGATE_DEDUCT_OC") != null) {
 							res.setAnualAggregateDeduct(resMap.get("RSK_AGGREGATE_DEDUCT_OC").toString()
-									.equalsIgnoreCase("0") ? "0" : resMap.get("RSK_AGGREGATE_DEDUCT_OC").toString());
+									.equalsIgnoreCase("0") ? "0.00" : fm.formatter(resMap.get("RSK_AGGREGATE_DEDUCT_OC").toString()));
 						}
 						if (resMap.get("RSK_REINSTATE_NO") != null) {
 							res.setReinstNo(resMap.get("RSK_REINSTATE_NO").toString().equalsIgnoreCase("0") ? "" : resMap.get("RSK_REINSTATE_NO").toString());
@@ -3654,7 +3654,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 						res.setLeaderUnderwritercountry(resMap.get("RSK_LEAD_UNDERWRITER_COUNTRY")==null?"":resMap.get("RSK_LEAD_UNDERWRITER_COUNTRY").toString());
 						res.setCrestaStatus(resMap.get("RSK_CREASTA_STATUS")==null?"":resMap.get("RSK_CREASTA_STATUS").toString());
 						if (resMap.get("RSK_LEAD_UW_SHARE") != null) {
-							res.setLeaderUnderwritershare(resMap.get("RSK_LEAD_UW_SHARE").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_LEAD_UW_SHARE").toString());
+							res.setLeaderUnderwritershare(resMap.get("RSK_LEAD_UW_SHARE").toString().equalsIgnoreCase("0") ? "0.00000000" : fm.formattereight(resMap.get("RSK_LEAD_UW_SHARE").toString()));
 						}
 						if (resMap.get("RSK_ACCOUNTS") != null) {
 							res.setAccounts(resMap.get("RSK_ACCOUNTS").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_ACCOUNTS").toString());
@@ -3667,7 +3667,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 						res.setUnderwriterRecommendations(resMap.get("RSK_UW_RECOMM")==null?"":resMap.get("RSK_UW_RECOMM").toString());
 						res.setGmsApproval(resMap.get("RSK_GM_APPROVAL")==null?"":resMap.get("RSK_GM_APPROVAL").toString());
 						if (resMap.get("RSK_OTHER_COST") != null) {
-							res.setOthercost(resMap.get("RSK_OTHER_COST").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_OTHER_COST").toString());
+							res.setOthercost(resMap.get("RSK_OTHER_COST").toString().equalsIgnoreCase("0") ? "0.00000000" :fm.formattereight(resMap.get("RSK_OTHER_COST").toString()));
 						}
 						if (resMap.get("RSK_REINSTATE_ADDL_PREM_PCT") != null) {
 							res.setReinstAditionalPremiumpercent(resMap.get("RSK_REINSTATE_ADDL_PREM_PCT").toString().equalsIgnoreCase("0") ? "0" : resMap.get("RSK_REINSTATE_ADDL_PREM_PCT").toString());
@@ -3679,7 +3679,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 							res.setAcqBonus(resMap.get("RSK_BONUS_ID").toString().equalsIgnoreCase("") ? "" : resMap.get("RSK_BONUS_ID").toString());
 						}
 						if (resMap.get("RSK_NOCLAIMBONUS_PRCENT") != null) {
-							res.setAcqBonusPercentage(resMap.get("RSK_NOCLAIMBONUS_PRCENT").toString().equalsIgnoreCase("") ? "0" : fm.formattereight(resMap.get("RSK_NOCLAIMBONUS_PRCENT").toString()));
+							res.setAcqBonusPercentage(resMap.get("RSK_NOCLAIMBONUS_PRCENT").toString().equalsIgnoreCase("") ? "0.00000000" : fm.formattereight(resMap.get("RSK_NOCLAIMBONUS_PRCENT").toString()));
 						}
 						if (resMap.get("RSK_OCCURRENT_LIMIT_OC") != null) {
 							res.setOccurrentLimit(resMap.get("RSK_OCCURRENT_LIMIT_OC").toString().equalsIgnoreCase("") ? "" : resMap.get("RSK_OCCURRENT_LIMIT_OC").toString());

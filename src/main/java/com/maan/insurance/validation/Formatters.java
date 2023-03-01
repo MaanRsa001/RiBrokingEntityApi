@@ -30,18 +30,30 @@ public class Formatters {
 	private QueryImplemention queryImpl;
 
 
-	public  String formatter(final String value)
+	public  String formatter(final String value) // for amt
 	{
 		String output="0.00";
 		if(StringUtils.isNotBlank(value))
 		{
 			double doublevalue=Double.parseDouble(value);
-			DecimalFormat myFormatter = new DecimalFormat("###,###,###,###,##0.00");
+			DecimalFormat myFormatter = new DecimalFormat("###,###,###,###,##0.00");//
 			output =myFormatter.format(doublevalue);
 		}
 		return output;
 	}
+	public  String formattereight(final String value) //for %
+	{
+		String output="0.00";
+		if(StringUtils.isNotBlank(value))
+		{
+			double doublevalue=Double.parseDouble(value);
+		//	DecimalFormat myFormatter = new DecimalFormat("###,###,###,###,##0.00000000");
+			DecimalFormat myFormatter = new DecimalFormat("0.00000000");
+			output =myFormatter.format(doublevalue);
+		}
+		return output;
 
+	}
 
 	public synchronized String getSequence(String type,String productID,String departmentId,String branchCode, String proposalNo,String date){ 
 		Logger logger = LogUtil.getLogger(Formatters.class);
@@ -68,18 +80,7 @@ public class Formatters {
 
 		return seqName;
 	}
-	public  String formattereight(final String value)
-	{
-		String output="0.00";
-		if(StringUtils.isNotBlank(value))
-		{
-			double doublevalue=Double.parseDouble(value);
-			DecimalFormat myFormatter = new DecimalFormat("###,###,###,###,##0.00000000");
-			output =myFormatter.format(doublevalue);
-		}
-		return output;
-
-	}
+	
 	public  String formatterfour(final String value)
 	{
 		String output="0.00";

@@ -1209,7 +1209,8 @@ public class DropDownServiceImple implements DropDownService{
 		if(StringUtils.isNotBlank(value))
 		{
 			double doublevalue=Double.parseDouble(value);
-			DecimalFormat myFormatter = new DecimalFormat("###,###,###,###,##0.00000000");
+			//DecimalFormat myFormatter = new DecimalFormat("###,###,###,###,##0.00000000");
+			DecimalFormat myFormatter = new DecimalFormat("0.00000000");
 			output =myFormatter.format(doublevalue);
 		}
 		return output;
