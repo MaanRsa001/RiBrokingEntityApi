@@ -383,6 +383,14 @@ public class ProportionalityController {
 				}
 				return propService.getcalculateSC(req);
 				}
+				@GetMapping("/ttrnRipDelete/{referenceNo}")
+				public CommonResponse ttrnRipDelete (@PathVariable ("referenceNo")String referenceNo) throws CommonValidationException {
+					return propService.ttrnRipDelete(referenceNo);
+				}  
+				@GetMapping("/ttrnBonusDelete/{proposalNo}")
+				public CommonResponse ttrnBonusDelete (@PathVariable ("referenceNo")String referenceNo) throws CommonValidationException {
+					return propService.ttrnBonusDelete(referenceNo);
+				}  
 				
 }
 

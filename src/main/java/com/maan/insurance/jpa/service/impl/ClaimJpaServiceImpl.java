@@ -1789,10 +1789,6 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 			}
 			public int insertAggregate(final InsertCliamDetailsMode2Req req) {
 				int status = 0;
-				
-				String query="";
-				String[] args =null;
-				int spresult=0;
 				try {
 					
 					//INSERT_ACCUMULATION_DATA

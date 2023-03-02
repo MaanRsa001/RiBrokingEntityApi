@@ -2312,7 +2312,9 @@ public ShowSecondPageData1Res showSecondPageData1(ShowSecondPageData1Req req) {
 //		TypedQuery<String> ress = em.createQuery(spfcName);
 //		List<String> result1 = ress.getResultList();
 
-		query.multiselect(rk.get("rskProposalNumber").alias("RSK_PROPOSAL_NUMBER"),pfc.get("tmasPfcName").alias("TMAS_PFC_NAME"),
+		query.multiselect(
+				rk.get("rskSpfcid").alias("RSK_SPFCID"),
+				rk.get("rskProposalNumber").alias("RSK_PROPOSAL_NUMBER"),pfc.get("tmasPfcName").alias("TMAS_PFC_NAME"),
 				personal.get("companyName").alias("COMPANY_NAME"),
 				pi.get("firstName").alias("FIRST_NAME"),pi.get("lastName").alias("LAST_NAME"),rk.get("rskMonth").alias("MONTH"),
 				bran.get("tmasPolBranchName").alias("TMAS_POL_BRANCH_NAME"),rk.get("rskContractNo").alias("RSK_CONTRACT_NO"),
@@ -2373,12 +2375,14 @@ public ShowSecondPageData1Res showSecondPageData1(ShowSecondPageData1Req req) {
 			Tuple	resMap = result.get(0);
 			res1.setProposalNo(resMap.get("RSK_PROPOSAL_NUMBER")==null?"":resMap.get("RSK_PROPOSAL_NUMBER").toString());
 			
-			//need to be add
+			
 //			(select RTRIM(XMLAGG(XMLELEMENT(E,TMAS_SPFC_NAME,',')).EXTRACT('//text()'),',')  from TMAS_SPFC_MASTER
 //					SPFC where SPFC.TMAS_SPFC_ID in(select * from table(SPLIT_TEXT_FN(replace(RK.RSK_SPFCID,' ', '')))) AND SPFC.TMAS_PRODUCT_ID = TDM.TMAS_PRODUCT_ID AND 
 //					TDM.BRANCH_CODE = SPFC.BRANCH_CODE)TMAS_SPFC_NAME
 
-			//res1.setSubProfitCenter(resMap.get("TMAS_SPFC_NAME") == null ? "" : resMap.get("TMAS_SPFC_NAME").toString());
+			//select RTRIM(XMLAGG(XMLELEMEN 
+			String id = resMap.get("RSK_SPFCID")==null?"":resMap.get("RSK_SPFCID").toString();
+			res1.setSubProfitCenter(dropDowmImpl.getSubClass(id, req.getBranchCode(), req.getProductId()));
 			res1.setCedingCo(resMap.get("COMPANY_NAME")==null?"":resMap.get("COMPANY_NAME").toString());
 			res1.setBroker((resMap.get("FIRST_NAME")==null?"":resMap.get("FIRST_NAME").toString()) + " "+ (resMap.get("LAST_NAME")==null?"":resMap.get("LAST_NAME").toString()));
 			res1.setMonth(resMap.get("MONTH")==null?"":resMap.get("MONTH").toString());

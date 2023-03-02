@@ -1311,7 +1311,9 @@ public class PortFolioServiceImple implements PortFolioService{
 				
 	      		Expression<String> e0 = cb.concat(c1.get("firstName"), " ");
 	      		
-	      		query.multiselect(a.get("offerNo").alias("OFFER_NO"),
+	      		query.multiselect(
+	      				e.get("rskSpfcid").alias("RSK_SPFCID"),
+	      				a.get("offerNo").alias("OFFER_NO"),
 	      				a.get("proposalNo").alias("PROPOSAL_NO"),
 	      				//b.get("tmasDepartmentId").alias("TMAS_DEPARTMENT_ID"),
 	      				deptName.alias("TMAS_DEPARTMENT_NAME"),
@@ -1491,6 +1493,8 @@ public class PortFolioServiceImple implements PortFolioService{
 	      			
 	            for (int i = 0; i < list.size(); i++) {
 	            	Tuple tempMap = list.get(i);
+	            	String id = tempMap.get("RSK_SPFCID") == null ? "" : tempMap.get("RSK_SPFCID").toString();
+	            	
 	                GetConfirmedListRes1 tempBean = new GetConfirmedListRes1();
 	                tempBean.setContractNo(tempMap.get("CONTRACT_NO") == null ? "" : tempMap.get("CONTRACT_NO").toString());
 	                tempBean.setProposalNo(tempMap.get("PROPOSAL_NO") == null ? "" : tempMap.get("PROPOSAL_NO").toString());
@@ -1498,9 +1502,11 @@ public class PortFolioServiceImple implements PortFolioService{
 	                tempBean.setBouquetNo(tempMap.get("Bouquet_No") == null ? "" : tempMap.get("Bouquet_No").toString());
 	                tempBean.setAmendId(tempMap.get("AMEND_ID") == null ? "" : tempMap.get("AMEND_ID").toString());
 	                tempBean.setCedingCompanyName(tempMap.get("COMPANY_NAME") == null ? "" : tempMap.get("COMPANY_NAME").toString());
+	                
 	                tempBean.setDepartmentName(tempMap.get("TMAS_DEPARTMENT_NAME") == null ? "" : tempMap.get("TMAS_DEPARTMENT_NAME").toString());
-	     //pending  tempBean.setSubClass(tempMap.get("TMAS_SPFC_NAME") == null ? "" : tempMap.get("TMAS_SPFC_NAME").toString());
-	               // tempBean.setDepartmentId(tempMap.get("TMAS_DEPARTMENT_ID") == null ? "" : tempMap.get("TMAS_DEPARTMENT_ID").toString());
+	            
+	                tempBean.setSubClass(dropDowmImpl.getSubClass(id, beanObj.getBranchCode(), beanObj.getProductId()));	                
+	                // tempBean.setDepartmentId(tempMap.get("TMAS_DEPARTMENT_ID") == null ? "" : tempMap.get("TMAS_DEPARTMENT_ID").toString());
 	                tempBean.setInceptionDate(tempMap.get("INCEPTION_DATE") == null ? "" : Dateformat(tempMap.get("INCEPTION_DATE")).toString());
 	                tempBean.setExpiryDate(tempMap.get("EXPIRY_DATE") == null ? "" : Dateformat(tempMap.get("EXPIRY_DATE")).toString());
 	                tempBean.setInsuredName(tempMap.get("RSK_INSURED_NAME") == null ? "" : tempMap.get("RSK_INSURED_NAME").toString());

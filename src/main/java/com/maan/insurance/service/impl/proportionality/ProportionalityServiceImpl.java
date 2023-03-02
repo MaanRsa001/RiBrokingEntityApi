@@ -3251,14 +3251,18 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 		ShowSecondPageDataRes response = new ShowSecondPageDataRes();
 		ShowSecondPageDataRes1 res = new ShowSecondPageDataRes1();
 		try {
-			//risk.select.getSecPageData //select RTRIM(XMLAGG(XMLELEMEN pending
+			//risk.select.getSecPageData 
 			List<Tuple> list =	proportionalityCustomRepository.riskSelectGetSecPageData(req.getProposalNo(),req.getBranchCode(),req.getProductId());
 			Tuple resMap = null;
 			if(list!=null && list.size()>0)
 				resMap = list.get(0);
 			if(resMap!=null){
 				res.setProposalNo(resMap.get("RSK_PROPOSAL_NUMBER")==null?"":resMap.get("RSK_PROPOSAL_NUMBER").toString());
-				// pending		res.setSubProfitcenter(resMap.get("TMAS_SPFC_NAME")==null?"":resMap.get("TMAS_SPFC_NAME").toString()); 
+				String id = resMap.get("RSK_SPFCID")==null?"":resMap.get("RSK_SPFCID").toString();
+				String branch = resMap.get("BRANCH_CODE")==null?"":resMap.get("BRANCH_CODE").toString();
+				String proId = resMap.get("TMAS_PRODUCT_ID")==null?"":resMap.get("TMAS_PRODUCT_ID").toString();
+				//select RTRIM(XMLAGG(XMLELEMEN 
+				res.setSubProfitcenter(dropDowmImpl.getSubClass(id, branch, proId));
 				res.setCedingCo(resMap.get("COMPANY_NAME")==null?"":resMap.get("COMPANY_NAME").toString());
 				res.setBroker(resMap.get("BROKER")==null?"":resMap.get("BROKER").toString());
 				res.setMonth(resMap.get("MONTH")==null?"":resMap.get("MONTH").toString());
@@ -3786,7 +3790,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 		               res.setBonusFrom(tempMap.get("LCB_FROM")==null?"":fm.formattereight(tempMap.get("LCB_FROM").toString()));
 		               res.setBonusTo(tempMap.get("LCB_TO")==null?"":fm.formattereight(tempMap.get("LCB_TO").toString()));
 		               res.setBonusLowClaimBonus(tempMap.get("LCB_PERCENTAGE")==null?"":fm.formattereight(tempMap.get("LCB_PERCENTAGE").toString()));
-			           res.setScaleMaxPartPercent(tempMap.get("SCALE_MAX_PART_PERCENT")==null?"":dropDowmImpl.formatter(tempMap.get("SCALE_MAX_PART_PERCENT").toString()));
+			           res.setScaleMaxPartPercent(tempMap.get("SCALE_MAX_PART_PERCENT")==null?"":fm.formattereight(tempMap.get("SCALE_MAX_PART_PERCENT").toString()));
 		               if(!"scale".equalsIgnoreCase(req.getPageFor())){
 		               res.setBonusTypeId(tempMap.get("LCB_TYPE")==null?"":tempMap.get("LCB_TYPE").toString());
 		               }
@@ -4399,11 +4403,6 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 		ShowSecondPageData1Res1  resset= new ShowSecondPageData1Res1();
 		List<ShowSecondPageData1Res1> ressetList = new ArrayList<ShowSecondPageData1Res1>();
 		try {
-			
-//			(select RTRIM(XMLAGG(XMLELEMENT(E,TMAS_SPFC_NAME,',')).EXTRACT('//text()'),',')  
-//					from TMAS_SPFC_MASTER SPFC where SPFC.TMAS_SPFC_ID in( select * from table(SPLIT_TEXT_FN(replace(RK.RSK_SPFCID,' ', '')))) AND SPFC.TMAS_PRODUCT_ID 
-//					= TDM.TMAS_PRODUCT_ID AND TDM.BRANCH_CODE = SPFC.BRANCH_CODE)TMAS_SPFC_NAME,
-			
 			//risk.select.getSecPageData
 			CriteriaBuilder cb = em.getCriteriaBuilder(); 
 			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
@@ -4415,7 +4414,9 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 			Root<TmasDepartmentMaster> tdm = query.from(TmasDepartmentMaster.class); 
 				
 			Expression<String> e0 = cb.concat(pi.get("firstName")," ");
-			query.multiselect(rk.get("rskProposalNumber").alias("RSK_PROPOSAL_NUMBER"),    //TMAS_SPFC_NAME pending
+			query.multiselect(
+					rk.get("rskSpfcid").alias("RSK_SPFCID"),  
+					rk.get("rskProposalNumber").alias("RSK_PROPOSAL_NUMBER"),    //TMAS_SPFC_NAME pending
 					pfc.get("tmasPfcName").alias("TMAS_PFC_NAME"), personal.get("companyName").alias("COMPANY_NAME"),
 					cb.concat(e0, pi.get("lastName")).alias("BROKER"),
 					rk.get("rskMonth").alias("MONTH"),bran.get("tmasPolBranchName").alias("TMAS_POL_BRANCH_NAME"),
@@ -4472,7 +4473,11 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 				resMap = list.get(0);
 				if(resMap!=null) {
 					resset.setProposalno(resMap.get("RSK_PROPOSAL_NUMBER")==null?"":resMap.get("RSK_PROPOSAL_NUMBER").toString());
-					resset.setSubProfitcenter(resMap.get("TMAS_SPFC_NAME")==null?"":resMap.get("TMAS_SPFC_NAME").toString());
+					String id = resMap.get("RSK_SPFCID")==null?"":resMap.get("RSK_SPFCID").toString();
+//					(select RTRIM(XMLAGG(XMLELEMENT(E,TMAS_SPFC_NAME,',')).EXTRACT('//text()'),',')  
+//					from TMAS_SPFC_MASTER SPFC where SPFC.TMAS_SPFC_ID in( select * from table(SPLIT_TEXT_FN(replace(RK.RSK_SPFCID,' ', '')))) AND SPFC.TMAS_PRODUCT_ID 
+//					= TDM.TMAS_PRODUCT_ID AND TDM.BRANCH_CODE = SPFC.BRANCH_CODE)TMAS_SPFC_NAME,
+					resset.setSubProfitcenter(dropDowmImpl.getSubClass(id, req.getBranchCode(), req.getProductId()));
 					resset.setCedingCo(resMap.get("COMPANY_NAME")==null?"":resMap.get("COMPANY_NAME").toString());
 					resset.setBroker(resMap.get("BROKER")==null?"":resMap.get("BROKER").toString());
 					resset.setMonth(resMap.get("MONTH")==null?"":resMap.get("MONTH").toString());
@@ -6330,6 +6335,54 @@ try{
 			e.printStackTrace();
 		}
 		
+	}
+	@Transactional
+	@Override
+	public CommonResponse ttrnRipDelete(String referenceNo) {
+		CommonResponse response = new CommonResponse();
+		try {
+			CriteriaBuilder cb = em.getCriteriaBuilder();
+			CriteriaDelete<TtrnRip> delete = cb.createCriteriaDelete(TtrnRip.class);
+			
+			Root<TtrnRip> rp = delete.from(TtrnRip.class);
+			
+			Predicate n1 = cb.equal(rp.get("referenceNo"),referenceNo);
+			delete.where(n1);
+			em.createQuery(delete).executeUpdate();
+
+			response.setMessage("Success");
+			response.setIsError(false);
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.setMessage("Failed");
+			response.setIsError(true);
+		}
+		
+		return response;
+	}
+	@Transactional
+	@Override
+	public CommonResponse ttrnBonusDelete(String referenceNo) {
+		CommonResponse response = new CommonResponse();
+		try {
+			CriteriaBuilder cb = em.getCriteriaBuilder();
+			CriteriaDelete<TtrnBonus> delete = cb.createCriteriaDelete(TtrnBonus.class);
+			
+			Root<TtrnBonus> rp = delete.from(TtrnBonus.class);
+			
+			Predicate n1 = cb.equal(rp.get("referenceNo"),referenceNo);
+			delete.where(n1);
+			em.createQuery(delete).executeUpdate();
+
+			response.setMessage("Success");
+			response.setIsError(false);
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.setMessage("Failed");
+			response.setIsError(true);
+		}
+		
+		return response;
 	}
 }
 

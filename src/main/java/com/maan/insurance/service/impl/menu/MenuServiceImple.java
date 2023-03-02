@@ -6,11 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.TreeMap;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,9 +29,7 @@ import com.maan.insurance.model.res.menu.GetRigthsOfProcessRes;
 import com.maan.insurance.model.res.menu.GetRigthsOfProcessRes1;
 import com.maan.insurance.model.res.xolPremium.CommonSaveRes;
 import com.maan.insurance.service.impl.QueryImplemention;
-import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
 import com.maan.insurance.service.menu.MenuService;
-import com.maan.insurance.validation.Formatters;
 
 @Service
 public class MenuServiceImple implements MenuService{
@@ -42,11 +38,6 @@ public class MenuServiceImple implements MenuService{
 	@Autowired
 	private QueryImplemention queryImpl;
 
-	@Autowired
-	private DropDownServiceImple dropDowmImpl;
-
-	@Autowired
-	private Formatters fm;
 	
 	@Autowired
 	private TmasProductMasterRepository pmRepo;
@@ -61,7 +52,6 @@ public class MenuServiceImple implements MenuService{
 	private EntityManager em;
 	
 	private Properties prop = new Properties();
-	private Query query1 = null;
 
 	public MenuServiceImple() {
 		try {

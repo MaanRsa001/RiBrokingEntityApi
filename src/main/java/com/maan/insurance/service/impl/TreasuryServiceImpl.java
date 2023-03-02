@@ -42,8 +42,6 @@ import com.maan.insurance.model.res.AllocateViewRes;
 import com.maan.insurance.model.res.AllocatedStatusRes;
 import com.maan.insurance.model.res.AllocatedStatusRes1;
 import com.maan.insurance.model.res.AllocatedStatusResponse;
-import com.maan.insurance.model.res.CurrecyAmountListsRes;
-import com.maan.insurance.model.res.CurrencyAmountRes;
 import com.maan.insurance.model.res.GetAllRetroTransContractRes;
 import com.maan.insurance.model.res.GetAllTransContractRes;
 import com.maan.insurance.model.res.GetAllTransContractRes1;
@@ -57,7 +55,6 @@ import com.maan.insurance.model.res.GetReceiptGenerationRes;
 import com.maan.insurance.model.res.GetReceiptGenerationRes1;
 import com.maan.insurance.model.res.GetReceiptReversalListRes;
 import com.maan.insurance.model.res.GetReceiptReversalListRes1;
-import com.maan.insurance.model.res.GetRetroallocateTransactionRes;
 import com.maan.insurance.model.res.GetReversalInfoRes;
 import com.maan.insurance.model.res.GetReversalInfoRes1;
 import com.maan.insurance.model.res.GetShortnameRes;
@@ -66,7 +63,6 @@ import com.maan.insurance.model.res.GetTransContractRes1;
 import com.maan.insurance.model.res.GetTreasuryJournalViewRes;
 import com.maan.insurance.model.res.GetTreasuryJournalViewRes1;
 import com.maan.insurance.model.res.ListSecondPageInfo;
-import com.maan.insurance.model.res.PaymentRecieptRes;
 import com.maan.insurance.model.res.PaymentRecieptRes1;
 import com.maan.insurance.model.res.ReceiptTreasuryListRes;
 import com.maan.insurance.model.res.ReceiptTreasuryRes;
@@ -86,7 +82,6 @@ import com.maan.insurance.model.res.TransContractRes;
 import com.maan.insurance.model.res.DropDown.GetOpenPeriodRes;
 import com.maan.insurance.model.res.retro.CommonResponse;
 import com.maan.insurance.model.res.retro.CommonSaveRes;
-import com.maan.insurance.service.TreasuryService;
 import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
 import com.maan.insurance.validation.Formatters;
 
@@ -95,7 +90,7 @@ public class TreasuryServiceImpl{
 	private Logger log = LogManager.getLogger(TreasuryServiceImpl.class);
 	
 	@Autowired
-	private QueryImplemention queryImpl;
+	private QueryImplemention queryImpl;                                                    
 
 	@Autowired
 	private Formatters fm;
@@ -144,7 +139,7 @@ public class TreasuryServiceImpl{
 			e.printStackTrace();
 			res.setMessage("Failed");
 			res.setIsError(true);
-		}
+		}	
 		return res;
 	}
 	public void generationInsert(PaymentRecieptReq req) {

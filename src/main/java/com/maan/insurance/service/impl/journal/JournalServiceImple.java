@@ -12,7 +12,6 @@ import java.util.Properties;
 import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import javax.persistence.StoredProcedureQuery;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
@@ -80,7 +79,6 @@ import com.maan.insurance.service.impl.QueryImplemention;
 import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
 import com.maan.insurance.service.journal.JournalService;
 import com.maan.insurance.validation.Formatters;
-import com.maan.insurance.validation.Claim.ValidationImple;
 
 @Service
 public class JournalServiceImple implements JournalService{
@@ -109,7 +107,6 @@ public class JournalServiceImple implements JournalService{
 	@PersistenceContext
 	private EntityManager em;
 	private Properties prop = new Properties();
-	private Query query1 = null;
 
 	public JournalServiceImple() {
 		try {

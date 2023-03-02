@@ -219,14 +219,19 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		ShowSecondPageData1Res response = new ShowSecondPageData1Res();
 		ShowSecondPageData1Res1 res = new ShowSecondPageData1Res1();
 		try{
-			//risk.select.getSecPageData //select RTRIM(XMLAGG(XMLELEMEN pending
+			//risk.select.getSecPageData 
 			List<Tuple> list =	nonProportCustomRepository.riskSelectGetSecPageData(req.getProposalNo(),req.getBranchCode(),req.getProductId());
 			Tuple resMap = null;
 			if(list!=null && list.size()>0) {
 				resMap = list.get(0);
 				if(resMap!=null) {
 					res.setProposalNo(resMap.get("RSK_PROPOSAL_NUMBER")==null?"":resMap.get("RSK_PROPOSAL_NUMBER").toString());
-					res.setSubProfitCenter(resMap.get("TMAS_SPFC_NAME")==null?"":resMap.get("TMAS_SPFC_NAME").toString()); 
+					String id = resMap.get("RSK_SPFCID")==null?"":resMap.get("RSK_SPFCID").toString();
+					String branch = resMap.get("BRANCH_CODE")==null?"":resMap.get("BRANCH_CODE").toString();
+					String proId = resMap.get("TMAS_PRODUCT_ID")==null?"":resMap.get("TMAS_PRODUCT_ID").toString();
+					//select RTRIM(XMLAGG(XMLELEMEN 
+					res.setSubProfitCenter(dropDowmImpl.getSubClass(id, branch, proId));
+					
 					res.setCedingCo(resMap.get("COMPANY_NAME")==null?"":resMap.get("COMPANY_NAME").toString());
 					res.setBroker(resMap.get("BROKER")==null?"":resMap.get("BROKER").toString());
 					res.setMonth(resMap.get("MONTH")==null?"":resMap.get("MONTH").toString());
@@ -1633,8 +1638,8 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 				res.setPml(secViewDataMap.get("RSK_PML")==null ? "" : secViewDataMap.get("RSK_PML").toString());
 				res.setPmlPercent(secViewDataMap.get("RSK_PML_PERCENT")==null ? "" : secViewDataMap.get("RSK_PML_PERCENT").toString());
 				res.setPremiumbasis(secViewDataMap.get("RSK_PREMIUM_BASIS_Con")==null ? "" : secViewDataMap.get("RSK_PREMIUM_BASIS_Con").toString());
-				res.setMinimumRate(secViewDataMap.get("RSK_MINIMUM_RATE")==null ? "" :fm.formatter(secViewDataMap.get("RSK_MINIMUM_RATE").toString()));
-				res.setMaximumRate(secViewDataMap.get("RSK_MAXIIMUM_RATE")==null ? "" : fm.formatter(secViewDataMap.get("RSK_MAXIIMUM_RATE").toString()));
+				res.setMinimumRate(secViewDataMap.get("RSK_MINIMUM_RATE")==null ? "" :fm.formattereight(secViewDataMap.get("RSK_MINIMUM_RATE").toString()));
+				res.setMaximumRate(secViewDataMap.get("RSK_MAXIIMUM_RATE")==null ? "" : fm.formattereight(secViewDataMap.get("RSK_MAXIIMUM_RATE").toString()));
 				res.setBurningCostLF(secViewDataMap.get("RSK_BURNING_COST_LF")==null ? "" : fm.formatter(secViewDataMap.get("RSK_BURNING_COST_LF").toString()));
 				res.setPaymentDuedays(secViewDataMap.get("RSK_PAYMENT_DUE_DAYS")==null ? "" : secViewDataMap.get("RSK_PAYMENT_DUE_DAYS").toString());
 				res.setMinPremium(secViewDataMap.get("RSK_MINIMUM_PREMIUM_OC")==null?"":fm.formatter(secViewDataMap.get("RSK_MINIMUM_PREMIUM_OC").toString()));
@@ -1957,8 +1962,8 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 					beanObj.setPmlPercent(resMap.get("RSK_PML_PERCENT")==null ? "" : resMap.get("RSK_PML_PERCENT").toString());
 					beanObj.setEgnpipml((resMap.get("RSK_EGNPI_PML_OC")==null||"0".equals(resMap.get("RSK_EGNPI_PML_OC"))?"":resMap.get("RSK_EGNPI_PML_OC").toString()));
 					beanObj.setPremiumbasis(resMap.get("RSK_PREMIUM_BASIS")==null ? "" : resMap.get("RSK_PREMIUM_BASIS").toString());
-					beanObj.setMinimumRate(resMap.get("RSK_MINIMUM_RATE")==null ? "" : resMap.get("RSK_MINIMUM_RATE").toString());
-					beanObj.setMaximumRate(resMap.get("RSK_MAXIIMUM_RATE")==null ? "" : resMap.get("RSK_MAXIIMUM_RATE").toString());
+					beanObj.setMinimumRate(resMap.get("RSK_MINIMUM_RATE")==null ? "" :fm.formattereight(resMap.get("RSK_MINIMUM_RATE").toString()));
+					beanObj.setMaximumRate(resMap.get("RSK_MAXIIMUM_RATE")==null ? "" : fm.formattereight(resMap.get("RSK_MAXIIMUM_RATE").toString()));
 					beanObj.setBurningCostLF(resMap.get("RSK_BURNING_COST_LF")==null ? "" : resMap.get("RSK_BURNING_COST_LF").toString());
 					beanObj.setMinPremium((resMap.get("RSK_MINIMUM_PREMIUM_OC")==null ||"0".equals(resMap.get("RSK_MINIMUM_PREMIUM_OC"))?"":fm.formatter(resMap.get("RSK_MINIMUM_PREMIUM_OC").toString())));
 					beanObj.setPaymentDuedays(resMap.get("RSK_PAYMENT_DUE_DAYS")==null ? "" : resMap.get("RSK_PAYMENT_DUE_DAYS").toString());
@@ -2030,14 +2035,17 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		ShowSecondPageDataRes response = new ShowSecondPageDataRes();
 		ShowSecondPageDataRes1 res = new ShowSecondPageDataRes1();
 		try{
-			//risk.select.getSecPageData //select RTRIM(XMLAGG(XMLELEMEN pending
+			//risk.select.getSecPageData 
 			List<Tuple> list =	nonProportCustomRepository.riskSelectGetSecPageData(req.getProposalNo(),req.getBranchCode(),req.getProductId());
 			Tuple resMap = null;
 			if(list!=null && list.size()>0)
 				resMap = list.get(0);
 			if(resMap!=null){
 				res.setProposalNo(resMap.get("RSK_PROPOSAL_NUMBER")==null?"":resMap.get("RSK_PROPOSAL_NUMBER").toString());
-				// pending  res.setSubProfitcenter(resMap.get("TMAS_SPFC_NAME")==null?"":resMap.get("TMAS_SPFC_NAME").toString()); 
+				//select RTRIM(XMLAGG(XMLELEMEN 
+				String id = resMap.get("RSK_SPFCID")==null?"":resMap.get("RSK_SPFCID").toString();
+				res.setSubProfitcenter(dropDowmImpl.getSubClass(id, req.getBranchCode(), req.getProductId()));
+			
 				res.setCedingCo(resMap.get("COMPANY_NAME")==null?"":resMap.get("COMPANY_NAME").toString());
 				res.setBroker(resMap.get("BROKER")==null?"":resMap.get("BROKER").toString());
 				res.setMonth(resMap.get("MONTH")==null?"":resMap.get("MONTH").toString());
@@ -3103,9 +3111,9 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		               ReInStatementRes reInstRes = new ReInStatementRes();
 		               reInstRes.setSno(tempMap.get("REINST_NO")==null?"":tempMap.get("REINST_NO").toString());
 		               reInstRes.setType(tempMap.get("REINST_TYPE")==null?"":tempMap.get("REINST_TYPE").toString());
-		               reInstRes.setAmount(tempMap.get("AMOUNT_PERCENT")==null?"":tempMap.get("AMOUNT_PERCENT").toString());
-		               reInstRes.setMinamount(tempMap.get("MIN_AMOUNT_PERCENT")==null?"":tempMap.get("MIN_AMOUNT_PERCENT").toString());
-		               reInstRes.setMinTime(tempMap.get("MIN_TIME_PERCENT")==null?"":tempMap.get("MIN_TIME_PERCENT").toString());
+		               reInstRes.setAmount(tempMap.get("AMOUNT_PERCENT")==null?"":fm.formattereight(tempMap.get("AMOUNT_PERCENT").toString()));
+		               reInstRes.setMinamount(tempMap.get("MIN_AMOUNT_PERCENT")==null?"":fm.formattereight(tempMap.get("MIN_AMOUNT_PERCENT").toString()));
+		               reInstRes.setMinTime(tempMap.get("MIN_TIME_PERCENT")==null?"":fm.formattereight(tempMap.get("MIN_TIME_PERCENT").toString()));
 		               reInstRes.setReinstatementOption(tempMap.get("REINSTATEMENT")==null?"":tempMap.get("REINSTATEMENT").toString());
 		               reInstResList.add(reInstRes);
 		               }

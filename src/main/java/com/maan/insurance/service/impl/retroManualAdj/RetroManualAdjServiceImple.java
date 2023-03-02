@@ -10,7 +10,6 @@ import java.util.Properties;
 import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import javax.persistence.StoredProcedureQuery;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
@@ -51,7 +50,6 @@ import com.maan.insurance.model.res.retroManualAdj.PremiumEditResponse;
 import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
 import com.maan.insurance.service.retroManualAdj.RetroManualAdjService;
 import com.maan.insurance.validation.Formatters;
-import com.maan.insurance.validation.Claim.ValidationImple;
 
 @Service
 public class RetroManualAdjServiceImple implements RetroManualAdjService{
@@ -71,7 +69,6 @@ public class RetroManualAdjServiceImple implements RetroManualAdjService{
 	@PersistenceContext
 	private EntityManager em;
 	private Properties prop = new Properties();
-	private Query query1 = null;
 
 	public RetroManualAdjServiceImple() {
 		try {
@@ -434,7 +431,12 @@ public class RetroManualAdjServiceImple implements RetroManualAdjService{
 					bean.setPremiumClass(name1==null?"":name1.toString());
 		            bean.setPremiumSubClass(treatyView.getSpc()==null?"":treatyView.getSpc().toString());
 	                if(!"ALL".equalsIgnoreCase(bean.getPremiumSubClass().toString())){
-	                	//need to change
+	                	String id = treatyView.getSpc()==null?"":treatyView.getSpc().toString();
+	                	String branch = treatyView.getBranchCode()==null?"":treatyView.getBranchCode().toString();
+	                
+	                	bean.setPremiumSubClass(dropDowmImpl.getSubClass(id,branch,"4"));
+	                	
+	                	
 //	                	select RTRIM(XMLAGG(XMLELEMENT(E,TMAS_SPFC_NAME,',')).EXTRACT('//text()' ),',') from TMAS_SPFC_MASTER SPFC where SPFC.TMAS_SPFC_ID in( select * 
 //	                			from table(SPLIT_TEXT_FN(replace(PD.SPC,' ', '')))) AND  SPFC.TMAS_PRODUCT_ID = '4' AND PD.BRANCH_CODE = SPFC.BRANCH_CODE) PREMIUM_SUBCLASS_NAME
 	                //bean.setPremiumSubClass(treatyView.get("PREMIUM_SUBCLASS_NAME")==null?"":treatyView.get("PREMIUM_SUBCLASS_NAME").toString());

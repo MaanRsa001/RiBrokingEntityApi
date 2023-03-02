@@ -2506,6 +2506,7 @@ public class DropDownServiceImple implements DropDownService{
 			GetCommonDropDownRes response = new GetCommonDropDownRes();
 			List<CommonResDropDown>  resList = new ArrayList<CommonResDropDown>();
 			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy") ;
+			List<Tuple> list = new ArrayList<Tuple>();
 			try{
 				CriteriaBuilder cb = em.getCriteriaBuilder(); 
 				CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
@@ -2543,6 +2544,8 @@ public class DropDownServiceImple implements DropDownService{
 						Predicate n7 = cb.equal(pm.get("branchCode"),req.getBranchCode());
 						Predicate n8 = cb.equal(pm.get("amendId"),amend);	
 						query.where(n1,n2,n3,n4,n5,n6,n7,n8).orderBy(orderList);
+						TypedQuery<Tuple> res1 = em.createQuery(query);
+						list = res1.getResultList();
 					}else{
 						//risk.select.uwYear
 						query.multiselect(pm.get("uwYear").alias("CONTDET1"),pm.get("uwYear").alias("CONTDET2")); 
@@ -2571,6 +2574,8 @@ public class DropDownServiceImple implements DropDownService{
 						Predicate n7 = cb.equal(pm.get("branchCode"),req.getBranchCode());
 						Predicate n8 = cb.equal(pm.get("amendId"),amend);
 						query.where(n1,n2,n3,n4,n6,n7,n8).orderBy(orderList);
+						TypedQuery<Tuple> res1 = em.createQuery(query);
+						list = res1.getResultList();
 					}
 					
 					}
@@ -2612,6 +2617,8 @@ public class DropDownServiceImple implements DropDownService{
 						Predicate n10 = cb.equal(pm.get("rskDummyContract"),"N");
 						Predicate n8 = cb.equal(pm.get("amendId"),amend);
 						query.where(n1,n2,n3,n4,n5,n6,n7,n8,n9,n10).orderBy(orderList);
+						TypedQuery<Tuple> res1 = em.createQuery(query);
+						list = res1.getResultList();
 				}
 				 else if(StringUtils.isNotEmpty(UWYear)&&flag==3){
 					//FAC_SELECT_RETRO_DUP_CONTRACT
@@ -2651,9 +2658,10 @@ public class DropDownServiceImple implements DropDownService{
 						Predicate n10 = cb.equal(pm.get("rskDummyContract"),"D");
 						Predicate n8 = cb.equal(pm.get("amendId"),amend);
 						query.where(n1,n2,n3,n4,n5,n6,n7,n8,n9,n10).orderBy(orderList);
+						TypedQuery<Tuple> res1 = em.createQuery(query);
+						list = res1.getResultList();
 				}
-				TypedQuery<Tuple> res1 = em.createQuery(query);
-				List<Tuple> list = res1.getResultList();
+		
 				
 				if(list!=null && list.size()>0){
 
@@ -5029,12 +5037,12 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 	public GetBouquetExistingListRes getBouquetExistingList(String branchCode, String bouquetNo, String bouquetYN) {
 		GetBouquetExistingListRes response = new GetBouquetExistingListRes();
 		List<GetBouquetExistingListRes1> resList = new ArrayList<GetBouquetExistingListRes1>();
-		List<Map<String,Object>> list=new ArrayList<Map<String,Object>>();
+		List<Tuple> list=new ArrayList<Tuple>();
 		try{
 			if(StringUtils.isNotBlank(bouquetNo) && "Y".equals(bouquetYN)) {
-			list= queryImpl.selectList("GET_EXISTING_BOUQUET",new String[]{branchCode,bouquetNo});
+				list = dropDownCustomRepository.getExistingBouquet(branchCode,bouquetNo);
 			if(list.size()>0) {
-				for(Map<String,Object> data: list) {
+				for(Tuple data: list) {
 					GetBouquetExistingListRes1 res = new GetBouquetExistingListRes1();
 					res.setInsDate(data.get("INS_DATE")==null?"":data.get("INS_DATE").toString()); 
 					res.setExpDate(data.get("EXP_DATE")==null?"":data.get("EXP_DATE").toString());
@@ -5053,8 +5061,8 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 					res.setSectionNo(data.get("SECTION_NO")==null?"":data.get("SECTION_NO").toString()); 
 					res.setLayerNo(data.get("LAYER_NO")==null?"":data.get("LAYER_NO").toString());
 					res.setTmasDepartmentName(data.get("TMAS_DEPARTMENT_NAME")==null?"":data.get("TMAS_DEPARTMENT_NAME").toString()); 
-					//SUB_CLASS pending
-					//res.setSubClass(data.get("SUB_CLASS")==null?"":data.get("SUB_CLASS").toString());
+					
+					res.setSubClass(getSubClass(data.get("SUB_CLASS")==null?"":data.get("SUB_CLASS").toString(),branchCode,data.get("PRODUCT_ID")==null?"":data.get("PRODUCT_ID").toString()));
 					res.setOfferNo(data.get("OFFER_NO")==null?"":data.get("OFFER_NO").toString());
 					resList.add(res);
 					}
@@ -5512,8 +5520,7 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 					res.setSectionNo(data.get("SECTION_NO")==null?"":data.get("SECTION_NO").toString());  
 					res.setLayerNo(data.get("LAYER_NO")==null?"":data.get("LAYER_NO").toString());  
 					res.setTmasDepartmentName(data.get("TMAS_DEPARTMENT_NAME")==null?"":data.get("TMAS_DEPARTMENT_NAME").toString()); 
-					// SUB_CLASS pending
-				//  res.setSubClass(data.get("SUB_CLASS")==null?"":data.get("SUB_CLASS").toString());  
+					res.setSubClass(getSubClass(data.get("SUB_CLASS")==null?"":data.get("SUB_CLASS").toString(),branchCode,data.get("PRODUCT_ID")==null?"":data.get("PRODUCT_ID").toString()));
 					res.setOfferNo(data.get("OFFER_NO")==null?"":data.get("OFFER_NO").toString());  
 					resList.add(res);
 				}
@@ -5840,7 +5847,7 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 					  res.setEpi100Dc(data.get("EPI_100_DC")==null?"":data.get("EPI_100_DC").toString()); 
 					  res.setPlacingStatus(data.get("PLACING_STATUS")==null?"":data.get("PLACING_STATUS").toString()); 
 					  res.setShareSigned(data.get("SHARE_SIGNED")==null?"":data.get("SHARE_SIGNED").toString()); 
-					  res.setBrokerage(data.get("BROKERAGE")==null?"":data.get("BROKERAGE").toString()); 
+					  res.setBrokerage(data.get("BROKERAGE")==null?"":fm.formattereight(data.get("BROKERAGE").toString())); 
 					
 					  DecimalFormat decfor = new DecimalFormat("0.00");
 					  //(EPI_100_DC)*(BROKERAGE/100)*(SHARE_SIGNED/100) = BROKERAGE_AMT
@@ -5878,7 +5885,7 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 					GetPlacementInfoListRes1 res = new GetPlacementInfoListRes1();
 					res.setBaseproposalNos(map.get("BASE_PROPOSAL_NO")==null?"":map.get("BASE_PROPOSAL_NO").toString());
 					res.setBouquetNos(map.get("BOUQUET_NO")==null?"":map.get("BOUQUET_NO").toString());
-					res.setBrokerages(map.get("BROKERAGE_PER")==null?"":map.get("BROKERAGE_PER").toString());
+					res.setBrokerages(map.get("BROKERAGE_PER")==null?"":fm.formattereight(map.get("BROKERAGE_PER").toString()));
 					res.setBrokerIds(map.get("BROKER_ID")==null?"":map.get("BROKER_ID").toString());
 					res.setCurrentStatus(map.get("CURRENT_STATUS")==null?"":map.get("CURRENT_STATUS").toString());
 					res.setNewStatus(map.get("NEW_STATUS")==null?"":map.get("NEW_STATUS").toString());
@@ -6137,6 +6144,10 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 
 		public String getSubClass(String id,String branchCode,String productId) {
 			String result="";
+			if(id.equalsIgnoreCase("ALL")){
+				result =  "All";
+			}else {
+			
 			List<String> spfcId = new ArrayList<>();
 			String[] arg=id.split(",");
 			for(String a:arg) {
@@ -6150,7 +6161,7 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 					result=result+","+list.get(i).getTmasSpfcName();
 				}
 				result = result.replaceFirst(",", "");
-			}
+			}}
 			return result;
 		}
 			

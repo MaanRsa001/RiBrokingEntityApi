@@ -8,7 +8,6 @@ import java.util.Properties;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -38,7 +37,6 @@ import com.maan.insurance.service.impl.QueryImplemention;
 import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
 import com.maan.insurance.service.retroClaim.RetroClaimService;
 import com.maan.insurance.validation.Formatters;
-import com.maan.insurance.validation.Claim.ValidationImple;
 @Service
 public class RetroClaimServiceImple implements RetroClaimService{
 	private Logger log = LogManager.getLogger(RetroClaimServiceImple.class);
@@ -52,15 +50,13 @@ public class RetroClaimServiceImple implements RetroClaimService{
 	@Autowired
 	private Formatters fm;
 
-	@Autowired
-	private ValidationImple vi;
+	
 	@Autowired
 	private TtrnRetroClaimPaymentRepository rcpRepo;
 	
 	@PersistenceContext
 	private EntityManager em;
 	private Properties prop = new Properties();
-	private Query query1 = null;
 
 	public RetroClaimServiceImple() {
 		try {

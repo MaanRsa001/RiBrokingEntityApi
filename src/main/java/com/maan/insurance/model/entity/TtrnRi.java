@@ -124,6 +124,7 @@ public class TtrnRi  implements Serializable {
 	    @Temporal(TemporalType.TIMESTAMP)
 	    @Column(name="SYS_DATE")
 	    private Date       sysDate ;
+	  
 
 	
 

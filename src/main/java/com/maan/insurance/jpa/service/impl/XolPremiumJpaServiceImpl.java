@@ -1,13 +1,9 @@
 package com.maan.insurance.jpa.service.impl;
 
 import java.math.BigDecimal;
-import java.sql.Date;
-import java.text.DateFormat;
 import java.text.DecimalFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +60,7 @@ import com.maan.insurance.model.res.premium.CurrencyListRes1;
 import com.maan.insurance.model.res.premium.GetRIPremiumListRes;
 import com.maan.insurance.model.res.premium.GetRIPremiumListRes1;
 import com.maan.insurance.model.res.xolPremium.CommonResponse;
+import com.maan.insurance.model.res.xolPremium.CommonSaveRes;
 import com.maan.insurance.model.res.xolPremium.ContractDetailsRes;
 import com.maan.insurance.model.res.xolPremium.ContractDetailsRes1;
 import com.maan.insurance.model.res.xolPremium.GetBrokerAndCedingNameRes;
@@ -81,7 +78,6 @@ import com.maan.insurance.model.res.xolPremium.PremiumEditRes1;
 import com.maan.insurance.model.res.xolPremium.PremiumEditResponse;
 import com.maan.insurance.model.res.xolPremium.PremiumInsertRes;
 import com.maan.insurance.model.res.xolPremium.premiumInsertMethodRes;
-import com.maan.insurance.model.res.xolPremium.CommonSaveRes;
 import com.maan.insurance.service.XolPremium.XolPremiumService;
 import com.maan.insurance.service.impl.QueryImplemention;
 import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
@@ -1696,7 +1692,7 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 						: contDet.get("TMAS_DEPARTMENT_NAME").toString());
 				bean.setAcceptenceDate(contDet.get("RSK_ACCOUNT_DATE") == null ? ""
 						: formatDate(contDet.get("RSK_ACCOUNT_DATE")).toString());
-				bean.setVatRate(contDet.get("VAT_RATE") == null ? "0": fm.formatterfour(contDet.get("VAT_RATE").toString()));
+				bean.setVatRate(contDet.get("VAT_RATE") == null ? "0": fm.formattereight(contDet.get("VAT_RATE").toString()));
 			}
 			if (list != null && list.size() > 0)
 				bean.setSaveFlag("true");
@@ -1707,15 +1703,15 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 			list = xolPremiumCustomRepository.selectCommissionDetails(bean.getProposalNo());
 			if (list != null && list.size() > 0) {
 				Tuple commission = list.get(0);
-				bean.setCommissionview(commission.get("RSK_COMM_QUOTASHARE") == null ? "": fm.formatterfour(commission.get("RSK_COMM_QUOTASHARE").toString()));
-				bean.setPremiumReserveview(commission.get("RSK_PREMIUM_RESERVE") == null ? "": fm.formatterfour(commission.get("RSK_PREMIUM_RESERVE").toString()));
+				bean.setCommissionview(commission.get("RSK_COMM_QUOTASHARE") == null ? "": fm.formattereight(commission.get("RSK_COMM_QUOTASHARE").toString()));
+				bean.setPremiumReserveview(commission.get("RSK_PREMIUM_RESERVE") == null ? "": fm.formattereight(commission.get("RSK_PREMIUM_RESERVE").toString()));
 				bean.setLossreserveview(commission.get("RSK_LOSS_RESERVE") == null ? "": (commission.get("RSK_LOSS_RESERVE").toString()));
 				bean.setProfitCommYN(commission.get("RSK_PROFIT_COMM") == null ? "" : (commission.get("RSK_PROFIT_COMM").toString()));
-				bean.setCommissionSurbview(commission.get("RSK_COMM_SURPLUS") == null ? "": fm.formatterfour(commission.get("RSK_COMM_SURPLUS").toString()));
-				bean.setOverRiderview(commission.get("RSK_OVERRIDER_PERC") == null ? "": fm.formatterfour(commission.get("RSK_OVERRIDER_PERC").toString()));
-				bean.setBrokerageview(commission.get("RSK_BROKERAGE") == null ? "" : fm.formatterfour(commission.get("RSK_BROKERAGE").toString()));
-				bean.setTaxview(commission.get("RSK_TAX") == null ? "" : fm.formatterfour(commission.get("RSK_TAX").toString()));
-				bean.setOtherCostView(commission.get("RSK_OTHER_COST") == null ? "": fm.formatterfour(commission.get("RSK_OTHER_COST").toString()));
+				bean.setCommissionSurbview(commission.get("RSK_COMM_SURPLUS") == null ? "": fm.formattereight(commission.get("RSK_COMM_SURPLUS").toString()));
+				bean.setOverRiderview(commission.get("RSK_OVERRIDER_PERC") == null ? "": fm.formattereight(commission.get("RSK_OVERRIDER_PERC").toString()));
+				bean.setBrokerageview(commission.get("RSK_BROKERAGE") == null ? "" : fm.formattereight(commission.get("RSK_BROKERAGE").toString()));
+				bean.setTaxview(commission.get("RSK_TAX") == null ? "" : fm.formattereight(commission.get("RSK_TAX").toString()));
+				bean.setOtherCostView(commission.get("RSK_OTHER_COST") == null ? "": fm.formattereight(commission.get("RSK_OTHER_COST").toString()));
 			}
 			args[0] = bean.getProposalNo();
 			args[1] = bean.getProposalNo();
@@ -1837,7 +1833,7 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 					res.setEnteringMode(data.getEnteringMode()==null?"":data.getEnteringMode().toString());
 					res.setAccountPeriod(data.getInstalmentNumber()+(data.getAccountPeriodQtr()==null?"":("_"+data.getAccountPeriodQtr())));
 					res.setCurrencyId(data.getCurrencyId()==null?"":data.getCurrencyId().toString());
-					res.setOtherCost(data.getOtherCostOc()==null?"":data.getOtherCostOc().toString());
+					res.setOtherCost(data.getOtherCostOc()==null?"":fm.formatter(data.getOtherCostOc().toString()));
 					res.setBrokerageusd(data.getBrokerageAmtDc()==null?"":data.getBrokerageAmtDc().toString());
 					res.setTaxusd(data.getTaxAmtDc()==null?"":data.getTaxAmtDc().toString());
 					res.setTaxOc(data.getTaxAmtOc()==null?"":data.getTaxAmtOc().toString());

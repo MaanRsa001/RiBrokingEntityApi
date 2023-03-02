@@ -149,4 +149,8 @@ public interface ProportionalityService {
 	CommonSaveRes getSectionDuplicationCheck(GetSectionDuplicationCheckReq req);
 
 	ConvertPolicyRes convertPolicy(ConvertPolicyReq req);
+
+	CommonResponse ttrnRipDelete(String referenceNo);
+
+	CommonResponse ttrnBonusDelete(String referenceNo);
 }

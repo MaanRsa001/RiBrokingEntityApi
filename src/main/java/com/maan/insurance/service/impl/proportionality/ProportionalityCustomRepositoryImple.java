@@ -1778,6 +1778,7 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 		Root<TtrnRiskProposal> rp = query1.from(TtrnRiskProposal.class);
 		Root<PersonalInfo> pi = query1.from(PersonalInfo.class);
 		Root<TtrnRiskCommission> rc = query1.from(TtrnRiskCommission.class);
+		Root<TmasDepartmentMaster> tdm = query1.from(TmasDepartmentMaster.class);
 	
 		//deptName
 		Subquery<String> deptName = query1.subquery(String.class); 
@@ -1791,7 +1792,10 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 		
 		Expression<String> e0 = cb.concat(pi.get("firstName"), " ");
 		
-		query1.multiselect(rk.get("rskContractNo").alias("RSK_CONTRACT_NO"),
+		query1.multiselect(
+				tdm.get("branchCode").alias("BRANCH_CODE"),
+				tdm.get("tmasProductId").alias("TMAS_PRODUCT_ID"),
+				rk.get("rskContractNo").alias("RSK_CONTRACT_NO"),
 				rk.get("rskEndorsementNo").alias("RSK_ENDORSEMENT_NO"),
 				personal.get("companyName").alias("CEDING_COMPANY"),
 				rk.get("rskCedingid").alias("RSK_CEDINGID"),
@@ -1877,6 +1881,8 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 		predicates.add(cb.equal(rp.get("rskEndorsementNo"),endRp));
 		predicates.add(cb.equal(rc.get("rskProposalNumber"),rp.get("rskProposalNumber")));
 		predicates.add(cb.equal(rc.get("rskEndorsementNo"),endRc));
+		predicates.add(cb.equal(tdm.get("branchCode"),branchCode));
+		predicates.add(cb.equal(tdm.get("tmasProductId"),productId));
 	
 		query1.where(predicates.toArray(new Predicate[0]));
 	
@@ -2906,7 +2912,6 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 			Root<TtrnRiskDetails> m = update.from(TtrnRiskDetails.class);
 		
 			update.set("rskContractNo", fm.formatBigDecimal(maxContarctNo));
-			
 			
 			Predicate n1 = cb.equal(m.get("rskProposalNumber"), proposalNo);
 			update.where(n1);

@@ -72,8 +72,6 @@ public class FacPremiumServiceImple implements FacPremiumService {
 	@Autowired
 	private Formatters fm;
 	
-	@Autowired
-	private ValidationImple vi;
 
 	@Override
 	public PremiumTempRes1 getpremiumTempList(String contNo, String branchCode) {

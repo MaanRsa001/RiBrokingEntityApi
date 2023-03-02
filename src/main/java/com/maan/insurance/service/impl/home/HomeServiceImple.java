@@ -9,7 +9,6 @@ import java.util.Properties;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -31,7 +30,6 @@ import com.maan.insurance.model.entity.TmasHomepageMaster;
 import com.maan.insurance.model.entity.TmasProductMaster;
 import com.maan.insurance.model.repository.TmasDepartmentMasterRepository;
 import com.maan.insurance.model.repository.TmasHomepageMasterRepository;
-import com.maan.insurance.model.repository.TmasLoginDetailsRepository;
 import com.maan.insurance.model.req.home.GetOldProductIdReq;
 import com.maan.insurance.model.res.DropDown.CommonResDropDown;
 import com.maan.insurance.model.res.DropDown.GetCommonDropDownRes;
@@ -42,9 +40,6 @@ import com.maan.insurance.model.res.home.GetMenuDropDownListRes1;
 import com.maan.insurance.model.res.retro.CommonSaveRes;
 import com.maan.insurance.service.home.HomeService;
 import com.maan.insurance.service.impl.QueryImplemention;
-import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
-import com.maan.insurance.validation.Formatters;
-import com.maan.insurance.validation.Claim.ValidationImple;
 
 @Service
 public class HomeServiceImple implements HomeService{
@@ -60,7 +55,6 @@ public class HomeServiceImple implements HomeService{
 	@PersistenceContext
 	private EntityManager em;
 	private Properties prop = new Properties();
-	private Query query1 = null;
 
 	public HomeServiceImple() {
 		try {
