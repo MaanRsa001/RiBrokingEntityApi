@@ -40,6 +40,7 @@ import com.maan.insurance.model.entity.TtrnRiPlacement;
 import com.maan.insurance.model.entity.TtrnRiPlacementStatus;
 import com.maan.insurance.model.entity.TtrnRiskDetails;
 import com.maan.insurance.model.entity.TtrnRiskProposal;
+import com.maan.insurance.model.repository.TtrnRiPlacementRepository;
 import com.maan.insurance.model.req.placement.EditPlacingDetailsReq;
 import com.maan.insurance.model.req.placement.GetApprovalPendingListReq;
 import com.maan.insurance.model.req.placement.GetExistingAttachListReq;
@@ -67,6 +68,8 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 	EntityManager em;
 	@Autowired
 	private Formatters fm;
+	@Autowired
+	private TtrnRiPlacementRepository ttrnRiPlacementRepository;
 	@Override
 	public List<Tuple> getMailToList(GetMailToListReq bean) {
 		String cedeingId="";
@@ -1467,20 +1470,38 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 			Subquery<String> mailStatus = query.subquery(String.class);
 			Root<MailNotificationDetail> m = mailStatus.from(MailNotificationDetail.class);
 			mailStatus.select(m.get("mailStatus"));
+			Subquery<Long> mmaxAmend = query.subquery(Long.class); 
+			Root<MailNotificationDetail> cm = mmaxAmend.from(MailNotificationDetail.class);
+			mmaxAmend.select(cb.max(cm.get("mailRecordNo")));
+			Predicate mb1 = cb.equal(m.get("proposalNo"), cm.get("proposalNo"));
+			Predicate mb2 = cb.equal(m.get("reinsurerId"), cm.get("reinsurerId"));
+			Predicate mb3 = cb.equal(m.get("brokerId"), cm.get("brokerId"));
+			Predicate mb4 = cb.equal(m.get("mailType"), cm.get("mailType"));
+			Predicate mb5 = cb.equal(m.get("sno"), cm.get("sno"));
+			mmaxAmend.where(mb1,mb2,mb3,mb4,mb5);
+			
 			Predicate b1 = cb.equal(m.get("proposalNo"), p.get("proposalNo"));
 			Predicate b2 = cb.equal(m.get("reinsurerId"), p.get("reinsurerId"));
 			Predicate b3 = cb.equal(m.get("brokerId"), p.get("brokerId"));
 			Predicate b4 = cb.equal(m.get("mailType"), p.get("status"));
-			mailStatus.where(b1,b2,b3,b4);
+			Predicate b5 = cb.equal(m.get("mailRecordNo"),mmaxAmend);
+			mailStatus.where(b1,b2,b3,b4,b5);
 			
 			//companyName
 			Subquery<String> companyName = query.subquery(String.class); 
 			Root<PersonalInfo> pms = companyName.from(PersonalInfo.class);
 			companyName.select(pms.get("companyName"));
+			//maxAmend
+			Subquery<Long> cmaxAmend = query.subquery(Long.class); 
+			Root<PersonalInfo> cpis = cmaxAmend.from(PersonalInfo.class);
+			cmaxAmend.select(cb.max(cpis.get("amendId")));
+			Predicate ce1 = cb.equal( cpis.get("customerId"), pms.get("customerId"));
+			cmaxAmend.where(ce1);
 			Predicate c1 = cb.equal( p.get("cedingCompanyId"), pms.get("customerId"));
 			Predicate c2 = cb.equal( pms.get("customerType"), "C");
 			Predicate c3 = cb.equal( p.get("branchCode"), pms.get("branchCode"));
-			companyName.where(c1,c2,c3);
+			Predicate c4 = cb.equal( pms.get("amendId"), cmaxAmend);
+			companyName.where(c1,c2,c3,c4);
 			
 			//reinsurerName
 			Subquery<String> reInsurerName = query.subquery(String.class); 
@@ -1528,9 +1549,15 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 			Subquery<String> offer = query.subquery(String.class); 
 			Root<PositionMaster> pm = offer.from(PositionMaster.class);
 			offer.select(pm.get("offerNo"));
+			Subquery<Long> pmmaxAmend = query.subquery(Long.class); 
+			Root<PositionMaster> pms1 = pmmaxAmend.from(PositionMaster.class);
+			pmmaxAmend.select(cb.max(pms1.get("amendId")));
+			Predicate pme1 = cb.equal( pms1.get("proposalNo"), pm.get("proposalNo"));
+			pmmaxAmend.where(pme1);
 			Predicate i1 = cb.equal(pm.get("proposalNo"), p.get("proposalNo"));
 			Predicate i2 = cb.equal(pm.get("branchCode"), p.get("branchCode"));
-			offer.where(i1,i2);
+			Predicate i3 = cb.equal(pm.get("amendId"), pmmaxAmend);
+			offer.where(i1,i2,i3);
 
 			query.multiselect( 
 					 p.get("sno").alias("SNO"), 
@@ -1611,20 +1638,38 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 			Subquery<String> mailStatus = query.subquery(String.class);
 			Root<MailNotificationDetail> m = mailStatus.from(MailNotificationDetail.class);
 			mailStatus.select(m.get("mailStatus"));
+			Subquery<Long> mmaxAmend = query.subquery(Long.class); 
+			Root<MailNotificationDetail> cm = mmaxAmend.from(MailNotificationDetail.class);
+			mmaxAmend.select(cb.max(cm.get("mailRecordNo")));
+			Predicate mb1 = cb.equal(m.get("proposalNo"), cm.get("proposalNo"));
+			Predicate mb2 = cb.equal(m.get("reinsurerId"), cm.get("reinsurerId"));
+			Predicate mb3 = cb.equal(m.get("brokerId"), cm.get("brokerId"));
+			Predicate mb4 = cb.equal(m.get("mailType"), cm.get("mailType"));
+			Predicate mb5 = cb.equal(m.get("sno"), cm.get("sno"));
+			mmaxAmend.where(mb1,mb2,mb3,mb4,mb5);
+			
 			Predicate b1 = cb.equal(m.get("proposalNo"), p.get("proposalNo"));
 			Predicate b2 = cb.equal(m.get("reinsurerId"), p.get("reinsurerId"));
 			Predicate b3 = cb.equal(m.get("brokerId"), p.get("brokerId"));
 			Predicate b4 = cb.equal(m.get("mailType"), p.get("status"));
-			mailStatus.where(b1,b2,b3,b4);
+			Predicate b5 = cb.equal(m.get("mailRecordNo"),mmaxAmend);
+			mailStatus.where(b1,b2,b3,b4,b5);
 			
 			//companyName
 			Subquery<String> companyName = query.subquery(String.class); 
 			Root<PersonalInfo> pms = companyName.from(PersonalInfo.class);
 			companyName.select(pms.get("companyName"));
+			//maxAmend
+			Subquery<Long> cmaxAmend = query.subquery(Long.class); 
+			Root<PersonalInfo> cpis = cmaxAmend.from(PersonalInfo.class);
+			cmaxAmend.select(cb.max(cpis.get("amendId")));
+			Predicate ce1 = cb.equal( cpis.get("customerId"), pms.get("customerId"));
+			cmaxAmend.where(ce1);
 			Predicate c1 = cb.equal( p.get("cedingCompanyId"), pms.get("customerId"));
 			Predicate c2 = cb.equal( pms.get("customerType"), "C");
 			Predicate c3 = cb.equal( p.get("branchCode"), pms.get("branchCode"));
-			companyName.where(c1,c2,c3);
+			Predicate c4 = cb.equal( pms.get("amendId"), cmaxAmend);
+			companyName.where(c1,c2,c3,c4);
 			
 			//reinsurerName
 			Subquery<String> reInsurerName = query.subquery(String.class); 
@@ -1672,9 +1717,16 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 			Subquery<String> offer = query.subquery(String.class); 
 			Root<PositionMaster> pm = offer.from(PositionMaster.class);
 			offer.select(pm.get("offerNo"));
+			//maxAmend
+			Subquery<Long> pmmaxAmend = query.subquery(Long.class); 
+			Root<PositionMaster> pms1 = pmmaxAmend.from(PositionMaster.class);
+			pmmaxAmend.select(cb.max(pms1.get("amendId")));
+			Predicate pme1 = cb.equal( pms1.get("proposalNo"), pm.get("proposalNo"));
+			pmmaxAmend.where(pme1);
 			Predicate i1 = cb.equal(pm.get("proposalNo"), p.get("proposalNo"));
 			Predicate i2 = cb.equal(pm.get("branchCode"), p.get("branchCode"));
-			offer.where(i1,i2);
+			Predicate i3 = cb.equal(pm.get("amendId"), pmmaxAmend);
+			offer.where(i1,i2,i3);
 
 			query.multiselect( 
 					 p.get("sno").alias("SNO"), 
@@ -2660,5 +2712,35 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 	public String getStatusNo(String proposal, String branchCode, String reinsurerId, String brokerId) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public int getCountContractBouquet(String bouquetNo) {
+		int cont=0;
+		List<TtrnRiPlacement> list=ttrnRiPlacementRepository.findByBouquetNoAndContractNoIsNotNullAndContractNoNot(new BigDecimal(bouquetNo),BigDecimal.ZERO);
+		if(!CollectionUtils.isEmpty(list)){
+			cont=1;
+		}
+		return cont;
+	}
+
+	@Override
+	public int getCountContractBaseLayer(String baseProposalNo) {
+		int cont=0;
+		List<TtrnRiPlacement> list=ttrnRiPlacementRepository.findBybaseProposalNoAndContractNoIsNotNullAndContractNoNot(new BigDecimal(baseProposalNo),BigDecimal.ZERO);
+		if(!CollectionUtils.isEmpty(list)){
+			cont=1;
+		}
+		return cont;
+	}
+
+	@Override
+	public int getCountContractProposal(String prop) {
+		int cont=0;
+		List<TtrnRiPlacement> list=ttrnRiPlacementRepository.findByProposalNoAndContractNoIsNotNullAndContractNoNot(new BigDecimal(prop),BigDecimal.ZERO);
+		if(!CollectionUtils.isEmpty(list)){
+			cont=1;
+		}
+		return cont;
 	}
 }

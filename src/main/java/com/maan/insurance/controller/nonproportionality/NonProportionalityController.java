@@ -331,7 +331,7 @@ public class NonProportionalityController {
 					}
 					return nonPropService.getLayerInfo(req);
 				} 
-			@GetMapping("/CancelProposal/{proposalNo}/{proposalReference}/{newProposal}")
+			@GetMapping("/CancelProposal/{proposalNo}/{newProposal}/{proposalReference}")
 			public CommonResponse cancelProposal(@PathVariable ("proposalNo") String proposalNo,@PathVariable ("proposalReference") String proposalReference,@PathVariable ("newProposal") String newProposal) throws CommonValidationException {
 							return nonPropService.cancelProposal(proposalNo,proposalReference,newProposal);
 				} 

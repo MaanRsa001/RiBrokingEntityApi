@@ -120,7 +120,6 @@ import com.maan.insurance.model.res.placement.SavePlacingRes;
 import com.maan.insurance.model.res.placement.SendMailRes;
 import com.maan.insurance.model.res.placement.UpdatePlacementRes;
 import com.maan.insurance.model.res.placement.UpdatePlacementRes1;
-import com.maan.insurance.model.res.placement.UpdateRiplacementRes;
 import com.maan.insurance.model.res.placement.UploadDocumentRes;
 import com.maan.insurance.model.res.placement.UploadDocumentRes1;
 import com.maan.insurance.model.res.retro.CommonResponse;
@@ -304,10 +303,10 @@ public class PlacementServiceImple implements PlacementService {
 	public ProposalInfoRes proposalInfo(proposalInfoReq req) {
 		ProposalInfoRes response = new ProposalInfoRes();
 		ProposalInfoRes1 bean = new ProposalInfoRes1();
+		int count=0;
 		try {
-			String proposal=StringUtils.isBlank(req.getEProposalNo())?req.getProposalNo():req.getEProposalNo();
 			
-			List<Tuple> list = placementCustomRepository.getExistingProposal(proposal, req.getBranchCode(),"0");
+			List<Tuple> list = placementCustomRepository.getExistingProposal(req.getProposalNo(),req.getBranchCode(),"0");
 			if(list.size()>0) {
 				Tuple map=list.get(0);
 				bean.setCedingCompanyName(map.get("COMPANY_NAME")==null?"":map.get("COMPANY_NAME").toString());
@@ -326,10 +325,20 @@ public class PlacementServiceImple implements PlacementService {
 				bean.setSectionNo(map.get("SECTION_NO")==null?"":map.get("SECTION_NO").toString());
 				bean.setOfferNo(map.get("OFFER_NO")==null?"":map.get("OFFER_NO").toString());
 				bean.setAmendId(map.get("AMEND_ID")==null?"":map.get("AMEND_ID").toString());
+				if(StringUtils.isNotBlank(bean.getBouquetNo())) {
+					count=placementCustomRepository.getCountContractBouquet(bean.getBouquetNo());
+				}else if(StringUtils.isNotBlank(bean.getBaseProposalNo())) {
+					count=placementCustomRepository.getCountContractBaseLayer(bean.getBaseProposalNo());
+				}else { 
+					count=placementCustomRepository.getCountContractProposal(req.getProposalNo());
+					
+				}
+				bean.setContractStatus(count>0?"C":"P");
 				if(StringUtils.isNotBlank(req.getProposalNo()))
 				bean.setEproposalNo(req.getProposalNo());
 				response.setCommonResponse(bean);
 			}
+			
 			response.setMessage("Success");
 			response.setIsError(false);
 		}catch(Exception e){
@@ -402,18 +411,29 @@ public class PlacementServiceImple implements PlacementService {
 		GetPlacementInfoListRes response = new GetPlacementInfoListRes();
 		List<Tuple> list=new ArrayList<>();
 		List<GetPlacementInfoListRes1> resList = new ArrayList<GetPlacementInfoListRes1>();
+		int count=0;
 		try {
 			if(StringUtils.isNotBlank(bean.getBouquetNo())) {
 				//GET_PLACEMENT_BOUQUET_LIST--LEFT JOIN
+				count=placementCustomRepository.getCountContractBouquet(bean.getBouquetNo());
+				if(!(count>0 && StringUtils.isNotBlank(bean.getSearchType()))) {
 				list = placementCustomRepository.getPlacementBouquetList(bean); 
+				}
 			}else if(StringUtils.isNotBlank(bean.getBaseProposalNo())) {
 				//GET_PLACEMENT_BASE_LIST--LEFT JOIN
+				count=placementCustomRepository.getCountContractBaseLayer(bean.getBaseProposalNo());
+				if(!(count>0 && StringUtils.isNotBlank(bean.getSearchType()))) {
+					
 				list = placementCustomRepository.getPlacementBaseList(bean); 
+				}
 				 
 			}else {
 				//GET_PLACEMENT_LIST--LEFT JOIN
 				String prop=StringUtils.isBlank(bean.getEproposalNo())?bean.getProposalNo():bean.getEproposalNo();
+				count=placementCustomRepository.getCountContractProposal(prop);
+				if(!(count>0 && StringUtils.isNotBlank(bean.getSearchType()))) {
 				list = placementCustomRepository.getPlacementList(bean, prop); 
+				}
 			}
 
 			DecimalFormat formatter = new DecimalFormat("#0.00000000");     
@@ -444,6 +464,7 @@ public class PlacementServiceImple implements PlacementService {
 					res.setMailStatus(map.get("MAIL_STATUS")==null?"":map.get("MAIL_STATUS").toString()); 
 					res.setOfferNo(map.get("OFFER_NO")==null?"":map.get("OFFER_NO").toString());
 					res.setApproverStatus(map.get("APPROVER_STATUS")==null?"":map.get("APPROVER_STATUS").toString());
+					res.setContractStatus(count>0?"C":"P");
 					resList.add(res);
 					}
 					resList.sort(Comparator.comparing(GetPlacementInfoListRes1 :: getOfferNo)
@@ -513,7 +534,6 @@ public class PlacementServiceImple implements PlacementService {
 			proposalInfoReq req1 = new proposalInfoReq();
 			req1.setBranchCode(bean.getBranchCode());
 			req1.setProposalNo(bean.getProposalNo());
-			req1.setEProposalNo(bean.getEproposalNo());
 			ProposalInfoRes resp=proposalInfo(req1);
 			ProposalInfoRes1 resp1=resp.getCommonResponse();
 			//DeletePlacement(bean);
@@ -1331,7 +1351,11 @@ public class PlacementServiceImple implements PlacementService {
 			if(!CollectionUtils.isEmpty(list)) {
 				for(int  i=0;i<list.size();i++) {
 					Tuple map=list.get(i);
-					plamendId=placementCustomRepository.getMaxAmendId(bean.getBranchCode(),bean.getEproposalNo(),bean.getReinsurerId(),bean.getBrokerId());
+					String proposalNo=String.valueOf(map.get("PROPOSAL_NO")==null?BigDecimal.ZERO :new BigDecimal(map.get("PROPOSAL_NO").toString())) ;
+					String brokerId=map.get("BROKER_ID")==null?"":map.get("BROKER_ID").toString();
+					String reinsurerId=map.get("REINSURER_ID")==null?"":map.get("REINSURER_ID").toString();
+					
+					plamendId=placementCustomRepository.getMaxAmendId(bean.getBranchCode(),proposalNo,reinsurerId,brokerId);
 					if(StringUtils.isBlank(plamendId) || "null".equalsIgnoreCase(plamendId)) {
 						plamendId="0";
 					}
@@ -1347,7 +1371,7 @@ public class PlacementServiceImple implements PlacementService {
 					entity.setAmendId(map.get("AMEND_ID")==null? BigDecimal.ZERO :new BigDecimal(map.get("AMEND_ID").toString()));
 					entity.setReinsurerId(map.get("REINSURER_ID")==null?"":map.get("REINSURER_ID").toString());
 					entity.setBrokerId(map.get("BROKER_ID")==null?"":map.get("BROKER_ID").toString());
-					entity.setShareOffered(map.get("REINSURER_ID")==null?BigDecimal.ZERO :new BigDecimal(map.get("REINSURER_ID").toString()));
+					entity.setShareOffered(map.get("SHARE_OFFERED")==null?BigDecimal.ZERO :new BigDecimal(map.get("SHARE_OFFERED").toString()));
 					entity.setBranchCode(bean.getBranchCode()==null?"":bean.getBranchCode());
 					entity.setSysDate(new Date());
 					entity.setPlacementMode(bean.getPlacementMode()==null?"":bean.getPlacementMode());

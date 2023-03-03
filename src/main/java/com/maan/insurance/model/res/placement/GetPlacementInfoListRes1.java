@@ -51,5 +51,7 @@ public class GetPlacementInfoListRes1 {
 	private String offerNo ;
 	@JsonProperty("ApproverStatus")
 	private String approverStatus; 
+	@JsonProperty("ContractStatus")
+	private String contractStatus; 
 
 }

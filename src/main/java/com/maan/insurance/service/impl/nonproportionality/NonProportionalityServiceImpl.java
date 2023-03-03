@@ -3098,14 +3098,17 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		try{
 
 			//REINSTATEMENT_MAIN_SELECT_A
-			List<Tuple> result =  nonProportCustomRepository.reinstatementMainSelectA(req.getProposalNo(),req.getBranchCode());
+			List<Tuple> result = null; 
+					//nonProportCustomRepository.reinstatementMainSelectA(req.getProposalNo(),req.getBranchCode());
 				
 			if(CollectionUtils.isEmpty(result) && !"0".equals(req.getReferenceNo())){ //Ri
 						//REINSTATEMENT_MAIN_SELECT_A_REFERENCE
 						result =  nonProportCustomRepository.reinstatementMainSelectAReference(req.getReferenceNo(),req.getBranchCode());
 
 					}
-					
+			if(CollectionUtils.isEmpty(result)){
+				result =  nonProportCustomRepository.reinstatementMainSelectA(req.getProposalNo(),req.getBranchCode());
+			}
 				for(int i=0;i<result.size();i++){
 					   Tuple tempMap = result.get(i);
 		               ReInStatementRes reInstRes = new ReInStatementRes();
@@ -3295,7 +3298,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			
 				//BONUS_MAIN_SELECT //ri
 				result =  nonProportCustomRepository.bonusMainSelect(proposalNo,branchCode, acqBonus);
-					if(CollectionUtils.isEmpty(result)) {
+					if(CollectionUtils.isEmpty(result) && !"0".equals(referenceNo)) {
 						//BONUS_MAIN_SELECT_REFERENCE
 						result =  nonProportCustomRepository.bonusMainSelectReference(referenceNo,branchCode, acqBonus);
 					} 
@@ -4944,6 +4947,9 @@ private boolean checkEditSaveModeMethod(final insertProportionalTreatyReq req) {
 				if("Y".equals(bean.getContractMode())  && StringUtils.isNotBlank(bean.getBaseLayer())) {
 					obj[0]=bean.getBaseLayer();
 					obj[1]=bean.getBaseLayer();
+				}else if(StringUtils.isNotBlank(bean.getBaseLayer())){
+					obj[0]=bean.getBaseLayer();
+					obj[1]=bean.getBaseLayer();
 				}else {
 					obj[0]=bean.getProposalNo();
 					obj[1]=bean.getProposalNo();
@@ -4954,6 +4960,9 @@ private boolean checkEditSaveModeMethod(final insertProportionalTreatyReq req) {
 				
 				obj= new String[2];
 				if("Y".equals(bean.getContractMode())  && StringUtils.isNotBlank(bean.getBaseLayer())) {
+					obj[0]=bean.getBaseLayer();
+					obj[1]=bean.getBaseLayer();
+				}else if(StringUtils.isNotBlank(bean.getBaseLayer())){
 					obj[0]=bean.getBaseLayer();
 					obj[1]=bean.getBaseLayer();
 				}else {

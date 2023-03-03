@@ -991,7 +991,7 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 					pr.get("acqcostDetYn").alias("ACQCOST_DET_YN"),	pr.get("commDetYn").alias("COMM_DET_YN"), 
 					pr.get("depositDetYn").alias("DEPOSIT_DET_YN"),	pr.get("lossDetYn").alias("LOSS_DET_YN"), 
 					pr.get("docDetYn").alias("DOC_DET_YN"),	pr.get("paymentPartner").alias("PAYMENT_PARTNER"),
-					pm.get("sectionNo").alias("SECTION_NO"),	pr.get("quotesharePercent").alias("QUOTESHARE_PERCENT"), 
+					pm.get("sectionNo").alias("SECTION_NO"),pm.get("branchCode").alias("BRANCH_CODE"),	pr.get("quotesharePercent").alias("QUOTESHARE_PERCENT"), 
 					de.get("rskAccountPeriodNotice").alias("RSK_ACCOUNT_PERIOD_NOTICE"),de.get("rskStatementConfirm").alias("RSK_STATEMENT_CONFIRM")
 					); 
 			//amend
@@ -1092,7 +1092,7 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 						pr.get("acqcostDetYn").alias("ACQCOST_DET_YN"),	pr.get("commDetYn").alias("COMM_DET_YN"), 
 						pr.get("depositDetYn").alias("DEPOSIT_DET_YN"),	pr.get("lossDetYn").alias("LOSS_DET_YN"), 
 						pr.get("docDetYn").alias("DOC_DET_YN"),	pr.get("paymentPartner").alias("PAYMENT_PARTNER"),
-						pm.get("sectionNo").alias("SECTION_NO"),	pr.get("quotesharePercent").alias("QUOTESHARE_PERCENT"), 
+						pm.get("sectionNo").alias("SECTION_NO"),pm.get("branchCode").alias("BRANCH_CODE"),	pr.get("quotesharePercent").alias("QUOTESHARE_PERCENT"), 
 						de.get("rskAccountPeriodNotice").alias("RSK_ACCOUNT_PERIOD_NOTICE"),de.get("rskStatementConfirm").alias("RSK_STATEMENT_CONFIRM")); 
 				//amend
 				Subquery<Long> amend = query.subquery(Long.class); 
@@ -1158,7 +1158,7 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 				Predicate n1 = cb.equal(pm.get("proposalNo"),args[0]);
 				Predicate n2 = cb.equal(pm.get("layerNo"),args[1]);
 				Predicate n4 = cb.equal(pm.get("amendId"),amend);
-				query.where(n1,n2,n4);
+				query.where(n1,n2,n4).orderBy(orderList);
 				
 				TypedQuery<Tuple> res1 = em.createQuery(query);
 				list = res1.getResultList();

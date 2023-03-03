@@ -273,5 +273,7 @@ public class RiskDetailsEditModeRes1 {
 	private String accountingPeriodNotes;
 	@JsonProperty("StatementConfirm")
 	private String statementConfirm;
+	@JsonProperty("SubClass")
+	private String subClass;
 	
 }

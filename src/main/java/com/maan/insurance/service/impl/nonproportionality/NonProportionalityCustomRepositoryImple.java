@@ -2032,7 +2032,7 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 			Predicate n2 = cb.equal(rd.get("branchCode"), branchCode); 
 			Predicate n3 = cb.equal(rd.get("sectionType"), "A"); 
 			Predicate n4 = cb.equal(rd.get("amendId"), amend); 
-			query1.where(n1,n2,n3,n4);
+			query1.where(n1,n2,n3,n4).orderBy(orderList);
 
 			TypedQuery<Tuple> result = em.createQuery(query1);
 			list = result.getResultList();
@@ -2073,7 +2073,7 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 			Predicate n2 = cb.equal(rd.get("branchCode"), branchCode); 
 			Predicate n3 = cb.equal(rd.get("sectionType"), "A"); 
 			Predicate n4 = cb.equal(rd.get("amendId"), amend); 
-			query1.where(n1,n2,n3,n4);
+			query1.where(n1,n2,n3,n4).orderBy(orderList);
 
 			TypedQuery<Tuple> result = em.createQuery(query1);
 			list = result.getResultList();
@@ -2498,7 +2498,7 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 			Predicate n2 = cb.equal(pm.get("layerNo"), args[1]);
 			Predicate n3 = cb.equal(pm.get("endorsementNo"), end);
 			Predicate n4 = cb.isNotNull(pm.get("endorsementNo"));
-			query.where(n1,n2,n3,n4);
+			query.where(n1,n2,n3,n4).orderBy(orderList);
 			
 			TypedQuery<Tuple> res1 = em.createQuery(query);
 			list = res1.getResultList();
@@ -2601,7 +2601,7 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 			Predicate n1 = cb.equal(pm.get("rskProposalNumber"),proposalNo);
 			Predicate n2 = cb.equal(pm.get("rskLayerNo"), layerNo);
 			Predicate n3 = cb.equal(pm.get("rskEndorsementNo"), end);
-			query.where(n1,n2,n3);
+			query.where(n1,n2,n3).orderBy(orderList);
 			
 			TypedQuery<Tuple> res1 = em.createQuery(query);
 			list = res1.getResultList();
@@ -3054,7 +3054,7 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 			
 			List<Order> orderList = new ArrayList<Order>();
 			orderList.add(cb.asc(pm.get("productId")));
-			orderList.add(cb.asc(pm.get("baseLayer")));
+			orderList.add(cb.asc(cb.coalesce(pm.get("baseLayer"),pm.get("proposalNo"))));
 			orderList.add(cb.asc(pm.get("proposalNo")));
 			
 			//amend
@@ -3081,7 +3081,7 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 			Predicate n5 = e0.in("P");
 			Predicate n6 = cb.equal(pm.get("amendId"), amend);
 			Predicate n7 = cb.equal(rd.get("rskEndorsementNo"), end);
-			query.where(n1,n4,n5,n6,n7);
+			query.where(n1,n4,n5,n6,n7).orderBy(orderList);
 			
 			TypedQuery<Tuple> res1 = em.createQuery(query);
 			result = res1.getResultList();
@@ -3137,7 +3137,7 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 			
 			List<Order> orderList = new ArrayList<Order>();
 			orderList.add(cb.asc(pm.get("productId")));
-			orderList.add(cb.asc(pm.get("baseLayer")));
+			orderList.add(cb.asc(cb.coalesce(pm.get("baseLayer"),pm.get("proposalNo"))));
 			orderList.add(cb.asc(pm.get("proposalNo")));
 			
 			//amend
@@ -3164,7 +3164,7 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 			Predicate n5 = e0.in("A");
 			Predicate n6 = cb.equal(pm.get("amendId"), amend);
 			Predicate n7 = cb.equal(rd.get("rskEndorsementNo"), end);
-			query.where(n1,n4,n5,n6,n7);
+			query.where(n1,n4,n5,n6,n7).orderBy(orderList);
 			
 			TypedQuery<Tuple> res1 = em.createQuery(query);
 			result = res1.getResultList();

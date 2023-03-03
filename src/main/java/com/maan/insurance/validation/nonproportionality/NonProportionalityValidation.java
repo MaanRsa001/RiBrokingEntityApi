@@ -1205,7 +1205,7 @@ public class NonProportionalityValidation {
 						if(StringUtils.isNotBlank(req.getBonusFrom()) ){
 						double from =Double.parseDouble(req.getBonusFrom().replace(",", ""));
 						double to = Double.parseDouble(req.getBonusTo().replace(",", ""));
-						if(to>from){
+						if(to<from){
 							list.add(new ErrorCheck(prop.getProperty(("bonus.from.to.limit")+String.valueOf(i + 1),String.valueOf(i + 2)),"BonusTo","01"));
 						}
 						}

@@ -1,6 +1,7 @@
 package com.maan.insurance.model.repository;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -35,5 +36,18 @@ public interface TtrnRiPlacementRepository  extends JpaRepository<TtrnRiPlacemen
 
 	TtrnRiPlacement findByProposalNoAndReinsurerIdAndBrokerIdAndBranchCodeAndStatusNo(BigDecimal bigDecimal,
 			String reinsurerIds, String brokerIds, String branchCode, BigDecimal bigDecimal2);
+
+
+
+
+	List<TtrnRiPlacement> findByBouquetNoAndContractNoIsNotNullAndContractNoNot(BigDecimal bigDecimal, BigDecimal zero);
+
+
+	List<TtrnRiPlacement> findBybaseProposalNoAndContractNoIsNotNullAndContractNoNot(BigDecimal bigDecimal,
+			BigDecimal zero);
+
+
+	List<TtrnRiPlacement> findByProposalNoAndContractNoIsNotNullAndContractNoNot(BigDecimal bigDecimal,
+			BigDecimal zero);
 
 }

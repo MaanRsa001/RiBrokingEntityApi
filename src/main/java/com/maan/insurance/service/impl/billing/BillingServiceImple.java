@@ -263,9 +263,9 @@ public class BillingServiceImple implements  BillingService {
 			args[13]=form.getSubClass();
 			args[14]=req.getLoginId();
 			args[15]=req.getBranchCode();
-			args[16]=form.getAmount().replaceAll(",", "");
-			args[17]=form.getWithholdingTax().replaceAll(",", "");
-			args[18]=form.getWithholdingTaxBrokerage().replaceAll(",", "");
+			args[16]=StringUtils.isBlank(form.getAmount())?"":form.getAmount().replaceAll(",", "");
+			args[17]=StringUtils.isBlank(form.getWithholdingTax())?"":form.getWithholdingTax().replaceAll(",", "");
+			args[18]=StringUtils.isBlank(form.getWithholdingTaxBrokerage())?"":form.getWithholdingTaxBrokerage().replaceAll(",", "");
 			args[19]="P".equals(form.getCheckPC())?form.getNetDue().replaceAll(",", ""):form.getPayAmount().replaceAll(",", "");
 			
  					

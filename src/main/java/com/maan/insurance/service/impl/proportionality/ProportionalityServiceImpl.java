@@ -1306,7 +1306,16 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 			//risk.update.positionMaster
 			PositionMaster update1 = proportionalityCustomRepository.positionMasterUpdate(obj);
 			if(update1!=null) {
-				positionMasterRepository.saveAndFlush(update1);	
+				positionMasterRepository.saveAndFlush(update1);
+				String offerNo="";
+				if(StringUtils.isBlank(beanObj.getOfferNo())) {
+					offerNo= fm.getSequence("Offer",beanObj.getProductId(),"0",beanObj.getBranchCode(),"","");
+					PositionMaster pm = positionMasterRepository.findByProposalNo(fm.formatBigDecimal(beanObj.getProposalNo()));
+					if(pm!=null) {
+						pm.setOfferNo(offerNo);
+						positionMasterRepository.saveAndFlush(pm);
+					}
+				}
 				res=1;
 			}
 			if (res > 0) {
@@ -2510,6 +2519,10 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 				beanObj.setContractListVal(resMap.get("DATA_MAP_CONT_NO")==null?"":resMap.get("DATA_MAP_CONT_NO").toString());
 				beanObj.setProfitCenter(resMap.get("RSK_PFCID")==null?"":resMap.get("RSK_PFCID").toString());
 				beanObj.setSubProfitcenter(resMap.get("RSK_SPFCID")==null?"":resMap.get("RSK_SPFCID").toString());
+				String id=resMap.get("RSK_SPFCID")==null?"":resMap.get("RSK_SPFCID").toString();
+				String productId=resMap.get("RSK_PRODUCTID")==null?"":resMap.get("RSK_PRODUCTID").toString();
+				String branchcode=resMap.get("BRANCH_CODE")==null?"":resMap.get("BRANCH_CODE").toString();
+				beanObj.setSubClass(dropDowmImpl.getSubClass(id,branchcode , productId));
 				beanObj.setPolicyBranch(resMap.get("RSK_POLBRANCH")==null?"":resMap.get("RSK_POLBRANCH").toString());
 				beanObj.setBroker(resMap.get("RSK_BROKERID")==null?"":resMap.get("RSK_BROKERID").toString());
 				beanObj.setTreatyNametype(resMap.get("RSK_TREATYID")==null?"":resMap.get("RSK_TREATYID").toString());
@@ -3769,17 +3782,16 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 		try{
 			 if("scale".equalsIgnoreCase(req.getPageFor())){
 				//BONUS_MAIN_SELECT
-				 	list =  proportionalityCustomRepository.bonusMainSelect(req.getProposalNo(),req.getBranchCode());
-				 	
+				 	list= proportionalityCustomRepository.bonusMainSelectReference(req.getReferenceNo(),req.getBranchCode());
 					if(CollectionUtils.isEmpty(list)) {
-						list= proportionalityCustomRepository.bonusMainSelectReference(req.getReferenceNo(),req.getBranchCode());
+						list =  proportionalityCustomRepository.bonusMainSelect(req.getProposalNo(),req.getBranchCode());
 					}
 				 }else {
 					//BONUS_MAIN_SELECT_LPC
-					 list= proportionalityCustomRepository.bonusMainSelectLpc(req.getProposalNo(),req.getBranchCode()); //lpc
+					 list= proportionalityCustomRepository.bonusMainSelectReferenceLpc(req.getReferenceNo(),req.getBranchCode());
 						if(CollectionUtils.isEmpty(list)) {
 							//BONUS_MAIN_SELECT_REFERENCE_LPC
-							 list= proportionalityCustomRepository.bonusMainSelectReferenceLpc(req.getReferenceNo(),req.getBranchCode());
+							list= proportionalityCustomRepository.bonusMainSelectLpc(req.getProposalNo(),req.getBranchCode()); //lpc 
 						}
 				 }
 					
@@ -4628,10 +4640,10 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 		 List<Tuple> list = new ArrayList<>();
 		 try {
 			//COMMISSION_TYPE_LIST
-				list =  proportionalityCustomRepository.commissionTypeList(req.getProposalno(),req.getBranchCode(),req.getCommissionType(),req.getContractNo());
-					 	
+				
+				list= proportionalityCustomRepository.commissionTypeListReference(req.getReferenceNo(),req.getBranchCode(),req.getCommissionType(),req.getContractNo());	 	
 				if(CollectionUtils.isEmpty(list)) {
-					list= proportionalityCustomRepository.commissionTypeListReference(req.getReferenceNo(),req.getBranchCode(),req.getCommissionType(),req.getContractNo());
+					list =  proportionalityCustomRepository.commissionTypeList(req.getProposalno(),req.getBranchCode(),req.getCommissionType(),req.getContractNo());
 				}
 			
 			for(int i=0;i<list.size();i++) {
@@ -5610,11 +5622,11 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 		args[3] ="SSC1";
 		
 			//SELECT_SLIDING_SCALE_METHOD_INFO
-			result = proportionalityCustomRepository.selectSlidingScaleMethodInfo(req.getProposalNo(),req.getBranchCode());
-		
+			
+			result = proportionalityCustomRepository.selectSlidingScaleMethodInfoRef(req.getReferenceNo(),req.getBranchCode());
 			if(CollectionUtils.isEmpty(result)) {
 				//SELECT_SLIDING_SCALE_METHOD_INFO_REF
-				result = proportionalityCustomRepository.selectSlidingScaleMethodInfoRef(req.getReferenceNo(),req.getBranchCode());
+				result = proportionalityCustomRepository.selectSlidingScaleMethodInfo(req.getProposalNo(),req.getBranchCode());
 			}
 		for(int i=0;i<result.size();i++){
 		      Tuple tempMap = result.get(i);
@@ -5710,7 +5722,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 				String bandToNext="";
 			
 					String bandFrom="0",bandTo="",slidingScaleCom="";
-					int a=Integer.parseInt(bean.getScaleminRatio());int b=Integer.parseInt(bean.getScalemaxRatio());int c=Integer.parseInt(bean.getScalebanding()),d=Integer.parseInt(bean.getScaledigit()),e=Integer.parseInt(bean.getScalecombine()),f=999;
+					double a=Double.parseDouble(bean.getScaleminRatio());double b=Double.parseDouble(bean.getScalemaxRatio());double c=Double.parseDouble(bean.getScalebanding()),d=Double.parseDouble(bean.getScaledigit()),e=Double.parseDouble(bean.getScalecombine()),f=999;
 					bonusFrom.add(bandFrom);
 					bonusTo.add(bean.getScaleminRatio());
 					bonusLowClaimBonus.add(String.valueOf((e-(a+0))));
@@ -5718,7 +5730,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 					string.put("1","1");
 					list.add(string);
 					j++;
-				for(int i=a;i<=b;i+=c) {
+				for(double i=a;i<=b;i+=c) {
 					if(j==1) {
 						bandToprevious=a;
 						bandToNext=String.valueOf(((i+c)));	

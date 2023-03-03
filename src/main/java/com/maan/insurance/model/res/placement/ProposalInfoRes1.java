@@ -43,4 +43,6 @@ public class ProposalInfoRes1 {
 	private String amendId; 
 	@JsonProperty("EproposalNo")
 	private String eproposalNo;
+	@JsonProperty("ContractStatus")
+	private String contractStatus;
 }

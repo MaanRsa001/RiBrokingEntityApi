@@ -10,6 +10,8 @@ public class proposalInfoReq {
 	private String branchCode; 
 	@JsonProperty("ProposalNo")
 	private String proposalNo; 
-	@JsonProperty("EproposalNo")
-	private String eProposalNo; 
+	@JsonProperty("BaseProposalNo")
+	private String BaseProposalNo; 
+	@JsonProperty("BouquetNo")
+	private String bouquetNo; 
 }

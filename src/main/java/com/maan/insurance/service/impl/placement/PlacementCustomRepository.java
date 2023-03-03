@@ -93,6 +93,12 @@ public interface PlacementCustomRepository {
 
 	String getStatusNo(String proposal, String branchCode, String reinsurerId, String brokerId);
 
+	int getCountContractBouquet(String bouquetNo);
+
+	int getCountContractBaseLayer(String baseProposalNo);
+
+	int getCountContractProposal(String prop);
+
 	
 }
 
