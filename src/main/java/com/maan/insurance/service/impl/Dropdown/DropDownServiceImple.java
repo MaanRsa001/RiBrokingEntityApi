@@ -940,7 +940,7 @@ public class DropDownServiceImple implements DropDownService{
 				amend.where(a1,a2,a3,a4);
 
 				Predicate n1 = cb.equal(pm.get("contractNo"), req.getContractNo());
-				Predicate n2 = cb.equal(pm.get("deptId"), req.getLayerNo());
+				Predicate n2 = cb.equal(pm.get("sectionNo"), req.getLayerNo());
 				Predicate n3 = cb.equal(pm.get("branchCode"), req.getBranchCode());
 				Predicate n5 = cb.equal(pm.get("contractStatus"), "A");
 				Predicate n4 = cb.equal(pm.get("amendId"), amend);
@@ -5913,6 +5913,7 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 	}
 
 	@Override
+	@Transactional
 	public CommonResponse updateRenewalEditMode(updateSubEditModeReq req) {
 		CommonResponse response = new CommonResponse();
 		String proposal  = "";

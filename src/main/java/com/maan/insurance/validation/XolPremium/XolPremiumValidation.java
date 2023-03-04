@@ -319,7 +319,7 @@ public class XolPremiumValidation {
 								list.add(new ErrorCheck(prop.getProperty("errors.MandD.currencyInvalid")+bean.getBaseCurrencyName(),"BaseCurrencyName","01"));
 							 }
 							 if(!"2".equals(bean.getEnteringMode())){
-								list.add(new ErrorCheck(prop.getProperty("errors.MandD.enteringModeInvalid")+bean.getShareSigned(),"EnteringMode","01"));
+								//list.add(new ErrorCheck(prop.getProperty("errors.MandD.enteringModeInvalid")+bean.getShareSigned(),"EnteringMode","01"));
 							 }
 							 }								 	
 						 	else if("RP".equalsIgnoreCase(ins[0]))

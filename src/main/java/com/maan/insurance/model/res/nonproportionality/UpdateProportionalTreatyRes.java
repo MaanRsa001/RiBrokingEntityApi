@@ -3,13 +3,11 @@ package com.maan.insurance.model.res.nonproportionality;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.maan.insurance.model.req.nonproportionality.RetroCessListReq;
-
 import lombok.Data;
 @Data
 public class UpdateProportionalTreatyRes {
 	@JsonProperty("Result")
-	private Boolean saveFlag;
+	private String status;
 		
 	@JsonProperty("Message")
 	private String message;

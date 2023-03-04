@@ -1364,7 +1364,9 @@ public class PortFolioServiceImple implements PortFolioService{
 	      		Subquery<Long> prop = query.subquery(Long.class); 
 	      		Root<TtrnRiPlacement> ri = prop.from(TtrnRiPlacement.class);
 	      		prop.select(ri.get("proposalNo")).distinct(true);
-	      		
+	      		Expression<String> app=ri.get("approverStatus");
+	      		List<String>appstatus=new ArrayList<>();
+	      		appstatus.add("A");appstatus.add("Y");
 	      		Subquery<Long> statusNo = query.subquery(Long.class); 
 	      		Root<TtrnRiPlacement> ri1 = statusNo.from(TtrnRiPlacement.class);
 	      		statusNo.select(cb.max(ri1.get("statusNo")));
@@ -1374,7 +1376,7 @@ public class PortFolioServiceImple implements PortFolioService{
 	      		statusNo.where(g3,g1,g2);
 	      		Predicate f1 = cb.equal( a.get("proposalNo"), ri.get("proposalNo"));
 	      		Predicate f2 = cb.equal( ri.get("status"), "CSL");
-	      		Predicate f4 = cb.equal( ri.get("approverStatus"), "A");
+	      		Predicate f4 = app.in(appstatus);
 	      		Expression<String> e1 = ri.get("statusNo");
  	      		Predicate f3 = e1.in(statusNo);
 	      		prop.where(f3,f1,f2,f4);

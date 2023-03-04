@@ -6311,12 +6311,21 @@ try{
 			//sharesigned
 			Subquery<Long> sharesigned = update.subquery(Long.class); 
 			Root<TtrnRi> rds = sharesigned.from(TtrnRi.class);
+			
+			Subquery<Long> amend = update.subquery(Long.class); 
+			Root<TtrnRi> pms = amend.from(TtrnRi.class);
+			amend.select(cb.max(pms.get("amendId")));
+			Predicate aa1 = cb.equal(rds.get("proposalNo"), pms.get("proposalNo"));
+			amend.where(aa1) ; 
+			
 			sharesigned.select(cb.sum(rds.get("shareSigned")));
 			Predicate a1 = cb.equal( rds.get("proposalNo"), m.get("rskProposalNumber"));
-			sharesigned.where(a1);
+			Predicate a2 = cb.equal( rds.get("amendId"), amend);
+			sharesigned.where(a1,a2);
 			update.set("rskShareSigned", sharesigned);
 			
 			Predicate n1 = cb.equal(m.get("rskProposalNumber"),proposalNo);
+			
 			update.where(n1 );
 			em.createQuery(update).executeUpdate();
 			 

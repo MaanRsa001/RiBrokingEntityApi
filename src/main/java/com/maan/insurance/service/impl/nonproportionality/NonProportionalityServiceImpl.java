@@ -847,10 +847,10 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			}
 			
 			instalMentPremium(req);
-			saveSecondPage(req);
+			SaveSecondPageRes secRes=saveSecondPage(req);
 		
-			
-			response.setSaveFlag(savFlg);
+			response.setStatus(secRes.getCommonResponse().getContractGendration());
+			//response.setSaveFlag(savFlg);
 			response.setMessage("Success");
 			response.setIsError(false);
 			}catch(Exception e){
@@ -3335,17 +3335,17 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 	public CommonSaveRes lowClaimBonusInser(LowClaimBonusInserReq bean) {
 		CommonSaveRes response = new CommonSaveRes();
 		try{
-			if(StringUtils.isBlank(bean.getEndorsmentNo())){
+			if(StringUtils.isBlank(bean.getEndorsmentNo()) && StringUtils.isNotBlank(bean.getProposalNo())){
 				//GET_AMEND_ID
 				PositionMaster list  =	positionMasterRepository.findTop1ByProposalNoOrderByAmendIdDesc(new BigDecimal(bean.getProposalNo()));
 	        	if(list!=null) {
 				bean.setEndorsmentNo(list.getAmendId()==null?"":list.getAmendId().toString());
 				}
-	        	
-	           if(StringUtils.isBlank(bean.getEndorsmentNo())) {
+	           
+			}
+			if(StringUtils.isBlank(bean.getEndorsmentNo())) {
 	        	   bean.setEndorsmentNo("0");
 	           }
-			}
 	        deleteMaintable(bean);
 			 if(StringUtils.isBlank(bean.getProposalNo()) && (StringUtils.isBlank(bean.getReferenceNo())|| "0".equals(bean.getReferenceNo()))) {
 		        	String referenceNo="";

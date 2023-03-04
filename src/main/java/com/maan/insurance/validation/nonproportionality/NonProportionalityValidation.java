@@ -1039,14 +1039,14 @@ public class NonProportionalityValidation {
 								}
 								else{
 									if("LCB".equalsIgnoreCase(bean.getAcqBonus())){
-										if(StringUtils.isBlank(bean.getBonusPopUp())){
+										/*if(StringUtils.isBlank(bean.getBonusPopUp())){
 						                    list.add(new ErrorCheck(prop.getProperty("bonus.popup.recheck"),"popup","01"));
-						                }else{
+						                }else{*/
 										int count = nonPropImple.getBonusListCount(bean);
 										if(count<=0){
 											list.add(new ErrorCheck(prop.getProperty("bonus.error.lcb.table.empty"),"lcb","01"));
 										}
-						                }
+										/* } */
 									}
 									else if("NCB".equalsIgnoreCase(bean.getAcqBonus())){
 									   if(StringUtils.isBlank(bean.getAcqBonusPercentage())){
@@ -1075,14 +1075,14 @@ public class NonProportionalityValidation {
 								list.add(new ErrorCheck(prop.getProperty("error.ReinstatementPremium.required"),"Reinstatement Premium","01"));
 							}
 							else if("Y".equalsIgnoreCase(bean.getReInstatementPremium())){
-								if(StringUtils.isBlank(bean.getReinsPopUp())){
+								/*if(StringUtils.isBlank(bean.getReinsPopUp())){
 				                    list.add(new ErrorCheck(prop.getProperty("reins.popup.recheck"),"popup","01"));
-				                }else{
+				                }else{*/
 								int count=nonPropImple.getReInstatementCount(bean.getAmendId(),bean.getProposalNo(),bean.getBranchCode(),bean.getReferenceNo());
 								if(count<=0){
 									list.add(new ErrorCheck(prop.getProperty("errors.reinstatement.schedule"),"reinstatementschedule","01"));
 								}
-				                }
+								/* } */
 							}
 							if (val.isNull(bean.getAnualAggregateLiability()).equalsIgnoreCase("")) {
 								list.add(new ErrorCheck(prop.getProperty("errors.AnualAggregateLiability.number"),"AnualAggregateLiability","01"));
