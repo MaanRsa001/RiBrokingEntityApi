@@ -58,4 +58,6 @@ public class ContractidetifierlistRes {
 	@JsonProperty("ClaimCount")
 	private String claimCount;
 	
+	@JsonProperty("NewLayerNo")
+	private String newLayerNo;
 }

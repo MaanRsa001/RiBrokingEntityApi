@@ -59,4 +59,6 @@ public class ClaimPaymentListRes {
 	private String claimPaymentRiNo;
 	@JsonProperty("Currency")
 	private String currency;
+	@JsonProperty("NewLayerNo")
+	private String newLayerNo;
 }

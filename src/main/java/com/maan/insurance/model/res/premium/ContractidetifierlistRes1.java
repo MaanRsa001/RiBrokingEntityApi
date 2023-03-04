@@ -57,8 +57,11 @@ public class ContractidetifierlistRes1 {
 	private String departmentId;
 	
 	@JsonProperty("ClaimCount")
-	private String claimCount; 
+	private String claimCount;  
 	
 	@JsonProperty("TransactionType")
 	private String transactionType;
+	
+	@JsonProperty("NewLayerno")
+	private String newLayerno;
 }

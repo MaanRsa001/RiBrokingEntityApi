@@ -542,5 +542,7 @@ public class insertProportionalTreatyReq {
 	private List<CoverLimitAmount> CoverLimitAmount;
 	@JsonProperty("RequestNumber")
 	private String requestNumber;
+	@JsonProperty("NewLayerNo")
+	private String newLayerNo;
 
 }

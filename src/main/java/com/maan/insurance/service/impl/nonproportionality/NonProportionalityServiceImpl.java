@@ -138,7 +138,6 @@ import com.maan.insurance.model.res.xolPremium.GetClassLimitDetailsResponse;
 import com.maan.insurance.service.impl.QueryImplemention;
 import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
 import com.maan.insurance.service.impl.proportionality.ProportionalityCustomRepository;
-import com.maan.insurance.service.impl.proportionality.ProportionalityServiceImpl;
 import com.maan.insurance.service.nonproportionality.NonProportionalityService;
 import com.maan.insurance.validation.Formatters;
 
@@ -201,16 +200,15 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		try {
 			//GET_SHORT_NAME
 			Short = nonProportCustomRepository.getShortName(branchCode);
-		response.setCommonResponse(Short);
-		response.setMessage("Success");
-		response.setIsError(false);
-		}catch(Exception e){
-			
-			e.printStackTrace();
-			response.setMessage("Failed");
-			response.setIsError(true);
-		}
-	return response;
+			response.setCommonResponse(Short);
+			response.setMessage("Success");
+			response.setIsError(false);
+			}catch(Exception e){
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
 	}
 	
 
@@ -985,7 +983,6 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 				res=1;
 			}
 			
-			
 			if (res > 0) {
 				saveFlag = true;
 			}
@@ -1307,7 +1304,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		}
 	public String[] updateHomePostion(final insertProportionalTreatyReq beanObj,final String pid, final boolean bool) {
 
-		String[] obj = new String[23]; //RI
+		String[] obj = new String[24]; //RI
 		obj[0] = StringUtils.isEmpty(beanObj.getLayerNo()) ? "0" : beanObj.getLayerNo();
 		obj[1] = "";
 		obj[2] = pid;
@@ -1353,6 +1350,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		obj[20] = "";
 		obj[21] = beanObj.getProposalNo();
 		obj[22] = StringUtils.isBlank(beanObj.getAmendId())? "":beanObj.getAmendId();
+		obj[23] = beanObj.getNewLayerNo();
 		
 		return obj;
 	}
@@ -2479,7 +2477,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		}
 		
 		String renewalStatus = getRenewalStatus(req);
-		String [] argus = new String[31]; //ri
+		String [] argus = new String[32]; //ri
 		String args2 = null;
 		if (req.getAmendStatus()) {
 			argus[1] = req.getContNo();
@@ -2523,6 +2521,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		argus[28] = req.getUwYearTo();
 		argus[29] = StringUtils.isBlank(req.getSectionNo())? "": req.getSectionNo();
 		argus[30] = req.getOfferNo();
+		argus[31] = req.getNewLayerNo();
 		return argus;
 	}
 
@@ -2589,7 +2588,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 	private String[] updateHomePositionMasterAruguments(insertProportionalTreatyReq req,String maxAmendId) {
 		
 		String args [] = null; 
-		args = new String[23]; //Ri
+		args = new String[24]; //Ri
 		args[0] = StringUtils.isEmpty(req.getLayerNo()) ? "0" : req.getLayerNo();
 		args[1] = "";
 		args[2] = req.getPid();
@@ -2624,6 +2623,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		args[20] = req.getSectionNo();
 		args[21] = req.getProposalNo();
 		args[22] = maxAmendId;	
+		args[23] = req.getNewLayerNo();
 		return args;
 	}
 

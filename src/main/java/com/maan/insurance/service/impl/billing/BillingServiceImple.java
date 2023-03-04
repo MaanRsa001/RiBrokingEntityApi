@@ -141,7 +141,7 @@ public class BillingServiceImple implements  BillingService {
 				res.setCheckPC(tempMap.get(10)==null?"":tempMap.get(10).toString());
 				res.setCedingCompanyName(tempMap.get(11)==null?"":tempMap.get(11).toString());
 				res.setAmount(tempMap.get(14)==null?"":fm.formatter(tempMap.get(14).toString()));
-				res.setWithholdingTax(tempMap.get(15)==null?"0":fm.formatter(tempMap.get(15).toString()));
+				res.setWithholdingTax(tempMap.get(15)==null?"0.00":fm.formatter(tempMap.get(15).toString()));
 //				res.setAllocType(req.getAllocType());
 //				if(!CollectionUtils.isEmpty(req.getTransContractListReq())) {
 //					List<GetTransContractListReq> filterTrack = req.getTransContractListReq().stream().filter( o -> res.getTransactionNo().equalsIgnoreCase(o.getTransactionNo()) ).collect(Collectors.toList());
@@ -495,8 +495,8 @@ public class BillingServiceImple implements  BillingService {
 				res.setCheckPC(tempMap.get(10)==null?"":tempMap.get(10).toString());
 				res.setCedingCompanyName(tempMap.get(11)==null?"":tempMap.get(11).toString());
 				res.setAmount(tempMap.get(14)==null?"":fm.formatter(tempMap.get(14).toString()));
-				res.setWithholdingTax(tempMap.get(15)==null?"0":fm.formatter(tempMap.get(15).toString()));
-				res.setWithholdingTaxBrokerage(tempMap.get(16)==null?"0":fm.formatter(tempMap.get(16).toString()));
+				res.setWithholdingTax(tempMap.get(15)==null?"0.00":fm.formatter(tempMap.get(15).toString()));
+				res.setWithholdingTaxBrokerage(tempMap.get(16)==null?"0.00":fm.formatter(tempMap.get(16).toString()));
 //				res.setAllocType(req.getAllocType());
 //				if(!CollectionUtils.isEmpty(req.getTransContractListReq())) {
 //					List<GetTransContractListReq> filterTrack = req.getTransContractListReq().stream().filter( o -> res.getTransactionNo().equalsIgnoreCase(o.getTransactionNo()) ).collect(Collectors.toList());

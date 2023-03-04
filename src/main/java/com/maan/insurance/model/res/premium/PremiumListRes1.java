@@ -19,6 +19,7 @@ public class PremiumListRes1 {
 	private String broker;
 	@JsonProperty("Layerno")
 	private String layerno;
+
 	@JsonProperty("TransactionNo")
 	private String transactionNo; 
 	@JsonProperty("TransactionType")
@@ -54,5 +55,8 @@ public class PremiumListRes1 {
 	private String reinsuranceName;
 	@JsonProperty("RiBroker")
 	private String riBroker;
+	
+	@JsonProperty("NewLayerno")
+	private String newLayerno;
 	
 }

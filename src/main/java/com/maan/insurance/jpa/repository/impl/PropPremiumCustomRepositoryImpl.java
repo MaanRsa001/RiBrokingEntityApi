@@ -107,7 +107,9 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		pmendoSq.select(cb.max(pmendoSubRoot.get("amendId"))).where(
 				cb.equal(pmendoSubRoot.get("contractNo"), traRoot.get("contractNo")),
 				cb.equal(pmendoSubRoot.get("branchCode"), traRoot.get("branchCode")));
-		cq.multiselect(rkRoot.get("rskContractNo").alias("RSK_CONTRACT_NO"),
+		cq.multiselect(
+				pmroot.get("newLayerNo").alias("NEW_LAYER_NO"),
+				rkRoot.get("rskContractNo").alias("RSK_CONTRACT_NO"),
 				personalRoot.get("companyName").alias("COMPANY_NAME"),
 				nameExpression.alias("BROKER_NAME"),
 				rkRoot.get("rskProposalNumber").alias("RSK_PROPOSAL_NUMBER"),
@@ -194,7 +196,9 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 						   cb.equal(dSubRoot.get("type"), traRoot.get("accountPeriodQtr")),
 						   cb.equal(dSubRoot.get("status"), "Y"));
 		
-		cq.multiselect(traRoot.get("requestNo").alias("REQUEST_NO"),
+		cq.multiselect(
+				pmroot.get("newLayerNo").alias("NEW_LAYER_NO"),
+				traRoot.get("requestNo").alias("REQUEST_NO"),
 				rkRoot.get("rskContractNo").alias("RSK_CONTRACT_NO"),
 				personalRoot.get("companyName").alias("COMPANY_NAME"),
 				nameExpression.alias("BROKER_NAME"),
@@ -242,7 +246,9 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		pmendoSq.select(cb.max(pmendoSubRoot.get("amendId"))).where(
 				cb.equal(pmendoSubRoot.get("contractNo"), traRoot.get("contractNo")),
 				cb.equal(pmendoSubRoot.get("branchCode"), traRoot.get("branchCode")));
-		cq.where(cb.equal(rkRoot.get("rskContractNo"), req.getContNo()),
+		cq.where(
+				
+				cb.equal(rkRoot.get("rskContractNo"), req.getContNo()),
 				 cb.equal(rkRoot.get("rskCedingid"), personalRoot.get("customerId")),
 				 cb.equal(rkRoot.get("rskBrokerid"), piRoot.get("customerId")),
 				 cb.equal(personalRoot.get("branchCode"), req.getBranchCode()),
@@ -292,7 +298,9 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 				.where(cb.equal(piSubRoot.get("customerId"), cRoot.get("customerId")),
 					   cb.equal(piSubRoot.get("branchCode"), cRoot.get("branchCode")));
 		
-		cq.multiselect(aRoot.get("contractNo").alias("CONTRACT_NO"),
+		cq.multiselect(
+				aRoot.get("newLayerNo").alias("NEW_LAYER_NO"),
+				aRoot.get("contractNo").alias("CONTRACT_NO"),
 				aRoot.get("proposalNo").alias("PROPOSAL_NO"),
 				bRoot.get("tmasDepartmentName").alias("TMAS_DEPARTMENT_NAME"),
 				aRoot.get("productId").alias("PRODUCT_ID"),
@@ -387,7 +395,9 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 						cb.equal(amSubRoot.get("proposalNo"), root.get("proposalNo")));
 		
 		
-		cq.multiselect(cb.selectCase().when(cb.isNull(root.get("baseLayer")), "0")
+		cq.multiselect(
+				root.get("newLayerNo").alias("NEW_LAYER_NO"),
+				cb.selectCase().when(cb.isNull(root.get("baseLayer")), "0")
 				.otherwise(root.get("baseLayer")).alias("BASE_LAYER"),
 				root.get("proposalNo").alias("PROPOSAL_NO"))
 		
@@ -436,11 +446,13 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		Subquery<Integer> amSq = cq.subquery(Integer.class);
 		Root<PositionMaster> amSubRoot = amSq.from(PositionMaster.class);
 
-		amSq.select(cb.max(amSubRoot.get("amendId")))
+		amSq.select(
+				
+				cb.max(amSubRoot.get("amendId")))
 				.where( cb.equal(amSubRoot.get("proposalNo"), root.get("proposalNo")));
 		
 		
-		cq.multiselect( root.get("deptId").as(String.class).alias("DEPT_ID"))
+		cq.multiselect( root.get("newLayerNo").alias("NEW_LAYER_NO"),root.get("deptId").as(String.class).alias("DEPT_ID"))
 		
 		.where(cb.equal(root.get("proposalNo"), StringUtils.isBlank(proposalNo)?BigDecimal.ZERO:new BigDecimal(proposalNo)),
 			   cb.equal(root.get("amendId"), amSq));
@@ -1497,7 +1509,9 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 					   cb.in(personalSq.get("customerId")).value(input).not(),
 					   cb.equal(personalSq.get("vatRegYn"), "Y"));
 		
-		cq.multiselect(rkRoot.get("treatytype").alias("TREATYTYPE"), 
+		cq.multiselect(
+				pmroot.get("newLayerNo").alias("NEW_LAYER_NO"),
+				rkRoot.get("treatytype").alias("TREATYTYPE"), 
 				rkRoot.get("rskDeptid").alias("RSK_DEPTID"),
 				rkRoot.get("rskSpfcid").alias("RSK_SPFCID"),
 				rkRoot.get("rskContractNo").alias("RSK_CONTRACT_NO"),
@@ -2472,7 +2486,9 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 						   cb.equal(dSubRoot.get("type"), traRoot.get("accountPeriodQtr")),
 						   cb.equal(dSubRoot.get("status"), "Y"));
 		
-		cq.multiselect(rkRoot.get("rskContractNo").alias("RSK_CONTRACT_NO"),
+		cq.multiselect(
+				rkRoot.get("newLayerNo").alias("NEW_LAYER_NO"),
+				rkRoot.get("rskContractNo").alias("RSK_CONTRACT_NO"),
 				personalRoot.get("companyName").alias("COMPANY_NAME"),
 				nameExpression.alias("BROKER_NAME"),
 				rkRoot.get("rskProposalNumber").alias("RSK_PROPOSAL_NUMBER"),
@@ -2600,7 +2616,9 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 						   cb.equal(dSubRoot.get("type"), traRoot.get("accountPeriodQtr")),
 						   cb.equal(dSubRoot.get("status"), "Y"));
 		
-		cq.multiselect(rkRoot.get("rskContractNo").alias("RSK_CONTRACT_NO"),
+		cq.multiselect(
+				pmroot.get("newLayerNo").alias("NEW_LAYER_NO"),
+				rkRoot.get("rskContractNo").alias("RSK_CONTRACT_NO"),
 				personalRoot.get("companyName").alias("COMPANY_NAME"),
 				nameExpression.alias("BROKER_NAME"),
 				rkRoot.get("rskProposalNumber").alias("RSK_PROPOSAL_NUMBER"),
@@ -2759,7 +2777,9 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 					   cb.equal(fCNameSubRoot.get("branchCode"), traRoot.get("branchCode")),
 					   cb.equal(fCNameSubRoot.get("amendId"),picAmendSq));
 		
-		cq.multiselect(rkRoot.get("rskContractNo").alias("RSK_CONTRACT_NO"),
+		cq.multiselect(
+				pmroot.get("newLayerNo").alias("NEW_LAYER_NO"),
+				rkRoot.get("rskContractNo").alias("RSK_CONTRACT_NO"),
 				personalRoot.get("companyName").alias("COMPANY_NAME"),
 				nameExpression.alias("BROKER_NAME"),
 				fNameSq.alias("RI_BROKER_NAME"),
@@ -2878,7 +2898,9 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 			
 			Expression<String> e0 = cb.concat(c1.get("firstName"), " ")	;	
 
-			query.multiselect(a.get("proposalNo").alias("PROPOSAL_NO"),a.get("deptId").alias("DEPT_ID"),
+			query.multiselect(
+					a.get("newLayerNo").alias("NEW_LAYER_NO"),
+					a.get("proposalNo").alias("PROPOSAL_NO"),a.get("deptId").alias("DEPT_ID"),
 					a.get("contractNo").alias("CONTRACT_NO"),b.get("tmasDepartmentName").alias("TMAS_DEPARTMENT_NAME"),
 					a.get("cedingCompanyId").alias("CEDING_COMPANY_ID"),a.get("accountDate").alias("ACCOUNT_DATE"),
 					c.get("companyName").alias("COMPANY_NAME"),	cb.concat(e0, c1.get("lastName")).alias("BROKER_NAME"),					

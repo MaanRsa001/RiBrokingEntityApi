@@ -1536,7 +1536,6 @@ public class PlacementServiceImple implements PlacementService {
 		try {
 			//NEW_CONTRACT_PL_SUMMARY
 			List<Tuple> list = placementCustomRepository.newContractPlSummary(bean); //need to check query single row
-			
 	    		 List<PlacementSummaryRes1> resList =new ArrayList<PlacementSummaryRes1>();
 	             if(list!=null && list.size()>0){
 	             for (int i = 0; i < list.size(); i++) {
@@ -1565,7 +1564,7 @@ public class PlacementServiceImple implements PlacementService {
 					 
 					  double brokerageAmt = Math.round(Double.valueOf(epi100Dc) * (Double.valueOf(brokerage)/100) * (Double.valueOf(sharesigned)/100));
 					  
-					  tempBean.setBrokerageAmt(String.valueOf(brokerageAmt)); 
+					  tempBean.setBrokerageAmt(fm.formatter(String.valueOf(brokerageAmt))); 
 	                
 	                resList.add(tempBean);
 	             }

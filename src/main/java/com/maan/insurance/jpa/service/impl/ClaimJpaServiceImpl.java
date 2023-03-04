@@ -70,7 +70,6 @@ import com.maan.insurance.model.req.claim.InsertCliamDetailsMode2Req;
 import com.maan.insurance.model.req.claim.InsertCliamDetailsMode3Req;
 import com.maan.insurance.model.req.claim.InsertCliamDetailsMode8Req;
 import com.maan.insurance.model.req.claim.ProposalNoReq;
-import com.maan.insurance.model.req.claim.claimNoListReq;
 import com.maan.insurance.model.res.ClaimPaymentListRes;
 import com.maan.insurance.model.res.ClaimlistRes;
 import com.maan.insurance.model.res.GetShortnameRes;
@@ -127,13 +126,11 @@ import com.maan.insurance.model.res.claim.MultiPaymentNoListRes;
 import com.maan.insurance.model.res.claim.ProductIdListRes;
 import com.maan.insurance.model.res.claim.ProductIdListRes1;
 import com.maan.insurance.model.res.claim.ProposalNoRes;
-import com.maan.insurance.model.res.claim.claimNoListRes;
 import com.maan.insurance.service.claim.ClaimService;
 import com.maan.insurance.service.impl.QueryImplemention;
 import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
 import com.maan.insurance.validation.Formatters;
 import com.maan.insurance.validation.Claim.Validation;
-import com.maan.insurance.validation.Claim.ValidationImple;
 
 @Component
 public class ClaimJpaServiceImpl implements ClaimService  {
@@ -464,6 +461,7 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 			tempBean.setPolicyContractNo(tempMap.get("CONTRACT_NO")==null?"":tempMap.get("CONTRACT_NO").toString());
 			tempBean.setEditMode(tempMap.get("EDITVIEW")==null?"":tempMap.get("EDITVIEW").toString());
 			tempBean.setLayerNo(tempMap.get("LAYER_NO")==null?"0":tempMap.get("LAYER_NO").toString());
+			tempBean.setNewLayerNo(tempMap.get("NEW_LAYER_NO")==null?"":tempMap.get("NEW_LAYER_NO").toString());
 			tempBean.setProposalNo(tempMap.get("PROPOSAL_NO")==null?"":tempMap.get("PROPOSAL_NO").toString());
 			tempBean.setCedingcompanyName(tempMap.get("CUSTOMER_NAME")==null?"":tempMap.get("CUSTOMER_NAME").toString());
 			tempBean.setBrokerName(tempMap.get("BROKER_NAME")==null?"":tempMap.get("BROKER_NAME").toString());
@@ -1612,6 +1610,7 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 				tempBean.setPolicyContractNo(
 						tempMap.get("CONTRACT_NO") == null ? "" : tempMap.get("CONTRACT_NO").toString());
 				tempBean.setLayerNo(tempMap.get("LAYER_NO") == null ? "0" : tempMap.get("LAYER_NO").toString());
+				tempBean.setNewLayerNo(tempMap.get("NEW_LAYER_NO") == null ? "" : tempMap.get("NEW_LAYER_NO").toString());
 				tempBean.setProposalNo(tempMap.get("PROPOSAL_NO") == null ? "" : tempMap.get("PROPOSAL_NO").toString());
 				tempBean.setCedingcompanyName(
 						tempMap.get("CUSTOMER_NAME") == null ? "" : tempMap.get("CUSTOMER_NAME").toString());
@@ -1711,6 +1710,7 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 			tempBean.setCedingcompanyName(tempMap.get("COMPANY_NAME")==null?"":tempMap.get("COMPANY_NAME").toString());
 			tempBean.setBrokerName(tempMap.get("BROKER_NAME")==null?"":tempMap.get("BROKER_NAME").toString());
 			tempBean.setLayerNo(tempMap.get("LAYER_NO")==null?"0":tempMap.get("LAYER_NO").toString());
+			tempBean.setNewLayerNo(tempMap.get("NEW_LAYER_NO") == null ? "" : tempMap.get("NEW_LAYER_NO").toString());
 		//	tempBean.setTransactionNumber(tempMap.get("TRANSACTION_NO")==null?"":tempMap.get("TRANSACTION_NO").toString());
 			tempBean.setProductId(req.getProductId());
 			tempBean.setDeptId(tempMap.get("TMAS_DEPARTMENT_NAME")==null?"":tempMap.get("TMAS_DEPARTMENT_NAME").toString());
@@ -2328,6 +2328,7 @@ public class ClaimJpaServiceImpl implements ClaimService  {
 				tempBean.setPolicyContractNo(
 						tempMap.get("CONTRACT_NO") == null ? "" : tempMap.get("CONTRACT_NO").toString());
 				tempBean.setLayerNo(tempMap.get("LAYER_NO") == null ? "0" : tempMap.get("LAYER_NO").toString());
+				tempBean.setNewLayerNo(tempMap.get("NEW_LAYER_NO") == null ? "" : tempMap.get("NEW_LAYER_NO").toString());
 				tempBean.setProposalNo(tempMap.get("PROPOSAL_NO") == null ? "" : tempMap.get("PROPOSAL_NO").toString());
 				tempBean.setCedingcompanyName(
 						tempMap.get("CUSTOMER_NAME") == null ? "" : tempMap.get("CUSTOMER_NAME").toString());

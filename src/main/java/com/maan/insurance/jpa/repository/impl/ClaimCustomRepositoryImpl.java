@@ -8,10 +8,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
@@ -305,7 +303,9 @@ public class ClaimCustomRepositoryImpl implements ClaimCustomRepository{
 						cb.equal(bnSubRoot.get("branchCode"), pmRoot.get("branchCode")),
 						cb.equal(bnSubRoot.get("amendId"), aSq));
 		
-		cq.multiselect(tcdRoot.get("claimNo").alias("CLAIM_NO"),
+		cq.multiselect(
+				pmRoot.get("newLayerNo").alias("NEW_LAYER_NO"),
+				tcdRoot.get("claimNo").alias("CLAIM_NO"),
 				tcdRoot.get("dateOfLoss").alias("DATE_OF_LOSS"),
 				tcdRoot.get("createdDate").alias("CREATED_DATE"),
 				tcdRoot.get("statusOfClaim").alias("STATUS_OF_CLAIM"),
@@ -641,7 +641,9 @@ public class ClaimCustomRepositoryImpl implements ClaimCustomRepository{
 		sq.select(cb.max(subRoot.get("amendId"))).where(cb.equal(subRoot.get("contractNo"), root.get("contractNo")),
 				cb.equal(subRoot.get("layerNo"), root.get("layerNo")));
 
-		cq.multiselect(root.get("proposalNo").alias("PROPOSAL_NO"), root.get("deptId").alias("DEPT_ID")).where(
+		cq.multiselect(
+				root.get("newLayerNo").alias("NEW_LAYER_NO"),
+				root.get("proposalNo").alias("PROPOSAL_NO"), root.get("deptId").alias("DEPT_ID")).where(
 				cb.equal(root.get("contractNo"), contractNo),
 				cb.equal(root.get("layerNo"),
 						cb.selectCase().when(cb.isNull(cb.literal(layerNo)), 0).otherwise(layerNo)),
@@ -1448,7 +1450,9 @@ public class ClaimCustomRepositoryImpl implements ClaimCustomRepository{
 		Predicate x4 = cb.equal( b.get("customerType"), "B");
 		brokerName.where(x1,x2,x3,x4);
 
-		query.multiselect(tcd.get("paidAmountOc").alias("PAID_AMOUNT_OC"),
+		query.multiselect(
+				pm.get("newLayerNo").alias("NEW_LAYER_NO"),
+				tcd.get("paidAmountOc").alias("PAID_AMOUNT_OC"),
 				tcd.get("claimNo").alias("CLAIM_NO"),
 				tcd.get("contractNo").alias("CONTRACT_NO"),
 				tcd.get("paymentRequestNo").alias("PAYMENT_REQUEST_NO"),
@@ -1574,7 +1578,9 @@ public class ClaimCustomRepositoryImpl implements ClaimCustomRepository{
 		Predicate x4 = cb.equal( b.get("customerType"), "B");
 		brokerName.where(x1,x2,x3,x4);
 
-		query.multiselect(tcd.get("paidAmountOc").alias("PAID_AMOUNT_OC"),
+		query.multiselect(
+				pm.get("newLayerNo").alias("NEW_LAYER_NO"),
+				tcd.get("paidAmountOc").alias("PAID_AMOUNT_OC"),
 				tcd.get("claimNo").alias("CLAIM_NO"),
 				tcd.get("contractNo").alias("CONTRACT_NO"),
 				tcd.get("paymentRequestNo").alias("PAYMENT_REQUEST_NO"),
@@ -1708,7 +1714,9 @@ public class ClaimCustomRepositoryImpl implements ClaimCustomRepository{
 			
 			Expression<String> e0 = cb.concat(c1.get("firstName"), " ")	;	
 
-			query.multiselect(a.get("proposalNo").alias("PROPOSAL_NO"),a.get("deptId").alias("DEPT_ID"),
+			query.multiselect(
+					a.get("newLayerNo").alias("NEW_LAYER_NO"),
+					a.get("proposalNo").alias("PROPOSAL_NO"),a.get("deptId").alias("DEPT_ID"),
 					a.get("contractNo").alias("CONTRACT_NO"),b.get("tmasDepartmentName").alias("TMAS_DEPARTMENT_NAME"),
 					a.get("cedingCompanyId").alias("CEDING_COMPANY_ID"),a.get("accountDate").alias("ACCOUNT_DATE"),
 					c.get("companyName").alias("COMPANY_NAME"),	cb.concat(e0, c1.get("lastName")).alias("BROKER_NAME"),					
@@ -1967,7 +1975,9 @@ public class ClaimCustomRepositoryImpl implements ClaimCustomRepository{
 		Predicate x4 = cb.equal( b.get("customerType"), "B");
 		brokerName.where(x1,x2,x3,x4);
 
-		query.multiselect(tcd.get("paidAmountOc").alias("PAID_AMOUNT_OC"),
+		query.multiselect(
+				pm.get("newLayerNo").alias("NEW_LAYER_NO"),
+				tcd.get("paidAmountOc").alias("PAID_AMOUNT_OC"),
 				tcd.get("claimNo").alias("CLAIM_NO"),
 				tcd.get("contractNo").alias("CONTRACT_NO"),
 				tcd.get("paymentRequestNo").alias("PAYMENT_REQUEST_NO"),

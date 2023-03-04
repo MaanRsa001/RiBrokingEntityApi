@@ -170,6 +170,9 @@ private static final long serialVersionUID = 1L;
     
     @Column(name="OFFER_NO")
     private String     offerNo ;
+    
+    @Column(name="NEW_LAYER_NO")
+    private String     newLayerNo ;
 
     //--- ENTITY LINKS ( RELATIONSHIP )
   

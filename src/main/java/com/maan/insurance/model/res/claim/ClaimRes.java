@@ -38,8 +38,8 @@ public class ClaimRes {
 	private String departmentId;
 	@JsonProperty("DeleteStatus")
 	private String deleteStatus;
-	
-	
+	@JsonProperty("NewLayerNo")
+	private String newLayerNo;
 	
 	
 

@@ -363,50 +363,50 @@ public class RetroManualAdjServiceImple implements RetroManualAdjService{
 					bean.setPremiumReserveReleased(treatyView.getPremiumReserveRealsedOc()==null?"":fm.formatter(treatyView.getPremiumReserveRealsedOc().toString()));
 					bean.setOtherCost(treatyView.getOtherCostOc()==null?"":fm.formatter(treatyView.getOtherCostOc().toString()));
 					bean.setRemarks(treatyView.getRemarks()==null?"":treatyView.getRemarks().toString());
-					bean.setInterest(fm.formatter(treatyView.getInterestOc()==null?"0":treatyView.getInterestOc().toString()));
+					bean.setInterest(treatyView.getInterestOc()==null?"0.00":fm.formatter(treatyView.getInterestOc().toString()));
 					//not in query doubt
 				//	bean.setAccountPeriod(treatyView.get("ACCOUNT_PERIOD_QTR")==null?"":treatyView.get("ACCOUNT_PERIOD_QTR").toString());
 				//	bean.setAccount_Period_year(treatyView.get("ACCOUNT_PERIOD_YEAR")==null?"":treatyView.get("ACCOUNT_PERIOD_YEAR").toString());
 					bean.setCurrencyId(treatyView.getCurrencyId()==null?"":treatyView.getCurrencyId().toString());
-					bean.setBrokerageUsd(fm.formatter(treatyView.getBrokerageAmtDc()==null?"0":treatyView.getBrokerageAmtDc().toString()));
-					bean.setTaxUsd(fm.formatter(treatyView.getTaxAmtDc()==null?"0":treatyView.getTaxAmtDc().toString()));
-					bean.setPremiumQuotaShareUsd(fm.formatter(treatyView.getPremiumQuotashareDc()==null?"0":treatyView.getPremiumQuotashareDc().toString()));
-					bean.setCommsissionQuotaShareUsd(fm.formatter(treatyView.getCommissionQuotashareDc()==null?"0":treatyView.getCommissionQuotashareDc().toString()));
-					bean.setPremiumSurplusUsd(fm.formatter(treatyView.getPremiumSurplusDc()==null?"0":treatyView.getPremiumSurplusDc().toString()));
-					bean.setComissionSurplusUsd(fm.formatter(treatyView.getCommissionSurplusDc()==null?"0":treatyView.getCommissionSurplusDc().toString()));
-					bean.setPremiumPortfolioInUsd(fm.formatter(treatyView.getPremiumPortfolioinDc()==null?"0":treatyView.getPremiumPortfolioinDc().toString()));
-					bean.setCliamPortfolioUsd(fm.formatter(treatyView.getClaimPortfolioinDc()==null?"0":treatyView.getClaimPortfolioinDc().toString()));
-					bean.setPremiumPortfolioOutUsd(fm.formatter(treatyView.getPremiumPortfoliooutDc()==null?"0":treatyView.getPremiumPortfoliooutDc().toString()));
-					bean.setLossReserveReleasedUsd(fm.formatter(treatyView.getLossReserveReleasedDc()==null?"0":treatyView.getLossReserveReleasedDc().toString()));
-					bean.setPremiumReserveQuotaShareUsd(fm.formatter(treatyView.getPremiumreserveQuotashareDc()==null?"0":treatyView.getPremiumreserveQuotashareDc().toString()));
-					bean.setCashLossCreditUsd(fm.formatter(treatyView.getCashLossCreditDc()==null?"0":treatyView.getCashLossCreditDc().toString()));
-					bean.setLossReserveRetainedUsd(fm.formatter(treatyView.getLossReserveretainedDc()==null?"0":treatyView.getLossReserveretainedDc().toString()));
-					bean.setProfitCommissionUsd(fm.formatter(treatyView.getProfitCommissionDc()==null?"0":treatyView.getProfitCommissionDc().toString()));
-					bean.setCashLossPaidUsd(fm.formatter(treatyView.getCashLosspaidDc()==null?"0":treatyView.getCashLosspaidDc().toString()));
-					bean.setClamsPaidUsd(fm.formatter(treatyView.getClaimsPaidDc()==null?"0":treatyView.getClaimsPaidDc().toString()));
-					bean.setXlCostUsd(fm.formatter(treatyView.getXlCostDc()==null?"0":treatyView.getXlCostDc().toString()));
-					bean.setCliamPortfolioOutUsd(fm.formatter(treatyView.getClaimPortfolioOutDc()==null?"0":treatyView.getClaimPortfolioOutDc().toString()));
-					bean.setPremiumReserveReleasedUsd(fm.formatter(treatyView.getPremiumReserveRealsedDc()==null?"0":treatyView.getPremiumReserveRealsedDc().toString()));
-					bean.setOtherCostUSD(fm.formatter(treatyView.getOtherCostDc()==null?"0":treatyView.getOtherCostDc().toString()));
-					bean.setInterestDC(fm.formatter(treatyView.getInterestDc()==null?"0":treatyView.getInterestDc().toString()));
-					bean.setOsClaimsLossUpdateOC(fm.formatter(treatyView.getOsclaimLossupdateOc()==null?"0":treatyView.getOsclaimLossupdateOc().toString()));
-					bean.setOsClaimsLossUpdateDC(fm.formatter(treatyView.getOsclaimLossupdateDc()==null?"0":treatyView.getOsclaimLossupdateDc().toString()));
-					bean.setOverrider(fm.formatter(treatyView.getOverriderAmtOc()==null?"0":treatyView.getOverriderAmtOc().toString()));
-					bean.setOverriderUSD(fm.formatter(treatyView.getOverriderAmtDc()==null?"0":treatyView.getOverriderAmtDc().toString()));
+					bean.setBrokerageUsd(treatyView.getBrokerageAmtDc()==null?"0.00":fm.formatter(treatyView.getBrokerageAmtDc().toString()));
+					bean.setTaxUsd(treatyView.getTaxAmtDc()==null?"0.00":fm.formatter(treatyView.getTaxAmtDc().toString()));
+					bean.setPremiumQuotaShareUsd(treatyView.getPremiumQuotashareDc()==null?"0.00":fm.formatter(treatyView.getPremiumQuotashareDc().toString()));
+					bean.setCommsissionQuotaShareUsd(treatyView.getCommissionQuotashareDc()==null?"0.00":fm.formatter(treatyView.getCommissionQuotashareDc().toString()));
+					bean.setPremiumSurplusUsd(treatyView.getPremiumSurplusDc()==null?"0.00":fm.formatter(treatyView.getPremiumSurplusDc().toString()));
+					bean.setComissionSurplusUsd(treatyView.getCommissionSurplusDc()==null?"0.00":fm.formatter(treatyView.getCommissionSurplusDc().toString()));
+					bean.setPremiumPortfolioInUsd(treatyView.getPremiumPortfolioinDc()==null?"0.00":fm.formatter(treatyView.getPremiumPortfolioinDc().toString()));
+					bean.setCliamPortfolioUsd(treatyView.getClaimPortfolioinDc()==null?"0.00":fm.formatter(treatyView.getClaimPortfolioinDc().toString()));
+					bean.setPremiumPortfolioOutUsd(treatyView.getPremiumPortfoliooutDc()==null?"0.00":fm.formatter(treatyView.getPremiumPortfoliooutDc().toString()));
+					bean.setLossReserveReleasedUsd(treatyView.getLossReserveReleasedDc()==null?"0.00":fm.formatter(treatyView.getLossReserveReleasedDc().toString()));
+					bean.setPremiumReserveQuotaShareUsd(treatyView.getPremiumreserveQuotashareDc()==null?"0.00":fm.formatter(treatyView.getPremiumreserveQuotashareDc().toString()));
+					bean.setCashLossCreditUsd(treatyView.getCashLossCreditDc()==null?"0.00":fm.formatter(treatyView.getCashLossCreditDc().toString()));
+					bean.setLossReserveRetainedUsd(treatyView.getLossReserveretainedDc()==null?"0.00":fm.formatter(treatyView.getLossReserveretainedDc().toString()));
+					bean.setProfitCommissionUsd(treatyView.getProfitCommissionDc()==null?"0.00":fm.formatter(treatyView.getProfitCommissionDc().toString()));
+					bean.setCashLossPaidUsd(treatyView.getCashLosspaidDc()==null?"0.00":fm.formatter(treatyView.getCashLosspaidDc().toString()));
+					bean.setClamsPaidUsd(treatyView.getClaimsPaidDc()==null?"0.00":fm.formatter(treatyView.getClaimsPaidDc().toString()));
+					bean.setXlCostUsd(treatyView.getXlCostDc()==null?"0.00":fm.formatter(treatyView.getXlCostDc().toString()));
+					bean.setCliamPortfolioOutUsd(treatyView.getClaimPortfolioOutDc()==null?"0.00":fm.formatter(treatyView.getClaimPortfolioOutDc().toString()));
+					bean.setPremiumReserveReleasedUsd(treatyView.getPremiumReserveRealsedDc()==null?"0.00":fm.formatter(treatyView.getPremiumReserveRealsedDc().toString()));
+					bean.setOtherCostUSD(treatyView.getOtherCostDc()==null?"0.00":fm.formatter(treatyView.getOtherCostDc().toString()));
+					bean.setInterestDC(treatyView.getInterestDc()==null?"0.00":fm.formatter(treatyView.getInterestDc().toString()));
+					bean.setOsClaimsLossUpdateOC(treatyView.getOsclaimLossupdateOc()==null?"0.00":fm.formatter(treatyView.getOsclaimLossupdateOc().toString()));
+					bean.setOsClaimsLossUpdateDC(treatyView.getOsclaimLossupdateDc()==null?"0.00":fm.formatter(treatyView.getOsclaimLossupdateDc().toString()));
+					bean.setOverrider(treatyView.getOverriderAmtOc()==null?"0.00":fm.formatter(treatyView.getOverriderAmtOc().toString()));
+					bean.setOverriderUSD(treatyView.getOverriderAmtDc()==null?"0.00":fm.formatter(treatyView.getOverriderAmtDc().toString()));
 					bean.setAmendmentDate(treatyView.getAmendmentDate()==null?"":treatyView.getAmendmentDate().toString());
-	                bean.setWithHoldingTaxOC(fm.formatter(treatyView.getWithHoldingTaxOc()==null?"0":treatyView.getWithHoldingTaxOc().toString()));
-	                bean.setWithHoldingTaxDC(fm.formatter(treatyView.getWithHoldingTaxDc()==null?"0":treatyView.getWithHoldingTaxDc().toString()));
+	                bean.setWithHoldingTaxOC(treatyView.getWithHoldingTaxOc()==null?"0.00":fm.formatter(treatyView.getWithHoldingTaxOc().toString()));
+	                bean.setWithHoldingTaxDC(treatyView.getWithHoldingTaxDc()==null?"0.00":fm.formatter(treatyView.getWithHoldingTaxDc().toString()));
 	                //not in query doubt
 	                // bean.setDueDate(treatyView.get("due_date")==null?"":treatyView.get("due_date").toString());
-	                bean.setTaxDedectSource(fm.formatter(treatyView.getTdsOc()==null?"0":treatyView.getTdsOc().toString()));
-					bean.setTaxDedectSourceDc(fm.formatter(treatyView.getTdsDc()==null?"0":treatyView.getTdsDc().toString()));
-					bean.setServiceTax(fm.formatter(treatyView.getStOc()==null?"0":treatyView.getStOc().toString()));
-					bean.setServiceTaxDc(fm.formatter(treatyView.getStDc()==null?"0":treatyView.getStDc().toString()));
-					bean.setLossParticipation(fm.formatter(treatyView.getLpcOc()==null?"0":treatyView.getLpcOc().toString()));
-					bean.setLossParticipationDC(fm.formatter(treatyView.getLpcDc()==null?"0":treatyView.getLpcDc().toString()));
-					bean.setSlideScaleCom(fm.formatter(treatyView.getScCommOc()==null?"0":treatyView.getScCommOc().toString()));
-					bean.setSlideScaleComDC(fm.formatter(treatyView.getScCommDc()==null?"0":treatyView.getScCommDc().toString()));
-					bean.setExchRate(dropDowmImpl.exchRateFormat(treatyView.getExchangeRate()==null?"0":treatyView.getExchangeRate().toString()));
+	                bean.setTaxDedectSource(treatyView.getTdsOc()==null?"0.00":fm.formatter(treatyView.getTdsOc().toString()));
+					bean.setTaxDedectSourceDc(treatyView.getTdsDc()==null?"0.00":fm.formatter(treatyView.getTdsDc().toString()));
+					bean.setServiceTax(treatyView.getStOc()==null?"0.00":fm.formatter(treatyView.getStOc().toString()));
+					bean.setServiceTaxDc(treatyView.getStDc()==null?"0.00":fm.formatter(treatyView.getStDc().toString()));
+					bean.setLossParticipation(treatyView.getLpcOc()==null?"0.00":fm.formatter(treatyView.getLpcOc().toString()));
+					bean.setLossParticipationDC(treatyView.getLpcDc()==null?"0.00":fm.formatter(treatyView.getLpcDc().toString()));
+					bean.setSlideScaleCom(treatyView.getScCommOc()==null?"0.00":fm.formatter(treatyView.getScCommOc().toString()));
+					bean.setSlideScaleComDC(treatyView.getScCommDc()==null?"0.00":fm.formatter(treatyView.getScCommDc().toString()));
+					bean.setExchRate(dropDowmImpl.exchRateFormat(treatyView.getExchangeRate()==null?"0.00":fm.formatter(treatyView.getExchangeRate().toString())));
 					Double totalOc = Double.parseDouble(bean.getPremiumQuotaShare())+Double.parseDouble(bean.getPremiumportifolioIn())+Double.parseDouble(bean.getCliamPortfolioin())
 					+Double.parseDouble(bean.getPremiumReserveReleased())+Double.parseDouble(bean.getLossReserveReleased())+Double.parseDouble(bean.getInterest())
 					+Double.parseDouble(bean.getCashLossCredit())+Double.parseDouble(bean.getTaxDedectSource())+Double.parseDouble(bean.getServiceTax())
@@ -441,7 +441,7 @@ public class RetroManualAdjServiceImple implements RetroManualAdjService{
 //	                			from table(SPLIT_TEXT_FN(replace(PD.SPC,' ', '')))) AND  SPFC.TMAS_PRODUCT_ID = '4' AND PD.BRANCH_CODE = SPFC.BRANCH_CODE) PREMIUM_SUBCLASS_NAME
 	                //bean.setPremiumSubClass(treatyView.get("PREMIUM_SUBCLASS_NAME")==null?"":treatyView.get("PREMIUM_SUBCLASS_NAME").toString());
 	                }
-	                bean.setReference(treatyView.getReference()==null?"":treatyView.getReference().toString());
+	            bean.setReference(treatyView.getReference()==null?"":treatyView.getReference().toString());
 		        bean.setUwYear(treatyView.getUwy()==null?"":treatyView.getUwy().toString()) ;
 		        bean.setBusinessType(treatyView.getBusinessType()==null?"":treatyView.getBusinessType().toString());
 		        

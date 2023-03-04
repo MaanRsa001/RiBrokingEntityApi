@@ -235,9 +235,9 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 			predicates.add(cb.equal(rk.get("rskEndorsementNo"),end));
 			predicates.add(cb.equal(rp.get("rskEndorsementNo"),endRp));
 			predicates.add(cb.equal(rc.get("rskProposalNumber"),rp.get("rskProposalNumber")));
-			predicates.add(cb.equal(rc.get("rskEndorsementNo"),endRc));
-			predicates.add(cb.equal(tdm.get("branchCode"),branchCode));
-			predicates.add(cb.equal(tdm.get("tmasProductId"),productId));
+			predicates.add(cb.equal(rc.get("rskEndorsementNo"), endRc));
+			predicates.add(cb.equal(tdm.get("branchCode"), branchCode));
+			predicates.add(cb.equal(tdm.get("tmasProductId"), productId));
 		
 			query1.where(predicates.toArray(new Predicate[0]));
 		
@@ -739,8 +739,8 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 				positionMaster.setBouquetModeYn(input[17]); //Ri
 				positionMaster.setBouquetNo(StringUtils.isBlank(input[18])? null : fm.formatBigDecimal(input[18]));
 				positionMaster.setUwYearTo(fm.formatBigDecimal(input[19]));
-				positionMaster.setSectionNo(fm.formatBigDecimal(input[20]));				
-				
+				positionMaster.setSectionNo(fm.formatBigDecimal(input[20]));	
+				positionMaster.setNewLayerNo(input[23]);				
 			}
 		}
 	}catch(Exception e) {
@@ -1908,7 +1908,9 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 				positionMaster.setBouquetNo(StringUtils.isBlank(input[27])? null : fm.formatBigDecimal(input[27]));
 				positionMaster.setUwYearTo(fm.formatBigDecimal(input[28]));
 				positionMaster.setSectionNo(fm.formatBigDecimal(input[29]));
-				positionMaster.setOfferNo(input[30]);				
+				positionMaster.setOfferNo(input[30]);	
+				positionMaster.setNewLayerNo(input[31]);
+				
 		}
 	}catch(Exception e) {
 		e.printStackTrace();

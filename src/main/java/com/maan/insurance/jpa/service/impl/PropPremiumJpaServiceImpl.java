@@ -3155,12 +3155,12 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 					ViewRIPremiumListRes1 res = new ViewRIPremiumListRes1();
 					RskPremiumDetailsRi data = (RskPremiumDetailsRi) data1.get("table");	
 					
-					res.setBrokerage(data1.get("BROKERAGE")==null?"":data1.get("BROKERAGE").toString());
+					res.setBrokerage(data1.get("BROKERAGE")==null?"":fm.formatter(data1.get("BROKERAGE").toString()));
 					res.setBrokerId(data1.get("BROKER_ID")==null?"":data1.get("BROKER_ID").toString());
 					res.setBrokerName(data1.get("BROKER_NAME")==null?"":data1.get("BROKER_NAME").toString());
 					res.setReinsurerId(data1.get("REINSURER_ID")==null?"":data1.get("REINSURER_ID").toString());
 					res.setReInsurerName(data1.get("REINSURER_NAME")==null?"":data1.get("REINSURER_NAME").toString());
-					res.setSignShared(data1.get("SIGN_SHARED")==null?"":data1.get("SIGN_SHARED").toString());	
+					res.setSignShared(data1.get("SIGN_SHARED")==null?"":fm.formatter(data1.get("SIGN_SHARED").toString()));	
 					res.setAccountPeriod(data1.get("ACCOUNT_PERIOD_QTR")==null?"":data1.get("ACCOUNT_PERIOD_QTR").toString());
 					res.setPremiumClass(data1.get("TMAS_DEPARTMENT_NAME")==null?"":data1.get("TMAS_DEPARTMENT_NAME").toString());
 					
@@ -3922,25 +3922,25 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 						res.setOtherCost(editpremium.get("OTHER_COST_OC")==null?"":editpremium.get("OTHER_COST_OC").toString());
 						res.setCedentRef(editpremium.get("CEDANT_REFERENCE")==null?"":editpremium.get("CEDANT_REFERENCE").toString());
 						res.setRemarks(editpremium.get("REMARKS")==null?"":editpremium.get("REMARKS").toString());
-						res.setInterest(fm.formatter(editpremium.get("INTEREST_OC")==null?"":editpremium.get("INTEREST_OC").toString()));
+						res.setInterest(editpremium.get("INTEREST_OC")==null?"":fm.formatter(editpremium.get("INTEREST_OC").toString()));
 						res.setOsClaimsLossUpdateOC(fm.formatter(editpremium.get("OSCLAIM_LOSSUPDATE_OC")==null?"":editpremium.get("OSCLAIM_LOSSUPDATE_OC").toString()));
 						res.setOverrider(editpremium.get("OVERRIDER_AMT_OC")==null?"":editpremium.get("OVERRIDER_AMT_OC").toString());
 						res.setOverriderUSD(editpremium.get("OVERRIDER_AMT_DC")==null?"":editpremium.get("OVERRIDER_AMT_DC").toString());
 						res.setAmendmentDate(editpremium.get("AMENDMENT_DATE")==null?"":formatDate(editpremium.get("AMENDMENT_DATE")));
-						res.setWithHoldingTaxOC(fm.formatter(editpremium.get("WITH_HOLDING_TAX_OC")==null?"":editpremium.get("WITH_HOLDING_TAX_OC").toString()));
-				        res.setWithHoldingTaxDC(fm.formatter(editpremium.get("WITH_HOLDING_TAX_DC")==null?"":editpremium.get("WITH_HOLDING_TAX_DC").toString()));
+						res.setWithHoldingTaxOC(editpremium.get("WITH_HOLDING_TAX_OC")==null?"":fm.formatter(editpremium.get("WITH_HOLDING_TAX_OC").toString()));
+				        res.setWithHoldingTaxDC(editpremium.get("WITH_HOLDING_TAX_DC")==null?"":fm.formatter(editpremium.get("WITH_HOLDING_TAX_DC").toString()));
 				        res.setRicession(editpremium.get("RI_CESSION")==null?"":editpremium.get("RI_CESSION").toString());
-				        res.setTaxDedectSource(fm.formatter(editpremium.get("TDS_OC")==null?"":editpremium.get("TDS_OC").toString()));
+				        res.setTaxDedectSource(editpremium.get("TDS_OC")==null?"":fm.formatter(editpremium.get("TDS_OC").toString()));
 						res.setTaxDedectSourceDc(fm.formatter(editpremium.get("TDS_DC")==null?"":editpremium.get("TDS_DC").toString()));
 						res.setVatPremium(editpremium.get("VAT_PREMIUM_OC")==null?"":fm.formatter(editpremium.get("VAT_PREMIUM_OC").toString()));
 						res.setVatPremiumDc(editpremium.get("VAT_PREMIUM_DC")==null?"":fm.formatter(editpremium.get("VAT_PREMIUM_DC").toString()));
 						res.setBrokerageVat(editpremium.get("BROKERAGE_VAT_OC")==null?"":fm.formatter(editpremium.get("BROKERAGE_VAT_OC").toString()));
 						res.setBrokerageVatDc(editpremium.get("BROKERAGE_VAT_DC")==null?"":fm.formatter(editpremium.get("BROKERAGE_VAT_DC").toString()));
 						res.setDocumentType(editpremium.get("DOCUMENT_TYPE")==null?"":editpremium.get("DOCUMENT_TYPE").toString());
-						res.setLossParticipation(fm.formatter(editpremium.get("LPC_OC")==null?"":editpremium.get("LPC_OC").toString()));
-						res.setLossParticipationDC(fm.formatter(editpremium.get("LPC_DC")==null?"":editpremium.get("LPC_DC").toString()));
-						res.setSlideScaleCom(fm.formatter(editpremium.get("SC_COMM_OC")==null?"":editpremium.get("SC_COMM_OC").toString()));
-						res.setSlideScaleComDC(fm.formatter(editpremium.get("SC_COMM_DC")==null?"":editpremium.get("SC_COMM_DC").toString()));
+						res.setLossParticipation(editpremium.get("LPC_OC")==null?"":fm.formatter(editpremium.get("LPC_OC").toString()));
+						res.setLossParticipationDC(editpremium.get("LPC_DC")==null?"":fm.formatter(editpremium.get("LPC_DC").toString()));
+						res.setSlideScaleCom(editpremium.get("SC_COMM_OC")==null?"":fm.formatter(editpremium.get("SC_COMM_OC").toString()));
+						res.setSlideScaleComDC(editpremium.get("SC_COMM_DC")==null?"":fm.formatter(editpremium.get("SC_COMM_DC").toString()));
 						res.setSubProfitId(editpremium.get("PREMIUM_SUBCLASS")==null?"":editpremium.get("PREMIUM_SUBCLASS").toString());
 						res.setPrAllocatedAmount(editpremium.get("PRD_ALLOCATED_TILL_DATE")==null?"":editpremium.get("PRD_ALLOCATED_TILL_DATE").toString());
 						res.setLrAllocatedAmount(editpremium.get("LRD_ALLOCATED_TILL_DATE")==null?"":editpremium.get("LRD_ALLOCATED_TILL_DATE").toString());
