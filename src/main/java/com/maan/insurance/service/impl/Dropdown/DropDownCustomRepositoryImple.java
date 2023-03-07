@@ -105,7 +105,8 @@ public class DropDownCustomRepositoryImple implements DropDownCustomRepository{
 					pm.get("sectionNo").alias("SECTION_NO"),
 					pm.get("layerNo").alias("LAYER_NO"),
 					deptName.alias("TMAS_DEPARTMENT_NAME"),
-					pm.get("offerNo").alias("OFFER_NO")); 
+					pm.get("offerNo").alias("OFFER_NO"),
+					rd.get("rskSpfcid").alias("SUB_CLASS")); 
 	
 			List<Order> orderList = new ArrayList<Order>();
 			orderList.add(cb.asc(pm.get("offerNo")));
@@ -188,7 +189,8 @@ public class DropDownCustomRepositoryImple implements DropDownCustomRepository{
 					pm.get("sectionNo").alias("SECTION_NO"),
 					pm.get("layerNo").alias("LAYER_NO"),
 					deptName.alias("TMAS_DEPARTMENT_NAME"),
-					pm.get("offerNo").alias("OFFER_NO")); 
+					pm.get("offerNo").alias("OFFER_NO"),
+					rd.get("rskSpfcid").alias("SUB_CLASS")); 
 	
 			List<Order> orderList = new ArrayList<Order>();
 			orderList.add(cb.asc(pm.get("productId")));

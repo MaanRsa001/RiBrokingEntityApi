@@ -87,6 +87,7 @@ import com.maan.insurance.model.req.nonproportionality.getReInstatementDetailsLi
 import com.maan.insurance.model.req.nonproportionality.insertClassLimitReq;
 import com.maan.insurance.model.req.nonproportionality.insertProportionalTreatyReq;
 import com.maan.insurance.model.req.proportionality.GetClassLimitDetailsReq;
+import com.maan.insurance.model.req.proportionality.GetTreatyNameDuplicationCheckReq;
 import com.maan.insurance.model.req.proportionality.RetroDetailReq;
 import com.maan.insurance.model.res.nonproportionality.BonusRes;
 import com.maan.insurance.model.res.nonproportionality.CheckAvialabilityRes;
@@ -5023,6 +5024,145 @@ private boolean checkEditSaveModeMethod(final insertProportionalTreatyReq req) {
 				response.setIsError(true);
 			}
 		return response;
+	}
+
+	public CommonSaveRes getTreatYNameDuplicationCheck(GetTreatyNameDuplicationCheckReq formObj) {
+		CommonSaveRes response = new CommonSaveRes();
+		boolean result=false;
+		try{
+			if (StringUtils.isNotBlank(formObj.getProposalNo()) && StringUtils.isNotBlank(formObj.getTreatyNameType()) ) {
+				//risk.select.getSectionDupcheckByProNo
+				CriteriaBuilder cb = em.getCriteriaBuilder(); 
+				CriteriaQuery<String> query1 = cb.createQuery(String.class); 
+				Root<PositionMaster> pm = query1.from(PositionMaster.class);
+				Root<TtrnRiskDetails> trd = query1.from(TtrnRiskDetails.class);
+				
+				query1.select(trd.get("rskTreatyid")); 
+				
+				Subquery<Long> amend = query1.subquery(Long.class); 
+				Root<PositionMaster> pm1 = amend.from(PositionMaster.class);
+				amend.select(cb.max(pm1.get("amendId")));
+				Predicate f1 = cb.equal( pm1.get("proposalNo"),  pm.get("proposalNo"));
+				amend.where(f1);
+				
+				Subquery<Long> amend1 = query1.subquery(Long.class); 
+				Root<TtrnRiskDetails> trd1 = amend1.from(TtrnRiskDetails.class);
+				amend1.select(cb.max(trd1.get("rskEndorsementNo")));
+				Predicate fr1 = cb.equal( trd1.get("rskProposalNumber"),  trd.get("rskProposalNumber"));
+				amend1.where(fr1);
+				
+				Predicate n1 = cb.equal(trd.get("rskTreatyid"),formObj.getTreatyNameType());
+				Predicate n2 = cb.notEqual(trd.get("rskProposalNumber"), formObj.getProposalNo()); 
+				Predicate n3 = cb.equal(cb.coalesce(pm.get("baseLayer"),pm.get("proposalNo")),StringUtils.isBlank(formObj.getBaseLayer())?formObj.getProposalNo():formObj.getBaseLayer());
+				Predicate n4 = cb.equal(pm.get("contractStatus"), "P"); 
+				Predicate n5 = cb.equal(pm.get("proposalNo"), trd.get("rskProposalNumber")); 
+				Predicate n6 = cb.equal(pm.get("amendId"), amend); 
+				Predicate n7 = cb.equal(trd.get("rskEndorsementNo"), amend1); 
+				query1.where(n1,n2,n3,n4,n5,n6,n7);	
+		
+				TypedQuery<String> res1 = em.createQuery(query1);
+				List<String> list = res1.getResultList();
+				
+				if(list!=null && list.size()>0){
+					for(int i=0;i<list.size();i++){
+						String res=list.get(i)==null?"":list.get(i).toString();
+						if(res.equalsIgnoreCase(formObj.getTreatyNameType())){
+							result=true;
+						}
+					}
+				}
+			}else if (StringUtils.isNotBlank(formObj.getBaseLayer()) && StringUtils.isNotBlank(formObj.getTreatyNameType()) ){
+				//risk.select.getSectionDupcheckByBaseLayer
+				CriteriaBuilder cb = em.getCriteriaBuilder(); 
+				CriteriaQuery<String> query1 = cb.createQuery(String.class); 
+				Root<PositionMaster> pm = query1.from(PositionMaster.class);
+				Root<TtrnRiskDetails> trd = query1.from(TtrnRiskDetails.class);
+				
+				query1.select(trd.get("rskTreatyid")); 
+				
+				Subquery<Long> amend = query1.subquery(Long.class); 
+				Root<PositionMaster> pm1 = amend.from(PositionMaster.class);
+				amend.select(cb.max(pm1.get("amendId")));
+				Predicate f1 = cb.equal( pm1.get("proposalNo"),  pm.get("proposalNo"));
+				amend.where(f1);
+				
+				Subquery<Long> amend1 = query1.subquery(Long.class); 
+				Root<TtrnRiskDetails> trd1 = amend1.from(TtrnRiskDetails.class);
+				amend1.select(cb.max(trd1.get("rskEndorsementNo")));
+				Predicate fr1 = cb.equal( trd1.get("rskProposalNumber"),  trd.get("rskProposalNumber"));
+				amend1.where(fr1);
+				
+				Predicate n1 = cb.equal(trd.get("rskTreatyid"),formObj.getTreatyNameType());
+				Predicate n3 = cb.equal(cb.coalesce(pm.get("baseLayer"),pm.get("proposalNo")),formObj.getBaseLayer());
+				Predicate n4 = cb.equal(pm.get("contractStatus"), "P"); 
+				Predicate n5 = cb.equal(pm.get("proposalNo"), trd.get("rskProposalNumber")); 
+				Predicate n6 = cb.equal(pm.get("amendId"), amend); 
+				Predicate n7 = cb.equal(trd.get("rskEndorsementNo"), amend1); 
+				query1.where(n1,n3,n4,n5,n6,n7);	
+		
+		
+				TypedQuery<String> res1 = em.createQuery(query1);
+				List<String> list = res1.getResultList();
+				
+				if(list!=null && list.size()>0){
+					for(int i=0;i<list.size();i++){
+						String res=list.get(i)==null?"":list.get(i).toString();
+						if(res.equalsIgnoreCase(formObj.getTreatyNameType())){
+							result=true;
+						}
+					}
+				}
+			}else if (StringUtils.isNotBlank(formObj.getProposalNo()) && StringUtils.isNotBlank(formObj.getTreatyNameType())){
+				//risk.select.getSectionDupcheckByBaseLayer
+				CriteriaBuilder cb = em.getCriteriaBuilder(); 
+				CriteriaQuery<String> query1 = cb.createQuery(String.class); 
+				Root<PositionMaster> pm = query1.from(PositionMaster.class);
+				Root<TtrnRiskDetails> trd = query1.from(TtrnRiskDetails.class);
+				
+				query1.select(trd.get("rskTreatyid")); 
+				
+				Subquery<Long> amend = query1.subquery(Long.class); 
+				Root<PositionMaster> pm1 = amend.from(PositionMaster.class);
+				amend.select(cb.max(pm1.get("amendId")));
+				Predicate f1 = cb.equal( pm1.get("proposalNo"),  pm.get("proposalNo"));
+				amend.where(f1);
+				
+				Subquery<Long> amend1 = query1.subquery(Long.class); 
+				Root<TtrnRiskDetails> trd1 = amend1.from(TtrnRiskDetails.class);
+				amend1.select(cb.max(trd1.get("rskEndorsementNo")));
+				Predicate fr1 = cb.equal( trd1.get("rskProposalNumber"),  trd.get("rskProposalNumber"));
+				amend1.where(fr1);
+				
+				Predicate n1 = cb.equal(trd.get("rskTreatyid"),formObj.getTreatyNameType());
+				Predicate n3 = cb.equal(cb.coalesce(pm.get("baseLayer"),pm.get("proposalNo")),formObj.getBaseLayer());
+				Predicate n4 = cb.equal(pm.get("contractStatus"), "P"); 
+				Predicate n5 = cb.equal(pm.get("proposalNo"), trd.get("rskProposalNumber")); 
+				Predicate n6 = cb.equal(pm.get("amendId"), amend); 
+				Predicate n7 = cb.equal(trd.get("rskEndorsementNo"), amend1); 
+				query1.where(n1,n3,n4,n5,n6,n7);	
+		
+		
+				TypedQuery<String> res1 = em.createQuery(query1);
+				List<String> list = res1.getResultList();
+				
+				if(list!=null && list.size()>0){
+					for(int i=0;i<list.size();i++){
+						String res=list.get(i)==null?"":list.get(i).toString();
+						if(res.equalsIgnoreCase(formObj.getTreatyNameType())){
+							result=true;
+						}
+					}
+				}
+			}
+			response.setResponse(String.valueOf(result));
+			response.setMessage("Success");
+	   		response.setIsError(false);
+	   	} catch (Exception e) {
+	   		e.printStackTrace();
+	   		response.setMessage("Failed");
+	   		response.setIsError(true);
+	   	}
+	   	return response;
 	}
 	
 

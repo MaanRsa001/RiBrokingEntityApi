@@ -1918,14 +1918,14 @@ public class DropDownServiceImple implements DropDownService{
 				Predicate n3 = cb.equal(pm.get("tmasProductId"), req.getProductCode());
 				query.where(n1,n2,n3).orderBy(orderList);
 					
-			}else if((!StringUtils.isBlank(req.getContractNo()) && StringUtils.isBlank(req.getProposalNo())) || (!StringUtils.isBlank(req.getContractNo()))){
+			}else if((StringUtils.isNotBlank(req.getContractNo()) && StringUtils.isBlank(req.getProposalNo())) || (!StringUtils.isBlank(req.getContractNo()))){
 				//common.select.getDepartmentList1
 				//deptId
 				Subquery<String> deptId = query.subquery(String.class); 
 				Root<PositionMaster> pms = deptId.from(PositionMaster.class);
 				deptId.select(pms.get("deptId"));
 				Predicate a1 = cb.equal( pms.get("contractNo"),new BigDecimal(req.getContractNo()));
-				Predicate a2 = cb.equal( pms.get("baseLayer"),req.getContractNo());
+				Predicate a2 = cb.equal( pms.get("baseLayer"),req.getBaseLayer());
 				Predicate a3 = cb.or(a1,a2);
 				deptId.where(a3);
 				

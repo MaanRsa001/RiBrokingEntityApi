@@ -29,6 +29,7 @@ import com.maan.insurance.model.req.proportionality.GetCrestaCountReq;
 import com.maan.insurance.model.req.proportionality.GetCrestaDetailListReq;
 import com.maan.insurance.model.req.proportionality.GetRetentionDetailsReq;
 import com.maan.insurance.model.req.proportionality.GetSectionDuplicationCheckReq;
+import com.maan.insurance.model.req.proportionality.GetTreatyNameDuplicationCheckReq;
 import com.maan.insurance.model.req.proportionality.GetcalculateSCReq;
 import com.maan.insurance.model.req.proportionality.GetprofitCommissionEnableReq;
 import com.maan.insurance.model.req.proportionality.InsertCrestaDetailsReq;
@@ -113,7 +114,7 @@ public class ProportionalityValidation {
 		if(StringUtils.isBlank(req.getInceptionDate())) {
 			list.add(new ErrorCheck("Please Select InceptionDate", "InceptionDate", "0"));
 		}else {
-			incDate = val.checkDate(req.getInceptionDate());
+ 			incDate = val.checkDate(req.getInceptionDate());
 		}
 		
 		if(StringUtils.isBlank(req.getExpiryDate())) {
@@ -126,7 +127,7 @@ public class ProportionalityValidation {
 		
 		Map<String, Object> map = null;
 		List<Map<String, Object>> listvali = propImple.getValidation(req.getInceptionDate(), req.getContractNo(), req.getDepartmentId());
-		if (listvali != null && listvali.size() > 0) {
+ 		if (listvali != null && listvali.size() > 0) {
 			map = (Map<String, Object>) listvali.get(0);
 		}
 		
@@ -179,6 +180,16 @@ public class ProportionalityValidation {
 				list.add(new ErrorCheck("Section No Already Exists", "SectionDuplicate", "11"));
 			}
 		}
+		if(StringUtils.isNotBlank(req.getTreatyNametype())) {
+			GetTreatyNameDuplicationCheckReq req1=new GetTreatyNameDuplicationCheckReq();
+			req1.setProposalNo(req.getProposalNo());
+			req1.setBaseLayer(req.getBaseLayer());
+			req1.setTreatyNameType(req.getTreatyNametype());
+			if (propImple.getTreatYNameDuplicationCheck(req1).getResponse().equalsIgnoreCase("true")) {
+				list.add(new ErrorCheck("Treaty / Section Name Already Exists", "TreatySectionDuplicate", "11"));
+			}
+		}
+			
 		if("Y".equals(req.getBouquetModeYN()) && StringUtils.isNotBlank(req.getBouquetNo())) {
 			if (dropDownImple.getBouquetCedentBrokercheck(req.getBouquetNo(), req.getCedingCo(), req.getBroker()).getResponse().equalsIgnoreCase("true")) {
 				list.add(new ErrorCheck("Ceding Company  and Broker Company must be same as Existing Bouquet", "BouquetCedentBroker", "7"));
@@ -288,6 +299,16 @@ public class ProportionalityValidation {
 				}
 				if (tear_nt.equalsIgnoreCase("")) {
 					list.add(new ErrorCheck(prop.getProperty("error.treatyName_type.required"),"TreatyType","01"));
+				}else {
+					if(StringUtils.isNotBlank(bean.getTreatyNametype())) {
+						GetTreatyNameDuplicationCheckReq req1=new GetTreatyNameDuplicationCheckReq();
+						req1.setProposalNo(bean.getProposalNo());
+						req1.setBaseLayer(bean.getBaseLayer());
+						req1.setTreatyNameType(bean.getTreatyNametype());
+						if (propImple.getTreatYNameDuplicationCheck(req1).getResponse().equalsIgnoreCase("true")) {
+							list.add(new ErrorCheck("Treaty / Section Name Already Exists", "TreatySectionDuplicate", "11"));
+						}
+					}
 				}
 				if ("0".equalsIgnoreCase(bean.getTreatyType())) {
 					list.add(new ErrorCheck(prop.getProperty("error.TreatyType.Reqired"),"TreatyType","01"));

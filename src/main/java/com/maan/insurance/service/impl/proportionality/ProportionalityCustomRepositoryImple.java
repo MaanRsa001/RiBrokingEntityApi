@@ -54,6 +54,7 @@ import com.maan.insurance.model.repository.TtrnRiRepository;
 import com.maan.insurance.model.repository.TtrnRiskCommissionRepository;
 import com.maan.insurance.model.repository.TtrnRiskDetailsRepository;
 import com.maan.insurance.model.repository.TtrnRiskProposalRepository;
+import com.maan.insurance.model.req.proportionality.ProfitCommissionSaveReq;
 import com.maan.insurance.validation.Formatters;
 
 @Repository
@@ -669,7 +670,7 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 				ttrnRiskCommission.setRskProCommType(args[45]);
 				ttrnRiskCommission.setRskProCommPer(fm.formatBigDecimal(args[46]));
 				ttrnRiskCommission.setRskProSetUp(args[47]);
-				ttrnRiskCommission.setRskShareProfitCommission(args[48]);
+				ttrnRiskCommission.setRskProSupProCom(args[48]);
 				ttrnRiskCommission.setRskProLossCaryType(args[49]);
 				ttrnRiskCommission.setRskProLossCaryYear(args[50]);
 				ttrnRiskCommission.setRskProProfitCaryType(args[51]);
@@ -2920,6 +2921,23 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	@Transactional
+	public int profitUpdate(ProfitCommissionSaveReq bean) {
+		CriteriaBuilder cb = this.em.getCriteriaBuilder();
+		CriteriaUpdate<TtrnCommissionDetails> update = cb.createCriteriaUpdate(TtrnCommissionDetails.class);
+		Root<TtrnCommissionDetails> m = update.from(TtrnCommissionDetails.class);
+		update.set("contractNo", fm.formatBigDecimal(bean.getContractNo()))
+		.set("profitComStatus", bean.getShareProfitCommission());
+		
+		Predicate n1 = cb.equal(m.get("proposalNo"),fm.formatBigDecimal(bean.getProposalNo()));
+		Predicate n2 = cb.equal(m.get("branchCode"),bean.getBranchCode());
+		Predicate n3 = cb.equal(m.get("endorsementNo"),fm.formatBigDecimal(bean.getAmendId()));
+	
+		update.where(n1,n2,n3 );
+		return em.createQuery(update).executeUpdate();
 	}
 		
 	}

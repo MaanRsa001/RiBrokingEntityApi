@@ -21,6 +21,7 @@ import com.maan.insurance.model.entity.TtrnRiskRemarks;
 import com.maan.insurance.model.req.premium.GetPremiumedListReq;
 import com.maan.insurance.model.req.proportionality.ConvertPolicyReq;
 import com.maan.insurance.model.req.proportionality.ConvertPolicyReq1;
+import com.maan.insurance.model.req.proportionality.ProfitCommissionSaveReq;
 
 public interface ProportionalityCustomRepository {
 
@@ -151,6 +152,8 @@ public interface ProportionalityCustomRepository {
 			String statusNo, String contNo);
 
 	void riskdetailUpdateContNo(String proposalNo, String maxContarctNo);
+
+	int profitUpdate(ProfitCommissionSaveReq bean);
 
 
 }

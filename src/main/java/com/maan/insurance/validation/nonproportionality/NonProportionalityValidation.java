@@ -49,6 +49,7 @@ import com.maan.insurance.model.req.nonproportionality.insertClassLimitReq;
 import com.maan.insurance.model.req.nonproportionality.insertProportionalTreatyReq;
 import com.maan.insurance.model.req.proportionality.ContractReq;
 import com.maan.insurance.model.req.proportionality.GetClassLimitDetailsReq;
+import com.maan.insurance.model.req.proportionality.GetTreatyNameDuplicationCheckReq;
 import com.maan.insurance.model.res.DropDown.CommonResDropDown;
 import com.maan.insurance.model.res.DropDown.GetCommonDropDownRes;
 import com.maan.insurance.model.res.DropDown.GetContractValRes;
@@ -232,6 +233,15 @@ public class NonProportionalityValidation {
 		if (!val.isNull(req.getLayerNo()).equalsIgnoreCase("")) {
 			if (nonPropImple.getLayerDuplicationCheck(req.getProposalNo(),req.getLayerNo(),req.getBaseLayer()).getResponse().equals("true")) {
 				list.add(new ErrorCheck(prop.getProperty("error.layer.duplicate"),"Layer", "11"));
+			}
+		}
+		if(StringUtils.isNotBlank(req.getTreatyNameType())) {
+			GetTreatyNameDuplicationCheckReq req1=new GetTreatyNameDuplicationCheckReq();
+			req1.setProposalNo(req.getProposalNo());
+			req1.setBaseLayer(req.getBaseLayer());
+			req1.setTreatyNameType(req.getTreatyNameType());
+			if (nonPropImple.getTreatYNameDuplicationCheck(req1).getResponse().equalsIgnoreCase("true")) {
+				list.add(new ErrorCheck("Treaty / Section Name Already Exists", "TreatySectionDuplicate", "11"));
 			}
 		}
 		if("Y".equals(req.getBouquetModeYN()) && StringUtils.isNotBlank(req.getBouquetNo())) {
@@ -498,6 +508,15 @@ public class NonProportionalityValidation {
 					list.add(new ErrorCheck(prop.getProperty("error.layer.duplicate"),"layer","01"));
 				}
 			}
+			if(StringUtils.isNotBlank(bean.getTreatyNametype())) {
+				GetTreatyNameDuplicationCheckReq req1=new GetTreatyNameDuplicationCheckReq();
+				req1.setProposalNo(bean.getProposalNo());
+				req1.setBaseLayer(bean.getBaseLayer());
+				req1.setTreatyNameType(bean.getTreatyNametype());
+				if (nonPropImple.getTreatYNameDuplicationCheck(req1).getResponse().equalsIgnoreCase("true")) {
+					list.add(new ErrorCheck("Treaty / Section Name Already Exists", "TreatySectionDuplicate", "11"));
+				}
+			}
 			if("Y".equals(bean.getBouquetModeYN()) && StringUtils.isNotBlank(bean.getBouquetNo())) {
 				if (dropDownImple.getBouquetCedentBrokercheck(bean.getBouquetNo(),bean.getCedingCo(),bean.getBroker()).getResponse().equalsIgnoreCase("true")) {
 					list.add(new ErrorCheck(prop.getProperty("error.brokercedent.duplicate"),"brokercedent","01"));
@@ -594,6 +613,7 @@ public class NonProportionalityValidation {
 						list.add(new ErrorCheck(prop.getProperty("error.layer.duplicate"),"layer","01"));
 					}
 				}
+				
 				if(StringUtils.isBlank(bean.getRiskdetailYN())) {
 					list.add(new ErrorCheck(prop.getProperty("error.alldetails.required"),"alldetails","01"));
 				}else if("Y".equals(bean.getRiskdetailYN())) {
@@ -616,6 +636,16 @@ public class NonProportionalityValidation {
 						}
 						else if("5".equalsIgnoreCase(bean.getProductId())){
 							list.add(new ErrorCheck(prop.getProperty("error.retroTreatyName.required"),"retroTreatyName","01"));
+						}
+					}else {
+						if(StringUtils.isNotBlank(bean.getTreatyNametype())) {
+							GetTreatyNameDuplicationCheckReq req1=new GetTreatyNameDuplicationCheckReq();
+							req1.setProposalNo(bean.getProposalNo());
+							req1.setBaseLayer(bean.getBaseLayer());
+							req1.setTreatyNameType(bean.getTreatyNametype());
+							if (nonPropImple.getTreatYNameDuplicationCheck(req1).getResponse().equalsIgnoreCase("true")) {
+								list.add(new ErrorCheck("Treaty / Section Name Already Exists", "TreatySectionDuplicate", "11"));
+							}
 						}
 					}
 					if(StringUtils.isBlank(bean.getBusinessType())){

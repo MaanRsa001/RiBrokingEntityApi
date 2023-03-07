@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 public class ProfitCommissionListRes {
 	
-	@JsonProperty("ProfitCommissionListRes1")
+	@JsonProperty("Result")
 	private List<ProfitCommissionListRes1> ProfitCommissionListRes1;
 
 	@JsonProperty("Message")
