@@ -1236,6 +1236,7 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 				
 				query.multiselect(de.get("rskProposalNumber").alias("RSK_PROPOSAL_NUMBER"),de.get("rskEndorsementNo").alias("RSK_ENDORSEMENT_NO"),
 						de.get("rskContractNo").alias("RSK_CONTRACT_NO"),de.get("rskLayerNo").alias("RSK_LAYER_NO"),
+						pm.get("newLayerNo").alias("NEW_LAYER_NO"),
 						de.get("rskProductid").alias("RSK_PRODUCTID"),de.get("rskDeptid").alias("RSK_DEPTID"),
 						de.get("rskPfcid").alias("RSK_PFCID"),de.get("rskSpfcid").alias("RSK_SPFCID"),
 						de.get("rskPolbranch").alias("RSK_POLBRANCH"),de.get("rskCedingid").alias("RSK_CEDINGID"),
@@ -3042,7 +3043,7 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 			
 			query.multiselect(
 					pm.get("offerNo").alias("OFFER_NO"),
-					pm.get("layerNo").alias("LAYER_NO"),
+					pm.get("newLayerNo").alias("NEW_LAYER_NO"),
 					pm.get("proposalNo").alias("PROPOSAL_NO"),
 					pm.get("cedingCompanyId").alias("CEDING_COMPANY_ID"),
 					cb.coalesce(pm.get("baseLayer"), pm.get("proposalNo")).alias("BASE_LAYER"),

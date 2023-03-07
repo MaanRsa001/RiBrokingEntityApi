@@ -12,8 +12,8 @@ import lombok.Data;
 public class GetLayerInfoRes1 {
 	@JsonProperty("OfferNo")
 	private String offerNo;
-	@JsonProperty("LayerNo")
-	private String layerNo;
+	@JsonProperty("NewLayerNo")
+	private String newLayerNo;
 	@JsonProperty("ProposalNo")
 	private String proposalNo;
 	@JsonProperty("CedingCompanyId")
@@ -34,4 +34,5 @@ public class GetLayerInfoRes1 {
 	private String treatyType;
 	@JsonProperty("RskTreatyid")
 	private String rskTreatyid;
+
 }

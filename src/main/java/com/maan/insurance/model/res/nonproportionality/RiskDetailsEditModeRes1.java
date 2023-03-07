@@ -270,4 +270,7 @@ public class RiskDetailsEditModeRes1 {
 	@JsonProperty("TotalNoOfRows")
 	private String totalNoOfRows;
 	
+	@JsonProperty("NewLayerNo")
+	private String newLayerNo;
+	
 }
