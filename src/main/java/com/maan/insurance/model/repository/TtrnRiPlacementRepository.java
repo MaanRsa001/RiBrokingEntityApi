@@ -50,4 +50,7 @@ public interface TtrnRiPlacementRepository  extends JpaRepository<TtrnRiPlacemen
 	List<TtrnRiPlacement> findByProposalNoAndContractNoIsNotNullAndContractNoNot(BigDecimal bigDecimal,
 			BigDecimal zero);
 
+
+	List<TtrnRiPlacement> findByProposalNo(BigDecimal bigDecimal);
+
 }

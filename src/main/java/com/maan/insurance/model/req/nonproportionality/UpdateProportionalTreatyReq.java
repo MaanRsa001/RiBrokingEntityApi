@@ -271,4 +271,9 @@ public class UpdateProportionalTreatyReq {
 	private String rateOnLine; 
 	@JsonProperty("QuotesharePercent")
 	private String quotesharePercent;
+	
+	@JsonProperty("MinimumpremiumPercent")
+	private String minimumpremiumPercent; 
+	@JsonProperty("GnpiCapPercent")
+	private String gnpiCapPercent;
 }

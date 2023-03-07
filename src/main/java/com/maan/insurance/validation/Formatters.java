@@ -43,7 +43,7 @@ public class Formatters {
 	}
 	public  String formattereight(final String value) //for %
 	{
-		String output="0.00";
+		String output="0.00000000";
 		if(StringUtils.isNotBlank(value))
 		{
 			double doublevalue=Double.parseDouble(value);
@@ -54,6 +54,32 @@ public class Formatters {
 		return output;
 
 	}
+	public  String formatterfour(final String value)
+	{
+		String output="0.0000";
+		if(StringUtils.isNotBlank(value))
+		{
+			double doublevalue=Double.parseDouble(value);
+			DecimalFormat myFormatter = new DecimalFormat("###,###,###,###,##0.0000");
+			output =myFormatter.format(doublevalue);
+		}
+		return output;
+
+	}
+	public  String formatterfourNoComma(final String value)
+	{
+		String output="0.0000";
+		if(StringUtils.isNotBlank(value))
+		{
+			double doublevalue=Double.parseDouble(value);
+			DecimalFormat myFormatter = new DecimalFormat("0.0000");
+			output =myFormatter.format(doublevalue);
+		}
+		return output;
+
+	}
+
+
 
 	public synchronized String getSequence(String type,String productID,String departmentId,String branchCode, String proposalNo,String date){ 
 		Logger logger = LogUtil.getLogger(Formatters.class);
@@ -81,19 +107,7 @@ public class Formatters {
 		return seqName;
 	}
 	
-	public  String formatterfour(final String value)
-	{
-		String output="0.00";
-		if(StringUtils.isNotBlank(value))
-		{
-			double doublevalue=Double.parseDouble(value);
-			DecimalFormat myFormatter = new DecimalFormat("###,###,###,###,##0.0000");
-			output =myFormatter.format(doublevalue);
-		}
-		return output;
-
-	}
-
+	
 	public Object exchRateFormat(String string) {
 		
 		return null;

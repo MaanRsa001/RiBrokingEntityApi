@@ -838,7 +838,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			
 				insertClassLimit(req);
 				//InsertRemarkDetails(req); //already prop
-//				GetRemarksDetails(req); aready
+//				GetRemarksDetails(req); 
 				updateOfferNo(req.getOfferNo(),req.getBranchCode(),req.getProposalNo(),req.getProductId());
 				updateRiskProposal(req);
 //				this.showSecondpageEditItems(beanObj, pid, proposalno);
@@ -995,9 +995,9 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 	}
 	public String[] updateRiskProposalArgs(final insertProportionalTreatyReq beanObj,final String pid,String endNo) {
 		String[] obj=null;
-		obj = new String[36];
-		obj[0] = beanObj.getLimitOrigCur().replaceAll(",", "");
-		obj[1] = getDesginationCountry(beanObj.getLimitOrigCur().replaceAll(",", ""), beanObj.getExchangeRate());
+		obj = new String[38];
+		obj[0] = StringUtils.isBlank(beanObj.getLimitOrigCur())?"":beanObj.getLimitOrigCur().replaceAll(",", "");
+		obj[1] = getDesginationCountry(StringUtils.isBlank(beanObj.getLimitOrigCur())?"":beanObj.getLimitOrigCur().replaceAll(",", ""), beanObj.getExchangeRate());
 		obj[2] = beanObj.getEpi();
 		obj[3] = getDesginationCountry(beanObj.getEpi(), beanObj.getExchangeRate());
 		obj[4] = StringUtils.isBlank(beanObj.getShareWritt())? "":beanObj.getShareWritt();
@@ -1040,6 +1040,8 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		obj[33] = beanObj.getBranchCode();
 		obj[34] = beanObj.getProposalNo();
 		obj[35]=endNo;
+		obj[36] = beanObj.getMinimumpremiumPercent();
+		obj[37] = beanObj.getGnpiCapPercent();
 		
 		layerNoUpdate(beanObj,endNo);
 		
@@ -1209,7 +1211,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		boolean updateStatus = true;
 		int res=0;
 		
-		String[] args= new String[55]; //ri
+		String[] args= new String[57]; //ri
 		try {
 		args[0] = StringUtils.isEmpty(req.getEventlimit()) ? "": req.getEventlimit();
 		args[1] = StringUtils.isEmpty(req.getEventlimit())	|| StringUtils.isEmpty(req.getExchRate()) ? "0"	: getDesginationCountry(req.getEventlimit(), req.getExchRate());
@@ -1273,6 +1275,9 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		args[52] =StringUtils.isEmpty(req.getQuotesharePercent()) ? "0": req.getQuotesharePercent();
 		args[53] = req.getProposalNo();
 		args[54]=endNo;
+		args[55]=req.getMinimumpremiumPercent();
+		args[56]=req.getGnpiCapPercent();
+		
 		//UPDATE_RISK_PROPOSAL_DETAILS
 		TtrnRiskProposal update = nonProportCustomRepository.updateFirstPageFields(args);
 		if(update!=null) {
@@ -1382,7 +1387,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 				 if(list!=null && list.size()>0){
 					for(int i=0;i<list.size();i++){
 						Tuple map = list.get(i);
-						String res=map.get("LAYER_NO")==null?"":map.get("LAYER_NO").toString();
+						String res=map.get("NEW_LAYER_NO")==null?"":map.get("NEW_LAYER_NO").toString();
 						if(res.equalsIgnoreCase(layerNo)){
 							result=true;
 						}
@@ -1395,7 +1400,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 				if(list!=null && list.size()>0){
 					for(int i=0;i<list.size();i++){
 						Tuple map = list.get(i);
-						String res=map.get("LAYER_NO")==null?"":map.get("LAYER_NO").toString();
+						String res=map.get("NEW_LAYER_NO")==null?"":map.get("NEW_LAYER_NO").toString();
 						if(res.equalsIgnoreCase(layerNo)){
 							result=true;
 						}
@@ -1407,7 +1412,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 				if(list!=null && list.size()>0){
 					for(int i=0;i<list.size();i++){
 						Tuple map = list.get(i);
-						String res=map.get("LAYER_NO")==null?"":map.get("LAYER_NO").toString();
+						String res=map.get("NEW_LAYER_NO")==null?"":map.get("NEW_LAYER_NO").toString();
 						if(res.equalsIgnoreCase(layerNo)){
 							result=true;
 						}
@@ -1985,6 +1990,9 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 				beanObj.setAcqdetailYN(resMap.get("ACQCOST_DET_YN")==null?"N":resMap.get("ACQCOST_DET_YN").toString());
 				beanObj.setReinstdetailYN(resMap.get("REINST_DET_YN")==null?"N":resMap.get("REINST_DET_YN").toString());
 				
+				beanObj.setNewLayerNo(resMap.get("NEW_LAYER_NO")==null?"":resMap.get("NEW_LAYER_NO").toString());
+				beanObj.setMinimumpremiumPercent(resMap.get("RSK_MINIMUMPREMIUM_PERCENT")==null?"0.0000":fm.formatterfourNoComma(resMap.get("RSK_MINIMUMPREMIUM_PERCENT").toString()));
+				beanObj.setGnpiCapPercent(resMap.get("RSK_GNPI_CAP_PERCENT")==null?"0.0000":fm.formatterfourNoComma(resMap.get("RSK_GNPI_CAP_PERCENT").toString()));	
 			}
 
 			if ("3".equalsIgnoreCase(req.getProductId())){
@@ -2140,9 +2148,9 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 					beanObj.setContractGendration("Your Proposal is saved in Endorsement with Proposal No : "+ req.getProposalNo());
 				}
 				else if ("A".equalsIgnoreCase(GetProposalStatus)||"P".equalsIgnoreCase(GetProposalStatus)) {
-					beanObj.setContractGendration("Your Proposal is saved in Pending Stage with Proposal No : "	+ obj[6]  + " and Layer No : "	+ req.getLayerNo());
+					beanObj.setContractGendration("Your Proposal is saved in Pending Stage with Proposal No : "	+ obj[6]  + " and New Layer No : "	+ req.getNewLayerNo());
 				}else if ("N".equalsIgnoreCase(GetProposalStatus)) {
-					beanObj.setContractGendration("Your Proposal is saved in Not Taken Up Stage with Proposal No : "+ obj[6]  + " and Layer No : "	+ req.getLayerNo());
+					beanObj.setContractGendration("Your Proposal is saved in Not Taken Up Stage with Proposal No : "+ obj[6]  + " and New Layer No : "	+ req.getNewLayerNo());
 				}
 				obj1 = savemodeUpdateRiskDetailsSecondFormSecondTable(req);
 				if("3".equalsIgnoreCase(req.getProductId()) || "5".equalsIgnoreCase(req.getProductId())) {
@@ -2198,17 +2206,17 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 				final String HomePosition = getproposalStatus(req.getProposalNo());
 				beanObj.setProStatus(HomePosition);
 				if (HomePosition.equalsIgnoreCase("P")) {
-					beanObj.setContractGendration("Your Proposal is saved in Pending Stage with Proposal No : "	+ req.getProposalNo() + " and Layer No : "	+ req.getLayerNo());
+					beanObj.setContractGendration("Your Proposal is saved in Pending Stage with Proposal No : "	+ req.getProposalNo() + " and New Layer No : "	+ req.getNewLayerNo());
 
 				} else if (HomePosition.equalsIgnoreCase("A")) {						
-					beanObj.setContractGendration("Your Proposal is saved in Pending Stage with Proposal No : "	+ req.getProposalNo() + " and Layer No : "	+ req.getLayerNo());
+					beanObj.setContractGendration("Your Proposal is saved in Pending Stage with Proposal No : "	+ req.getProposalNo() + " and New Layer No : "	+ req.getNewLayerNo());
 
 				} else if (HomePosition.equalsIgnoreCase("R")) {
-					beanObj.setContractGendration("Your Proposal is saved in Rejected Stage with Proposal No : "+ req.getProposalNo() + " and Layer No : "	+ req.getLayerNo());
+					beanObj.setContractGendration("Your Proposal is saved in Rejected Stage with Proposal No : "+ req.getProposalNo() + " and New Layer No : "	+ req.getNewLayerNo());
 				}else if (HomePosition.equalsIgnoreCase("N")) {
-					beanObj.setContractGendration("Your Proposal is saved in Not Taken Up Stage with Proposal No : "+ req.getProposalNo() + " and Layer No : "	+ req.getLayerNo());
+					beanObj.setContractGendration("Your Proposal is saved in Not Taken Up Stage with Proposal No : "+ req.getProposalNo() + " and New Layer No : "	+ req.getNewLayerNo());
 				} else if (HomePosition.equalsIgnoreCase("0")) {
-					beanObj.setContractGendration("Your Proposal is saved in Pending Stage with Proposal No : "	+ req.getProposalNo() + " and Layer No : " + req.getLayerNo());
+					beanObj.setContractGendration("Your Proposal is saved in Pending Stage with Proposal No : "	+ req.getProposalNo() + " and New Layer No : " + req.getNewLayerNo());
 				}
 			}
 //			instalMentPremium(req);
@@ -2304,11 +2312,11 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 							response.setContractGendration("Your Proposal is saved in Endorsement with Proposal No : "+ req.getProposalNo());
 						}
 						else if (req.getProStatus().equalsIgnoreCase("A") || req.getProStatus().equalsIgnoreCase("P")||"0".equalsIgnoreCase(req.getProStatus())) {
-							response.setContractGendration("Your Proposal is saved in Pending Stage with Proposal No : "+ req.getProposalNo()+" and Layer No : "+req.getLayerNo());
+							response.setContractGendration("Your Proposal is saved in Pending Stage with Proposal No : "+ req.getProposalNo()+" and New Layer No : "+req.getNewLayerNo());
 						}else if(req.getProStatus().equalsIgnoreCase("N")){
-							response.setContractGendration("Your Proposal is saved in Not Taken Up Stage with Proposal No : "+ req.getProposalNo()+" and Layer No : "+req.getLayerNo());
+							response.setContractGendration("Your Proposal is saved in Not Taken Up Stage with Proposal No : "+ req.getProposalNo()+" and New Layer No : "+req.getNewLayerNo());
 						}else if(req.getProStatus().equalsIgnoreCase("R")){
-							response.setContractGendration("Your Proposal is saved in Rejected Stage with Proposal No : "+ req.getProposalNo() +" and Layer No : "+req.getLayerNo());
+							response.setContractGendration("Your Proposal is saved in Rejected Stage with Proposal No : "+ req.getProposalNo() +" and New Layer No : "+req.getNewLayerNo());
 						}
 					}
 				} else {
@@ -2330,11 +2338,11 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 						res=1;
 					}
 					if (req.getProStatus().equalsIgnoreCase("A") || req.getProStatus().equalsIgnoreCase("P")||"0".equalsIgnoreCase(req.getProStatus())) {
-						response.setContractGendration("Your Proposal is saved in Pending Stage with Proposal No : "+ req.getProposalNo()+" and Layer No : "+req.getLayerNo());
+						response.setContractGendration("Your Proposal is saved in Pending Stage with Proposal No : "+ req.getProposalNo()+" and New Layer No : "+req.getNewLayerNo());
 					}else if(req.getProStatus().equalsIgnoreCase("N")){
-						response.setContractGendration("Your Proposal is saved in Not Taken Up Stage with Proposal No : "+ req.getProposalNo()+" and Layer No : "+req.getLayerNo());
+						response.setContractGendration("Your Proposal is saved in Not Taken Up Stage with Proposal No : "+ req.getProposalNo()+" and New Layer No : "+req.getNewLayerNo());
 					}else if(req.getProStatus().equalsIgnoreCase("R")){
-						response.setContractGendration("Your Proposal is saved in Rejected Stage with Proposal No : "+ req.getProposalNo() +" and Layer No : "+req.getLayerNo());
+						response.setContractGendration("Your Proposal is saved in Rejected Stage with Proposal No : "+ req.getProposalNo() +" and New Layer No : "+req.getNewLayerNo());
 				}
 			}
 		}
@@ -2411,7 +2419,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 
 		String[] arg=null;
 		String arg2 = null;
-		arg = new String[37];
+		arg = new String[39];
 		if (req.getAmendStatus()) {
 			arg[0] = req.getProposalNo();
 			arg[1] = arg2;
@@ -2462,6 +2470,8 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		arg[33] = StringUtils.isEmpty(req.getOurAssessment()) ? "": req.getOurAssessment();
 		arg[35] =req.getLoginId();
 		arg[36] = req.getBranchCode();
+		arg[37] = req.getMinimumpremiumPercent();
+		arg[38] = req.getGnpiCapPercent();
 		return arg;
 	}
 
@@ -2531,7 +2541,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 
 		String[] args =null;
 		String args2 = null;
-		args = new String[37];
+		args = new String[39];
 		if (req.getAmendStatus()){
 			args[0] = req.getProposalNo();
 			args[1] = args2;
@@ -2582,6 +2592,8 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		args[33] = StringUtils.isEmpty(req.getOurAssessment()) ? "": req.getOurAssessment();
 		args[35] =req.getLoginId();
 		args[36] = req.getBranchCode();
+		args[37] = req.getMinimumpremiumPercent();
+		args[38] = req.getGnpiCapPercent();
 		return args;
 	}
 
@@ -2925,7 +2937,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		boolean updateStatus = true;
 		int res=0;
 		
-		String[] args= new String[55];
+		String[] args= new String[57];
 		try {
 			args[0] = StringUtils.isEmpty(req.getEventlimit()) ? "": req.getEventlimit();
 			args[1] = StringUtils.isEmpty(req.getEventlimit())	|| StringUtils.isEmpty(req.getExchangeRate()) ? "0"	: getDesginationCountry(req.getEventlimit(), req.getExchangeRate());
@@ -2989,6 +3001,8 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			args[52] =StringUtils.isEmpty(req.getQuotesharePercent()) ? "0": req.getQuotesharePercent();
 			args[53] = req.getProposalNo();
 			args[54]=endNo;
+			args[55] = req.getMinimumpremiumPercent();
+			args[56] = req.getGnpiCapPercent();
 			
 			//UPDATE_RISK_PROPOSAL_DETAILS
 			TtrnRiskProposal update = nonProportCustomRepository.updateFirstPageFields(args);
@@ -4979,7 +4993,8 @@ private boolean checkEditSaveModeMethod(final insertProportionalTreatyReq req) {
 					Tuple insMap = result.get(i);
 					GetLayerInfoRes1 res = new GetLayerInfoRes1();
 					 res.setOfferNo(insMap.get("OFFER_NO")==null?"":insMap.get("OFFER_NO").toString());	 
-					  res.setLayerNo(insMap.get("LAYER_NO")==null?"":insMap.get("LAYER_NO").toString());	 
+					 res.setLayerNo(insMap.get("LAYER_NO")==null?"":insMap.get("LAYER_NO").toString());	 
+					  res.setNewLayerNo(insMap.get("NEW_LAYER_NO")==null?"":insMap.get("NEW_LAYER_NO").toString());	 
 					  res.setProposalNo(insMap.get("PROPOSAL_NO")==null?"":insMap.get("PROPOSAL_NO").toString());	 
 					  res.setCedingCompanyId(insMap.get("CEDING_COMPANY_ID")==null?"":insMap.get("CEDING_COMPANY_ID").toString());	 
 					  res.setBaseLayer(insMap.get("BASE_LAYER")==null?"":insMap.get("BASE_LAYER").toString());	 

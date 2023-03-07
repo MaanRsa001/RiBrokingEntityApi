@@ -411,7 +411,11 @@ private static final long serialVersionUID = 1L;
     private BigDecimal     rateOnLine ;
     @Column(name="QUOTESHARE_PERCENT")
     private BigDecimal     quotesharePercent ;
-
+    
+    @Column(name="RSK_MINIMUMPREMIUM_PERCENT")
+    private BigDecimal     rskMinimumpremiumPercent ;
+    @Column(name="RSK_GNPI_CAP_PERCENT")
+    private BigDecimal     rskGnpiCapPercent ;
     
    
 

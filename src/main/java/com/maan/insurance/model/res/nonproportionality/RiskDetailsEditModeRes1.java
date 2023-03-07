@@ -273,4 +273,9 @@ public class RiskDetailsEditModeRes1 {
 	@JsonProperty("NewLayerNo")
 	private String newLayerNo;
 	
+	@JsonProperty("MinimumpremiumPercent")
+	private String minimumpremiumPercent; 
+	@JsonProperty("GnpiCapPercent")
+	private String gnpiCapPercent;
+	
 }

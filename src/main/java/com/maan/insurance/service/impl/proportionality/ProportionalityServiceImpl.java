@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,7 @@ import com.maan.insurance.model.entity.TtrnCommissionDetails;
 import com.maan.insurance.model.entity.TtrnCrestazoneDetails;
 import com.maan.insurance.model.entity.TtrnPttySection;
 import com.maan.insurance.model.entity.TtrnRi;
+import com.maan.insurance.model.entity.TtrnRiPlacement;
 import com.maan.insurance.model.entity.TtrnRip;
 import com.maan.insurance.model.entity.TtrnRiskCommission;
 import com.maan.insurance.model.entity.TtrnRiskDetails;
@@ -53,7 +55,6 @@ import com.maan.insurance.model.entity.TtrnRiskProposal;
 import com.maan.insurance.model.entity.TtrnRiskRemarks;
 import com.maan.insurance.model.entity.TtrnRskClassLimits;
 import com.maan.insurance.model.repository.ConstantDetailRepository;
-import com.maan.insurance.model.repository.MailNotificationDetailRepository;
 import com.maan.insurance.model.repository.PositionMasterRepository;
 import com.maan.insurance.model.repository.TtrnBonusRepository;
 import com.maan.insurance.model.repository.TtrnCedentRetRepository;
@@ -218,7 +219,8 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 	private  TtrnCommissionDetailsRepository ttrnCommissionDetailsRepository;
 	@Autowired
 	private  TtrnMndInstallmentsRepository ttrnMndInstallmentsRepository;
-
+	
+	
 	
 	private String DateFormat(Object input) {
 		return new SimpleDateFormat("dd/MM/yyyy").format(input).toString();
@@ -230,14 +232,15 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 	private  ConstantDetailRepository constantDetailRepository;
 	@Autowired
 	private  TtrnRiPlacementRepository ttrnRiPlacementRepository;
-	@Autowired
-	private  MailNotificationDetailRepository mailNotificationDetailRepository;
+	
 
 
 	@Override
 	public FirstpagesaveRes insertProportionalTreaty(FirstpageSaveReq req, boolean saveFlag, final boolean amendId) {
 		FirstpagesaveRes res=new FirstpagesaveRes();
 		boolean savFlg = false,ChkSavFlg = false;
+		String baseProposal ="";
+		String reInsurerRes = 	"";
 		try {
 			String[] args=null;
 			if (saveFlag) {
@@ -281,11 +284,57 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 			//savFlg = true;
 			
 			SecondpagesaveRes secRes = saveSecondPage(req);
-			res.setContractGendration(secRes.getResp().getContractGendration());		
+			
+			PositionMaster list = positionMasterRepository.findByProposalNo(new BigDecimal(req.getProposalNo()));
+			if(list!=null) {
+				baseProposal = list.getBaseLayer()==null?"":list.getBaseLayer();
+				reInsurerRes = 	insertTtrnRiPlacementWithReInsurerInfo(baseProposal,req.getProposalNo());
+				res.setContractGendration(secRes.getResp().getContractGendration() + reInsurerRes);	
+			}else {
+			res.setContractGendration(secRes.getResp().getContractGendration());	
+			}
 			
 		}catch (Exception e) {
 			e.printStackTrace();
 			saveFlag = false;
+		}
+		return res;
+	}
+	private String insertTtrnRiPlacementWithReInsurerInfo(String baseProposal, String proposalNo) {
+		String res = "";
+		try {
+			List<TtrnRiPlacement> list = ttrnRiPlacementRepository.findByProposalNo(fm.formatBigDecimal(baseProposal));
+			if(list!=null) {
+				for(TtrnRiPlacement data : list) {
+					TtrnRiPlacement entity = new TtrnRiPlacement();
+					entity.setProposalNo(fm.formatBigDecimal(proposalNo));
+					entity.setShareOffered(null);	
+					entity.setPlacementNo(data.getPlacementNo());
+					entity.setSno(data.getSno());
+					entity.setBouquetNo(data.getBouquetNo());
+					entity.setBaseProposalNo(data.getBaseProposalNo());
+					entity.setContractNo(data.getContractNo());
+					entity.setLayerNo(data.getLayerNo());
+					entity.setSectionNo(data.getSectionNo());
+					entity.setCedingCompanyId(data.getCedingCompanyId());
+					entity.setAmendId(data.getAmendId());
+					entity.setReinsurerId(data.getReinsurerId());
+					entity.setBrokerId(data.getBrokerId());
+					entity.setBranchCode(data.getBranchCode());
+					entity.setSysDate(new Date());
+					entity.setPlacementMode(data.getPlacementMode());
+					entity.setStatus(data.getStatus());
+					entity.setPlacementAmendId(data.getPlacementAmendId());
+					entity.setStatusNo(data.getStatusNo());
+					entity.setApproverStatus(data.getApproverStatus());
+					entity.setUserId(data.getUserId());					
+					ttrnRiPlacementRepository.saveAndFlush(entity);
+					res = "Reinsurers data entry completed as per proposal P1 under bouquet B1";
+					}
+			}
+			
+		}catch (Exception e) {
+			e.printStackTrace();
 		}
 		return res;
 	}

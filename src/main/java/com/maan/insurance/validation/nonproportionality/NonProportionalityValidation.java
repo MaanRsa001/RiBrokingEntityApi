@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.maan.insurance.error.ErrorCheck;
+import com.maan.insurance.model.entity.RskPremiumDetails;
+import com.maan.insurance.model.repository.RskPremiumDetailsRepository;
 import com.maan.insurance.model.req.nonproportionality.BonusReq;
 import com.maan.insurance.model.req.nonproportionality.CoverLimitAmount;
 import com.maan.insurance.model.req.nonproportionality.CoverList;
@@ -56,6 +58,7 @@ import com.maan.insurance.model.res.DropDown.GetContractValRes;
 import com.maan.insurance.model.res.DropDown.GetContractValidationRes;
 import com.maan.insurance.service.impl.QueryImplemention;
 import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
+import com.maan.insurance.service.impl.nonproportionality.NonProportionalityCustomRepository;
 import com.maan.insurance.service.impl.nonproportionality.NonProportionalityServiceImpl;
 import com.maan.insurance.service.impl.proportionality.ProportionalityServiceImpl;
 import com.maan.insurance.validation.CommonCalculation;
@@ -74,6 +77,11 @@ public class NonProportionalityValidation {
 	@Autowired
 	private NonProportionalityServiceImpl nonPropImple;
 
+	@Autowired
+	private RskPremiumDetailsRepository rskPremiumDetailsRepository;
+	
+	@Autowired
+	private NonProportionalityCustomRepository nonProportionalityCustomRepository;
 	
 	@Autowired
 	private Formatters fm;
@@ -497,13 +505,13 @@ public class NonProportionalityValidation {
 					list.add(new ErrorCheck(prop.getProperty("error.accDate.check1"),"accDate","01"));
 				}
 			}
-			if (val.isNull(bean.getLayerNo()).equalsIgnoreCase("")) {
-				list.add(new ErrorCheck(prop.getProperty("error.layerNo.required"),"layerNo","01"));
-			} else if (val.isValidNo(bean.getLayerNo()).equalsIgnoreCase("INVALID")) {
-				list.add(new ErrorCheck(prop.getProperty("error.layerNo.error"),"layerNo","01"));
+			if (val.isNull(bean.getNewLayerNo()).equalsIgnoreCase("")) {
+				list.add(new ErrorCheck(prop.getProperty("error.layerNo.required"),"NewLayerNo","01"));
+			} else if (val.isValidNo(bean.getNewLayerNo()).equalsIgnoreCase("INVALID")) {
+				list.add(new ErrorCheck(prop.getProperty("error.layerNo.error"),"NewLayerNo","01"));
 			}
-			if (!val.isNull(bean.getLayerNo()).equalsIgnoreCase("")) {
-				if (nonPropImple.getLayerDuplicationCheck(bean.getProposalNo(),bean.getLayerNo(),bean.getBaseLayer()).getResponse().equalsIgnoreCase("true")) {
+			if (!val.isNull(bean.getNewLayerNo()).equalsIgnoreCase("")) {
+				if (nonPropImple.getLayerDuplicationCheck(bean.getProposalNo(),bean.getNewLayerNo(),bean.getBaseLayer()).getResponse().equalsIgnoreCase("true")) {
 				
 					list.add(new ErrorCheck(prop.getProperty("error.layer.duplicate"),"layer","01"));
 				}
@@ -602,13 +610,13 @@ public class NonProportionalityValidation {
 						list.add(new ErrorCheck(prop.getProperty("error.accDate.check1"),"accDate","01"));
 					}
 				}
-				if (val.isNull(bean.getLayerNo()).equalsIgnoreCase("")) {
-					list.add(new ErrorCheck(prop.getProperty("error.layerNo.required"),"layerNo","01"));
-				} else if (val.isValidNo(bean.getLayerNo()).equalsIgnoreCase("INVALID")) {
-					list.add(new ErrorCheck(prop.getProperty("error.layerNo.error"),"layerNo","01"));
+				if (val.isNull(bean.getNewLayerNo()).equalsIgnoreCase("")) {
+					list.add(new ErrorCheck(prop.getProperty("error.NewLayerNo.required"),"layerNo","01"));
+				} else if (val.isValidNo(bean.getNewLayerNo()).equalsIgnoreCase("INVALID")) {
+					list.add(new ErrorCheck(prop.getProperty("error.NewLayerNo.error"),"NewLayerNo","01"));
 				}
-				if (!val.isNull(bean.getLayerNo()).equalsIgnoreCase("")) {
-					if (nonPropImple.getLayerDuplicationCheck(bean.getProposalNo(),bean.getLayerNo(),bean.getBaseLayer()).getResponse().equalsIgnoreCase("true")) {
+				if (!val.isNull(bean.getNewLayerNo()).equalsIgnoreCase("")) {
+					if (nonPropImple.getLayerDuplicationCheck(bean.getProposalNo(),bean.getNewLayerNo(),bean.getBaseLayer()).getResponse().equalsIgnoreCase("true")) {
 					
 						list.add(new ErrorCheck(prop.getProperty("error.layer.duplicate"),"layer","01"));
 					}
@@ -896,6 +904,18 @@ public class NonProportionalityValidation {
 								}
 							}
 						}
+					if (StringUtils.isBlank(bean.getMinimumpremiumPercent())) {
+						list.add(new ErrorCheck(prop.getProperty("error.MinimumpremiumPercent.required1"),"MinimumpremiumPercent","01"));
+					}else if(Double.valueOf(bean.getMinimumpremiumPercent())>999){
+						list.add(new ErrorCheck(prop.getProperty("error.MinimumpremiumPercent.less"),"MinimumpremiumPercent","01"));
+					}
+					if (StringUtils.isBlank(bean.getGnpiCapPercent())) {
+						list.add(new ErrorCheck(prop.getProperty("error.GnpiCapPercent.required1"),"GnpiCapPercent","01"));
+					}else if(Double.valueOf(bean.getGnpiCapPercent())>999){
+						list.add(new ErrorCheck(prop.getProperty("error.GnpiCapPercent.less"),"GnpiCapPercent","01"));
+					}
+					
+					
 					if (StringUtils.isBlank(bean.getMdPremium())) {
 						list.add(new ErrorCheck(prop.getProperty("error.m_dPremium.required1"),"m_dPremium","01"));
 					} else {
@@ -950,10 +970,12 @@ public class NonProportionalityValidation {
 					double totalInstPremium=0.0;
 					boolean tata = false;
 					double mndPremiumOC=Double.parseDouble(bean.getMdPremium().replaceAll(",", ""));
+					double minPremiumOC=Double.parseDouble(bean.getMinPremium().replaceAll(",", ""));// 
+					
 					for (int i = 0; i < instalmentperiod; i++) {
 						InstalmentperiodReq req = bean.getInstalmentperiodReq().get(i);
 						if(StringUtils.isBlank(req.getInstalmentDateList())) {
-							list.add(new ErrorCheck("Please Select Installment Date for Row "+String.valueOf(i + 1),"Intallment Date","01"));
+							list.add(new ErrorCheck("Please Select Installment Date for Row " + String.valueOf(i + 1),"Intallment Date","01"));
 						}else if (!val.isNull(req.getInstalmentDateList()).equalsIgnoreCase("")) {
 							if (val.ValidateINstallDates(bean.getIncepDate(),bean.getInstalmentperiodReq().get(0).getInstalmentDateList()).equalsIgnoreCase("Invalid")) {
 								tata = true;
@@ -993,14 +1015,24 @@ public class NonProportionalityValidation {
 					if (tata == true) {
 						list.add(new ErrorCheck(prop.getProperty("Error.Select.AfterInceptionDate"),"AfterInceptionDate","01"));
 					}
-				}
+					totalInstPremium = 1000;
+				if((totalInstPremium)!=mndPremiumOC && (totalInstPremium)!=minPremiumOC)	{
+					list.add(new ErrorCheck(prop.getProperty("Error.Select.totalInstPremium"),"totalInstPremium","01"));
+					}
 				if(StringUtils.isNotBlank(bean.getMdInstalmentNumber())){
 					int count=dropDownImple.getCountOfInstallmentBooked(bean.getContNo(), bean.getLayerNo());
 					if(Double.parseDouble(bean.getMdInstalmentNumber())<count){
 						list.add(new ErrorCheck(prop.getProperty("error.no.installment.premiumbooked.xol"),"premiumbooked","01"));
 					}
+					int instaNoList = nonProportionalityCustomRepository.getCountOfInstallmentNumber(bean.getProposalNo());
+					
+					if(Integer.valueOf(bean.getMdInstalmentNumber())<instaNoList) {
+						list.add(new ErrorCheck(prop.getProperty("error.no.installment.premiumNumber.xol"),"premiumNumber","01"));	
+					}
+					
 				}
 			}
+				}
 
 				//----------------savesecondpage
 						if(StringUtils.isBlank(bean.getBrokerdetYN())) {

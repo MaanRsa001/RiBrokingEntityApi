@@ -544,5 +544,10 @@ public class insertProportionalTreatyReq {
 	private String requestNumber;
 	@JsonProperty("NewLayerNo")
 	private String newLayerNo;
+	
+	@JsonProperty("MinimumpremiumPercent")
+	private String minimumpremiumPercent; 
+	@JsonProperty("GnpiCapPercent")
+	private String gnpiCapPercent;
 
 }

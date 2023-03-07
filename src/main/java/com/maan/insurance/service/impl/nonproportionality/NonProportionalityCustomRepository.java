@@ -174,4 +174,6 @@ public interface NonProportionalityCustomRepository {
 
 	void cancelProposal(String newProposal);
 
+	int getCountOfInstallmentNumber(String proposalNo);
+
 }

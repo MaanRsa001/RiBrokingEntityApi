@@ -1,10 +1,6 @@
 package com.maan.insurance.model.res.nonproportionality;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.maan.insurance.model.req.nonproportionality.BonusReq;
-import com.maan.insurance.model.req.nonproportionality.LowClaimBonusInserReq;
 
 import lombok.Data;
 
@@ -14,6 +10,8 @@ public class GetLayerInfoRes1 {
 	private String offerNo;
 	@JsonProperty("NewLayerNo")
 	private String newLayerNo;
+	@JsonProperty("LayerNo")
+	private String layerNo;
 	@JsonProperty("ProposalNo")
 	private String proposalNo;
 	@JsonProperty("CedingCompanyId")

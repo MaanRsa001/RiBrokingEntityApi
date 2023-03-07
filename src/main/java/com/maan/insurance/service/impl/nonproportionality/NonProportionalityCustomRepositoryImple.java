@@ -40,6 +40,7 @@ import com.maan.insurance.model.entity.ConstantDetail;
 import com.maan.insurance.model.entity.CurrencyMaster;
 import com.maan.insurance.model.entity.PersonalInfo;
 import com.maan.insurance.model.entity.PositionMaster;
+import com.maan.insurance.model.entity.RskPremiumDetails;
 import com.maan.insurance.model.entity.TmasBranchMaster;
 import com.maan.insurance.model.entity.TmasDepartmentMaster;
 import com.maan.insurance.model.entity.TtrnBonus;
@@ -494,6 +495,7 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 			ttrnRiskDetails.setRetentionyn(args[49]);
 			ttrnRiskDetails.setRskAccountPeriodNotice(args[50]);	
 			ttrnRiskDetails.setRskStatementConfirm(args[51]);
+			
 			}
 		}
 		}catch(Exception e) {
@@ -700,6 +702,9 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 					ttrnRiskProposal.setLoginId(args[32]);
 					ttrnRiskProposal.setBranchCode(args[33]);
 					ttrnRiskProposal.setSysDate(new Date());	
+					ttrnRiskProposal.setRskMinimumpremiumPercent(new BigDecimal(fm.formatterfourNoComma(args[36])));
+					ttrnRiskProposal.setRskGnpiCapPercent(new BigDecimal(fm.formatterfourNoComma(args[37])));	
+					
 				ttrnRiskProposalRepository.saveAndFlush(ttrnRiskProposal);
 				count = 1;
 				}
@@ -869,7 +874,9 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 				ttrnRiskProposal.setIntallDetYn(args[49]);
 				ttrnRiskProposal.setReinstDetYn(args[50]);
 				ttrnRiskProposal.setRateOnLine(StringUtils.isBlank(args[51])? null:fm.formatBigDecimal(args[51]));
-				ttrnRiskProposal.setQuotesharePercent(fm.formatBigDecimal(args[52]));;
+				ttrnRiskProposal.setQuotesharePercent(fm.formatBigDecimal(args[52]));
+				ttrnRiskProposal.setRskMinimumpremiumPercent(new BigDecimal(fm.formatterfourNoComma(args[55])));
+				ttrnRiskProposal.setRskGnpiCapPercent(new BigDecimal(fm.formatterfourNoComma(args[56])));	
 				
 			}
 		}
@@ -920,9 +927,9 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 				CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
 				Root<PositionMaster> pm = query.from(PositionMaster.class);
 			
-				query.multiselect(pm.get("layerNo").alias("LAYER_NO")); 
+				query.multiselect(pm.get("newLayerNo").alias("NEW_LAYER_NO")); 
 
-				Predicate n1 = cb.equal(pm.get("layerNo"), layerNo);
+				Predicate n1 = cb.equal(pm.get("newLayerNo"), layerNo);
 				Predicate n2 = cb.equal(cb.coalesce(pm.get("baseLayer"), pm.get("proposalNo")), baseLayer);
 				Predicate n3 = cb.equal(pm.get("contractStatus"), "P");
 				query.where(n1,n2,n3);
@@ -945,7 +952,7 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 				CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
 				Root<PositionMaster> pm = query.from(PositionMaster.class);
 			
-				query.multiselect(pm.get("layerNo").alias("LAYER_NO")); 
+				query.multiselect(pm.get("newLayerNo").alias("NEW_LAYER_NO")); 
 
 				Subquery<Long> amend = query.subquery(Long.class); 
 				Root<PositionMaster> pms = amend.from(PositionMaster.class);
@@ -953,7 +960,7 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 				Predicate a1 = cb.equal(pm.get("proposalNo"), pms.get("proposalNo"));
 				amend.where(a1);
 
-				Predicate n1 = cb.equal(pm.get("layerNo"), layerNo);
+				Predicate n1 = cb.equal(pm.get("newLayerNo"), layerNo);
 				Predicate n2 = cb.notEqual(pm.get("proposalNo"), proposalNo);
 				Predicate n3 = cb.equal(cb.coalesce(pm.get("baseLayer"), pm.get("proposalNo")), proposalOrBase);
 				Predicate n4 = cb.equal(pm.get("contractStatus"), "P");
@@ -1134,7 +1141,10 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 			Root<TtrnRiskProposal> pr = query.from(TtrnRiskProposal.class);
 			Root<PositionMaster> pm = query.from(PositionMaster.class);
 			
-			query.multiselect(de.get("rskProposalNumber").alias("RSK_PROPOSAL_NUMBER"),de.get("rskEndorsementNo").alias("RSK_ENDORSEMENT_NO"),
+			query.multiselect(
+					pr.get("rskMinimumpremiumPercent").alias("RSK_MINIMUMPREMIUM_PERCENT"),
+					pr.get("rskGnpiCapPercent").alias("RSK_GNPI_CAP_PERCENT"),
+					de.get("rskProposalNumber").alias("RSK_PROPOSAL_NUMBER"),de.get("rskEndorsementNo").alias("RSK_ENDORSEMENT_NO"),
 					de.get("rskContractNo").alias("RSK_CONTRACT_NO"),de.get("rskLayerNo").alias("RSK_LAYER_NO"),
 					de.get("rskProductid").alias("RSK_PRODUCTID"),de.get("rskDeptid").alias("RSK_DEPTID"),
 					de.get("rskPfcid").alias("RSK_PFCID"),de.get("rskSpfcid").alias("RSK_SPFCID"),
@@ -1234,7 +1244,10 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 				Root<TtrnRiskProposal> pr = query.from(TtrnRiskProposal.class);
 				Root<PositionMaster> pm = query.from(PositionMaster.class);
 				
-				query.multiselect(de.get("rskProposalNumber").alias("RSK_PROPOSAL_NUMBER"),de.get("rskEndorsementNo").alias("RSK_ENDORSEMENT_NO"),
+				query.multiselect(
+						pr.get("rskMinimumpremiumPercent").alias("RSK_MINIMUMPREMIUM_PERCENT"),
+						pr.get("rskGnpiCapPercent").alias("RSK_GNPI_CAP_PERCENT"),
+						de.get("rskProposalNumber").alias("RSK_PROPOSAL_NUMBER"),de.get("rskEndorsementNo").alias("RSK_ENDORSEMENT_NO"),
 						de.get("rskContractNo").alias("RSK_CONTRACT_NO"),de.get("rskLayerNo").alias("RSK_LAYER_NO"),
 						pm.get("newLayerNo").alias("NEW_LAYER_NO"),
 						de.get("rskProductid").alias("RSK_PRODUCTID"),de.get("rskDeptid").alias("RSK_DEPTID"),
@@ -1864,7 +1877,9 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 				ttrnRiskProposal.setLoginId(input[35]);
 				ttrnRiskProposal.setBranchCode(input[36]);
 				ttrnRiskProposal.setSysDate(new Date());
-		}
+				ttrnRiskProposal.setRskMinimumpremiumPercent(new BigDecimal(fm.formatterfour(input[37])));	
+				ttrnRiskProposal.setRskGnpiCapPercent(new BigDecimal(fm.formatterfour(input[38])));
+				}
 	}catch(Exception e) {
 		e.printStackTrace();
 	}
@@ -3043,6 +3058,7 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 			
 			query.multiselect(
 					pm.get("offerNo").alias("OFFER_NO"),
+					pm.get("layerNo").alias("LAYER_NO"),
 					pm.get("newLayerNo").alias("NEW_LAYER_NO"),
 					pm.get("proposalNo").alias("PROPOSAL_NO"),
 					pm.get("cedingCompanyId").alias("CEDING_COMPANY_ID"),
@@ -3127,6 +3143,7 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 			query.multiselect(
 					pm.get("offerNo").alias("OFFER_NO"),
 					pm.get("layerNo").alias("LAYER_NO"),
+					pm.get("newLayerNo").alias("NEW_LAYER_NO"),
 					pm.get("proposalNo").alias("PROPOSAL_NO"),
 					pm.get("cedingCompanyId").alias("CEDING_COMPANY_ID"),
 					cb.coalesce(pm.get("baseLayer"), pm.get("proposalNo")).alias("BASE_LAYER"),
@@ -3229,6 +3246,40 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public int getCountOfInstallmentNumber(String proposalNo) {
+		int count =0;
+		try {
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+			Root<RskPremiumDetails> pm = query.from(RskPremiumDetails.class);
+			
+			query.multiselect(pm.get("instalmentNumber").alias("instalmentNumber")).distinct(true); 
+			
+			Predicate n1 = cb.equal(pm.get("proposalNo"), proposalNo);
+		
+			query.where(n1);
+			
+			TypedQuery<Tuple> res1 = em.createQuery(query);
+			List<Tuple> list = res1.getResultList();
+			
+			if(list!=null) {
+				for(Tuple data: list) {
+					
+					
+					if("RP".equalsIgnoreCase(data.get("instalmentNumber").toString())  || "RTP".equalsIgnoreCase(data.get("instalmentNumber").toString()) || "AP".equalsIgnoreCase(data.get("instalmentNumber").toString())) {}
+					else{
+						count = count +1;
+					}
+				}	
+				}
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return count;
 	}
 
 	}

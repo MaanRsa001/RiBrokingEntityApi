@@ -1328,7 +1328,7 @@ public class PlacementServiceImple implements PlacementService {
 		InsertMailDetailsRes response = new InsertMailDetailsRes();
 		List<InsertMailDetailsRes1> resList = new ArrayList<InsertMailDetailsRes1>();
 		List<Tuple>list=null;
-		String plamendId="0",statusNo="";
+		String plamendId="0", statusNo="";
 		TtrnRiPlacement entity = new TtrnRiPlacement();
 		try {
 			
