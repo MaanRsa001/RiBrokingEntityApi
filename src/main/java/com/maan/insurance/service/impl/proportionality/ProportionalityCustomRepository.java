@@ -155,5 +155,7 @@ public interface ProportionalityCustomRepository {
 
 	int profitUpdate(ProfitCommissionSaveReq bean);
 
+	int updateCommission(String requestNumber, String proposalNo);
+
 
 }

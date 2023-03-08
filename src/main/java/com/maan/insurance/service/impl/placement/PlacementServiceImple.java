@@ -1616,6 +1616,7 @@ public class PlacementServiceImple implements PlacementService {
 				}
 				 values.put("COMPANY_NAME", map.get("COMPANY_NAME") );
 				 values.put("TransactionNo", req.getTransactionNo());
+				 values.put("StatusNo", statusNo);
 				 
 				 if("PWL".equalsIgnoreCase(req.getNewStatus())) {
 					if(mailbody.contains("COMPANY_NAME") == true) {
@@ -1910,18 +1911,22 @@ public class PlacementServiceImple implements PlacementService {
 	private void SendApprovalPendingMail(UpdateRiplacementReq req) {
 		SendMailReq bean=new SendMailReq();
 		GetMailTemplateReq req1=new GetMailTemplateReq();
-		req1.setMailType(req.getStatus()+"AP");
-		GetMailTemplateRes1 resp=getMailTemplate(req1).getCommonResponse();
-		bean.setMailBody(resp.getMailBody());
-		bean.setMailCC(resp.getMailCC());
-		bean.setMailTo(resp.getMailTo());
-		bean.setMailSubject(resp.getMailSubject());
-		bean.setMailRegards(resp.getMailRegards());
-		bean.setProposalNo(req.getProposalNo());
-		bean.setEproposalNo(req.getProposalNo());
-		bean.setBrokerId(req.getBrokerId());
-		bean.setReinsurerId(req.getReinsurerId());
-		bean.setBranchCode(req.getBranchCode());
-		sendMail(bean);
+		try {
+			req1.setMailType(req.getStatus()+"AP");
+			GetMailTemplateRes1 resp=getMailTemplate(req1).getCommonResponse();
+			bean.setMailBody(resp.getMailBody());
+			bean.setMailCC(resp.getMailCC());
+			bean.setMailTo(resp.getMailTo());
+			bean.setMailSubject(resp.getMailSubject());
+			bean.setMailRegards(resp.getMailRegards());
+			bean.setProposalNo(req.getProposalNo());
+			bean.setEproposalNo(req.getProposalNo());
+			bean.setBrokerId(req.getBrokerId());
+			bean.setReinsurerId(req.getReinsurerId());
+			bean.setBranchCode(req.getBranchCode());
+			sendMail(bean);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	}

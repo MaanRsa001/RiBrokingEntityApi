@@ -587,6 +587,12 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		int updateCount = 0;
 		String baseProposal ="";
 		String reInsurerRes = 	"";
+		if(StringUtils.isNotBlank(req.getBaseLayer())) {
+			int layer=nonProportCustomRepository.getMaxLayerNo(req.getBaseLayer());
+			req.setLayerNo(String.valueOf(layer+1) );
+		}else {
+			req.setLayerNo("1");
+		}
 		if("Renewal".equalsIgnoreCase(req.getRenewalEditMode())){
 		ChkSavFlg = true;
 		}else {
@@ -598,11 +604,11 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 				if (ChkSavFlg){
 					String maxAmendID= getMaxAmednId(req.getProposalNo());
 					args = getFirstPageEditSaveModeAruguments(req,maxAmendID);
-				
+					
 					//UpdateProportionalTreatyQuery
 					TtrnRiskDetails list = ttrnRiskDetailsRepository.findByRskProposalNumberAndRskEndorsementNo(req.getProposalNo(), maxAmendID);
 					if(list!=null) {
-						list.setRskLayerNo(StringUtils.isEmpty(req.getLayerNo())?BigDecimal.ZERO:new BigDecimal(req.getLayerNo()))	;	
+						list.setRskLayerNo(StringUtils.isEmpty(req.getLayerNo())?BigDecimal.ONE:new BigDecimal(req.getLayerNo()))	;	
 						ttrnRiskDetailsRepository.saveAndFlush(list);
 						}
 					

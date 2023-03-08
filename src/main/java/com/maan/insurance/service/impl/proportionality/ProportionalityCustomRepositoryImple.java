@@ -2939,5 +2939,18 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 		update.where(n1,n2,n3 );
 		return em.createQuery(update).executeUpdate();
 	}
+
+	@Override
+	public int updateCommission(String requestNumber, String proposalNo) {
+		CriteriaBuilder cb = this.em.getCriteriaBuilder();
+		CriteriaUpdate<TtrnCommissionDetails> update = cb.createCriteriaUpdate(TtrnCommissionDetails.class);
+		Root<TtrnCommissionDetails> m = update.from(TtrnCommissionDetails.class);
+		update.set("proposalNo", fm.formatBigDecimal(proposalNo));
+		
+		Predicate n1 = cb.equal(m.get("referenceNo"),fm.formatBigDecimal(requestNumber));
+	
+		update.where(n1 );
+		return em.createQuery(update).executeUpdate();
+	}
 		
 	}

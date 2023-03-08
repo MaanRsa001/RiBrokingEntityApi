@@ -236,7 +236,7 @@ public class NonProportionalityValidation {
 		if (val.isNull(req.getLayerNo()).equalsIgnoreCase("")) {
 			list.add(new ErrorCheck(prop.getProperty("error.layerNo.required"),"LayerNo", "09"));
 		} else if (val.isValidNo(req.getLayerNo()).equalsIgnoreCase("INVALID")) {
-			list.add(new ErrorCheck(prop.getProperty("error.layerNo.error"),"LayerNo", "10"));
+			//list.add(new ErrorCheck(prop.getProperty("error.layerNo.error"),"LayerNo", "10"));
 		}
 		if (!val.isNull(req.getLayerNo()).equalsIgnoreCase("")) {
 			if (nonPropImple.getLayerDuplicationCheck(req.getProposalNo(),req.getLayerNo(),req.getBaseLayer()).getResponse().equals("true")) {
@@ -508,7 +508,7 @@ public class NonProportionalityValidation {
 			if (val.isNull(bean.getNewLayerNo()).equalsIgnoreCase("")) {
 				list.add(new ErrorCheck(prop.getProperty("error.layerNo.required"),"NewLayerNo","01"));
 			} else if (val.isValidNo(bean.getNewLayerNo()).equalsIgnoreCase("INVALID")) {
-				list.add(new ErrorCheck(prop.getProperty("error.layerNo.error"),"NewLayerNo","01"));
+				//list.add(new ErrorCheck(prop.getProperty("error.layerNo.error"),"NewLayerNo","01"));
 			}
 			if (!val.isNull(bean.getNewLayerNo()).equalsIgnoreCase("")) {
 				if (nonPropImple.getLayerDuplicationCheck(bean.getProposalNo(),bean.getNewLayerNo(),bean.getBaseLayer()).getResponse().equalsIgnoreCase("true")) {
@@ -611,9 +611,9 @@ public class NonProportionalityValidation {
 					}
 				}
 				if (val.isNull(bean.getNewLayerNo()).equalsIgnoreCase("")) {
-					list.add(new ErrorCheck(prop.getProperty("error.NewLayerNo.required"),"layerNo","01"));
+					list.add(new ErrorCheck(prop.getProperty("error.layerNo.required"),"layerNo","01"));
 				} else if (val.isValidNo(bean.getNewLayerNo()).equalsIgnoreCase("INVALID")) {
-					list.add(new ErrorCheck(prop.getProperty("error.NewLayerNo.error"),"NewLayerNo","01"));
+					//list.add(new ErrorCheck(prop.getProperty("error.layerNo.error"),"NewLayerNo","01"));
 				}
 				if (!val.isNull(bean.getNewLayerNo()).equalsIgnoreCase("")) {
 					if (nonPropImple.getLayerDuplicationCheck(bean.getProposalNo(),bean.getNewLayerNo(),bean.getBaseLayer()).getResponse().equalsIgnoreCase("true")) {

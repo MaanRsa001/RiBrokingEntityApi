@@ -19,6 +19,8 @@ public class UpdateProportionalTreatyReq {
 	private String amendId;
 	@JsonProperty("LayerNo")
 	private String layerNo;
+	@JsonProperty("NewLayerNo")
+	private String newlayerNo;
 	@JsonProperty("LayerMode")
 	private String layerMode;
 	@JsonProperty("ProductId")

@@ -663,6 +663,7 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 			if(StringUtils.isNotBlank(beanObj.getRequestNumber()) && !"0".equals(beanObj.getRequestNumber())) {
 				proportionalityCustomRepository.updateBonus(beanObj.getRequestNumber(),beanObj.getProposalNo());
 				proportionalityCustomRepository.updateRip(beanObj.getRequestNumber(),beanObj.getProposalNo());
+				proportionalityCustomRepository.updateCommission(beanObj.getRequestNumber(),beanObj.getProposalNo());
 			}
 			res.setProposalNo(beanObj.getProposalNo());
 			res.setMessage("Success");
@@ -3832,13 +3833,17 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 		try{
 			 if("scale".equalsIgnoreCase(req.getPageFor())){
 				//BONUS_MAIN_SELECT
-				 	list= proportionalityCustomRepository.bonusMainSelectReference(req.getReferenceNo(),req.getBranchCode());
+				 	if(StringUtils.isNotBlank(req.getReferenceNo()) && !"0".equals(req.getReferenceNo())){
+						 list= proportionalityCustomRepository.bonusMainSelectReference(req.getReferenceNo(),req.getBranchCode());
+				 	}
 					if(CollectionUtils.isEmpty(list)) {
 						list =  proportionalityCustomRepository.bonusMainSelect(req.getProposalNo(),req.getBranchCode());
 					}
 				 }else {
 					//BONUS_MAIN_SELECT_LPC
-					 list= proportionalityCustomRepository.bonusMainSelectReferenceLpc(req.getReferenceNo(),req.getBranchCode());
+					 if(StringUtils.isNotBlank(req.getReferenceNo()) && !"0".equals(req.getReferenceNo())){
+						 list= proportionalityCustomRepository.bonusMainSelectReferenceLpc(req.getReferenceNo(),req.getBranchCode());
+					 }
 						if(CollectionUtils.isEmpty(list)) {
 							//BONUS_MAIN_SELECT_REFERENCE_LPC
 							list= proportionalityCustomRepository.bonusMainSelectLpc(req.getProposalNo(),req.getBranchCode()); //lpc 
