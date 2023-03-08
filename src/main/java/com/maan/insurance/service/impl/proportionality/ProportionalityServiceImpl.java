@@ -329,7 +329,7 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 					entity.setApproverStatus(data.getApproverStatus());
 					entity.setUserId(data.getUserId());					
 					ttrnRiPlacementRepository.saveAndFlush(entity);
-					res = "Reinsurers data entry completed as per proposal P1 under bouquet B1";
+					res = ". Reinsurers data entry completed as per proposal P1 under bouquet B1";
 					}
 			}
 			

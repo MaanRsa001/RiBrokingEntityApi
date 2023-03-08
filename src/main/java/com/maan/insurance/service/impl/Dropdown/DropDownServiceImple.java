@@ -5721,7 +5721,7 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 			//GET_PLDISABLE_STATUS
 			int count = riPlaceRepo.countByProposalNo(new BigDecimal(proposalNo));
 			if(count>0) {
-				 status="Y";
+				 status="N";
 			}
 			response.setResponse(status);
 			response.setMessage("Success");

@@ -1142,6 +1142,7 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 			Root<PositionMaster> pm = query.from(PositionMaster.class);
 			
 			query.multiselect(
+					pm.get("newLayerNo").alias("NEW_LAYER_NO"),
 					pr.get("rskMinimumpremiumPercent").alias("RSK_MINIMUMPREMIUM_PERCENT"),
 					pr.get("rskGnpiCapPercent").alias("RSK_GNPI_CAP_PERCENT"),
 					de.get("rskProposalNumber").alias("RSK_PROPOSAL_NUMBER"),de.get("rskEndorsementNo").alias("RSK_ENDORSEMENT_NO"),

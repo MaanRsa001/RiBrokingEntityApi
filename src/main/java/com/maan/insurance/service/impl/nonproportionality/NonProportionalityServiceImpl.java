@@ -3,6 +3,7 @@ package com.maan.insurance.service.impl.nonproportionality;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +34,7 @@ import com.maan.insurance.model.entity.PositionMaster;
 import com.maan.insurance.model.entity.TtrnBonus;
 import com.maan.insurance.model.entity.TtrnCrestazoneDetails;
 import com.maan.insurance.model.entity.TtrnIeModule;
+import com.maan.insurance.model.entity.TtrnRiPlacement;
 import com.maan.insurance.model.entity.TtrnRip;
 import com.maan.insurance.model.entity.TtrnRiskCommission;
 import com.maan.insurance.model.entity.TtrnRiskDetails;
@@ -47,6 +49,7 @@ import com.maan.insurance.model.repository.TtrnIeModuleRepository;
 import com.maan.insurance.model.repository.TtrnInsurerDetailsRepository;
 import com.maan.insurance.model.repository.TtrnMndInstallmentsRepository;
 import com.maan.insurance.model.repository.TtrnRetroCessionaryRepository;
+import com.maan.insurance.model.repository.TtrnRiPlacementRepository;
 import com.maan.insurance.model.repository.TtrnRipRepository;
 import com.maan.insurance.model.repository.TtrnRiskCommissionRepository;
 import com.maan.insurance.model.repository.TtrnRiskDetailsRepository;
@@ -189,6 +192,8 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 	private TtrnRiskRemarksRepository ttrnRiskRemarksRepository;
 	@Autowired
 	private TtrnInsurerDetailsRepository ttrnInsurerDetailsRepository;
+	@Autowired
+	private TtrnRiPlacementRepository ttrnRiPlacementRepository;
 	
 	private String DateFormat(Object input) {
 		return new SimpleDateFormat("dd/MM/yyyy").format(input).toString();
@@ -580,6 +585,8 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		RemarksSaveReq req3 = new RemarksSaveReq();
 		boolean savFlg = false, ChkSavFlg=false;
 		int updateCount = 0;
+		String baseProposal ="";
+		String reInsurerRes = 	"";
 		if("Renewal".equalsIgnoreCase(req.getRenewalEditMode())){
 		ChkSavFlg = true;
 		}else {
@@ -655,7 +662,19 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 				proportionalityCustomRepository.updateBonus(req.getRequestNumber(),req.getProposalNo());
 				proportionalityCustomRepository.updateRip(req.getRequestNumber(),req.getProposalNo());
 			}
-			response.setContractGendration(secRes.getCommonResponse().getContractGendration());
+			PositionMaster list = positionMasterRepository.findByProposalNo(new BigDecimal(req.getProposalNo()));
+			if(list!=null) {
+				baseProposal = list.getBaseLayer()==null?"":list.getBaseLayer();
+				if(StringUtils.isNotBlank(baseProposal))
+				{
+					reInsurerRes = 	insertTtrnRiPlacementWithReInsurerInfo(baseProposal,req.getProposalNo());
+					response.setContractGendration(secRes.getCommonResponse().getContractGendration() + reInsurerRes);	
+				}
+				else {
+					response.setContractGendration(secRes.getCommonResponse().getContractGendration());	
+				}
+			}
+			
 			response.setMessage("Success");
 			response.setIsError(false);
 			}
@@ -665,6 +684,45 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 				response.setIsError(true);
 			}
 		return response;
+	}
+
+	private String insertTtrnRiPlacementWithReInsurerInfo(String baseProposal, String proposalNo) {
+		String res = "";
+		try {
+			List<TtrnRiPlacement> list = ttrnRiPlacementRepository.findByProposalNo(fm.formatBigDecimal(baseProposal));
+			if(list!=null) {
+				for(TtrnRiPlacement data : list) {
+					TtrnRiPlacement entity = new TtrnRiPlacement();
+					entity.setProposalNo(fm.formatBigDecimal(proposalNo));
+					entity.setShareOffered(null);	
+					entity.setPlacementNo(data.getPlacementNo());
+					entity.setSno(data.getSno());
+					entity.setBouquetNo(data.getBouquetNo());
+					entity.setBaseProposalNo(data.getBaseProposalNo());
+					entity.setContractNo(data.getContractNo());
+					entity.setLayerNo(data.getLayerNo());
+					entity.setSectionNo(data.getSectionNo());
+					entity.setCedingCompanyId(data.getCedingCompanyId());
+					entity.setAmendId(data.getAmendId());
+					entity.setReinsurerId(data.getReinsurerId());
+					entity.setBrokerId(data.getBrokerId());
+					entity.setBranchCode(data.getBranchCode());
+					entity.setSysDate(new Date());
+					entity.setPlacementMode(data.getPlacementMode());
+					entity.setStatus(data.getStatus());
+					entity.setPlacementAmendId(data.getPlacementAmendId());
+					entity.setStatusNo(data.getStatusNo());
+					entity.setApproverStatus(data.getApproverStatus());
+					entity.setUserId(data.getUserId());					
+					ttrnRiPlacementRepository.saveAndFlush(entity);
+					res = ". Reinsurers data entry completed as per proposal P1 under bouquet B1";
+					}
+			}
+			
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		return res;
 	}
 
 	@Override
@@ -2148,9 +2206,9 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 					beanObj.setContractGendration("Your Proposal is saved in Endorsement with Proposal No : "+ req.getProposalNo());
 				}
 				else if ("A".equalsIgnoreCase(GetProposalStatus)||"P".equalsIgnoreCase(GetProposalStatus)) {
-					beanObj.setContractGendration("Your Proposal is saved in Pending Stage with Proposal No : "	+ obj[6]  + " and New Layer No : "	+ req.getNewLayerNo());
+					beanObj.setContractGendration("Your Proposal is saved in Pending Stage with Proposal No : "	+ obj[6]  + " and  Layer No : "	+ req.getNewLayerNo());
 				}else if ("N".equalsIgnoreCase(GetProposalStatus)) {
-					beanObj.setContractGendration("Your Proposal is saved in Not Taken Up Stage with Proposal No : "+ obj[6]  + " and New Layer No : "	+ req.getNewLayerNo());
+					beanObj.setContractGendration("Your Proposal is saved in Not Taken Up Stage with Proposal No : "+ obj[6]  + " and  Layer No : "	+ req.getNewLayerNo());
 				}
 				obj1 = savemodeUpdateRiskDetailsSecondFormSecondTable(req);
 				if("3".equalsIgnoreCase(req.getProductId()) || "5".equalsIgnoreCase(req.getProductId())) {
@@ -2206,17 +2264,17 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 				final String HomePosition = getproposalStatus(req.getProposalNo());
 				beanObj.setProStatus(HomePosition);
 				if (HomePosition.equalsIgnoreCase("P")) {
-					beanObj.setContractGendration("Your Proposal is saved in Pending Stage with Proposal No : "	+ req.getProposalNo() + " and New Layer No : "	+ req.getNewLayerNo());
+					beanObj.setContractGendration("Your Proposal is saved in Pending Stage with Proposal No : "	+ req.getProposalNo() + " and Layer No : "	+ req.getNewLayerNo());
 
 				} else if (HomePosition.equalsIgnoreCase("A")) {						
-					beanObj.setContractGendration("Your Proposal is saved in Pending Stage with Proposal No : "	+ req.getProposalNo() + " and New Layer No : "	+ req.getNewLayerNo());
+					beanObj.setContractGendration("Your Proposal is saved in Pending Stage with Proposal No : "	+ req.getProposalNo() + " and Layer No : "	+ req.getNewLayerNo());
 
 				} else if (HomePosition.equalsIgnoreCase("R")) {
-					beanObj.setContractGendration("Your Proposal is saved in Rejected Stage with Proposal No : "+ req.getProposalNo() + " and New Layer No : "	+ req.getNewLayerNo());
+					beanObj.setContractGendration("Your Proposal is saved in Rejected Stage with Proposal No : "+ req.getProposalNo() + " and Layer No : "	+ req.getNewLayerNo());
 				}else if (HomePosition.equalsIgnoreCase("N")) {
-					beanObj.setContractGendration("Your Proposal is saved in Not Taken Up Stage with Proposal No : "+ req.getProposalNo() + " and New Layer No : "	+ req.getNewLayerNo());
+					beanObj.setContractGendration("Your Proposal is saved in Not Taken Up Stage with Proposal No : "+ req.getProposalNo() + " and Layer No : "	+ req.getNewLayerNo());
 				} else if (HomePosition.equalsIgnoreCase("0")) {
-					beanObj.setContractGendration("Your Proposal is saved in Pending Stage with Proposal No : "	+ req.getProposalNo() + " and New Layer No : " + req.getNewLayerNo());
+					beanObj.setContractGendration("Your Proposal is saved in Pending Stage with Proposal No : "	+ req.getProposalNo() + " and Layer No : " + req.getNewLayerNo());
 				}
 			}
 //			instalMentPremium(req);
@@ -2312,11 +2370,11 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 							response.setContractGendration("Your Proposal is saved in Endorsement with Proposal No : "+ req.getProposalNo());
 						}
 						else if (req.getProStatus().equalsIgnoreCase("A") || req.getProStatus().equalsIgnoreCase("P")||"0".equalsIgnoreCase(req.getProStatus())) {
-							response.setContractGendration("Your Proposal is saved in Pending Stage with Proposal No : "+ req.getProposalNo()+" and New Layer No : "+req.getNewLayerNo());
+							response.setContractGendration("Your Proposal is saved in Pending Stage with Proposal No : "+ req.getProposalNo()+" and  Layer No : "+req.getNewLayerNo());
 						}else if(req.getProStatus().equalsIgnoreCase("N")){
-							response.setContractGendration("Your Proposal is saved in Not Taken Up Stage with Proposal No : "+ req.getProposalNo()+" and New Layer No : "+req.getNewLayerNo());
+							response.setContractGendration("Your Proposal is saved in Not Taken Up Stage with Proposal No : "+ req.getProposalNo()+" and  Layer No : "+req.getNewLayerNo());
 						}else if(req.getProStatus().equalsIgnoreCase("R")){
-							response.setContractGendration("Your Proposal is saved in Rejected Stage with Proposal No : "+ req.getProposalNo() +" and New Layer No : "+req.getNewLayerNo());
+							response.setContractGendration("Your Proposal is saved in Rejected Stage with Proposal No : "+ req.getProposalNo() +" and  Layer No : "+req.getNewLayerNo());
 						}
 					}
 				} else {
@@ -2338,11 +2396,11 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 						res=1;
 					}
 					if (req.getProStatus().equalsIgnoreCase("A") || req.getProStatus().equalsIgnoreCase("P")||"0".equalsIgnoreCase(req.getProStatus())) {
-						response.setContractGendration("Your Proposal is saved in Pending Stage with Proposal No : "+ req.getProposalNo()+" and New Layer No : "+req.getNewLayerNo());
+						response.setContractGendration("Your Proposal is saved in Pending Stage with Proposal No : "+ req.getProposalNo()+" and  Layer No : "+req.getNewLayerNo());
 					}else if(req.getProStatus().equalsIgnoreCase("N")){
-						response.setContractGendration("Your Proposal is saved in Not Taken Up Stage with Proposal No : "+ req.getProposalNo()+" and New Layer No : "+req.getNewLayerNo());
+						response.setContractGendration("Your Proposal is saved in Not Taken Up Stage with Proposal No : "+ req.getProposalNo()+" and  Layer No : "+req.getNewLayerNo());
 					}else if(req.getProStatus().equalsIgnoreCase("R")){
-						response.setContractGendration("Your Proposal is saved in Rejected Stage with Proposal No : "+ req.getProposalNo() +" and New Layer No : "+req.getNewLayerNo());
+						response.setContractGendration("Your Proposal is saved in Rejected Stage with Proposal No : "+ req.getProposalNo() +" and  Layer No : "+req.getNewLayerNo());
 				}
 			}
 		}
