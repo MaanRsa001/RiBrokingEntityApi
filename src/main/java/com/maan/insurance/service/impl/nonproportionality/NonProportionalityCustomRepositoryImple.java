@@ -44,6 +44,7 @@ import com.maan.insurance.model.entity.RskPremiumDetails;
 import com.maan.insurance.model.entity.TmasBranchMaster;
 import com.maan.insurance.model.entity.TmasDepartmentMaster;
 import com.maan.insurance.model.entity.TtrnBonus;
+import com.maan.insurance.model.entity.TtrnCommissionDetails;
 import com.maan.insurance.model.entity.TtrnCrestazoneDetails;
 import com.maan.insurance.model.entity.TtrnIeModule;
 import com.maan.insurance.model.entity.TtrnRiskCommission;
@@ -3281,6 +3282,16 @@ public class NonProportionalityCustomRepositoryImple implements NonProportionali
 			e.printStackTrace();
 		}
 		return count;
+	}
+
+	@Override
+	public BigDecimal getRipSno() {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<BigDecimal> cq = cb.createQuery(BigDecimal.class);
+        Root<TtrnRip> root = cq.from(TtrnRip.class);
+        
+        cq.select(cb.coalesce(cb.max(root.get("sno")), 0).as(BigDecimal.class).alias("SNO"));        
+        return em.createQuery(cq).getSingleResult();
 	}
 
 	}

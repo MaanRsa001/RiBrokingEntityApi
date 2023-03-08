@@ -157,5 +157,9 @@ public interface ProportionalityCustomRepository {
 
 	int updateCommission(String requestNumber, String proposalNo);
 
+	BigDecimal getBonusSno();
+
+	BigDecimal getCommissionSno();
+
 
 }

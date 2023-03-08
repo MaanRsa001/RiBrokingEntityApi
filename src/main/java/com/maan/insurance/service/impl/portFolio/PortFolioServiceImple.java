@@ -897,12 +897,7 @@ public class PortFolioServiceImple implements PortFolioService{
     		Map<String,Object> map=new HashMap<String,Object>();
     		List<ButtonSelectionListRes> buttonList = new ArrayList<ButtonSelectionListRes>();
     		try{
-    			if( menuRights.toString().contains("V")){
-					map.put("TYPE","PL");
-					map.put("DETAIL_NAME","Pl. Summar");
-					list.add(map);
-					map=new HashMap<String,Object>();
-				}
+    			
     			
     			if( menuRights.toString().contains("EN") ){
     				map.put("TYPE","E");
@@ -947,6 +942,12 @@ public class PortFolioServiceImple implements PortFolioService{
     				list.add(map);
     				map=new HashMap<String,Object>();
     			}
+    			if( menuRights.toString().contains("V")){
+					map.put("TYPE","PL");
+					map.put("DETAIL_NAME","Pl. Summar");
+					list.add(map);
+					map=new HashMap<String,Object>();
+				}
 //    			if("5".equalsIgnoreCase(tempBean.getProductId())){
 //    				map.put("TYPE","IE");
 //    				map.put("DETAIL_NAME","IE Module");

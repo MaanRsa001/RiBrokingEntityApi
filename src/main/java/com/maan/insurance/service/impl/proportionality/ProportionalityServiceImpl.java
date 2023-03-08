@@ -2236,12 +2236,8 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 		           }
 		           args[23] =bean.getFpcType();
 		           args[24] =bean.getFpcfixedDate();
-		           String sno = "";
-		           TtrnBonus list = ttrnBonusRepository.findTop1ByBranchOrderBySnoDesc(bean.getBranchCode());
-		           if(list!=null) {
-		        	   sno =   list.getSno()==null?"0": String.valueOf(list.getSno().intValue()+1);
-		           }
-		           args[25] =sno;
+		           BigDecimal sno = proportionalityCustomRepository.getBonusSno();       
+		           args[25] =String.valueOf(sno.intValue()+1);
 		           TtrnBonus insert = proportionalityCustomRepository.bonusMainInsertPtty(args);
 		           if(insert!=null) {
 		        	   ttrnBonusRepository.saveAndFlush(insert);
@@ -2405,19 +2401,16 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 				args[11]=bean.getLoginId();
 				args[12] = bean.getReferenceNo();
 			
-				String sno = "";
-		           TtrnCommissionDetails list = ttrnCommissionDetailsRepository.findTop1ByBranchCodeOrderBySerialNoDesc(bean.getBranchCode());
-		           if(list!=null) {
-		        	   sno =   list.getSerialNo()==null?"0": String.valueOf(list.getSerialNo().intValue()+1);
-		           }
-		        args[13] = sno;
+				BigDecimal sno = proportionalityCustomRepository.getCommissionSno();       
+		        args[13] =String.valueOf(sno.intValue()+1);
 				
 				TtrnCommissionDetails insert = proportionalityCustomRepository.commissionInsert(args);
-						if(insert!=null) {
-							ttrnCommissionDetailsRepository.saveAndFlush(insert);
-							}
-			} }
-		}
+					if(insert!=null) {
+						ttrnCommissionDetailsRepository.saveAndFlush(insert);
+					}
+				} 
+				}
+			}
 			catch(Exception e){
 				e.printStackTrace();
 			}
@@ -4807,18 +4800,9 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
            args[23] =req.getFpcType();
            args[24] =req.getFpcfixedDate();
            
-           CriteriaBuilder cb = em.getCriteriaBuilder();
-           CriteriaQuery<BigDecimal> cq = cb.createQuery(BigDecimal.class);
-           Root<TtrnBonus> root = cq.from(TtrnBonus.class);
-           
-           cq.select(cb.coalesce(cb.max(root.get("sno")), 0).as(BigDecimal.class).alias("SNO"));        
-           
-           BigDecimal sno = em.createQuery(cq).getSingleResult();        
-           
-           //TtrnBonus list = ttrnBonusRepository.findTop1ByBranchOrderBySnoDesc(req.getBranchCode());
-//           if(list!=null) {
-//        	   sno =   list.getSno()==null?"0": String.valueOf(list.getSno().intValue()+1);
-//           }
+            
+           BigDecimal sno = proportionalityCustomRepository.getBonusSno();       
+
            args[25] =String.valueOf(sno.intValue()+1);
            
 		TtrnBonus insert = proportionalityCustomRepository.bonusMainInsertPtty(args);
@@ -5678,8 +5662,9 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 		args[3] ="SSC1";
 		
 			//SELECT_SLIDING_SCALE_METHOD_INFO
-			
-			result = proportionalityCustomRepository.selectSlidingScaleMethodInfoRef(req.getReferenceNo(),req.getBranchCode());
+			if(StringUtils.isNotBlank(req.getReferenceNo()) && !"0".equals(req.getReferenceNo())){
+				result = proportionalityCustomRepository.selectSlidingScaleMethodInfoRef(req.getReferenceNo(),req.getBranchCode());
+			}
 			if(CollectionUtils.isEmpty(result)) {
 				//SELECT_SLIDING_SCALE_METHOD_INFO_REF
 				result = proportionalityCustomRepository.selectSlidingScaleMethodInfo(req.getProposalNo(),req.getBranchCode());
@@ -5746,12 +5731,8 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 	        	   args[21]="";
 	        	   args[22]="";
 	           }
-	           String sno = "";
-	           TtrnBonus list = ttrnBonusRepository.findTop1ByBranchOrderBySnoDesc(bean.getBranchCode());
-	           if(list!=null) {
-	        	   sno =   list.getSno()==null?"0": String.valueOf(list.getSno().intValue()+1);
-	           }
-	           args[23]= sno ;
+	           BigDecimal sno = proportionalityCustomRepository.getBonusSno();       
+	           args[23] =String.valueOf(sno.intValue()+1);
 	        
 	           //INSERT_SC_METHOD_INFO
 	           proportionalityCustomRepository.insertScMethodInfo(args);

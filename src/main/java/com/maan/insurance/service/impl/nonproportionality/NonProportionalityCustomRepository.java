@@ -1,5 +1,6 @@
 package com.maan.insurance.service.impl.nonproportionality;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -175,5 +176,7 @@ public interface NonProportionalityCustomRepository {
 	void cancelProposal(String newProposal);
 
 	int getCountOfInstallmentNumber(String proposalNo);
+
+	BigDecimal getRipSno();
 
 }

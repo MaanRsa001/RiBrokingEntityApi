@@ -3178,14 +3178,11 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 
 			//REINSTATEMENT_MAIN_SELECT_A
 			List<Tuple> result = null; 
-					//nonProportCustomRepository.reinstatementMainSelectA(req.getProposalNo(),req.getBranchCode());
-				
-			if(CollectionUtils.isEmpty(result) && !"0".equals(req.getReferenceNo())){ //Ri
-						//REINSTATEMENT_MAIN_SELECT_A_REFERENCE
-						result =  nonProportCustomRepository.reinstatementMainSelectAReference(req.getReferenceNo(),req.getBranchCode());
-
-					}
-			if(CollectionUtils.isEmpty(result)){
+			
+			if(StringUtils.isNotBlank(req.getReferenceNo()) && !"0".equals(req.getReferenceNo())) {
+				result =  nonProportCustomRepository.reinstatementMainSelectAReference(req.getReferenceNo(),req.getBranchCode());
+			}
+			if(CollectionUtils.isEmpty(result)) {
 				result =  nonProportCustomRepository.reinstatementMainSelectA(req.getProposalNo(),req.getBranchCode());
 			}
 				for(int i=0;i<result.size();i++){
@@ -3296,13 +3293,8 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			args[12] = req.getReinstatementOption();
 			args[13] = "A";
 			args[14]=StringUtils.isBlank(req.getReferenceNo())?"":req.getReferenceNo();
-
-	           String sno = "";
-	           TtrnRip list = ttrnRipRepository.findTop1ByBranchCodeOrderBySnoDesc(req.getBranchCode());
-	           if(list!=null) {
-	        	   sno =   list.getSno()==null?"0": String.valueOf(list.getSno().intValue()+1);
-	           }
-			args[15] = sno;
+			BigDecimal sno = nonProportCustomRepository.getRipSno();       
+	        args[15] =String.valueOf(sno.intValue()+1);
 
 			 //INSERT_REINSTATEMENT_MAIN
 			TtrnRip insert =  nonProportCustomRepository.insertReinstatementMain(args);
@@ -3376,10 +3368,11 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 		try{
 			
 				//BONUS_MAIN_SELECT //ri
-				result =  nonProportCustomRepository.bonusMainSelect(proposalNo,branchCode, acqBonus);
-					if(CollectionUtils.isEmpty(result) && !"0".equals(referenceNo)) {
-						//BONUS_MAIN_SELECT_REFERENCE
+					if(StringUtils.isNotBlank(referenceNo) && !"0".equals(referenceNo)) {
 						result =  nonProportCustomRepository.bonusMainSelectReference(referenceNo,branchCode, acqBonus);
+					}
+					if(CollectionUtils.isEmpty(result)) {
+						result =  nonProportCustomRepository.bonusMainSelect(proposalNo,branchCode, acqBonus);
 					} 
 					List<BonusRes> bonusResList = new ArrayList<BonusRes>();
 					for(int i=0;i<result.size();i++){
@@ -3455,13 +3448,9 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			           args[12] =bean.getDepartmentId();
 			           args[13] =StringUtils.isEmpty(bean.getLayerNo())?"0":bean.getLayerNo();
 			           args[14]=StringUtils.isBlank(bean.getReferenceNo())?"":bean.getReferenceNo();
+			           BigDecimal sno = proportionalityCustomRepository.getBonusSno();      
+				       args[15] =String.valueOf(sno.intValue()+1);
 			           
-			           String sno = "";
-			           TtrnBonus list = ttrnBonusRepository.findTop1ByBranchOrderBySnoDesc(bean.getBranchCode());
-			           if(list!=null) {
-			        	   sno =   list.getSno()==null?"0": String.valueOf(list.getSno().intValue()+1);
-			           }
-			           args[15] =sno;
 			         //BONUS_MAIN_INSERT
 			           TtrnBonus insert = nonProportCustomRepository.bonusMainInsert(args);
 			           if(insert!=null) {
@@ -4979,13 +4968,9 @@ public void insetNOClaimBonusMainTable(InsertBonusDetailsReq bean) {
 	           args[12] = bean.getDepartmentId();
 	           args[13] = StringUtils.isEmpty(bean.getLayerNo())?"0":bean.getLayerNo();
 	           args[14] = StringUtils.isEmpty(bean.getReferenceNo())?"0":bean.getReferenceNo();
-
-	           String sno = "";
-	           TtrnBonus list = ttrnBonusRepository.findTop1ByBranchOrderBySnoDesc(bean.getBranchCode());
-	           if(list!=null) {
-	        	   sno =   list.getSno()==null?"0": String.valueOf(list.getSno().intValue()+1);
-	           }
-	           args[15] =sno;
+	           BigDecimal sno = proportionalityCustomRepository.getBonusSno();      
+		       args[15] =String.valueOf(sno.intValue()+1);
+	          
 	         //BONUS_MAIN_INSERT
 	           TtrnBonus insert = nonProportCustomRepository.bonusMainInsert(args);
 	           if(insert!=null) {

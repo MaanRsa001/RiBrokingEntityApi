@@ -2952,5 +2952,25 @@ public class ProportionalityCustomRepositoryImple implements ProportionalityCust
 		update.where(n1 );
 		return em.createQuery(update).executeUpdate();
 	}
+
+	@Override
+	public BigDecimal getBonusSno() {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<BigDecimal> cq = cb.createQuery(BigDecimal.class);
+        Root<TtrnBonus> root = cq.from(TtrnBonus.class);
+        
+        cq.select(cb.coalesce(cb.max(root.get("sno")), 0).as(BigDecimal.class).alias("SNO"));        
+        return em.createQuery(cq).getSingleResult();
+	}
+
+	@Override
+	public BigDecimal getCommissionSno() {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<BigDecimal> cq = cb.createQuery(BigDecimal.class);
+        Root<TtrnCommissionDetails> root = cq.from(TtrnCommissionDetails.class);
+        
+        cq.select(cb.coalesce(cb.max(root.get("sno")), 0).as(BigDecimal.class).alias("SNO"));        
+        return em.createQuery(cq).getSingleResult();
+	}
 		
 	}
