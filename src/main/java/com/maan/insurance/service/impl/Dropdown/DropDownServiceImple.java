@@ -5049,7 +5049,7 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 					res.setCompanyName(data.get("COMPANY_NAME")==null?"":data.get("COMPANY_NAME").toString()); 
 					res.setUwYear(data.get("UW_YEAR")==null?"":data.get("UW_YEAR").toString()); 
 					res.setUwYearTo(data.get("UW_YEAR_TO")==null?"":data.get("UW_YEAR_TO").toString()); 
-					res.setTreatytype(data.get("TREATYTYPE")==null?"":data.get("TREATYTYPE").toString()); 
+					//res.setTreatytype(data.get("TREATYTYPE")==null?"":data.get("TREATYTYPE").toString()); 
 					res.setProductId(data.get("PRODUCT_ID")==null?"":data.get("PRODUCT_ID").toString()); 
 					res.setBusinessType(data.get("BUSINESS_TYPE")==null?"":data.get("BUSINESS_TYPE").toString()); 
 					res.setProposalNo(data.get("PROPOSAL_NO")==null?"":data.get("PROPOSAL_NO").toString()); 
@@ -5508,11 +5508,11 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 					res.setCompanyName(data.get("COMPANY_NAME")==null?"":data.get("COMPANY_NAME").toString());  
 					res.setUwYear(data.get("UW_YEAR")==null?"":data.get("UW_YEAR").toString());  
 					res.setUwYearTo(data.get("UW_YEAR_TO")==null?"":data.get("UW_YEAR_TO").toString());  
-					res.setTreatytype(data.get("TREATYTYPE")==null?"":data.get("TREATYTYPE").toString());  
+					//res.setTreatytype(data.get("TREATYTYPE")==null?"":data.get("TREATYTYPE").toString());  
 					res.setProductId(data.get("PRODUCT_ID")==null?"":data.get("PRODUCT_ID").toString());  
 					res.setBusinessType(data.get("BUSINESS_TYPE")==null?"":data.get("BUSINESS_TYPE").toString());  
 					res.setProposalNo(data.get("PROPOSAL_NO")==null?"":data.get("PROPOSAL_NO").toString());  
-					res.setTreatyType1(data.get("TREATY_TYPE")==null?"":data.get("TREATY_TYPE").toString());  
+					res.setTreatytype(data.get("TREATY_TYPE")==null?"":data.get("TREATY_TYPE").toString());  
 					res.setRskTreatyid(data.get("RSK_TREATYID")==null?"":data.get("RSK_TREATYID").toString());  
 					res.setPolicyStatus(data.get("POLICY_STATUS")==null?"":data.get("POLICY_STATUS").toString());  
 					res.setExistingShare(""); //''EXISTING_SHARE  

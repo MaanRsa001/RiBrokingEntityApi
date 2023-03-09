@@ -5,23 +5,25 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class UpdateRiplacementReq {
+public class PlacementMailReq {
 	@JsonProperty("ProposalNo")
 	private String proposalNo; 
-	@JsonProperty("ApproverStatus")
-	private String approverStatus; 
-	@JsonProperty("ApproverLoginId")
-	private String approverLoginId; 
-	@JsonProperty("Remarks")
-	private String remarks ;
 	@JsonProperty("ReinsurerId")
 	private String reinsurerId; 
 	@JsonProperty("BrokerId")
 	private String brokerId; 
 	@JsonProperty("BranchCode")
 	private String branchCode; 
-	@JsonProperty("CurrentStatus")
-	private String CurrentStatus; 
 	@JsonProperty("NewStatus")
 	private String newStatus; 
+	@JsonProperty("CurrentStatus")
+	private String currentStatus; 
+	@JsonProperty("MailType")
+	private String mailType; 
+	@JsonProperty("ApproverStatus")
+	private String approverStatus; 
+	@JsonProperty("ApproverLoginId")
+	private String approverLoginId; 
+	@JsonProperty("Remarks")
+	private String remarks ;
 }

@@ -48,11 +48,13 @@ import org.springframework.util.CollectionUtils;
 import com.maan.insurance.model.entity.MailNotificationDetail;
 import com.maan.insurance.model.entity.MailTemplateMaster;
 import com.maan.insurance.model.entity.NotificationAttachmentDetail;
+import com.maan.insurance.model.entity.SubStatusMaster;
 import com.maan.insurance.model.entity.TtrnRiPlacement;
 import com.maan.insurance.model.entity.TtrnRiPlacementStatus;
 import com.maan.insurance.model.repository.MailNotificationDetailRepository;
 import com.maan.insurance.model.repository.MailTemplateMasterRepository;
 import com.maan.insurance.model.repository.NotificationAttachmentDetailRepository;
+import com.maan.insurance.model.repository.SubStatusMasterRepository;
 import com.maan.insurance.model.repository.TtrnRiPlacementRepository;
 import com.maan.insurance.model.repository.TtrnRiPlacementStatusRepository;
 import com.maan.insurance.model.req.placement.AttachFileReq;
@@ -69,6 +71,7 @@ import com.maan.insurance.model.req.placement.GetPlacementViewReq;
 import com.maan.insurance.model.req.placement.GetPlacingInfoReq;
 import com.maan.insurance.model.req.placement.GetReinsurerInfoReq;
 import com.maan.insurance.model.req.placement.InsertDocdetailsReq;
+import com.maan.insurance.model.req.placement.PlacementMailReq;
 import com.maan.insurance.model.req.placement.PlacementSummaryReq;
 import com.maan.insurance.model.req.placement.ReinsListReq;
 import com.maan.insurance.model.req.placement.SavePlacingReq;
@@ -165,6 +168,9 @@ public class PlacementServiceImple implements PlacementService {
 	
 	@Autowired
 	private UploadCustomRepository uploadCustomRepository;
+	
+	@Autowired
+	private SubStatusMasterRepository subStatusMasterRepository;
 	
 	@PersistenceContext
 	private EntityManager em;
@@ -782,6 +788,25 @@ public class PlacementServiceImple implements PlacementService {
 				ripRepo.saveAndFlush(entity);
 			}
 			updateStatus(bean);
+			List<SubStatusMaster>statusList=subStatusMasterRepository.findByBranchCodeAndStatusAndStatusCodeAndSubStatusCode(bean.getBranchCode(), "Y",bean.getCurrentStatus(),bean.getNewStatus());
+			String approvelYN="",mailYN="";
+			if(!CollectionUtils.isEmpty(statusList)) {
+				approvelYN=statusList.get(0).getApprovelYN();
+				mailYN=statusList.get(0).getEmailYN();
+			}
+			if("Y".equals(approvelYN) && "Y".equals(mailYN)) {
+				PlacementMailReq req1=new PlacementMailReq();
+				req1.setProposalNo(bean.getEproposalNo());
+				req1.setBranchCode(bean.getBranchCode());
+				req1.setReinsurerId(bean.getReinsurerId());
+				req1.setBrokerId(bean.getBrokerId());
+				req1.setApproverLoginId(bean.getUserId());
+				req1.setApproverStatus("Pending");
+				req1.setNewStatus(bean.getNewStatus());
+				req1.setCurrentStatus(bean.getCurrentStatus());	
+				req1.setMailType(bean.getNewStatus()+"AP");
+				SendApprovalPendingMail(req1);
+			}
 			res.setCorrespondentId(bean.getCorresId());
 			res.setStatusNo(statusNo);
 			response.setCommonResponse(res);
@@ -1512,7 +1537,8 @@ public class PlacementServiceImple implements PlacementService {
 				Tuple map=list.get(0);
 				GetPlacementViewRes1 res = new GetPlacementViewRes1();
 				res.setEmailBy(map.get("EMAIL_BY")==null?"":map.get("EMAIL_BY").toString());
-				res.setCurrentStatus(map.get("NEW_STATUS")==null?"":map.get("NEW_STATUS").toString());
+				res.setNewStatus(map.get("NEW_STATUS")==null?"":map.get("NEW_STATUS").toString());
+				res.setCurrentStatus(map.get("CURRENT_STATUS")==null?"":map.get("CURRENT_STATUS").toString());
 				res.setCedentCorrespondent(map.get("CEDENT_CORRESPONDENCE")==null?"":map.get("CEDENT_CORRESPONDENCE").toString());
 				res.setReinsurerCorrespondent(map.get("REINSURER_CORRESPONDENCE")==null?"":map.get("REINSURER_CORRESPONDENCE").toString());
 				res.setTqrCorrespondent(map.get("TQR_CORRESPONDENCE")==null?"":map.get("TQR_CORRESPONDENCE").toString());
@@ -1604,29 +1630,37 @@ public class PlacementServiceImple implements PlacementService {
 		
 			if(!CollectionUtils.isEmpty(list1)) {
 				Tuple map=list1.get(0);
-				String bouquetNo=map.get("BOUQUET_NO")==null?"":map.get("BOUQUET_NO").toString();
+				
 				//String proposalNo=map.get("PROPOSAL_NO")==null?"":map.get("PROPOSAL_NO").toString();
 				//String baseproposalNo=map.get("BASE_LAYER")==null?"":map.get("BASE_LAYER").toString();
 				String statusNo=placementCustomRepository.getStatusNo(proposal, req.getBranchCode(),req.getReinsurerId(),req.getBrokerId());
-				String offerNo=map.get("OFFER_NO")==null?"":map.get("OFFER_NO").toString();
-				if(StringUtils.isNotBlank(bouquetNo)) {
-					mailsub=mailsub+" "+bouquetNo+"";
-				}else if(StringUtils.isNotBlank(offerNo)) {
-					mailsub=mailsub+" "+offerNo+" ";
-				}
-				 values.put("COMPANY_NAME", map.get("COMPANY_NAME") );
-				 values.put("TransactionNo", req.getTransactionNo());
-				 values.put("StatusNo", statusNo);
-				 
-				 if("PWL".equalsIgnoreCase(req.getNewStatus())) {
-					if(mailbody.contains("COMPANY_NAME") == true) {
-						mailbody = mailbody.replace("{COMPANY_NAME}", map.get("REINSURER_NAME").toString());
+				req.setStatusNo(statusNo);
+					if(!"PWLAP".equalsIgnoreCase(req.getMailType()) && !"NPWLAP".equalsIgnoreCase(req.getMailType())&& !"PSLAP".equalsIgnoreCase(req.getMailType())&& !"CSLAP".equalsIgnoreCase(req.getMailType())&& !"ROAP".equalsIgnoreCase(req.getMailType())
+							&& !"PWLAR".equalsIgnoreCase(req.getMailType()) && !"NPWLAR".equalsIgnoreCase(req.getMailType())&& !"PSLAR".equalsIgnoreCase(req.getMailType())&& !"CSLAR".equalsIgnoreCase(req.getMailType())&& !"ROAR".equalsIgnoreCase(req.getMailType())) {
+						String offerNo=map.get("OFFER_NO")==null?"":map.get("OFFER_NO").toString();
+						String bouquetNo=map.get("BOUQUET_NO")==null?"":map.get("BOUQUET_NO").toString();
+						if(StringUtils.isNotBlank(bouquetNo)) {
+							mailsub=mailsub+" "+bouquetNo+"";
+						}else if(StringUtils.isNotBlank(offerNo)) {
+							mailsub=mailsub+" "+offerNo+" ";
+						}
 					}
-				 }
-				
-				
-			}
-				mailbody+=BodyTableFrame(req);
+					 values.put("COMPANY_NAME", map.get("COMPANY_NAME") );
+					 values.put("TransactionNo", req.getTransactionNo());
+					 values.put("StatusNo", statusNo);
+					 values.put("UserId", req.getUserId());
+					 values.put("Status", "A".equals(req.getApproverStatus())?"Approved":"Rejected");
+					 values.put("Remarks", req.getApproverRemarks());
+					 if("PWL".equalsIgnoreCase(req.getNewStatus())) {
+						if(mailbody.contains("COMPANY_NAME") == true) {
+							mailbody = mailbody.replace("{COMPANY_NAME}", map.get("REINSURER_NAME").toString());
+						}
+					 }
+				}
+				if(!"PWLAP".equalsIgnoreCase(req.getMailType()) && !"NPWLAP".equalsIgnoreCase(req.getMailType())&& !"PSLAP".equalsIgnoreCase(req.getMailType())&& !"CSLAP".equalsIgnoreCase(req.getMailType())&& !"ROAP".equalsIgnoreCase(req.getMailType())
+						&& !"PWLAR".equalsIgnoreCase(req.getMailType()) && !"NPWLAR".equalsIgnoreCase(req.getMailType())&& !"PSLAR".equalsIgnoreCase(req.getMailType())&& !"CSLAR".equalsIgnoreCase(req.getMailType())&& !"ROAR".equalsIgnoreCase(req.getMailType())) {
+					mailbody+=BodyTableFrame(req);
+				}
 			}else {
 			
 				 values.put("TransactionNo", req.getTransactionNo());
@@ -1647,15 +1681,15 @@ public class PlacementServiceImple implements PlacementService {
 			bean.setMailSubject(mailsub);
 	
 			response.setCommonResponse(bean);
-			 response.setMessage("Success");
-			 response.setIsError(false);
+			response.setMessage("Success");
+			response.setIsError(false);
 			}catch(Exception e){
-					log.error(e);
-					e.printStackTrace();
-					response.setMessage("Failed");
-					response.setIsError(true);
-				}
-			return response;
+				log.error(e);
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
 	}
 	private String BodyTableFrame(GetMailTemplateReq bean) {
 		List<Tuple> list=placementCustomRepository.MailproposalInfo(bean);
@@ -1896,7 +1930,27 @@ public class PlacementServiceImple implements PlacementService {
 		try {
 				placementCustomRepository.updateRiplacement(req);
 				placementCustomRepository.updateRiplacementStatus(req);
-				SendApprovalPendingMail(req);
+				
+				List<SubStatusMaster>statusList=subStatusMasterRepository.findByBranchCodeAndStatusAndStatusCodeAndSubStatusCode(req.getBranchCode(), "Y",req.getCurrentStatus(),req.getNewStatus());
+				String approvelYN="",mailYN="";
+				if(!CollectionUtils.isEmpty(statusList)) {
+					approvelYN=statusList.get(0).getApprovelYN();
+					mailYN=statusList.get(0).getEmailYN();
+				}
+				if("Y".equals(approvelYN) && "Y".equals(mailYN)) {
+					PlacementMailReq req1=new PlacementMailReq();
+					req1.setProposalNo(req.getProposalNo());
+					req1.setBranchCode(req.getBranchCode());
+					req1.setReinsurerId(req.getReinsurerId());
+					req1.setBrokerId(req.getBrokerId());
+					req1.setApproverLoginId(req.getApproverLoginId());
+					req1.setApproverStatus(req.getApproverStatus());
+					req1.setRemarks(req.getRemarks());
+					req1.setNewStatus(req.getNewStatus());
+					req1.setCurrentStatus(req.getCurrentStatus());	
+					req1.setMailType(req.getNewStatus()+"AR");
+				SendApprovalPendingMail(req1);
+				}
 				response.setMessage("Success");
 				response.setIsError(false);
 		}catch(Exception e){
@@ -1908,12 +1962,21 @@ public class PlacementServiceImple implements PlacementService {
 		return response;
 	}
 
-	private void SendApprovalPendingMail(UpdateRiplacementReq req) {
+	private void SendApprovalPendingMail(PlacementMailReq req) {
 		SendMailReq bean=new SendMailReq();
 		GetMailTemplateReq req1=new GetMailTemplateReq();
 		try {
-			req1.setMailType(req.getStatus()+"AP");
+			req1.setMailType(req.getMailType());
+			req1.setProposalNo(req.getProposalNo());
+			req1.setReinsurerId(req.getReinsurerId());
+			req1.setBrokerId(req.getBrokerId());
+			req1.setBranchCode(req.getBranchCode());
+			req1.setNewStatus(req.getNewStatus());
+			req1.setUserId(req.getApproverLoginId());
+			req1.setApproverStatus(req.getApproverStatus());
+			req1.setApproverRemarks(req.getRemarks());
 			GetMailTemplateRes1 resp=getMailTemplate(req1).getCommonResponse();
+			bean.setMailType(req.getMailType());
 			bean.setMailBody(resp.getMailBody());
 			bean.setMailCC(resp.getMailCC());
 			bean.setMailTo(resp.getMailTo());
@@ -1924,6 +1987,7 @@ public class PlacementServiceImple implements PlacementService {
 			bean.setBrokerId(req.getBrokerId());
 			bean.setReinsurerId(req.getReinsurerId());
 			bean.setBranchCode(req.getBranchCode());
+			bean.setStatusNo(req1.getStatusNo());
 			sendMail(bean);
 		} catch (Exception e) {
 			e.printStackTrace();

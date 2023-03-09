@@ -36,7 +36,14 @@ public class GetMailTemplateReq {
 	private String searchBrokerId; 
 	@JsonProperty("TransactionNo")
 	private String transactionNo; 
-	
+	@JsonProperty("UserId")
+	private String userId;
+	@JsonProperty("StatusNo")
+	private String statusNo;
+	@JsonProperty("ApproverStatus")
+	private String approverStatus;
+	@JsonProperty("ApproverRemarks")
+	private String approverRemarks;
 	/*
 	 * @JsonProperty("MailTo") private String mailTo;
 	 * 

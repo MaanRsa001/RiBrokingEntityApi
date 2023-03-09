@@ -1,8 +1,6 @@
 package com.maan.insurance.model.res.placement;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.maan.insurance.model.req.placement.GetPlacementViewListReq;
-
 import lombok.Data;
 
 @Data
@@ -16,7 +14,8 @@ public class GetPlacementViewRes1 {
 	
 	@JsonProperty("CurrentStatus")
 	private String currentStatus; 
-	
+	@JsonProperty("NewStatus")
+	private String newStatus; 
 	@JsonProperty("UpdateDate")
 	private String updateDate;  
 	@JsonProperty("EmailBy")

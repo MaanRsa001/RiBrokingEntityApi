@@ -27,8 +27,8 @@ public class GetBouquetExistingListRes1 {
 	private String businessType;
 	@JsonProperty("ProposalNo")
 	private String proposalNo;
-	@JsonProperty("TreatyType1")
-	private String treatyType1;
+	//@JsonProperty("TreatyType1")
+	//private String treatyType1;
 	@JsonProperty("RskTreatyid")
 	private String rskTreatyid;
 	@JsonProperty("PolicyStatus")

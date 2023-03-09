@@ -2661,7 +2661,7 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 			Predicate n3 = cb.equal(m.get("brokerId"),req.getBrokerId());
 			Predicate n4 = cb.equal(m.get("branchCode"), req.getBranchCode());
 			Predicate n5 = cb.equal(m.get("placementAmendId"), amend);
-			Predicate n6 = cb.equal(m.get("status"), req.getStatus()); //
+			Predicate n6 = cb.equal(m.get("status"), req.getNewStatus()); //
 			
 			update.where(n1,n2,n3,n4,n5,n6);
 			em.createQuery(update).executeUpdate();
@@ -2699,7 +2699,7 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 			Predicate d3 = cb.equal(ri.get("brokerId"),req.getBrokerId());
 			Predicate d4 = cb.equal(ri.get("branchCode"), req.getBranchCode());
 			Predicate d5 = cb.equal(ri.get("amendId"), amend);
-			Predicate d6 = cb.equal(ri.get("newStatus"), req.getStatus());//
+			Predicate d6 = cb.equal(ri.get("newStatus"), req.getNewStatus());//
 			
 			update2.where(d1,d2,d3,d4,d5,d6);
 			em.createQuery(update2).executeUpdate();
@@ -2710,8 +2710,12 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 
 	@Override
 	public String getStatusNo(String proposal, String branchCode, String reinsurerId, String brokerId) {
-		// TODO Auto-generated method stub
-		return null;
+		String statusNo="";
+		List<TtrnRiPlacement> list=ttrnRiPlacementRepository.findByProposalNoAndBranchCodeAndReinsurerIdAndBrokerId(new BigDecimal(proposal),branchCode,reinsurerId,brokerId);
+		if(!CollectionUtils.isEmpty(list)){
+			statusNo=list.get(0).getStatusNo()==null?"":list.get(0).getStatusNo().toString();
+		}
+		return statusNo;
 	}
 
 	@Override

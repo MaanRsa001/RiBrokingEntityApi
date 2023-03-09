@@ -53,4 +53,8 @@ public interface TtrnRiPlacementRepository  extends JpaRepository<TtrnRiPlacemen
 
 	List<TtrnRiPlacement> findByProposalNo(BigDecimal bigDecimal);
 
+
+	List<TtrnRiPlacement> findByProposalNoAndBranchCodeAndReinsurerIdAndBrokerId(BigDecimal bigDecimal,
+			String branchCode, String reinsurerId, String brokerId);
+
 }
