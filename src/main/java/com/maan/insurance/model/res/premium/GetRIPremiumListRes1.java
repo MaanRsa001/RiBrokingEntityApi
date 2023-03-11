@@ -139,11 +139,13 @@ public class GetRIPremiumListRes1 {
 	private String departmentId;
 	@JsonProperty("GnpiDate")
 	private String gnpiDate;
-	@JsonProperty("BrokerageVatOc")
+	@JsonProperty("BrokerageVatOc") 
 	private String brokerageVatOc;
 	
 	@JsonProperty("BrokerageVatDc")
 	private String brokerageVatDc;
 	@JsonProperty("DocumentType")
 	private String documentType;
+	@JsonProperty("CurrencyName")
+	private String currencyName;
 }

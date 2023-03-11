@@ -34,10 +34,12 @@ import com.maan.insurance.jpa.mapper.RskPremiumDetailsTempMapper;
 import com.maan.insurance.jpa.mapper.RskXLPremiumDetailsMapper;
 import com.maan.insurance.jpa.repository.xolpremium.RskXLPremiumDetailsRepository;
 import com.maan.insurance.jpa.repository.xolpremium.XolPremiumCustomRepository;
+import com.maan.insurance.model.entity.CurrencyMaster;
 import com.maan.insurance.model.entity.PersonalInfo;
 import com.maan.insurance.model.entity.RskPremiumDetails;
 import com.maan.insurance.model.entity.RskPremiumDetailsRi;
 import com.maan.insurance.model.entity.RskPremiumDetailsTemp;
+import com.maan.insurance.model.entity.TmasDepartmentMaster;
 import com.maan.insurance.model.repository.RskPremiumDetailsRepository;
 import com.maan.insurance.model.repository.RskPremiumDetailsTempRepository;
 import com.maan.insurance.model.req.premium.GetRIPremiumListReq;
@@ -1751,6 +1753,7 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 		GetRIPremiumListRes response = new GetRIPremiumListRes();
 		List<GetRIPremiumListRes1> resList = new ArrayList<GetRIPremiumListRes1>();
 		SimpleDateFormat sdf = new  SimpleDateFormat("dd/MM/yyyy");
+		String output="";
 		try {
 			CriteriaBuilder cb = em.getCriteriaBuilder(); 
 			CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
@@ -1797,7 +1800,18 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 			Predicate d4 = cb.equal( pi1.get("amendId"), maxAmend1);
 			brokerName.where(d1,d2,d3,d4);
 
-			query.multiselect(reInsurerName.alias("REINSURER_NAME"),brokerName.alias("BROKER_NAME"),
+			//Predepart/ premiumclass
+			Subquery<String> pDeptSq = query.subquery(String.class);
+			Root<TmasDepartmentMaster> pDeptSubRoot = pDeptSq.from(TmasDepartmentMaster.class);
+			pDeptSq.select(pDeptSubRoot.get("tmasDepartmentName")).where(
+					cb.equal(pDeptSubRoot.get("branchCode"), req.getBranchCode()),
+							cb.equal(pDeptSubRoot.get("tmasProductId"), req.getProductId()),
+									cb.equal(pDeptSubRoot.get("tmasStatus"), "Y"),
+					cb.equal(pDeptSubRoot.get("tmasDepartmentId"), pm.get("premiumClass")));
+			
+			query.multiselect(
+					pDeptSq.alias("PREMIUM_CLASS"),
+					reInsurerName.alias("REINSURER_NAME"),brokerName.alias("BROKER_NAME"),
 					pm.get("brokerId").alias("BROKER_ID"),pm.get("brokerage").alias("BROKERAGE"),
 					pm.get("signShared").alias("SIGN_SHARED"),pm.get("reinsurerId").alias("REINSURER_ID"),pm.alias("table")); 
 			
@@ -1820,6 +1834,8 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 					res.setReInsurerName(data1.get("REINSURER_NAME")==null?"":data1.get("REINSURER_NAME").toString());
 					res.setSignShared(data1.get("SIGN_SHARED")==null?"":fm.formatter(data1.get("SIGN_SHARED").toString()));	
 					
+					
+					res.setPredepartment(data1.get("PREMIUM_CLASS")==null?"":fm.formatter(data1.get("PREMIUM_CLASS").toString()));
 					res.setContNo(data.getContractNo()==null?"":data.getContractNo().toString());
 					res.setTransactionNo(data.getTransactionNo()==null?"":data.getTransactionNo().toString());
 					res.setTransaction(data.getTransactionMonthYear()==null?"":sdf.format(data.getTransactionMonthYear()));
@@ -1832,7 +1848,15 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 					res.setLayerno(data.getLayerNo()==null?"":data.getLayerNo().toString());
 					res.setEnteringMode(data.getEnteringMode()==null?"":data.getEnteringMode().toString());
 					res.setAccountPeriod(data.getInstalmentNumber()+(data.getAccountPeriodQtr()==null?"":("_"+data.getAccountPeriodQtr())));
-					res.setCurrencyId(data.getCurrencyId()==null?"":data.getCurrencyId().toString());
+					res.setCurrencyId(data.getCurrencyId()==null?"":data.getCurrencyId().toString()); 
+				 	if(StringUtils.isNotBlank(res.getCurrencyId())){
+						// query -- premium.select.currency
+				   		output = xolPremiumCustomRepository.premiumSelectCurrency(res.getCurrencyId(),req.getBranchCode());
+				   		res.setCurrencyId(output == null ? "" : output);
+				   	}
+//					output = xolPremiumCustomRepository.selectCurrecyName(req.getBranchCode());
+//					res.setCurrencyName(output == null ? "" : output);
+					
 					res.setOtherCost(data.getOtherCostOc()==null?"":fm.formatter(data.getOtherCostOc().toString()));
 					res.setBrokerageusd(data.getBrokerageAmtDc()==null?"":fm.formatter(data.getBrokerageAmtDc().toString()));
 					res.setTaxusd(data.getTaxAmtDc()==null?"":fm.formatter(data.getTaxAmtDc().toString()));
@@ -1855,7 +1879,7 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
                  //   res.setDueDate(xolView.get("DUE_DATE")==null?"":xolView.get("DUE_DATE").toString());
                     res.setCreditsign(data.getNetdueOc()==null?"":fm.formatter(data.getNetdueOc().toString()));
                     res.setRicession(data.getRiCession()==null?"":data.getRiCession().toString());
-                    res.setPredepartment(data.getPremiumClass()==null?"":data.getPremiumClass().toString());
+         //           res.setPredepartment(data.getPremiumClass()==null?"":data.getPremiumClass().toString());
                     res.setDepartmentId(data.getSubClass()==null?"":data.getSubClass().toString());
                     res.setTaxDedectSource(data.getTdsOc()==null?"":fm.formatter(data.getTdsOc().toString()));
                     res.setTaxDedectSourceDc(data.getTdsDc()==null?"":fm.formatter(data.getTdsDc().toString()));
@@ -1968,7 +1992,7 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 	}
 
 	@Override
-	public GetPremiumDetailsRes getPremiumDetailsRi(GetPremiumDetailsReq req) {
+	public GetPremiumDetailsRes getPremiumDetailsRi(GetPremiumDetailsReq req) { //view
 		GetPremiumDetailsRes response = new GetPremiumDetailsRes();
 		GetPremiumDetailsRes1 bean = new GetPremiumDetailsRes1();
 		String output="";
