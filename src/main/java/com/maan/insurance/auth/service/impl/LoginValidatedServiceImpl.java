@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import com.maan.insurance.auth.bean.MarinLoginModel;
+import com.maan.insurance.auth.bean.LoginMaster;
 import com.maan.insurance.auth.dto.LoginRequest;
 import com.maan.insurance.auth.service.CriteriaQueryService;
 import com.maan.insurance.auth.service.LoginValidatedService;
@@ -34,7 +34,7 @@ public class LoginValidatedServiceImpl implements LoginValidatedService {
 				list.add(new Error("", "UserId", "Please enter password"));
 			}
 			if (StringUtils.isNotBlank(req.getUserId()) && StringUtils.isNotBlank(req.getPassword())) {
-				List<MarinLoginModel> data = criteriaQuery.isvalidUser(req);
+				List<LoginMaster> data = criteriaQuery.isvalidUser(req);
 				if (CollectionUtils.isEmpty(data)) {
 
 					list.add(new Error("", "User", "Please enter valid username/password"));

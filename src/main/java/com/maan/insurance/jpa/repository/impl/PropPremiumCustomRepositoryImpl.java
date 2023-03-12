@@ -443,7 +443,7 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		CriteriaQuery<String> cq = cb.createQuery(String.class);
 		Root<PositionMaster> root = cq.from(PositionMaster.class);
 		
-		Subquery<Integer> amSq = cq.subquery(Integer.class);
+		Subquery<BigDecimal> amSq = cq.subquery(BigDecimal.class);
 		Root<PositionMaster> amSubRoot = amSq.from(PositionMaster.class);
 
 		amSq.select(
@@ -452,7 +452,7 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 				.where( cb.equal(amSubRoot.get("proposalNo"), root.get("proposalNo")));
 		
 		
-		cq.multiselect( root.get("newLayerNo").alias("NEW_LAYER_NO"),root.get("deptId").as(String.class).alias("DEPT_ID"))
+		cq.multiselect(root.get("deptId").as(String.class).alias("DEPT_ID"))
 		
 		.where(cb.equal(root.get("proposalNo"), StringUtils.isBlank(proposalNo)?BigDecimal.ZERO:new BigDecimal(proposalNo)),
 			   cb.equal(root.get("amendId"), amSq));

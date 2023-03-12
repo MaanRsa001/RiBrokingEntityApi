@@ -1506,21 +1506,21 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 	private void getTempToMainMove(InsertPremiumReq req) {
 
 		try {
-			if (!"Main".equalsIgnoreCase(req.getTableType())) {
+			//if (!"Main".equalsIgnoreCase(req.getTableType())) {
 
 				// query -- FAC_PREMIUM_TEMP_TO_MAIN
-				RskPremiumDetailsTemp rskTemp = rskPremiumDetailsTempRepository.findByRequestNoAndBranchCode(new BigDecimal(req.getRequestNo()),
+				/*RskPremiumDetailsTemp rskTemp = rskPremiumDetailsTempRepository.findByRequestNoAndBranchCode(new BigDecimal(req.getRequestNo()),
 						req.getBranchCode());
 				if (rskTemp != null) {
 					RskPremiumDetails detailsEntity = rskPremiumDetailsMapper.toProEntity(rskTemp);
 					detailsEntity.setTransactionNo(new BigDecimal(req.getTransactionNo()));
 					rskPremiumDetailsRepository.saveAndFlush(detailsEntity);
-				}
+				}*/
 
 				// query -- premium.sp.retroSplit
 				propPremiumCustomRepository.premiumSpRetroSplit(req);
 				propPremiumCustomRepository.premiumRiSplit(req);
-			}
+			//}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -3201,7 +3201,7 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 					res.setOtherCost(data.getOtherCostOc()==null?"":fm.formatter(data.getOtherCostOc().toString()));
 					res.setBrokerageUsd(data.getBrokerageAmtDc()==null?"":fm.formatter(data.getBrokerageAmtDc().toString()));
 					res.setTaxUsd(data.getTaxAmtDc()==null?"":fm.formatter(data.getTaxAmtDc().toString()));
-					res.setPremiumQuotaShareUsd(data.getPremiumreserveQuotashareDc()==null?"":fm.formatter(data.getPremiumreserveQuotashareDc().toString()));
+					res.setPremiumQuotaShareUsd(data.getPremiumQuotashareDc()==null?"":fm.formatter(data.getPremiumQuotashareDc().toString()));
 					res.setCommsissionQuotaShareUsd(data.getCommissionQuotashareDc()==null?"":fm.formatter(data.getCommissionQuotashareDc().toString()));
 					res.setPremiumSurplusUsd(data.getPremiumSurplusDc()==null?"":fm.formatter(data.getPremiumSurplusDc().toString()));
 					res.setComissionSurplusUsd(data.getCommissionSurplusDc()==null?"":fm.formatter(data.getCommissionSurplusDc().toString()));
@@ -3214,7 +3214,7 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 					res.setLossReserveRetainedUsd(data.getLossReserveretainedDc()==null?"":fm.formatter(data.getLossReserveretainedDc().toString()));
 					res.setProfitCommissionUsd(data.getProfitCommissionDc()==null?"":fm.formatter(data.getProfitCommissionDc().toString()));
 					res.setCashLossPaidUsd(data.getCashLosspaidDc()==null?"":fm.formatter(data.getCashLosspaidDc().toString()));
-					res.setClamsPaidUsd(data.getClaimsPaidDc()==null?"":fm.formatter(data.getClaimsPaidDc().toString()));
+					res.setClaimsPaidUsd(data.getClaimsPaidDc()==null?"":fm.formatter(data.getClaimsPaidDc().toString()));
 					res.setXlCostUsd(data.getXlCostDc()==null?"":fm.formatter(data.getXlCostDc().toString()));
 					res.setCliamPortfolioOutUsd(data.getClaimPortfolioOutDc()==null?"":fm.formatter(data.getClaimPortfolioOutDc().toString()));
 					res.setPremiumReserveReleasedUsd(data.getPremiumReserveRealsedDc()==null?"":fm.formatter(data.getPremiumReserveRealsedDc().toString()));

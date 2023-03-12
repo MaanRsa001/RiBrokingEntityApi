@@ -18,7 +18,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import com.maan.insurance.auth.bean.LoginMasterID;
-import com.maan.insurance.auth.bean.MarinLoginModel;
+import com.maan.insurance.auth.bean.LoginMaster;
 /**
  * <h2>ClaimLoginMasterRepository</h2>
  *
@@ -29,11 +29,11 @@ import com.maan.insurance.auth.bean.MarinLoginModel;
  
  
  
-public interface LoginMasterRepository  extends JpaRepository<MarinLoginModel,LoginMasterID > , JpaSpecificationExecutor<MarinLoginModel> {
+public interface LoginMasterRepository  extends JpaRepository<LoginMaster,LoginMasterID > , JpaSpecificationExecutor<LoginMaster> {
 
-	List<MarinLoginModel> findByLoginidLoginidAndLoginidPassword(String userId, String epass);
+	List<LoginMaster> findByLoginidLoginidAndLoginidPassword(String userId, String epass);
 	
-	MarinLoginModel findByLoginidLoginid(String loginId);
+	LoginMaster findByLoginidLoginid(String loginId);
 
 
 

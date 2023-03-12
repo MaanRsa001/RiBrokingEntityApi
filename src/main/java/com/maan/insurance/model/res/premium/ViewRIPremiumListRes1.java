@@ -125,8 +125,8 @@ public class ViewRIPremiumListRes1 {
 	private String profitCommissionUsd;
 	@JsonProperty("CashLossPaidUsd")
 	private String cashLossPaidUsd;
-	@JsonProperty("ClamsPaidUsd")
-	private String clamsPaidUsd;
+	@JsonProperty("ClaimsPaidUsd")
+	private String claimsPaidUsd;
 	@JsonProperty("XlCostUsd")
 	private String xlCostUsd;
 	@JsonProperty("CliamPortfolioOutUsd")

@@ -251,13 +251,15 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 					//risk.update.rskDtls
 					TtrnRiskDetails	 update = proportionalityCustomRepository.ttrnRiskDetailsUpdate(args);
 					if(update!=null) {
-					ttrnRiskDetailsRepository.saveAndFlush(update);	
+						update.setRskSectionNo(new BigDecimal(req.getSectionNo()));
+						ttrnRiskDetailsRepository.saveAndFlush(update);	
 					}
 					args[1]=(Integer.parseInt((String)args[51])+1)+"";
 				} else {
 					args = getFirstPageInsertAruguments(req, amendId);
 					//risk.insert.isAmendIDProTreaty
 					TtrnRiskDetails	 insert = proportionalityCustomRepository.ttrnRiskDetailsInsert(args);
+					insert.setRskSectionNo(new BigDecimal(req.getSectionNo()));
 					ttrnRiskDetailsRepository.saveAndFlush(insert);	
 					
 					res.setContractGendration("Your Proposal Number :"+ req.getProposalNo());
@@ -268,6 +270,7 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 					args = getFirstPageInsertAruguments(req, amendId);
 					//risk.insert.isAmendIDProTreaty
 					TtrnRiskDetails	 insert = proportionalityCustomRepository.ttrnRiskDetailsInsert(args);
+					insert.setRskSectionNo(new BigDecimal(req.getSectionNo()));
 					ttrnRiskDetailsRepository.saveAndFlush(insert);	
 				}
 				else {
@@ -275,6 +278,7 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 					//risk.update.rskDtls
 					TtrnRiskDetails	 update = proportionalityCustomRepository.ttrnRiskDetailsUpdate(args);
 					if(update!=null) {
+						update.setRskSectionNo(new BigDecimal(req.getSectionNo()));
 						ttrnRiskDetailsRepository.saveAndFlush(update);	
 						}
 					args[1]=(Integer.parseInt((String)args[51])+1)+"";
@@ -1255,6 +1259,7 @@ public class ProportionalityServiceImpl implements ProportionalityService {
 			String[] args = getFirstPageSaveModeAruguments(req,getMaxAmednId(req.getProposalNo()));
 			//risk.update.rskDtls
 			TtrnRiskDetails	 update = proportionalityCustomRepository.ttrnRiskDetailsUpdate(args);
+			update.setRskSectionNo(new BigDecimal(req.getSectionNo()));
 			ttrnRiskDetailsRepository.saveAndFlush(update);	
 			int updateCount = 1;
 			
@@ -6013,7 +6018,7 @@ private void deleteByProposalNoAndEndorsementNo(String proposalNo, BigDecimal bi
 								}
 								else if(StringUtils.isNotBlank(res.getBaseLayerYN())){
 									//GET_BASE_LAYER_DETAILS
-									res1 = proportionalityCustomRepository.getBaseLayerDetails(beanObj.getProductId(),beanObj.getBranchCode(),beanObj.getProposalNo());
+									res1 = proportionalityCustomRepository.getBaseLayerDetails(beanObj.getProductId(),beanObj.getBranchCode(),res.getBaseLayerYN());
 								
 									
 									resMap1 = null;

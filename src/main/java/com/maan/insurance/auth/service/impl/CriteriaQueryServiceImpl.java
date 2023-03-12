@@ -13,7 +13,7 @@ import javax.persistence.criteria.Root;
 
 import org.springframework.stereotype.Component;
 
-import com.maan.insurance.auth.bean.MarinLoginModel;
+import com.maan.insurance.auth.bean.LoginMaster;
 import com.maan.insurance.auth.dto.LoginRequest;
 import com.maan.insurance.auth.service.CriteriaQueryService;
 import com.maan.insurance.auth.token.passwordEnc;
@@ -24,13 +24,13 @@ public class CriteriaQueryServiceImpl implements CriteriaQueryService{
 	@PersistenceContext
 	private EntityManager em;
 	
-	public List<MarinLoginModel>  isvalidUser(LoginRequest req) {
-		List<MarinLoginModel> data = new ArrayList<MarinLoginModel>();
+	public List<LoginMaster>  isvalidUser(LoginRequest req) {
+		List<LoginMaster> data = new ArrayList<LoginMaster>();
 		try {
 			CriteriaBuilder cb = em.getCriteriaBuilder();
-			CriteriaQuery<MarinLoginModel> query = cb.createQuery(MarinLoginModel.class);
+			CriteriaQuery<LoginMaster> query = cb.createQuery(LoginMaster.class);
 			
-			Root<MarinLoginModel> login = query.from(MarinLoginModel.class);
+			Root<LoginMaster> login = query.from(LoginMaster.class);
 			//Root<ClaimLoginUserDetails> user = query.from(ClaimLoginUserDetails.class);
 
 			passwordEnc passEnc = new passwordEnc();
@@ -42,7 +42,7 @@ public class CriteriaQueryServiceImpl implements CriteriaQueryService{
 
 			query.select(login).where(p1,p2,p3);
 
-			TypedQuery<MarinLoginModel> result = em.createQuery(query);
+			TypedQuery<LoginMaster> result = em.createQuery(query);
 			data = result.getResultList();
 			
 		} catch (Exception e) {

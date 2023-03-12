@@ -582,12 +582,23 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 			//mailStatus
 			Subquery<String> mailStatus = query.subquery(String.class); 
 			Root<MailNotificationDetail> mail = mailStatus.from(MailNotificationDetail.class);
+			
+			Subquery<Long> mmaxAmend = query.subquery(Long.class); 
+			Root<MailNotificationDetail> cm = mmaxAmend.from(MailNotificationDetail.class);
+			mmaxAmend.select(cb.max(cm.get("mailRecordNo")));
+			Predicate mb1 = cb.equal(mail.get("proposalNo"), cm.get("proposalNo"));
+			Predicate mb2 = cb.equal(mail.get("reinsurerId"), cm.get("reinsurerId"));
+			Predicate mb3 = cb.equal(mail.get("brokerId"), cm.get("brokerId"));
+			Predicate mb4 = cb.equal(mail.get("mailType"), cm.get("mailType"));
+			mmaxAmend.where(mb1,mb2,mb3,mb4);
+			
 			mailStatus.select(mail.get("mailStatus"));
 			Predicate g1 = cb.equal( pm.get("proposalNo"), mail.get("proposalNo"));
 			Predicate g2 = cb.equal( pm.get("reinsurerId"), mail.get("reinsurerId"));
 			Predicate g3 = cb.equal(pm.get("brokerId"), mail.get("brokerId"));
 			Predicate g4 = cb.equal(pm.get("status"), mail.get("mailType"));
-			mailStatus.where(g1,g2,g3,g4);
+			Predicate g5 = cb.equal(mail.get("mailRecordNo"), mmaxAmend);
+			mailStatus.where(g1,g2,g3,g4,g5);
 
 			query.multiselect(pm.get("baseProposalNo").alias("BASE_PROPOSAL_NO"),pm.get("sno").alias("SNO"),
 					pm.get("bouquetNo").alias("BOUQUET_NO"),pm.get("proposalNo").alias("PROPOSAL_NO"),
@@ -704,12 +715,23 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 			//mailStatus
 			Subquery<String> mailStatus = query.subquery(String.class); 
 			Root<MailNotificationDetail> mail = mailStatus.from(MailNotificationDetail.class);
+			
+			Subquery<Long> mmaxAmend = query.subquery(Long.class); 
+			Root<MailNotificationDetail> cm = mmaxAmend.from(MailNotificationDetail.class);
+			mmaxAmend.select(cb.max(cm.get("mailRecordNo")));
+			Predicate mb1 = cb.equal(mail.get("proposalNo"), cm.get("proposalNo"));
+			Predicate mb2 = cb.equal(mail.get("reinsurerId"), cm.get("reinsurerId"));
+			Predicate mb3 = cb.equal(mail.get("brokerId"), cm.get("brokerId"));
+			Predicate mb4 = cb.equal(mail.get("mailType"), cm.get("mailType"));
+			mmaxAmend.where(mb1,mb2,mb3,mb4);
+			
 			mailStatus.select(mail.get("mailStatus"));
 			Predicate g1 = cb.equal( pm.get("proposalNo"), mail.get("proposalNo"));
 			Predicate g2 = cb.equal( pm.get("reinsurerId"), mail.get("reinsurerId"));
 			Predicate g3 = cb.equal(pm.get("brokerId"), mail.get("brokerId"));
 			Predicate g4 = cb.equal(pm.get("status"), mail.get("mailType"));
-			mailStatus.where(g1,g2,g3,g4);
+			Predicate g5 = cb.equal(pm.get("mailRecordNo"), mmaxAmend);
+			mailStatus.where(g1,g2,g3,g4,g5);
 
 			query.multiselect(pm.get("baseProposalNo").alias("BASE_PROPOSAL_NO"),pm.get("sno").alias("SNO"),
 					pm.get("bouquetNo").alias("BOUQUET_NO"),pm.get("proposalNo").alias("PROPOSAL_NO"),
@@ -856,12 +878,23 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 			//mailStatus
 			Subquery<String> mailStatus = query.subquery(String.class); 
 			Root<MailNotificationDetail> mail = mailStatus.from(MailNotificationDetail.class);
+			
+			Subquery<Long> mmaxAmend = query.subquery(Long.class); 
+			Root<MailNotificationDetail> cm = mmaxAmend.from(MailNotificationDetail.class);
+			mmaxAmend.select(cb.max(cm.get("mailRecordNo")));
+			Predicate mb1 = cb.equal(mail.get("proposalNo"), cm.get("proposalNo"));
+			Predicate mb2 = cb.equal(mail.get("reinsurerId"), cm.get("reinsurerId"));
+			Predicate mb3 = cb.equal(mail.get("brokerId"), cm.get("brokerId"));
+			Predicate mb4 = cb.equal(mail.get("mailType"), cm.get("mailType"));
+			mmaxAmend.where(mb1,mb2,mb3,mb4);
+			
 			mailStatus.select(mail.get("mailStatus"));
 			Predicate g1 = cb.equal( pm.get("proposalNo"), mail.get("proposalNo"));
 			Predicate g2 = cb.equal( pm.get("reinsurerId"), mail.get("reinsurerId"));
 			Predicate g3 = cb.equal(pm.get("brokerId"), mail.get("brokerId"));
 			Predicate g4 = cb.equal(pm.get("status"), mail.get("mailType"));
-			mailStatus.where(g1,g2,g3,g4);
+			Predicate g5 = cb.equal(pm.get("mailRecordNo"), mmaxAmend);
+			mailStatus.where(g1,g2,g3,g4,g5);
 
 			query.multiselect(pm.get("baseProposalNo").alias("BASE_PROPOSAL_NO"),pm.get("sno").alias("SNO"),
 					pm.get("bouquetNo").alias("BOUQUET_NO"),pm.get("proposalNo").alias("PROPOSAL_NO"),
@@ -926,6 +959,7 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 		Predicate c2 = cb.equal( ri.get("proposalNo"), mr1.get("proposalNo"));
 		Predicate c3 = cb.equal( ri.get("reinsurerId"), mr1.get("reinsurerId"));
 		Predicate c4 = cb.equal( ri.get("brokerId"), mr1.get("brokerId"));
+		//Predicate c5 = cb.equal(ri.get("mailType"), mr1.get("mailType"));
 		mailRecordNo1.where(c2,c3,c4);
 		
 		update2.set("emailRecordid", mailRecordNo1==null?null:mailRecordNo1);
@@ -963,10 +997,11 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 		Predicate b2 = cb.equal( pm.get("proposalNo"), mr.get("proposalNo"));
 		Predicate b3 = cb.equal( pm.get("reinsurerId"), mr.get("reinsurerId"));
 		Predicate b4 = cb.equal( pm.get("brokerId"), mr.get("brokerId"));
+		//Predicate b5 = cb.equal(pm.get("mailType"), mr.get("mailType"));
 		mailRecordNo.where(b2,b3,b4);
 		
 		update1.set("mailRecordNo",mailRecordNo==null?null:mailRecordNo);
-		update1.set("statusNo", new BigDecimal( bean.getStatusNo()));
+		update1.set("statusNo", StringUtils.isBlank(bean.getStatusNo())?null: new BigDecimal( bean.getStatusNo()));
 		
 		Predicate m1 = cb.equal(pm.get("proposalNo"), resp.getProposalNo());
 		Predicate m2 = cb.equal(pm.get("reinsurerId"), resp.getReinsurerId());
@@ -1017,7 +1052,7 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 		// set update and where clause
 		notify.set("mailStatus", status);
 		notify.set("updateDate",new Date());
-		notify.set("statusNo",new BigDecimal(bean.getStatusNo()));
+		notify.set("statusNo",StringUtils.isBlank(bean.getStatusNo())?null:new BigDecimal(bean.getStatusNo()));
 		
 		// MAXAmend ID
 		Subquery<Long> mnamend = notify.subquery(Long.class); 
@@ -1027,12 +1062,14 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 		Predicate mn2 = cb.equal( mailnotify.get("proposalNo"), mns.get("proposalNo"));
 		Predicate mn3 = cb.equal( mailnotify.get("reinsurerId"), mns.get("reinsurerId"));
 		Predicate mn4 = cb.equal( mailnotify.get("brokerId"), mns.get("brokerId"));
+		//Predicate mb4 = cb.equal(mailnotify.get("mailType"), mns.get("mailType"));
 		mnamend.where(mn1,mn2,mn3,mn4);
 		
 		Predicate pn1 = cb.equal(mailnotify.get("proposalNo"), resp.getProposalNo());
 		Predicate pn2 = cb.equal(mailnotify.get("reinsurerId"), resp.getReinsurerId());
 		Predicate pn3 = cb.equal(mailnotify.get("brokerId"),resp.getBrokerId());
 		Predicate pn4 = cb.equal(mailnotify.get("branchCode"), bean.getBranchCode());
+		//Predicate pn5 = cb.equal(mailnotify.get("mailType"), p.get("status"));
 		Predicate pn5 = cb.equal(mailnotify.get("mailRecordNo"), mnamend);
 		notify.where(pn1,pn2,pn3,pn4,pn5);
 		// perform update
@@ -1363,11 +1400,22 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 			// Mail Status
 			Subquery<String> mailStatus = query.subquery(String.class);
 			Root<MailNotificationDetail> ocpm2 = mailStatus.from(MailNotificationDetail.class);
+			Subquery<Long> mmaxAmend = query.subquery(Long.class); 
+			Root<MailNotificationDetail> cm = mmaxAmend.from(MailNotificationDetail.class);
+			mmaxAmend.select(cb.max(cm.get("mailRecordNo")));
+			Predicate mb1 = cb.equal(ocpm2.get("proposalNo"), cm.get("proposalNo"));
+			Predicate mb2 = cb.equal(ocpm2.get("reinsurerId"), cm.get("reinsurerId"));
+			Predicate mb3 = cb.equal(ocpm2.get("brokerId"), cm.get("brokerId"));
+			Predicate mb4 = cb.equal(ocpm2.get("mailType"), cm.get("mailType"));
+			mmaxAmend.where(mb1,mb2,mb3,mb4);
+			
 			mailStatus.select(ocpm2.get("mailStatus"));
 			Predicate a4 = cb.equal(ocpm2.get("proposalNo"), p.get("proposalNo"));
 			Predicate a5 = cb.equal(ocpm2.get("reinsurerId"), p.get("reinsurerId"));
 			Predicate a6 = cb.equal(ocpm2.get("brokerId"), p.get("brokerId"));
-			mailStatus.where(a4,a5,a6);
+			Predicate a8 = cb.equal(ocpm2.get("mailType"), p.get("status"));
+			Predicate a9 = cb.equal(ocpm2.get("mailRecordNo"),mmaxAmend);
+			mailStatus.where(a4,a5,a6,a8,a9);
 
 			query.multiselect(
 				 p.get("sno").alias("SNO"), 
@@ -1413,11 +1461,24 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 			// Mail Status
 			Subquery<String> mailStatus = query.subquery(String.class);
 			Root<MailNotificationDetail> ocpm2 = mailStatus.from(MailNotificationDetail.class);
+			
+			Subquery<Long> mmaxAmend = query.subquery(Long.class); 
+			Root<MailNotificationDetail> cm = mmaxAmend.from(MailNotificationDetail.class);
+			mmaxAmend.select(cb.max(cm.get("mailRecordNo")));
+			Predicate mb1 = cb.equal(ocpm2.get("proposalNo"), cm.get("proposalNo"));
+			Predicate mb2 = cb.equal(ocpm2.get("reinsurerId"), cm.get("reinsurerId"));
+			Predicate mb3 = cb.equal(ocpm2.get("brokerId"), cm.get("brokerId"));
+			Predicate mb4 = cb.equal(ocpm2.get("mailType"), cm.get("mailType"));
+			mmaxAmend.where(mb1,mb2,mb3,mb4);
+			
 			mailStatus.select(ocpm2.get("mailStatus"));
 			Predicate a4 = cb.equal(ocpm2.get("proposalNo"), p.get("proposalNo"));
 			Predicate a5 = cb.equal(ocpm2.get("reinsurerId"), p.get("reinsurerId"));
 			Predicate a6 = cb.equal(ocpm2.get("brokerId"), p.get("brokerId"));
-			mailStatus.where(a4,a5,a6);
+			Predicate a8 = cb.equal(ocpm2.get("mailType"), p.get("status"));
+			Predicate a9 = cb.equal(ocpm2.get("mailRecordNo"), mmaxAmend);
+			
+			mailStatus.where(a4,a5,a6,a8,a9);
 
 			query.multiselect( 
 					p.get("sno").alias("SNO"), 
@@ -1857,20 +1918,40 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 			// Mail Status
 			Subquery<String> mailStatus = query.subquery(String.class);
 			Root<MailNotificationDetail> m = mailStatus.from(MailNotificationDetail.class);
+			
+			Subquery<Long> mmaxAmend = query.subquery(Long.class); 
+			Root<MailNotificationDetail> cm = mmaxAmend.from(MailNotificationDetail.class);
+			mmaxAmend.select(cb.max(cm.get("mailRecordNo")));
+			Predicate mb1 = cb.equal(m.get("proposalNo"), cm.get("proposalNo"));
+			Predicate mb2 = cb.equal(m.get("reinsurerId"), cm.get("reinsurerId"));
+			Predicate mb3 = cb.equal(m.get("brokerId"), cm.get("brokerId"));
+			Predicate mb4 = cb.equal(m.get("mailType"), cm.get("status"));
+			mmaxAmend.where(mb1,mb2,mb3,mb4);
+			
 			mailStatus.select(m.get("mailStatus"));
 			Predicate b1 = cb.equal(m.get("proposalNo"), p.get("proposalNo"));
 			Predicate b2 = cb.equal(m.get("reinsurerId"), p.get("reinsurerId"));
 			Predicate b3 = cb.equal(m.get("brokerId"), p.get("brokerId"));
 			Predicate b4 = cb.equal(m.get("mailType"), p.get("status"));
-			mailStatus.where(b1,b2,b3,b4);				
+			Predicate b5 = cb.equal(m.get("mailRecordNo"), mmaxAmend);
+			mailStatus.where(b1,b2,b3,b4,b5);				
 
 			//offerNo
 			Subquery<String> offer = query.subquery(String.class); 
 			Root<PositionMaster> pm = offer.from(PositionMaster.class);
 			offer.select(pm.get("offerNo"));
+			
+			//maxAmend
+			Subquery<Long> pmmaxAmend = query.subquery(Long.class); 
+			Root<PositionMaster> pms1 = pmmaxAmend.from(PositionMaster.class);
+			pmmaxAmend.select(cb.max(pms1.get("amendId")));
+			Predicate pme1 = cb.equal( pms1.get("proposalNo"), pm.get("proposalNo"));
+			pmmaxAmend.where(pme1);
+			
 			Predicate i1 = cb.equal(pm.get("proposalNo"), p.get("proposalNo"));
 			Predicate i2 = cb.equal(pm.get("branchCode"), p.get("branchCode"));
-			offer.where(i1,i2);
+			Predicate i3 = cb.equal(pm.get("amendId"), pmmaxAmend);
+			offer.where(i1,i2,i3);
 			
 			query.multiselect( 
 					 p.get("sno").alias("SNO"), 
@@ -1983,11 +2064,23 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 			// Mail Status
 			Subquery<String> mailStatus = query.subquery(String.class);
 			Root<MailNotificationDetail> m = mailStatus.from(MailNotificationDetail.class);
+			
+			Subquery<Long> mmaxAmend = query.subquery(Long.class); 
+			Root<MailNotificationDetail> cm = mmaxAmend.from(MailNotificationDetail.class);
+			mmaxAmend.select(cb.max(cm.get("mailRecordNo")));
+			Predicate mb1 = cb.equal(m.get("proposalNo"), cm.get("proposalNo"));
+			Predicate mb2 = cb.equal(m.get("reinsurerId"), cm.get("reinsurerId"));
+			Predicate mb3 = cb.equal(m.get("brokerId"), cm.get("brokerId"));
+			Predicate mb4 = cb.equal(m.get("mailType"), cm.get("mailType"));
+			mmaxAmend.where(mb1,mb2,mb3,mb4);
+			
 			mailStatus.select(m.get("mailStatus"));
 			Predicate b1 = cb.equal(m.get("proposalNo"), p.get("proposalNo"));
 			Predicate b2 = cb.equal(m.get("reinsurerId"), p.get("reinsurerId"));
 			Predicate b3 = cb.equal(m.get("brokerId"), p.get("brokerId"));
-			mailStatus.where(b1,b2,b3);				
+			Predicate b4 = cb.equal(m.get("mailType"), p.get("status"));
+			Predicate b5 = cb.equal(m.get("mailRecordNo"), mmaxAmend);
+			mailStatus.where(b1,b2,b3,b4,b5);				
 
 			//offerStatus
 			Subquery<Integer> offerStatus = query.subquery(Integer.class); 
@@ -2093,11 +2186,23 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 			// Mail Status
 			Subquery<String> mailStatus = query.subquery(String.class);
 			Root<MailNotificationDetail> m = mailStatus.from(MailNotificationDetail.class);
+
+			Subquery<Long> mmaxAmend = query.subquery(Long.class); 
+			Root<MailNotificationDetail> cm = mmaxAmend.from(MailNotificationDetail.class);
+			mmaxAmend.select(cb.max(cm.get("mailRecordNo")));
+			Predicate mb1 = cb.equal(m.get("proposalNo"), cm.get("proposalNo"));
+			Predicate mb2 = cb.equal(m.get("reinsurerId"), cm.get("reinsurerId"));
+			Predicate mb3 = cb.equal(m.get("brokerId"), cm.get("brokerId"));
+			Predicate mb4 = cb.equal(m.get("mailType"), cm.get("mailType"));
+			mmaxAmend.where(mb1,mb2,mb3,mb4);
+			
 			mailStatus.select(m.get("mailStatus"));
 			Predicate b1 = cb.equal(m.get("proposalNo"), p.get("proposalNo"));
 			Predicate b2 = cb.equal(m.get("reinsurerId"), p.get("reinsurerId"));
 			Predicate b3 = cb.equal(m.get("brokerId"), p.get("brokerId"));
-			mailStatus.where(b1,b2,b3);				
+			Predicate b4 = cb.equal(m.get("mailType"), p.get("status"));
+			Predicate b5 = cb.equal(m.get("mailRecordNo"), mmaxAmend);
+			mailStatus.where(b1,b2,b3,b4,b5);				
 
 			//offerStatus
 			Subquery<Integer> offerStatus = query.subquery(Integer.class); 
@@ -2204,10 +2309,22 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 			Subquery<String> mailStatus = query.subquery(String.class);
 			Root<MailNotificationDetail> m = mailStatus.from(MailNotificationDetail.class);
 			mailStatus.select(m.get("mailStatus"));
+			
+			Subquery<Long> mmaxAmend = query.subquery(Long.class); 
+			Root<MailNotificationDetail> cm = mmaxAmend.from(MailNotificationDetail.class);
+			mmaxAmend.select(cb.max(cm.get("mailRecordNo")));
+			Predicate mb1 = cb.equal(m.get("proposalNo"), cm.get("proposalNo"));
+			Predicate mb2 = cb.equal(m.get("reinsurerId"), cm.get("reinsurerId"));
+			Predicate mb3 = cb.equal(m.get("brokerId"), cm.get("brokerId"));
+			Predicate mb4 = cb.equal(m.get("mailType"), cm.get("mailType"));
+			mmaxAmend.where(mb1,mb2,mb3,mb4);
+			
 			Predicate b1 = cb.equal(m.get("proposalNo"), p.get("proposalNo"));
 			Predicate b2 = cb.equal(m.get("reinsurerId"), p.get("reinsurerId"));
 			Predicate b3 = cb.equal(m.get("brokerId"), p.get("brokerId"));
-			mailStatus.where(b1,b2,b3);				
+			Predicate b4 = cb.equal(m.get("mailType"), p.get("status"));
+			Predicate b5 = cb.equal(m.get("mailRecordNo"), mmaxAmend);
+			mailStatus.where(b1,b2,b3,b4,b5);				
 
 			//offerStatus
 			Subquery<Integer> offerStatus = query.subquery(Integer.class); 

@@ -20,7 +20,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import com.maan.insurance.auth.bean.MarinLoginModel;
+import com.maan.insurance.auth.bean.LoginMaster;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -71,7 +71,7 @@ public class JwtTokenUtil implements Serializable {
         return time;
     }
 
-    public String generateToken(MarinLoginModel user) {
+    public String generateToken(LoginMaster user) {
         return doGenerateToken(user.getLoginid().getLoginid());
     }
       

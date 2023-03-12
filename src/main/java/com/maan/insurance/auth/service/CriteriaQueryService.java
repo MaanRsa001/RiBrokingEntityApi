@@ -7,7 +7,7 @@ package com.maan.insurance.auth.service;
 
 import java.util.List;
 
-import com.maan.insurance.auth.bean.MarinLoginModel;
+import com.maan.insurance.auth.bean.LoginMaster;
 import com.maan.insurance.auth.dto.LoginRequest;
 
 /**
@@ -15,7 +15,7 @@ import com.maan.insurance.auth.dto.LoginRequest;
 */
 public interface CriteriaQueryService  {
 
-	List<MarinLoginModel> isvalidUser(LoginRequest req);
+	List<LoginMaster> isvalidUser(LoginRequest req);
 
 
 }

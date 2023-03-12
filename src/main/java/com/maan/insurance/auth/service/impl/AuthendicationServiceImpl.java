@@ -13,7 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import com.maan.insurance.auth.bean.MarinLoginModel;
+import com.maan.insurance.auth.bean.LoginMaster;
 import com.maan.insurance.auth.bean.SessionTable;
 import com.maan.insurance.auth.dto.ClaimLoginResponse;
 import com.maan.insurance.auth.dto.CommonLoginResponse;
@@ -46,7 +46,7 @@ public class AuthendicationServiceImpl implements AuthendicationService {
 			passwordEnc passEnc = new passwordEnc();
 			String epass = passEnc.crypt(mslogin.getPassword().trim());
 			log.info("Encrpted password "+epass);
-			List<MarinLoginModel> login =loginRepo.findByLoginidLoginidAndLoginidPassword(mslogin.getUserId(),epass);
+			List<LoginMaster> login =loginRepo.findByLoginidLoginidAndLoginidPassword(mslogin.getUserId(),epass);
 			if (!CollectionUtils.isEmpty(login)) {
 				http.getSession().removeAttribute(mslogin.getUserId());
 				String token = jwtTokenUtil.doGenerateToken(mslogin.getUserId());
@@ -67,10 +67,10 @@ public class AuthendicationServiceImpl implements AuthendicationService {
 		}
 		return res;
 	}
-	private ClaimLoginResponse setTokenResponse(SessionTable session, List<MarinLoginModel> login) {
+	private ClaimLoginResponse setTokenResponse(SessionTable session, List<LoginMaster> login) {
 		ClaimLoginResponse r = new ClaimLoginResponse();
 		try {
-			MarinLoginModel log =login.get(0);
+			LoginMaster log =login.get(0);
 			r.setToken(session.getTemptokenid());
 			r.setLoginId(log.getLoginid().getLoginid());
 			r.setUserName(log.getUsername());

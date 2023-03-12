@@ -67,6 +67,9 @@ private static final long serialVersionUID = 1L;
 
     @Column(name="RSK_LAYER_NO")
     private BigDecimal rskLayerNo ;
+    
+    @Column(name="RSK_SECTION_NO")
+    private BigDecimal rskSectionNo ;
 
     @Column(name="RSK_PRODUCTID")
     private BigDecimal rskProductid ;

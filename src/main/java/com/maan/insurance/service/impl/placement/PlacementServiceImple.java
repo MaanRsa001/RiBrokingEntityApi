@@ -45,6 +45,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import com.maan.insurance.auth.bean.LoginMaster;
+import com.maan.insurance.auth.repository.LoginMasterRepository;
 import com.maan.insurance.model.entity.MailNotificationDetail;
 import com.maan.insurance.model.entity.MailTemplateMaster;
 import com.maan.insurance.model.entity.NotificationAttachmentDetail;
@@ -171,6 +173,9 @@ public class PlacementServiceImple implements PlacementService {
 	
 	@Autowired
 	private SubStatusMasterRepository subStatusMasterRepository;
+	
+	@Autowired
+	private LoginMasterRepository loginMasterRepository;
 	
 	@PersistenceContext
 	private EntityManager em;
@@ -1116,12 +1121,14 @@ public class PlacementServiceImple implements PlacementService {
 			}
 			Multipart multipart=GetMailAttachment(bean);
 			status=sendResponseMail(hostName, user, pwd, mailform, subject, multipart, toAddresses, ccAddresses, shortAddress,port);
-			if(!"PC".equalsIgnoreCase(bean.getMailType())) {	
+			if(!"PC".equalsIgnoreCase(bean.getMailType())) {
 				if("Success".equals(status) && "P".equals(bean.getMailType())) {
-					insertPlacingDetail(bean,bean.getMailType());		
+					insertPlacingDetail(bean,bean.getMailType());
 					req.setStatus("P");
 					req.setStatusNo(bean.getStatusNo());
 					updateStatus(req); 
+				}else {
+					bean.setMailType("O");
 				}
 				updateMailDetails(req,status,bean.getMailType());
 				} 
@@ -1643,6 +1650,12 @@ public class PlacementServiceImple implements PlacementService {
 							mailsub=mailsub+" "+bouquetNo+"";
 						}else if(StringUtils.isNotBlank(offerNo)) {
 							mailsub=mailsub+" "+offerNo+" ";
+						}
+					}
+					if("PWLAR".equalsIgnoreCase(req.getMailType()) || "NPWLAR".equalsIgnoreCase(req.getMailType())|| "PSLAR".equalsIgnoreCase(req.getMailType())|| "CSLAR".equalsIgnoreCase(req.getMailType())|| "ROAR".equalsIgnoreCase(req.getMailType())) {
+						LoginMaster login=loginMasterRepository.findByLoginidLoginid(req.getUserId());
+						if(login!=null) {
+							bean.setMailTo(login.getUsermail());;
 						}
 					}
 					 values.put("COMPANY_NAME", map.get("COMPANY_NAME") );
