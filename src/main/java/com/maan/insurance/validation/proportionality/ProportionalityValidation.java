@@ -571,27 +571,27 @@ public class ProportionalityValidation {
 						list.add(new ErrorCheck(prop.getProperty("error.slidescale.commission"),"slidescale","01"));
 					}
 					else if("Y".equalsIgnoreCase(bean.getSlideScaleCommission())){
-						if(StringUtils.isBlank(bean.getSlidePopUp())){
+						/*if(StringUtils.isBlank(bean.getSlidePopUp())){
 							list.add(new ErrorCheck(prop.getProperty("error.slide.recheck"),"slide","01"));
-						}else{
+						}else{*/
 						int count = propImple.getBonusListCount(req2,"scale");
 						if(count<=0){
 							list.add(new ErrorCheck(prop.getProperty("slide.error.lcb.table.empty"),"lcb","01"));
 						}
-						}
+						/* } */
 					}
 					if(StringUtils.isBlank(bean.getLossParticipants())){
 						list.add(new ErrorCheck(prop.getProperty("error.losspart"),"losspart","01"));
 					}
 					else if("Y".equalsIgnoreCase(bean.getLossParticipants())){
-						if(StringUtils.isBlank(bean.getLossPopUp())){
+						/*if(StringUtils.isBlank(bean.getLossPopUp())){
 							list.add(new ErrorCheck(prop.getProperty("error.loss.recheck"),"losspart","01"));
-						}else{
+						}else{*/
 						int count = propImple.getBonusListCount(req2,"lossparticipates");
 						if(count<=0){
 							list.add(new ErrorCheck(prop.getProperty("losspart.error.lcb.table.empty"),"lcb","01"));
 						}
-						}
+						/* } */
 					}
 					if(StringUtils.isBlank(bean.getShareProfitCommission())){
 						list.add(new ErrorCheck(prop.getProperty("error.profit.commision"),"ShareProfitCommission","01"));
@@ -618,15 +618,15 @@ public class ProportionalityValidation {
 						}else{
 							if("Y".equalsIgnoreCase(bean.getShareProfitCommission())){
 								
-								 if(StringUtils.isBlank(bean.getProfitPopUp())){
+								/* if(StringUtils.isBlank(bean.getProfitPopUp())){
 								 //list.add(new ErrorCheck(prop.getProperty("error.profit.recheck"),"","01")); 
 								 }
-								 else{
+								 else{*/
 									 int count = propImple.CommissionTypeCount(bean.getProposalNo(),bean.getBranchCode(),bean.getCommissionType()); 
 								 if(count<=0){
 								  list.add(new ErrorCheck(prop.getProperty("error.commission.schedule"),"commission","01"));
 								  } 
-								 }
+									/* } */
 								 
 							}
 						}
@@ -635,14 +635,14 @@ public class ProportionalityValidation {
 						if(StringUtils.isBlank(bean.getSetup())){
 							list.add(new ErrorCheck(prop.getProperty("error.setup.req"),"setup","01"));
 						}
-						if(StringUtils.isBlank(bean.getProfitPopUp())){
+						/*if(StringUtils.isBlank(bean.getProfitPopUp())){
 							list.add(new ErrorCheck(prop.getProperty("error.profit.recheck"),"profit","01"));
-						}else{
+						}else{*/
 						int count = propImple.CommissionTypeCount(bean.getProposalNo(),bean.getBranchCode(),bean.getCommissionType());
 						if(count<=0){
 							list.add(new ErrorCheck(prop.getProperty("error.commission.setup.schedule"),"commission","01"));
 						}
-						}
+						/* } */
 						}
 
 						if(StringUtils.isBlank(bean.getLossCarried())){

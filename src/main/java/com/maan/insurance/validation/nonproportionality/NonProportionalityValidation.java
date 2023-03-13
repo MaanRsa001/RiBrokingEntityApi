@@ -1015,7 +1015,7 @@ public class NonProportionalityValidation {
 					if (tata == true) {
 						list.add(new ErrorCheck(prop.getProperty("Error.Select.AfterInceptionDate"),"AfterInceptionDate","01"));
 					}
-					totalInstPremium = 1000;
+					//totalInstPremium = 1000;
 				if((totalInstPremium)!=mndPremiumOC && (totalInstPremium)!=minPremiumOC)	{
 					list.add(new ErrorCheck(prop.getProperty("Error.Select.totalInstPremium"),"totalInstPremium","01"));
 					}

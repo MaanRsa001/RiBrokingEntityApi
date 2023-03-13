@@ -1954,7 +1954,7 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 		.set(root.get("documentType"), args[45]);
 
 		update.where(cb.equal(root.get("contractNo"), args[46]),
-				     cb.equal(root.get("requestNo"), args[47]));
+				     cb.equal(root.get("transactionNo"), args[47]));
 
 		Query q = em.createQuery(update);
 		return q.executeUpdate();

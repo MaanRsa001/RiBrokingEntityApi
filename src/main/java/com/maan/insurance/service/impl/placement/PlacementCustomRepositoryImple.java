@@ -730,7 +730,7 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 			Predicate g2 = cb.equal( pm.get("reinsurerId"), mail.get("reinsurerId"));
 			Predicate g3 = cb.equal(pm.get("brokerId"), mail.get("brokerId"));
 			Predicate g4 = cb.equal(pm.get("status"), mail.get("mailType"));
-			Predicate g5 = cb.equal(pm.get("mailRecordNo"), mmaxAmend);
+			Predicate g5 = cb.equal(mail.get("mailRecordNo"), mmaxAmend);
 			mailStatus.where(g1,g2,g3,g4,g5);
 
 			query.multiselect(pm.get("baseProposalNo").alias("BASE_PROPOSAL_NO"),pm.get("sno").alias("SNO"),
@@ -893,7 +893,7 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 			Predicate g2 = cb.equal( pm.get("reinsurerId"), mail.get("reinsurerId"));
 			Predicate g3 = cb.equal(pm.get("brokerId"), mail.get("brokerId"));
 			Predicate g4 = cb.equal(pm.get("status"), mail.get("mailType"));
-			Predicate g5 = cb.equal(pm.get("mailRecordNo"), mmaxAmend);
+			Predicate g5 = cb.equal(mail.get("mailRecordNo"), mmaxAmend);
 			mailStatus.where(g1,g2,g3,g4,g5);
 
 			query.multiselect(pm.get("baseProposalNo").alias("BASE_PROPOSAL_NO"),pm.get("sno").alias("SNO"),
@@ -1925,7 +1925,7 @@ public class PlacementCustomRepositoryImple implements PlacementCustomRepository
 			Predicate mb1 = cb.equal(m.get("proposalNo"), cm.get("proposalNo"));
 			Predicate mb2 = cb.equal(m.get("reinsurerId"), cm.get("reinsurerId"));
 			Predicate mb3 = cb.equal(m.get("brokerId"), cm.get("brokerId"));
-			Predicate mb4 = cb.equal(m.get("mailType"), cm.get("status"));
+			Predicate mb4 = cb.equal(m.get("mailType"), cm.get("mailType"));
 			mmaxAmend.where(mb1,mb2,mb3,mb4);
 			
 			mailStatus.select(m.get("mailStatus"));

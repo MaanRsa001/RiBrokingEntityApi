@@ -1509,13 +1509,13 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 			//if (!"Main".equalsIgnoreCase(req.getTableType())) {
 
 				// query -- FAC_PREMIUM_TEMP_TO_MAIN
-				/*RskPremiumDetailsTemp rskTemp = rskPremiumDetailsTempRepository.findByRequestNoAndBranchCode(new BigDecimal(req.getRequestNo()),
+				RskPremiumDetailsTemp rskTemp = rskPremiumDetailsTempRepository.findByRequestNoAndBranchCode(new BigDecimal(req.getRequestNo()),
 						req.getBranchCode());
 				if (rskTemp != null) {
 					RskPremiumDetails detailsEntity = rskPremiumDetailsMapper.toProEntity(rskTemp);
 					detailsEntity.setTransactionNo(new BigDecimal(req.getTransactionNo()));
 					rskPremiumDetailsRepository.saveAndFlush(detailsEntity);
-				}*/
+				}
 
 				// query -- premium.sp.retroSplit
 				propPremiumCustomRepository.premiumSpRetroSplit(req);
@@ -2278,7 +2278,9 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 				
 				//beanObj.setTransactionNo(fm.getSequence("Premium",beanObj.getProductId(),beanObj.getDepartmentId(), beanObj.getBranchCode(),"",beanObj.getTransaction()));
 				propPremiumCustomRepository.facTempStatusUpdate(beanObj);
-		 		getTempToMainMove(beanObj);
+				propPremiumCustomRepository.premiumSpRetroSplit(beanObj);
+				propPremiumCustomRepository.premiumRiSplit(beanObj);
+		 		//getTempToMainMove(beanObj);
 		 		
 		 		propPremiumCustomRepository.updateDepositRelease(beanObj.getContNo(),beanObj.getRequestNo(),beanObj.getTransactionNo(),"A");
 		 		

@@ -609,6 +609,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 					TtrnRiskDetails list = ttrnRiskDetailsRepository.findByRskProposalNumberAndRskEndorsementNo(req.getProposalNo(), maxAmendID);
 					if(list!=null) {
 						list.setRskLayerNo(StringUtils.isEmpty(req.getLayerNo())?BigDecimal.ONE:new BigDecimal(req.getLayerNo()))	;	
+						list.setRskSectionNo(StringUtils.isEmpty(req.getSectionNo())?BigDecimal.ZERO:new BigDecimal(req.getSectionNo()))	;
 						ttrnRiskDetailsRepository.saveAndFlush(list);
 						}
 					
@@ -644,7 +645,8 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 					//UpdateProportionalTreatyQuery
 					TtrnRiskDetails list = ttrnRiskDetailsRepository.findByRskProposalNumberAndRskEndorsementNo(req.getProposalNo(), maxAmendID);
 					if(list!=null) {
-						list.setRskLayerNo(StringUtils.isEmpty(req.getLayerNo())?BigDecimal.ZERO:new BigDecimal(req.getLayerNo()))	;	
+						list.setRskLayerNo(StringUtils.isEmpty(req.getLayerNo())?BigDecimal.ZERO:new BigDecimal(req.getLayerNo()))	;
+						list.setRskSectionNo(StringUtils.isEmpty(req.getSectionNo())?BigDecimal.ZERO:new BigDecimal(req.getSectionNo()))	;
 						ttrnRiskDetailsRepository.saveAndFlush(list);
 						}
 					args = getFirstPageEditSaveModeAruguments(req,getMaxAmednId(req.getProposalNo()));
@@ -818,6 +820,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			TtrnRiskDetails list = ttrnRiskDetailsRepository.findByRskProposalNumberAndRskEndorsementNo(req.getProposalNo(),new BigDecimal(getMaxAmednId(req.getProposalNo())));
 			if(list!=null) {
 				list.setRskLayerNo(StringUtils.isEmpty(req.getLayerNo())?BigDecimal.ZERO:new BigDecimal(req.getLayerNo()));
+				list.setRskSectionNo(StringUtils.isEmpty(req.getSectionNo())?BigDecimal.ZERO:new BigDecimal(req.getSectionNo()))	;
 				ttrnRiskDetailsRepository.saveAndFlush(list);
 				}
 			
