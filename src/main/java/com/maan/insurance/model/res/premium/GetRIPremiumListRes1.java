@@ -146,6 +146,6 @@ public class GetRIPremiumListRes1 {
 	private String brokerageVatDc;
 	@JsonProperty("DocumentType")
 	private String documentType;
-	@JsonProperty("CurrencyName")
-	private String currencyName;
+	@JsonProperty("Currency")
+	private String currency;
 }

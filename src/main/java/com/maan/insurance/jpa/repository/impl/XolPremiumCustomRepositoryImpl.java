@@ -1418,6 +1418,15 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 				cb.equal(pDeptSubRoot.get("tmasProductId"), productId),
 				cb.equal(pDeptSubRoot.get("tmasStatus"), "Y"),
 				cb.equal(pDeptSubRoot.get("tmasDepartmentId"), root.get("premiumClass")));
+		
+		//DocType
+		Subquery<String> docType = cq.subquery(String.class);
+		Root<ConstantDetail> doc = docType.from(ConstantDetail.class);
+		docType.select(doc.get("detailName")).where(
+				cb.equal(doc.get("categoryId"), "56"),
+				cb.equal(doc.get("status"), "Y"),
+				cb.equal(doc.get("type"), root.get("documentType"))); //
+
 
 		cq.multiselect(root.get("contractNo").alias("CONTRACT_NO"),
 				root.get("transactionNo").alias("TRANSACTION_NO"),
@@ -1475,7 +1484,7 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 				root.get("vatPremiumDc").alias("VAT_PREMIUM_DC"),
 				root.get("brokerageVatOc").alias("BROKERAGE_VAT_OC"),
 				root.get("brokerageVatDc").alias("BROKERAGE_VAT_DC"),
-				root.get("documentType").alias("DOCUMENT_TYPE"))
+				docType.alias("DOCUMENT_TYPE"))
 		
 		.where(cb.equal(root.get("contractNo"), contNo),
 				cb.equal(root.get("requestNo"), requestNo));
@@ -1507,6 +1516,15 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 				cb.equal(pDeptSubRoot.get("tmasProductId"), productId),
 				cb.equal(pDeptSubRoot.get("tmasStatus"), "Y"),
 				cb.equal(pDeptSubRoot.get("tmasDepartmentId"), root.get("premiumClass")));
+		
+		//DocType
+		Subquery<String> docType = cq.subquery(String.class);
+		Root<ConstantDetail> doc = docType.from(ConstantDetail.class);
+		docType.select(doc.get("detailName")).where(
+				cb.equal(doc.get("categoryId"), "56"),
+				cb.equal(doc.get("status"), "Y"),
+				cb.equal(doc.get("type"), root.get("documentType"))); //
+
 
 		cq.multiselect(root.get("contractNo").alias("CONTRACT_NO"),
 				root.get("transactionNo").alias("TRANSACTION_NO"),
@@ -1563,7 +1581,7 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 				root.get("vatPremiumDc").alias("VAT_PREMIUM_DC"),
 				root.get("brokerageVatOc").alias("BROKERAGE_VAT_OC"),
 				root.get("brokerageVatDc").alias("BROKERAGE_VAT_DC"),
-				root.get("documentType").alias("DOCUMENT_TYPE"))
+				docType.alias("DOCUMENT_TYPE"))
 		
 		.where(cb.equal(root.get("contractNo"), contNo),
 				cb.equal(root.get("transactionNo"), requestNo));
@@ -1595,6 +1613,15 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 				cb.equal(pDeptSubRoot.get("tmasProductId"), productId),
 				cb.equal(pDeptSubRoot.get("tmasStatus"), "Y"),
 				cb.equal(pDeptSubRoot.get("tmasDepartmentId"), root.get("premiumClass")));
+		
+		//DocType
+		Subquery<String> docType = cq.subquery(String.class);
+		Root<ConstantDetail> doc = docType.from(ConstantDetail.class);
+		docType.select(doc.get("detailName")).where(
+				cb.equal(doc.get("categoryId"), "56"),
+				cb.equal(doc.get("status"), "Y"),
+				cb.equal(doc.get("type"), root.get("documentType"))); //
+
 
 		cq.multiselect(root.get("contractNo").alias("CONTRACT_NO"),
 				root.get("transactionNo").alias("TRANSACTION_NO"),
@@ -1651,7 +1678,7 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 				root.get("vatPremiumDc").alias("VAT_PREMIUM_DC"),
 				root.get("brokerageVatOc").alias("BROKERAGE_VAT_OC"),
 				root.get("brokerageVatDc").alias("BROKERAGE_VAT_DC"),
-				root.get("documentType").alias("DOCUMENT_TYPE"))
+				docType.alias("DOCUMENT_TYPE"))
 		
 		.where(cb.equal(root.get("contractNo"), contNo),
 				cb.equal(root.get("transactionNo"), requestNo));

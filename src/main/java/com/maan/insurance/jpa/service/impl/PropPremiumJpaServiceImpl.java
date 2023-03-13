@@ -3194,7 +3194,7 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 					res.setXlCost(data.getXlCostOc()==null?"":fm.formatter(fm.formatter(data.getXlCostOc().toString())));
 					res.setCliamPortfolioOut(data.getClaimPortfolioOutOc()==null?"":fm.formatter(data.getClaimPortfolioOutOc().toString()));
 					res.setPremiumReserveReleased(data.getPremiumReserveRealsedOc()==null?"":fm.formatter(data.getPremiumReserveRealsedOc().toString()));
-					res.setAccountPeriod(data.getAccountPeriodQtr()==null?"":data.getAccountPeriodQtr().toString());
+			//		res.setAccountPeriod(data.getAccountPeriodQtr()==null?"":data.getAccountPeriodQtr().toString());
 
 					res.setAccountPeriodYear(data.getAccountPeriodYear()==null?"":data.getAccountPeriodYear().toString());
 					res.setCurrencyId(data.getCurrencyId()==null?"":data.getCurrencyId().toString());

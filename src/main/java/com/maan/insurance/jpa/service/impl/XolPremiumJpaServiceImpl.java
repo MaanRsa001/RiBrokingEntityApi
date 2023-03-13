@@ -34,6 +34,7 @@ import com.maan.insurance.jpa.mapper.RskPremiumDetailsTempMapper;
 import com.maan.insurance.jpa.mapper.RskXLPremiumDetailsMapper;
 import com.maan.insurance.jpa.repository.xolpremium.RskXLPremiumDetailsRepository;
 import com.maan.insurance.jpa.repository.xolpremium.XolPremiumCustomRepository;
+import com.maan.insurance.model.entity.ConstantDetail;
 import com.maan.insurance.model.entity.CurrencyMaster;
 import com.maan.insurance.model.entity.PersonalInfo;
 import com.maan.insurance.model.entity.RskPremiumDetails;
@@ -981,7 +982,7 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 	}
 	
 	
-	public GetPremiumDetailsRes getPremiumDetails(GetPremiumDetailsReq req) {
+	public GetPremiumDetailsRes getPremiumDetails(GetPremiumDetailsReq req) { //view
 		GetPremiumDetailsRes response = new GetPremiumDetailsRes();
 		GetPremiumDetailsRes1 bean = new GetPremiumDetailsRes1();
 		String output="";
@@ -1804,16 +1805,28 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 			Subquery<String> pDeptSq = query.subquery(String.class);
 			Root<TmasDepartmentMaster> pDeptSubRoot = pDeptSq.from(TmasDepartmentMaster.class);
 			pDeptSq.select(pDeptSubRoot.get("tmasDepartmentName")).where(
+					cb.equal(pDeptSubRoot.get("tmasProductId"), pm.get("productId")),
 					cb.equal(pDeptSubRoot.get("branchCode"), req.getBranchCode()),
-							cb.equal(pDeptSubRoot.get("tmasProductId"), req.getProductId()),
-									cb.equal(pDeptSubRoot.get("tmasStatus"), "Y"),
-					cb.equal(pDeptSubRoot.get("tmasDepartmentId"), pm.get("premiumClass")));
+					cb.equal(pDeptSubRoot.get("tmasStatus"), "Y"),
+					cb.equal(pDeptSubRoot.get("tmasDepartmentId"), pm.get("premiumClass"))); //
+			
+			//DocType
+			Subquery<String> docType = query.subquery(String.class);
+			Root<ConstantDetail> doc = docType.from(ConstantDetail.class);
+			docType.select(doc.get("detailName")).where(
+					cb.equal(doc.get("categoryId"), "56"),
+					cb.equal(doc.get("status"), "Y"),
+					cb.equal(doc.get("type"), pm.get("documentType"))); //
 			
 			query.multiselect(
+					docType.alias("DOCUMENT_TYPE"),
 					pDeptSq.alias("PREMIUM_CLASS"),
-					reInsurerName.alias("REINSURER_NAME"),brokerName.alias("BROKER_NAME"),
-					pm.get("brokerId").alias("BROKER_ID"),pm.get("brokerage").alias("BROKERAGE"),
-					pm.get("signShared").alias("SIGN_SHARED"),pm.get("reinsurerId").alias("REINSURER_ID"),pm.alias("table")); 
+					reInsurerName.alias("REINSURER_NAME"),
+					brokerName.alias("BROKER_NAME"),
+					pm.get("brokerId").alias("BROKER_ID"),
+					pm.get("brokerage").alias("BROKERAGE"),
+					pm.get("signShared").alias("SIGN_SHARED"),
+					pm.get("reinsurerId").alias("REINSURER_ID"),pm.alias("table")); 
 			
 			Predicate n1 = cb.equal(pm.get("contractNo"), req.getContractNo());
 			Predicate n2 = cb.equal(pm.get("transactionNo"), req.getTransactionNo());
@@ -1834,12 +1847,12 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 					res.setReInsurerName(data1.get("REINSURER_NAME")==null?"":data1.get("REINSURER_NAME").toString());
 					res.setSignShared(data1.get("SIGN_SHARED")==null?"":fm.formatter(data1.get("SIGN_SHARED").toString()));	
 					
-					
-					res.setPredepartment(data1.get("PREMIUM_CLASS")==null?"":fm.formatter(data1.get("PREMIUM_CLASS").toString()));
+					res.setDocumentType(data1.get("DOCUMENT_TYPE")==null?"":data1.get("DOCUMENT_TYPE").toString());
+					res.setPredepartment(data1.get("PREMIUM_CLASS")==null?"":data1.get("PREMIUM_CLASS").toString());
 					res.setContNo(data.getContractNo()==null?"":data.getContractNo().toString());
 					res.setTransactionNo(data.getTransactionNo()==null?"":data.getTransactionNo().toString());
 					res.setTransaction(data.getTransactionMonthYear()==null?"":sdf.format(data.getTransactionMonthYear()));
-					res.setBrokerage(data.getBrokerageAmtOc()==null?"":fm.formatter(data.getBrokerageAmtOc().toString()));
+				//	res.setBrokerage(data.getBrokerageAmtOc()==null?"":fm.formatter(data.getBrokerageAmtOc().toString()));
 					res.setTax(data.getTax()==null?"":fm.formatter(data.getTax().toString()));
 					res.setMdpremium(data.getMDpremiumOc()==null?"":fm.formatter(data.getMDpremiumOc().toString()));
 					res.setAdjustmentpremium(data.getAdjustmentPremiumOc()	==null?"":fm.formatter(data.getAdjustmentPremiumOc().toString()));					
@@ -1852,7 +1865,7 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 				 	if(StringUtils.isNotBlank(res.getCurrencyId())){
 						// query -- premium.select.currency
 				   		output = xolPremiumCustomRepository.premiumSelectCurrency(res.getCurrencyId(),req.getBranchCode());
-				   		res.setCurrencyId(output == null ? "" : output);
+				   		res.setCurrency(output == null ? "" : output);
 				   	}
 //					output = xolPremiumCustomRepository.selectCurrecyName(req.getBranchCode());
 //					res.setCurrencyName(output == null ? "" : output);
@@ -1879,12 +1892,12 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
                  //   res.setDueDate(xolView.get("DUE_DATE")==null?"":xolView.get("DUE_DATE").toString());
                     res.setCreditsign(data.getNetdueOc()==null?"":fm.formatter(data.getNetdueOc().toString()));
                     res.setRicession(data.getRiCession()==null?"":data.getRiCession().toString());
-         //           res.setPredepartment(data.getPremiumClass()==null?"":data.getPremiumClass().toString());
+               //     res.setPredepartment(data.getPremiumClass()==null?"":data.getPremiumClass().toString());
                     res.setDepartmentId(data.getSubClass()==null?"":data.getSubClass().toString());
                     res.setTaxDedectSource(data.getTdsOc()==null?"":fm.formatter(data.getTdsOc().toString()));
                     res.setTaxDedectSourceDc(data.getTdsDc()==null?"":fm.formatter(data.getTdsDc().toString()));
                     res.setVatPremiumOc(data.getVatPremiumOc()==null?"":fm.formatter(data.getVatPremiumOc().toString()));
-                    res.setDocumentType(data.getDocumentType()==null?"":data.getDocumentType().toString());
+             //       res.setDocumentType(data.getDocumentType()==null?"":data.getDocumentType().toString());
                     res.setVatPremiumDc(data.getVatPremiumDc()==null?"": fm.formatter(data.getVatPremiumDc().toString()));
                     res.setBonus(data.getBonusOc()==null?"":fm.formatter(data.getBonusOc().toString()));
                     res.setBonusDc(data.getBonusDc()==null?"":fm.formatter(data.getBonusDc().toString()));
