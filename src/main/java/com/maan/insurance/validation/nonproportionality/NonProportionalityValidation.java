@@ -26,6 +26,7 @@ import com.maan.insurance.model.req.nonproportionality.CrestaSaveReq;
 import com.maan.insurance.model.req.nonproportionality.GetLayerInfoReq;
 import com.maan.insurance.model.req.nonproportionality.GetRetroContractDetailsListReq;
 import com.maan.insurance.model.req.nonproportionality.GetRetroContractDetailsReq;
+import com.maan.insurance.model.req.nonproportionality.InsInstallReq;
 import com.maan.insurance.model.req.nonproportionality.InsertBonusDetailsReq;
 import com.maan.insurance.model.req.nonproportionality.InsertIEModuleReq;
 import com.maan.insurance.model.req.nonproportionality.InsertRetroCessReq;
@@ -1536,5 +1537,9 @@ public class NonProportionalityValidation {
 			list.add(new ErrorCheck("Please Enter ProposalNo", "ProposalNo", "4"));
 		}
 		return list;
+	}
+	public List<ErrorCheck> insInstallVali(InsInstallReq req) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
