@@ -616,6 +616,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 					//risk.update.rskDtls
 					TtrnRiskDetails	 update = nonProportCustomRepository.ttrnRiskDetailsUpdate(args);
 					if(update!=null) {
+					update.setRskSectionNo(StringUtils.isEmpty(req.getSectionNo())?BigDecimal.ZERO:new BigDecimal(req.getSectionNo()))	;
 					ttrnRiskDetailsRepository.saveAndFlush(update);
 					updateCount = 1;
 					}
@@ -629,6 +630,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 					args = getFirstPageInsertAruguments(req);
 					//risk.insert.isAmendIDProTreaty
 					TtrnRiskDetails	 insert = nonProportCustomRepository.ttrnRiskDetailsInsert(args);
+					insert.setRskSectionNo(StringUtils.isEmpty(req.getSectionNo())?BigDecimal.ZERO:new BigDecimal(req.getSectionNo()))	;
 					ttrnRiskDetailsRepository.saveAndFlush(insert);	
 					response.setContractGendration("Your Proposal Number :"+ req.getProposalNo());
 				}
@@ -639,6 +641,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 					args = getFirstPageInsertAruguments(req);
 					//risk.insert.isAmendIDProTreaty
 					TtrnRiskDetails	 insert = nonProportCustomRepository.ttrnRiskDetailsInsert(args);
+					insert.setRskSectionNo(StringUtils.isEmpty(req.getSectionNo())?BigDecimal.ZERO:new BigDecimal(req.getSectionNo()))	;
 					ttrnRiskDetailsRepository.saveAndFlush(insert);	
 				}
 				else{
@@ -653,6 +656,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 					//risk.update.rskDtls
 					TtrnRiskDetails	 update = nonProportCustomRepository.ttrnRiskDetailsUpdate(args);
 					if(update!=null) {
+						update.setRskSectionNo(StringUtils.isEmpty(req.getSectionNo())?BigDecimal.ZERO:new BigDecimal(req.getSectionNo()))	;
 					ttrnRiskDetailsRepository.saveAndFlush(update);
 					updateCount = 1;
 					}
@@ -889,6 +893,7 @@ public class NonProportionalityServiceImpl implements NonProportionalityService{
 			//risk.update.rskDtls
 			TtrnRiskDetails	 update = nonProportCustomRepository.ttrnRiskDetailsUpdate(args);
 			if(update!=null) {
+				update.setRskSectionNo(StringUtils.isEmpty(req.getSectionNo())?BigDecimal.ZERO:new BigDecimal(req.getSectionNo()))	;
 			ttrnRiskDetailsRepository.saveAndFlush(update);
 			updateCount = 1;
 			}
