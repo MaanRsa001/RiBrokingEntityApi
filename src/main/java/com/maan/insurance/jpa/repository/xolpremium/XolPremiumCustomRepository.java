@@ -128,6 +128,8 @@ public interface XolPremiumCustomRepository {
 	public List<Tuple> selectTreetyXOLPremiumEditRi(String contNo, String transactionNo);
 
 	public int premiumUpdateXolUpdatePreRi(String[] args)  throws ParseException;
+
+	public int offerNoCount(String offerNo);
 	
 	
 }

@@ -2,7 +2,7 @@ package com.maan.insurance.service.impl.Dropdown;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -21,10 +21,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
+import com.maan.insurance.jpa.entity.xolpremium.RskXLPremiumDetails;
 import com.maan.insurance.model.entity.ConstantDetail;
 import com.maan.insurance.model.entity.CurrencyMaster;
 import com.maan.insurance.model.entity.PersonalInfo;
 import com.maan.insurance.model.entity.PositionMaster;
+import com.maan.insurance.model.entity.RskPremiumDetails;
 import com.maan.insurance.model.entity.SubStatusMaster;
 import com.maan.insurance.model.entity.TmasDepartmentMaster;
 import com.maan.insurance.model.entity.TmasProductMaster;
@@ -32,6 +34,7 @@ import com.maan.insurance.model.entity.TtrnRiPlacement;
 import com.maan.insurance.model.entity.TtrnRiPlacementStatus;
 import com.maan.insurance.model.entity.TtrnRiskDetails;
 import com.maan.insurance.model.entity.TtrnRiskProposal;
+import com.maan.insurance.model.req.DropDown.GetTransactionListReq;
 import com.maan.insurance.validation.Formatters;
 
 @Repository
@@ -573,6 +576,66 @@ public class DropDownCustomRepositoryImple implements DropDownCustomRepository{
   		TypedQuery<Tuple> list = em.createQuery(query);
   		List<Tuple> result = list.getResultList();
 		return result;
+	}
+
+	@Override
+	public List<Tuple> transactionNoList(GetTransactionListReq req) {
+		  SimpleDateFormat dbdate = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss a");
+		  SimpleDateFormat f = new SimpleDateFormat("dd/MM/yyyy");
+		  List<Tuple> result = new ArrayList<Tuple>();
+			try {
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+	  		CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+	  		
+	  		Root<RskPremiumDetails> tc = query.from(RskPremiumDetails.class); 
+	
+	  		query.multiselect(tc.get("transactionNo").alias("TRANSACTION_NO"));
+	  		
+	  		Date d = f.parse(req.getDate()); 
+	  		Predicate n1 = cb.equal(tc.get("branchCode"), req.getBranchCode());
+	  		Predicate n2 = cb.equal(tc.get("proposalNo"), req.getProposalNo());
+	  		Predicate n3 = cb.isNull(tc.get("reverseTransactionNo"));
+	  		Predicate n4 = cb.lessThanOrEqualTo( tc.get("transactionMonthYear"), dbdate.parse(dbdate.format(d)));
+	  		
+	  		query.where(n1,n2,n3,n4);
+	  		
+	  		TypedQuery<Tuple> list = em.createQuery(query);
+	  		result = list.getResultList();
+	  		
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+			return result;
+	}
+
+	@Override
+	public List<Tuple> transactionNoListRetro(GetTransactionListReq req) {
+		  SimpleDateFormat dbdate = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss a");
+		  SimpleDateFormat f = new SimpleDateFormat("dd/MM/yyyy");
+		  List<Tuple> result = new ArrayList<Tuple>();
+			try {
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+	  		CriteriaQuery<Tuple> query = cb.createQuery(Tuple.class); 
+	  		
+	  		Root<RskXLPremiumDetails> tc = query.from(RskXLPremiumDetails.class); 
+	
+	  		query.multiselect(tc.get("transactionNo").alias("TRANSACTION_NO"));
+	  		
+	  		Date d = f.parse(req.getDate()); 
+	  		Predicate n1 = cb.equal(tc.get("branchCode"), req.getBranchCode());
+	  		Predicate n2 = cb.equal(tc.get("proposalNo"), req.getProposalNo());
+	  		Predicate n3 = cb.isNull(tc.get("reverseTransactionNo"));
+	  		Predicate n4 = cb.lessThan(tc.get("transactionMonthYear"), dbdate.parse(dbdate.format(d)));
+	  		query.where(n1,n2,n3,n4);
+	  		
+	  		// Get Result
+	  		TypedQuery<Tuple> list = em.createQuery(query);
+	  		result = list.getResultList();
+	  		
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+			return result;
 	}
 
 }

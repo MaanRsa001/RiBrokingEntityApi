@@ -140,6 +140,9 @@ public interface PropPremiumCustomRepository {
 
 	public List<Tuple> PendingPremiumList(PremiumListReq req);
 
+	public int offerNoCount(String offerNo);
+
+
 
 	
 }

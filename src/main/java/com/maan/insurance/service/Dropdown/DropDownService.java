@@ -21,7 +21,7 @@ import com.maan.insurance.model.req.DropDown.GetProposalNoReq;
 import com.maan.insurance.model.req.DropDown.GetSectionListReq;
 import com.maan.insurance.model.req.DropDown.GetSubProfitCentreMultiDropDownReq;
 import com.maan.insurance.model.req.DropDown.GetSubProfitCentreMultiReq;
-
+import com.maan.insurance.model.req.DropDown.GetTransactionListReq;
 import com.maan.insurance.model.req.DropDown.GetTreatyTypeDropDownReq;
 import com.maan.insurance.model.req.DropDown.GetYearToListValueReq;
 import com.maan.insurance.model.req.DropDown.SavehtmltoPdfReq;
@@ -237,4 +237,6 @@ public interface DropDownService {
 	GetCommonDropDownRes getSubStatusInfo(String approvelStatus);
 	
 	GetCommonDropDownRes getQuotaShareList(String type);
+
+	GetCommonDropDownRes getTransactionList(GetTransactionListReq req);
 }

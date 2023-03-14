@@ -80,6 +80,8 @@ public interface XolPremiumService {
 
 	CommonResponse premiumUpdateMethodRi(PremiumInsertMethodReq req);
 
+	CommonSaveRes getOfferNoCount(String offerNo);
+
 
 
 }

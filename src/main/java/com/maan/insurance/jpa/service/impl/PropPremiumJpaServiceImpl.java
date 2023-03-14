@@ -146,6 +146,7 @@ import com.maan.insurance.model.res.premium.getReverseCassLossCreditRes;
 import com.maan.insurance.model.res.premium.premiumUpdateMethodRes;
 import com.maan.insurance.model.res.premium.premiumUpdateMethodRes1;
 import com.maan.insurance.model.res.retro.CommonResponse;
+import com.maan.insurance.model.res.retro.CommonSaveRes;
 import com.maan.insurance.model.res.premium.GetPremiumDetailsRes1;
 import com.maan.insurance.service.impl.QueryImplemention;
 import com.maan.insurance.service.impl.Dropdown.DropDownServiceImple;
@@ -4262,4 +4263,22 @@ public class PropPremiumJpaServiceImpl implements PropPremiumService{
 			}
 		return response;
 		}
+		@Override
+		public CommonSaveRes getOfferNoCount(String offerNo) {
+			CommonSaveRes response = new CommonSaveRes();
+			try {
+				int OfferCount =  propPremiumCustomRepository.offerNoCount(offerNo);
+				
+				 response.setResponse(String.valueOf(OfferCount));
+				 response.setMessage("Success");
+				 response.setIsError(false);
+				 }catch (Exception e) {
+					log.error(e);
+					e.printStackTrace();
+					response.setMessage("Failed");
+					response.setIsError(true);
+				}
+			return response;
+			}
+		
 }

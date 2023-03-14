@@ -178,4 +178,9 @@ public class Xolpremiumcontroller {
 		}
 		return xps.getRIPremiumList(req);	
 	}
+	@GetMapping("/Proppremium/getOfferNoCount/{offerNo}")
+	public CommonSaveRes getOfferNoCount(@PathVariable ("offerNo") String offerNo) throws CommonValidationException {
+			return xps.getOfferNoCount(offerNo);
+		
+	}
 }

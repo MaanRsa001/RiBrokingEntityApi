@@ -66,6 +66,7 @@ import com.maan.insurance.model.res.premium.ViewRIPremiumListRes;
 import com.maan.insurance.model.res.premium.getCurrencyShortNameRes;
 import com.maan.insurance.model.res.premium.getReverseCassLossCreditRes;
 import com.maan.insurance.model.res.retro.CommonResponse;
+import com.maan.insurance.model.res.retro.CommonSaveRes;
 import com.maan.insurance.service.premium.PropPremiumService;
 import com.maan.insurance.validation.premium.PropPremiumValidation;
 
@@ -365,6 +366,11 @@ public class PropPremiumController {
 	@GetMapping("/Proppremium/getCurrencyShortName/{currencyId}/{branchCode}")
 	public getCurrencyShortNameRes getCurrencyShortName(@PathVariable ("currencyId") String currencyId,@PathVariable ("branchCode") String branchCode) throws CommonValidationException {
 			return premiumService.getCurrencyShortName(currencyId,branchCode);
+		
+	}
+	@GetMapping("/Proppremium/getOfferNoCount/{offerNo}")
+	public CommonSaveRes getOfferNoCount(@PathVariable ("offerNo") String offerNo) throws CommonValidationException {
+			return premiumService.getOfferNoCount(offerNo);
 		
 	}
 }

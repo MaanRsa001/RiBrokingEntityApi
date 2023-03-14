@@ -30,6 +30,7 @@ import com.maan.insurance.model.req.DropDown.GetProposalNoReq;
 import com.maan.insurance.model.req.DropDown.GetSectionListReq;
 import com.maan.insurance.model.req.DropDown.GetSubProfitCentreMultiDropDownReq;
 import com.maan.insurance.model.req.DropDown.GetSubProfitCentreMultiReq;
+import com.maan.insurance.model.req.DropDown.GetTransactionListReq;
 import com.maan.insurance.model.req.DropDown.GetTreatyTypeDropDownReq;
 import com.maan.insurance.model.req.DropDown.GetYearListValueReq;
 import com.maan.insurance.model.req.DropDown.GetYearToListValueReq;
@@ -734,5 +735,12 @@ public class DropDownController {
 	public GetCommonDropDownRes getSubStatusInfo(@PathVariable("approvelStatus") String approvelStatus)throws CommonValidationException {
 		return dropDownservice.getSubStatusInfo(approvelStatus);
 	}   
-	
+	@PostMapping("/getTransactionList")
+	public GetCommonDropDownRes getTransactionList(@RequestBody GetTransactionListReq req)throws CommonValidationException {
+		List<ErrorCheck> error = dropDownVali.getTransactionListVali(req);
+		if (error != null && error.size() > 0) {
+			throw new CommonValidationException("error", error);
+		}
+		return dropDownservice.getTransactionList(req);
+	} 
 }

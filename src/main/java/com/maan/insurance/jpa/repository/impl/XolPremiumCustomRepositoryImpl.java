@@ -19,6 +19,7 @@ import javax.persistence.ParameterMode;
 import javax.persistence.Query;
 import javax.persistence.StoredProcedureQuery;
 import javax.persistence.Tuple;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
@@ -2604,5 +2605,42 @@ public class XolPremiumCustomRepositoryImpl implements XolPremiumCustomRepositor
 
 		Query q = em.createQuery(update);
 		return q.executeUpdate();
+	}
+
+	@Override
+	public int offerNoCount(String offerNo) {
+		int count = 0;
+		try {
+			CriteriaBuilder cb = em.getCriteriaBuilder(); 
+	  		CriteriaQuery<Long> query = cb.createQuery(Long.class); 
+	  		
+	  		Root<RskPremiumDetails> prd = query.from(RskPremiumDetails.class); 
+	  		Root<PositionMaster> pm = query.from(PositionMaster.class); 
+	
+	  		query.select(cb.count(pm.get("offerNo")));
+	  		
+	  		//amend
+	  		Subquery<Long> amend = query.subquery(Long.class); 
+			Root<PositionMaster> pm1 = amend.from(PositionMaster.class);
+			amend.select(cb.max(pm1.get("amendId")));
+			Predicate s1 = cb.equal( pm1.get("proposalNo"), pm.get("proposalNo"));
+			Predicate s2 = cb.equal( pm1.get("branchCode"), pm.get("branchCode"));
+			amend.where(s1,s2);
+	  		
+	  		Predicate n1 = cb.equal(prd.get("proposalNo"), pm.get("proposalNo"));
+	  		Predicate n2 = pm.get("amendId").in(amend==null?null:amend);
+	  		Predicate n3 = cb.or(cb.isNull(prd.get("transactionNo")), cb.equal(prd.get("transactionNo"), BigDecimal.ZERO)) ;
+	  		Predicate n4 = cb.equal(pm.get("offerNo"), offerNo);
+	  		query.where(n1,n2,n3,n4);
+	  		
+	  		TypedQuery<Long> list = em.createQuery(query);
+	  		List<Long> result = list.getResultList();
+	  		if(CollectionUtils.isNotEmpty(result)) {
+	  			count = result.get(0).intValue();
+	  		}			
+		}catch(Exception e) {
+			e.printStackTrace();
+			}
+		return count;
 	}
 }

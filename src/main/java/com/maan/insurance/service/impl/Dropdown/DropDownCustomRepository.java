@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.persistence.Tuple;
 
+import com.maan.insurance.model.req.DropDown.GetTransactionListReq;
+
 
 public interface DropDownCustomRepository {
 
@@ -20,6 +22,10 @@ public interface DropDownCustomRepository {
 	List<Tuple> getSubStatusInfo(String approvelStatus);
 	
 	List<Tuple> getPaymentPartnerlist(String branchCode, String cedingId, String brokerId);
+
+	List<Tuple> transactionNoList(GetTransactionListReq req);
+
+	List<Tuple> transactionNoListRetro(GetTransactionListReq req);
 
 
 }

@@ -2243,4 +2243,21 @@ public class XolPremiumJpaServiceImpl implements XolPremiumService{
 		}
 		return response;
 	}
+
+	@Override
+	public CommonSaveRes getOfferNoCount(String offerNo) {
+		CommonSaveRes response = new CommonSaveRes();
+		try {
+			int OfferCount =  xolPremiumCustomRepository.offerNoCount(offerNo);
+			
+			 response.setResponse(String.valueOf(OfferCount));
+			 response.setMessage("Success");
+			 response.setIsError(false);
+			 }catch (Exception e) {
+				e.printStackTrace();
+				response.setMessage("Failed");
+				response.setIsError(true);
+			}
+		return response;
+		}
 }

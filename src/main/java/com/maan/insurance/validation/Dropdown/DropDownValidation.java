@@ -28,6 +28,7 @@ import com.maan.insurance.model.req.DropDown.GetProposalNoReq;
 import com.maan.insurance.model.req.DropDown.GetSectionListReq;
 import com.maan.insurance.model.req.DropDown.GetSubProfitCentreMultiDropDownReq;
 import com.maan.insurance.model.req.DropDown.GetSubProfitCentreMultiReq;
+import com.maan.insurance.model.req.DropDown.GetTransactionListReq;
 import com.maan.insurance.model.req.DropDown.GetTreatyTypeDropDownReq;
 import com.maan.insurance.model.req.DropDown.GetYearToListValueReq;
 import com.maan.insurance.service.impl.QueryImplemention;
@@ -497,5 +498,10 @@ public class DropDownValidation {
 			list.add(new ErrorCheck("Please Enter InceptionDate", "InceptionDate", "2"));
 		}
 		return list;
+	}
+
+	public List<ErrorCheck> getTransactionListVali(GetTransactionListReq req) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

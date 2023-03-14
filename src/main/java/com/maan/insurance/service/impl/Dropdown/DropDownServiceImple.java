@@ -135,6 +135,7 @@ import com.maan.insurance.model.req.DropDown.GetProposalNoReq;
 import com.maan.insurance.model.req.DropDown.GetSectionListReq;
 import com.maan.insurance.model.req.DropDown.GetSubProfitCentreMultiDropDownReq;
 import com.maan.insurance.model.req.DropDown.GetSubProfitCentreMultiReq;
+import com.maan.insurance.model.req.DropDown.GetTransactionListReq;
 import com.maan.insurance.model.req.DropDown.GetTreatyTypeDropDownReq;
 import com.maan.insurance.model.req.DropDown.GetYearToListValueReq;
 import com.maan.insurance.model.req.DropDown.SavehtmltoPdfReq;
@@ -6351,6 +6352,38 @@ public GetCommonValueRes getAllocationDisableStatus(String contractNo, String la
 						response.setIsError(true);
 				       }
 					return response;	
+		}
+
+
+		@Override
+		public GetCommonDropDownRes getTransactionList(GetTransactionListReq req) {
+			GetCommonDropDownRes response = new GetCommonDropDownRes();
+			List<CommonResDropDown> resList = new ArrayList<CommonResDropDown>();
+			List<Tuple> list = new ArrayList<Tuple>();
+			try{
+				if(!"5".equalsIgnoreCase(req.getProductId())){
+					//TRANSACTION_NO_LIST
+					list = dropDownCustomRepository.transactionNoList(req);
+				}else{
+					//TRANSACTION_NO_LIST_RETRO
+					list = dropDownCustomRepository.transactionNoListRetro(req);
+				}
+				if(list.size()>0) {
+	      			for(Tuple data: list) {
+	      				CommonResDropDown res = new CommonResDropDown();
+	      				res.setCode(data.get("TRANSACTION_NO")==null?"":data.get("TRANSACTION_NO").toString());
+	      				resList.add(res);
+	      			}
+				}
+				response.setCommonResponse(resList);
+				response.setMessage("Success");
+				response.setIsError(false);
+			}catch(Exception e){
+					e.printStackTrace();
+					response.setMessage("Failed");
+					response.setIsError(true);
+				}
+			return response;
 		}
 		
 

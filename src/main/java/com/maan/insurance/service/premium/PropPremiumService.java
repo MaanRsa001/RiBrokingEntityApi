@@ -55,7 +55,7 @@ import com.maan.insurance.model.res.premium.ViewRIPremiumListRes;
 import com.maan.insurance.model.res.premium.getCurrencyShortNameRes;
 import com.maan.insurance.model.res.premium.getReverseCassLossCreditRes;
 import com.maan.insurance.model.res.premium.premiumUpdateMethodRes;
-import com.maan.insurance.model.res.proportionality.CommonSaveRes;
+import com.maan.insurance.model.res.retro.CommonSaveRes;
 import com.maan.insurance.model.res.retro.CommonResponse;
 
 @Service
@@ -138,6 +138,8 @@ public interface PropPremiumService {
 	GetPremiumDetailsRes getPremiumDetailsRi(GetPremiumDetailsReq req);
 
 	premiumUpdateMethodRes premiumUpdateMethodRi(InsertPremiumReq req);
+
+	CommonSaveRes getOfferNoCount(String offerNo);
 
 
 }
