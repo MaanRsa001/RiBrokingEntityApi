@@ -40,7 +40,14 @@ public class PremiumController {
 		}
 		return serv.PremiumList(req);
 	}
-	
+	@PostMapping("/PendingPremiumList")
+	public PremiumListRes PendingPremiumList(@RequestBody PremiumListReq req) throws CommonValidationException {
+		List<ErrorCheck> error= val.premiumListVali(req);
+		if(error!=null && error.size()>0) {
+			throw new CommonValidationException("error",error);
+		}
+		return serv.PendingPremiumList(req);
+	}
 	@GetMapping("/getOpenPeriod/{branchCode}")
 	public GetOpenPeriodRes getOpenPeriod(@PathVariable ("branchCode") String branchCode) throws CommonValidationException {
 		return serv.getOpenPeriod(branchCode);

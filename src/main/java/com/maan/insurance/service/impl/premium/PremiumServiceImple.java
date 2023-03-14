@@ -483,6 +483,61 @@ public class PremiumServiceImple implements PremiumService{
 		}
 	return response;
 	}
+	@Override
+	public PremiumListRes PendingPremiumList(PremiumListReq req) {
+		PremiumListRes response = new PremiumListRes();
+		List<Tuple>allocists=null;
+		List<PremiumListRes1> finalList = new ArrayList<PremiumListRes1>();
+	
+		try{
+			allocists=propPremiumCustomRepository.PendingPremiumList(req);
+		if(!CollectionUtils.isEmpty(allocists)) {
+		for(int i=0 ; i<allocists.size() ; i++) {
+			Tuple tempMap = allocists.get(i);
+			PremiumListRes1 tempBean=new PremiumListRes1();
+			tempBean.setProposalNo(tempMap.get("RSK_PROPOSAL_NUMBER")==null?"":tempMap.get("RSK_PROPOSAL_NUMBER").toString());
+			tempBean.setContractNo(tempMap.get("RSK_CONTRACT_NO")==null?"":tempMap.get("RSK_CONTRACT_NO").toString());
+			tempBean.setCedingCompanyName(tempMap.get("COMPANY_NAME")==null?"":tempMap.get("COMPANY_NAME").toString());
+			tempBean.setBroker(tempMap.get("BROKER_NAME")==null?"":tempMap.get("BROKER_NAME").toString());
+			tempBean.setLayerno(tempMap.get("RSK_LAYER_NO")==null?"":tempMap.get("RSK_LAYER_NO").toString());
+			tempBean.setNewLayerno(tempMap.get("NEW_LAYER_NO")==null?"":tempMap.get("NEW_LAYER_NO").toString());//
+			tempBean.setTransactionNo(tempMap.get("TRANSACTION_NO")==null?"":tempMap.get("TRANSACTION_NO").toString());
+			tempBean.setTransactionType(tempMap.get("RSK_PRODUCTID")==null?"":tempMap.get("RSK_PRODUCTID").toString());
+			tempBean.setTransDropDownVal(tempMap.get("REVERSE_TRANSACTION_NO")==null?"":tempMap.get("REVERSE_TRANSACTION_NO").toString());
+			tempBean.setSectionNo(tempMap.get("SECTION_NO")==null?"":tempMap.get("SECTION_NO").toString());
+			tempBean.setRequestNo(tempMap.get("REQUEST_NO")==null?"":tempMap.get("REQUEST_NO").toString());
+			if(tempBean.getTransactionType().equalsIgnoreCase("1")){
+				tempBean.setTransactionTypeName("Facultative");
+			}
+			else if(tempBean.getTransactionType().equalsIgnoreCase("2")){
+				tempBean.setTransactionTypeName("Proportional Treaty");
+			}
+			else if(tempBean.getTransactionType().equalsIgnoreCase("3")){
+				tempBean.setTransactionTypeName("Non-Proportional Treaty");
+			}
+			else if(tempBean.getTransactionType().equalsIgnoreCase("5")){
+				tempBean.setTransactionTypeName("Retro - Xol");
+			}
+			tempBean.setInsDate(tempMap.get("INS_DATE")==null?"":formatDate(tempMap.get("INS_DATE")));
+			tempBean.setExpDate(tempMap.get("EXP_DATE")==null?"":formatDate(tempMap.get("EXP_DATE")));
+			
+			tempBean.setInceptionDate(tempMap.get("INS_DATE")==null?"":formatDate(tempMap.get("INS_DATE")));
+			
+			tempBean.setTransactionDate(tempMap.get("TRANSACTION_DATE")==null?"":formatDate(tempMap.get("TRANSACTION_DATE")));
+			
+			finalList.add(tempBean);
+		}
+		}
+		response.setCommonResponse(finalList);
+		response.setMessage("Success");
+		response.setIsError(false);
+		} catch (Exception e) {
+		e.printStackTrace();
+		response.setMessage("Failed");
+		response.setIsError(true);
+		}
+	return response;
+	}
 
 //	@Override
 //	public CommonResponse copyDatatoDeleteTable(CopyDatatoDeleteTableReq bean) {

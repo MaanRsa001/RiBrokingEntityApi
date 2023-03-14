@@ -22,6 +22,8 @@ public interface PremiumService {
 
 	PremiumListRes PremiumRiList(PremiumListReq req);
 
+	PremiumListRes PendingPremiumList(PremiumListReq req);
+
 //	CommonResponse copyDatatoDeleteTable(CopyDatatoDeleteTableReq req);
 
 }

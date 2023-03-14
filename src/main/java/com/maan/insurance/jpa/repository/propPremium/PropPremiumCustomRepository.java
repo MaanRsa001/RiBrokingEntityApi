@@ -138,6 +138,8 @@ public interface PropPremiumCustomRepository {
 
 	public List<Tuple> getPremiumViewRi(String branchCode, String productId, String contractNo, String transactionNo);
 
+	public List<Tuple> PendingPremiumList(PremiumListReq req);
+
 
 	
 }
