@@ -3427,6 +3427,7 @@ public class PropPremiumCustomRepositoryImpl implements PropPremiumCustomReposit
 		}
 		list = result.getResultList();
 		return list;
+	}
 
 	public int offerNoCount(String offerNo) {
 		int count = 0;
